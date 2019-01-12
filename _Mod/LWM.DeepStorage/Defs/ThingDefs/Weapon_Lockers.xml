@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+<ThingDef ParentName="LWM_DeepStorage" >
+	<defName>LWM_WeaponsLockerLocker</defName>
+	<label>Weapons Locker</label>
+	<description>(Experimental) A locker for storing multiple weapons. Items stored in this will not deteriorate, even if outside.</description>
+	<graphicData>
+		<texPath>Things/Building/Furniture/WeaponHolders/weaponsLocker</texPath>
+		<graphicClass>Graphic_Single</graphicClass>
+		<drawSize>(3,3)</drawSize>
+    <drawRotated>false</drawRotated>
+	</graphicData>
+<defaultPlacingRot>South</defaultPlacingRot>
+<uiIconOffset>(0,0.25)</uiIconOffset>
+	<castEdgeShadows>true</castEdgeShadows>
+	<size>(1,1)</size>
+	<statBases>
+		<MaxHitPoints>200</MaxHitPoints>
+		<WorkToBuild>600</WorkToBuild>
+		<Flammability>0.1</Flammability>
+		<Mass>8</Mass>
+	</statBases>
+	<stuffCategories>
+		<li>Metallic</li>
+	</stuffCategories>
+	<costStuffCount>50</costStuffCount>
+	<building>
+		<preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+		<ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+		<fixedStorageSettings>
+			<priority>Important</priority>
+			<filter>
+				<categories>
+					<li>Weapons</li>
+				</categories>
+			</filter>
+		</fixedStorageSettings>
+		<defaultStorageSettings>
+			<priority>Important</priority>
+			<filter>
+				<categories>
+					<li>Weapons</li>
+				</categories>
+			</filter>
+		</defaultStorageSettings>
+	</building>
+	<comps>
+		<li Class="LWM.DeepStorage.Properties" >
+      <!--TODO: revisit, by mass?-->
+			<maxNumberStacks>6</maxNumberStacks>
+			<timeStoringTakes>50</timeStoringTakes>
+		</li>
+	</comps>
+	<researchPrerequisites>
+		<li>ComplexFurniture</li>
+		<li>Machining</li>
+	</researchPrerequisites>
+</ThingDef>
+
+</Defs>

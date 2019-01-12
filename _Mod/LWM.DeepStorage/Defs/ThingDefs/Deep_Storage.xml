@@ -69,13 +69,13 @@
 	<preventDeteriorationOnTop>true</preventDeteriorationOnTop>
 	<ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
 	<defaultStorageSettings>
-            <priority>Low</priority>
+            <priority>Important</priority><!--It's what *I* use, so it's what you get ^.^-->
             <filter>
             </filter>
 	</defaultStorageSettings>
     </building>
     <comps>
-	<!--       <li Class="LWM.ShadowTextureTool"/>-->
+	<!--       <li Class="ShadowTextureTool"/>-->
       <li Class="LWM.DeepStorage.Properties">
 	  <maxNumberStacks>2</maxNumberStacks>
       </li>
@@ -138,8 +138,6 @@
       </comps>
   </ThingDef>
 
-
-  <!-- -Testing- -->
   <ThingDef Name="LWM_Medicine_Cabinet" ParentName="LWM_DeepStorage">
       <defName>LWM_Medicine_Cabinet</defName>
       <label>Medicine Cabinet</label>
@@ -405,7 +403,7 @@
       </comps>
   </ThingDef>
 
-   <!-- TODO: Hat Rack?  Meat hook? -->
+  <!-- TODO: Hat Rack?  Meat hook? -->
   
   <!-- Template:
   <ThingDef Name="Unique_Name-Optional_but_you_can_use_it_for_ParentName_later_on_if_you_want" ParentName="LWM_DeepStorage">
@@ -485,11 +483,8 @@
        </comps>
   </ThingDef>
   -->
-  
-  
-  
-  
-  
+
+
   <ThingDef ParentName="FurnitureWithQualityBase">
       <defName>BigShelf</defName>
       <label>Big Shelf</label>

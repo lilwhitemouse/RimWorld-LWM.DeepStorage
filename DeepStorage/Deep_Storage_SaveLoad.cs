@@ -10,7 +10,7 @@ using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 
 //SNAP - bug: check to see if there are other items in the same square (what if the building gets destroyed?)
 // BUG: loading saved game where deep storage unit has moved/been destroyed... ... ...TODO
-//   need to find a way to just put the damn things there regardless of whether or not they have a DSU there...
+//   need to find a way to just put the darn things there regardless of whether or not they have a DSU there...
 
 namespace LWM.DeepStorage
 {
@@ -81,12 +81,12 @@ namespace LWM.DeepStorage
             Thing t = map.thingGrid.ThingAt(thing.Position, ThingCategory.Item);
             if (t != null)
             {
+                //                Log.Error(thing.ToString()+" found a thing " + t.ToString() + " at "+thing.Position.ToString());
                 // Reflection equivalency of:
                 // BackCompatibility.tmpThingsToSpawnLater.Add(thing);
                 //                ((List<Thing>)typeof(BackCompatibility).GetField("tmpThingsToSpawnLater",
                 //                                                                 BindingFlags.Static | BindingFlags.NonPublic|BindingFlags.GetField).
                 //                              GetValue(null)).Add(thing);
-                //                              Actually, don't do that.
 
                 Patch_Map_Load.pileOfThings.Add(thing);
 

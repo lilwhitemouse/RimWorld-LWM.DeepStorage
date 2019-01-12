@@ -55,9 +55,14 @@
     <Compile Include="Deep_Storage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ModInit.cs" />
-    <Compile Include="Deep_Storage_Wait.cs" />
+    <Compile Include="Deep_Storage_Pause.cs" />
     <Compile Include="Deep_Storage_SaveLoad.cs" />
     <Compile Include="Debugging.cs" />
+    <Compile Include="Deep_Storage_Jobs.cs" />
+    <Compile Include="Deep_Storage_UI.cs" />
+    <Compile Include="Deep_Storage_CanCarryItemsTo.cs" />
+    <Compile Include="Deep_Storage_RemoveFrom.cs" />
+    <Compile Include="Deep_Storage_PutInto.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
