@@ -28,7 +28,7 @@
 	<size>(2,1)</size>
 	<defaultPlacingRot>South</defaultPlacingRot>
 
-	<pathCost>100</pathCost>
+	<pathCost>150</pathCost><!-- Hard to walk thru -->
 	
 	<designationHotKey>Misc12</designationHotKey>
 
@@ -94,7 +94,7 @@
       <description>A mini-grainery for storing raw food and plant matter.</description>
       <pathCost>100</pathCost>
       <graphicData>
-	  <texPath>Things/Building/Furniture/Basket/Basket</texPath>
+	  <texPath>Things/Building/Furniture/skullywag/Basket/Basket</texPath>
 	  <graphicClass>Graphic_Multi</graphicClass>
 	  <drawSize>(4,3)</drawSize>
 	  <shadowData>
@@ -144,7 +144,7 @@
       <description>A set of cabinets and shelves for stocking medicines.</description>
       <pathCost>100</pathCost>
       <graphicData>
-	  <texPath>Things/Building/Furniture/MedCab/MedCab</texPath>
+	  <texPath>Things/Building/Furniture/skullywag/MedCab/MedCab</texPath>
 	  <graphicClass>Graphic_Multi</graphicClass>
 	  <drawSize>(3,2)</drawSize>
 	  <shadowData><!-- TODO: -->
@@ -190,7 +190,7 @@
       <label>Skip</label>
       <description>A large metal bin for tossing heavy things in.  These skips are not covered; they are open to the weather.</description>
       <graphicData>
-	  <texPath>Things/Building/Furniture/Skip/Skip</texPath>
+	  <texPath>Things/Building/Furniture/skullywag/Skip/Skip</texPath>
 	  <graphicClass>Graphic_Multi</graphicClass>
 	  <drawSize>(3,2)</drawSize>
       </graphicData>
@@ -236,7 +236,7 @@
       <label>Pallet</label>
       <description>A flat pallet for packing things.  Does not protect against the weather.  Sometimes difficult to manage, but useful nonetheless.</description>
       <graphicData>
-	  <texPath>Things/Building/Furniture/Pallet/Pallet</texPath>
+	  <texPath>Things/Building/Furniture/skullywag/Pallet/Pallet</texPath>
 	  <drawSize>(4,3)</drawSize>
 	  <graphicClass>Graphic_Multi</graphicClass>
       </graphicData>
@@ -323,7 +323,7 @@
       <label>Clothing Rack</label>
       <description>A covered rack for storing clothing for easy, quick access and a tidy room.</description>
       <graphicData>
-	  <texPath>Things/Building/Furniture/ClothingRack/ClothingRack</texPath>
+	  <texPath>Things/Building/Furniture/skullywag/ClothingRack/ClothingRack</texPath>
 	  <graphicClass>Graphic_Multi</graphicClass>
 	  <drawSize>(3,2)</drawSize>
       </graphicData>
@@ -366,7 +366,7 @@
       <label>Meal Tray Rack</label>
       <description>This is a tall tray rack; haulers carry meals and treats here for storage.</description>
       <graphicData>
-	  <texPath>Things/Building/Furniture/TrayRack/TrayRack</texPath>
+	  <texPath>Things/Building/Furniture/skullywag/TrayRack/TrayRack</texPath>
 	  <graphicClass>Graphic_Multi</graphicClass>
 	  <drawSize>(4,3)</drawSize>
       </graphicData>
@@ -463,10 +463,13 @@
                       <li>Etc - single items, look up the defName</li>
                       <li>sometimes, it's WoodLog, not Wood, so be careful</li>
 		  </thingDefs>
-              </filter>
+                </filter>
+               <disallowedCategories>
+                 <li>AnotherCategoryThatDoesNOTGoInStorage</li>
+               </disallowedCategories>
 	  </fixedStorageSettings>
 	  <defaultStorageSettings> - IF YOU WANT (defaults to nothing)
-              <priority>Low up to Critical</priority>
+              <priority>Low up to Critical</priority> - defaults to important
               <filter>
 		  As above.  If you leave this section out, storage units won't start with things checked off,
 		  which can be very nice.
@@ -537,6 +540,66 @@
       </comps>
   </ThingDef>
 
+  <!-- =========== purely LWM creations ========== -->
+  <ThingDef Name="LWM_MeatHook" ParentName="LWM_DeepStorage">
+      <defName>LWM_Meat_Hook</defName>
+      <label>Meat Hook</label>
+      <description>A tall metal frame with several hooks hanging from chains.  A simple crank allows hoisting several hanging things into the air.  A way to store the dead bodies of fellow animals you have killed, before cutting them up and consuming their flesh.  You monster.
 
-  
+Note that you can only fit so many giant corpses into one space, even if you stack them.  The frame will only hold so much weight.</description>
+      <graphicData>
+	  <texPath>Things/Building/Furniture/MeatHook</texPath>
+	  <graphicClass>Graphic_Single</graphicClass>
+	  <drawSize>(1,1)</drawSize>
+	  <shadowData>
+	      <volume>(0,0,0)</volume>
+	  </shadowData>
+	  <drawRotated>false</drawRotated>
+      </graphicData>
+      <castEdgeShadows>true</castEdgeShadows><!-- Useful effect? Is it worth it?-->
+      <size>(1,1)</size>
+      <pathCost>50</pathCost>
+      <statBases>
+	  <MaxHitPoints>100</MaxHitPoints>
+	  <WorkToBuild>600</WorkToBuild>
+	  <Flammability>0.01</Flammability>
+	  <Beauty>-2</Beauty>
+	  <Mass>10</Mass>
+      </statBases>
+      <stuffCategories>
+	  <li>Metallic</li>
+      </stuffCategories>
+      <costStuffCount>65</costStuffCount>
+      <building>
+	  <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
+	  <ignoreStoredThingsBeauty>false</ignoreStoredThingsBeauty>
+	  <fixedStorageSettings>
+	    <filter>
+	      <categories>
+		<li>Corpses</li>
+	      </categories>
+	      <disallowedCategories>
+		<li>CorpsesMechanoid</li>
+	      </disallowedCategories>
+	    </filter>
+	  </fixedStorageSettings>
+	  <defaultStorageSettings>
+	      <filter>
+		  <categories>
+		    <li>CorpsesAnimal</li>
+		  </categories>
+		  <specialFiltersToDisallow>
+		    <li>AllowRotten</li><!-- Allow player to hang rotten corpses if they want?  Eew -->
+		  </specialFiltersToDisallow>
+	      </filter>
+	  </defaultStorageSettings>
+      </building>
+      <comps>
+	  <li Class="LWM.DeepStorage.Properties" >
+	      <maxNumberStacks>3</maxNumberStacks> <!-- TODO -->
+	      <timeStoringTakes>25</timeStoringTakes>
+	  </li>
+      </comps>
+  </ThingDef>
+      
 </Defs>
