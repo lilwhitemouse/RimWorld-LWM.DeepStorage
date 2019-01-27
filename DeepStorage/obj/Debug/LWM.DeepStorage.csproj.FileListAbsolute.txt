@@ -14,8 +14,8 @@
 /home/peter/play/rimworld/DeepStorage/DeepStorage/obj/Debug/LWM.DeepStorage.csproj.CopyComplete
 /home/peter/play/rimworld/DeepStorage/DeepStorage/obj/Debug/DeepStorage.dll
 /home/peter/play/rimworld/DeepStorage/DeepStorage/obj/Debug/DeepStorage.pdb
-/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/DeepStorage.dll
-/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/DeepStorage.pdb
+/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/LWM.DeepStorage.dll
+/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/LWM.DeepStorage.pdb
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/Assembly-CSharp.dll
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/UnityEngine.dll
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/TextMeshPro-1.0.55.56.0b11.dll
@@ -24,8 +24,7 @@
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/UnityEngine.UI.dll
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/System.Xml.Linq.dll
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/UnityEngine.dll.mdb
-/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/obj/Debug/LWM.DeepStorage.csprojAssemblyReference.cache
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/obj/Debug/LWM.DeepStorage.csproj.CoreCompileInputs.cache
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/obj/Debug/LWM.DeepStorage.csproj.CopyComplete
-/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/obj/Debug/DeepStorage.dll
-/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/obj/Debug/DeepStorage.pdb
+/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/obj/Debug/LWM.DeepStorage.dll
+/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/obj/Debug/LWM.DeepStorage.pdb
