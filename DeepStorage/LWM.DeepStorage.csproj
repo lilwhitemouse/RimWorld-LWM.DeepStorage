@@ -72,5 +72,169 @@
     <Compile Include="Deep_Storage_RemoveFrom.cs" />
     <Compile Include="Deep_Storage_PutInto.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">
+      <Link>_Mod\LWM.DeepStorage\About\About-Master.xml</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\About\About-NonSteam.xml">
+      <Link>_Mod\LWM.DeepStorage\About\About-NonSteam.xml</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\About\About-Steam.xml">
+      <Link>_Mod\LWM.DeepStorage\About\About-Steam.xml</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\About\About.xml">
+      <Link>_Mod\LWM.DeepStorage\About\About.xml</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\About\Preview.png">
+      <Link>_Mod\LWM.DeepStorage\About\Preview.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\About\PublishedFileId.txt">
+      <Link>_Mod\LWM.DeepStorage\About\PublishedFileId.txt</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Assemblies\0Harmony.dll">
+      <Link>_Mod\LWM.DeepStorage\Assemblies\0Harmony.dll</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Assemblies\LWM.DeepStorage.dll">
+      <Link>_Mod\LWM.DeepStorage\Assemblies\LWM.DeepStorage.dll</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Defs\ThingDefs\Deep_Storage.xml">
+      <Link>_Mod\LWM.DeepStorage\Defs\ThingDefs\Deep_Storage.xml</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Defs\ThingDefs\Weapon_Lockers.xml">
+      <Link>_Mod\LWM.DeepStorage\Defs\ThingDefs\Weapon_Lockers.xml</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\MeatHook.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\MeatHook.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsCabinet_east.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsCabinet_east.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsCabinet_north.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsCabinet_north.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsCabinet_south.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsCabinet_south.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsLocker.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsLocker.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsLocker_east.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsLocker_east.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsLocker_north.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsLocker_north.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsLocker_south.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\WeaponHolders\weaponsLocker_south.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Basket\Basket.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Basket\Basket.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Basket\Basket_east.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Basket\Basket_east.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Basket\Basket_north.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Basket\Basket_north.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Basket\Basket_south.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Basket\Basket_south.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\ClothingRack\ClothingRack_east.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\ClothingRack\ClothingRack_east.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\ClothingRack\ClothingRack_north.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\ClothingRack\ClothingRack_north.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\ClothingRack\ClothingRack_south.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\ClothingRack\ClothingRack_south.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_backm.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_backm.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_east.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_east.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_frontm.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_frontm.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_north.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_north.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_sidem.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_sidem.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_south.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\FabricHamper\FabricHamper_south.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\HazMat\HazMat_east.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\HazMat\HazMat_east.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\HazMat\HazMat_north.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\HazMat\HazMat_north.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\HazMat\HazMat_south.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\HazMat\HazMat_south.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_back_m.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_back_m.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_backm.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_backm.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_east.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_east.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_front_m.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_front_m.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_frontm.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_frontm.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_north.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_north.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_side_m.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_side_m.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_sidem.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_sidem.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_south.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\MedCab\MedCab_south.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Pallet\Pallet_east.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Pallet\Pallet_east.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Pallet\Pallet_north.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Pallet\Pallet_north.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Pallet\Pallet_south.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Pallet\Pallet_south.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Skip\Skip_east.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Skip\Skip_east.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Skip\Skip_north.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Skip\Skip_north.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Skip\Skip_south.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\Skip\Skip_south.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\TrayRack\TrayRack_east.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\TrayRack\TrayRack_east.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\TrayRack\TrayRack_north.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\TrayRack\TrayRack_north.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\TrayRack\TrayRack_south.png">
+      <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\skullywag\TrayRack\TrayRack_south.png</Link>
+    </None>
+    <None Include="..\_Mod\LWM.DeepStorage\Languages\English\Keyed\LWM.DeepStorage.Keys.xml">
+      <Link>_Mod\LWM.DeepStorage\Languages\English\Keyed\LWM.DeepStorage.Keys.xml</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="_Mod\LWM.DeepStorage\Languages\English\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

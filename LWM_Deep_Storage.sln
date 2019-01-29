@@ -38,4 +38,6 @@ Global
 		$5.scope = text/plain
 		version = 0.6
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
 EndGlobal

@@ -28,3 +28,5 @@
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/obj/Debug/LWM.DeepStorage.csproj.CopyComplete
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/obj/Debug/LWM.DeepStorage.dll
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/obj/Debug/LWM.DeepStorage.pdb
+/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/obj/Debug/LWM.DeepStorage.csprojAssemblyReference.cache
+/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/0Harmony.dll

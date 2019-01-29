@@ -62,7 +62,8 @@
 	<li>BuildingsFurniture</li>
     </thingCategories> -->
     <inspectorTabs>
-	<li>ITab_Storage</li>
+      <li>ITab_Storage</li>
+      <li>LWM.DeepStorage.ITab_DeepStorage_Inventory</li>
     </inspectorTabs>
     <filthLeaving>Filth_RubbleBuilding</filthLeaving>
     <building>

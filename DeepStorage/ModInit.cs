@@ -12,7 +12,7 @@ namespace LWM.DeepStorage
             try
             {
                 HarmonyInstance.Create("net.littlewhitemouse.rimworld.deepstorage").PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
-                Log.Warning("LWM's Deep Storage successfully loaded Harmony patches");
+                Log.Message("LWM's Deep Storage successfully loaded Harmony patches");
             }
             catch (Exception e)
             {
