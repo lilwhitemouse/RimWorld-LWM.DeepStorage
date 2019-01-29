@@ -10,6 +10,9 @@ Pallets, clothing racks, food storage trays, etc.  You can also write your own <
 
 This mod will be updating as I tweak items and fix bugs, but I wanted to make it available now that it's mostly working.
 
+## Installation
+ * Put the LWM.DeepStorage folder (under _Mod) inside your game's Mod/ folder.  Update often?
+
 ## Mod Compatibility
  * RimWorld Search Agency: Load AFTER RSA, please.  Disables Hauling Hysteresis for DSUs - not perfect but very useable!
 
