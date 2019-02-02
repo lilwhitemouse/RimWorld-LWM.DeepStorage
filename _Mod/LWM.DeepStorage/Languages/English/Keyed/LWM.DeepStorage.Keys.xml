@@ -1,4 +1,6 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <LWM.ContentsTotalMass>Total mass of contents: {0}/{1} kg</LWM.ContentsTotalMass>
+  <NoItemsAreStoredHere>No items are currently stored here.</NoItemsAreStoredHere>
+  <LWM.ContentHeaderOne>{0} stacks/items with total {1} of {2} kg</LWM.ContentHeaderOne>
+  <LWM.ContentHeaderOneOf>{0} stacks/items with total {1} of {2} / {3} kg</LWM.ContentHeaderOneOf>
 </LanguageData>

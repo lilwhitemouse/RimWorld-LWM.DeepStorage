@@ -10,6 +10,7 @@ using UnityEngine;
 
 using static LWM.DeepStorage.Utils.DBF; // trace utils
 
+//BUG/TODO: number to haul will not work correctly for stackable things if a unit has a maximum weight limit.
 
 //  You know...I could have just written my own job definition and inserted it via
 //     HaulToCellStorageJob?  Why not do it?  Because if anyone else's mod adds

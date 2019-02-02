@@ -47,13 +47,16 @@ namespace LWM.DeepStorage
     ///    isn't possible during game load. TODO: Bug still exists here
     /// 8. Deep_Storage_UI.cs
     ///    Because no one wants to click 9 times to finally select the building.
+    /// 9. ModCompatibility.cs
+    ///    Makes Deep Storage play well with:
+    ///      RimWorld Search Agency (Hauling Hysteresis)
     ///////////////////////////////////////////////////////////////////////
 
     /***********************************************************************/
 
-    public class Utils
-    {
+    public class Utils {
         static bool[] showDebug ={
+            true,  // "Testing" will always be true
             false, // No Storage Blockers In
             false, // Haul To Cell Storage Job
             false, // Try Place Direct
@@ -63,13 +66,13 @@ namespace LWM.DeepStorage
             false, // Place Hauled Thing In Cell (wait functionaliy)
         };
 
-        public enum DBF
-        { // DeBugFlag
-            NoStorageBlockerseIn, HaulToCellStorageJob, TryPlaceDirect, Spawn, TidyStacksOf,
+        public enum DBF // DeBugFlag
+        {
+            Testing, NoStorageBlockerseIn, HaulToCellStorageJob, TryPlaceDirect, Spawn, TidyStacksOf,
             Deep_Storage_Job, PlaceHauledThingInCell
         }
 
-        // Nifty?
+        // Nifty? Won't even be compiled in if not DEBUG
         [System.Diagnostics.Conditional("DEBUG")]
         public static void Warn(DBF l, string s) {
             if (showDebug[(int)l])
@@ -81,12 +84,11 @@ namespace LWM.DeepStorage
                 Log.Error("LWM." + l.ToString() + ": " + s);
         }
 
-        // This gets checked a lot.  Sometimes test is done in-place (if will need
-        //   slotGroup, for example), but Harmony Transpiler tests are easier via
-        //   function call
+        // This gets checked a lot.  Sometimes the test is done in-place (if will 
+        //   need to use the slotGroup later, for example), but when using Harmony 
+        //   Transpiler, tests are easier via function call
         // Most of the bulk here is debugging stuff
-        public static bool CanStoreMoreThanOneThingAt(Map map, IntVec3 loc)
-        {
+        public static bool CanStoreMoreThanOneThingAt(Map map, IntVec3 loc) {
             SlotGroup slotGroup = loc.GetSlotGroup(map);
             if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
                 (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null)
@@ -140,7 +142,7 @@ namespace LWM.DeepStorage
                 }
                 #endif
                 return;
-            } 
+            }
             // If stack limit is 1, it cannot stack
             var stackLimit = thing.def.stackLimit;
             if (stackLimit <= 1) { return; }
@@ -209,19 +211,21 @@ namespace LWM.DeepStorage
     } // End Utils class
 
     /******************* the custom Comp class and XML LWM.DeepStorage.Properties *****/
-    public class Properties : CompProperties
-    {
+    public class Properties : CompProperties {
         public Properties() {
             this.compClass = typeof(LWM.DeepStorage.CompDeepStorage);
         }
+
+        public int minNumberStacks = 1;
         public int maxNumberStacks = 1;
         public int timeStoringTakes = 1000; // measured in ticks
+        public float maxTotalMass = 0f;
+        public float maxMassOfStoredItem = 0f;
+        public StatDef altStat=null;
     }
 
-    public class CompDeepStorage : ThingComp
-	{
-        public override IEnumerable<Gizmo> CompGetGizmosExtra()
-        {
+    public class CompDeepStorage : ThingComp {
+        public override IEnumerable<Gizmo> CompGetGizmosExtra() {
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
             }
@@ -248,44 +252,69 @@ namespace LWM.DeepStorage
             //    },// end action
             //};
         }
-        public int maxNumberStacks {
-			get	{
-				return ((Properties)this.props).maxNumberStacks;
-			}
-		}
 
+        public int minNumberStacks {
+            get {
+                return ((Properties)this.props).minNumberStacks;
+            }
+        }
+        public int maxNumberStacks {
+            get {
+                return ((Properties)this.props).maxNumberStacks;
+            }
+        }
         public int timeStoringTakes {
             get {
                 return ((Properties)this.props).timeStoringTakes;
             }
         }
 
-        public override void Initialize (CompProperties props) {
+
+        public StatDef stat = StatDefOf.Mass;
+        /*******  For only one limiting stat: (mass, or bulk for CombatExtended)  *******/
+        public float limitingFactorForItem=0f;
+        public float limitingTotalFactorForCell=0f;
+        /*******  Viable approach if anyone ever wants to limit storage based on >1 stat:
+         *          We can revisit this is anyone ever requests it
+         *          (this approach would need a for loop in _CanCarryItemsTo.cs, etc)
+        public float[] maxStatOfStoredItem = { };
+        public StatDef[] statForStoredItem = { };
+        public float[] maxTotalStat = { };
+        public StatDef[] statToTotal = { };
+        */
+
+
+        public override void Initialize(CompProperties props) {
             base.Initialize(props);
             // Remove duplicate entries and ensure the last entry is the only one left
             //   This allows a default abstract def with the comp
             //   and child def to change the comp value:
             CompDeepStorage[] list = this.parent.GetComps<CompDeepStorage>().ToArray();
             // Remove everything but the last entry:
-            for (var i = 0; i < list.Length-1; i++)
-            {
+            for (var i = 0; i < list.Length - 1; i++) {
                 this.parent.AllComps.Remove(list[i]);
             }
+
+            /*******  For only one limiting stat: (mass, or bulk for CombatExtended)  *******/
+            if (((Properties)props).altStat != null) stat = ((Properties)props).altStat;
+            if (((Properties)props).maxTotalMass > 0f) //for floating arithmetic, just to be safe
+                limitingTotalFactorForCell = ((Properties)props).maxTotalMass + .0001f;
+            if (((Properties)props).maxMassOfStoredItem > 0f)
+                limitingFactorForItem = ((Properties)props).maxMassOfStoredItem + .0001f;
+            /*******  Viable approach if anyone ever wants to limit storage based on >1 stat:
+            if (((Properties)props).maxMassOfStoredItem > 0f) {
+                statForStoredItem[0] = StatDefOf.Mass;
+                maxStatOfStoredItem[0] = ((Properties)props).maxMassOfStoredItem;
+            }
+            if (((Properties)props).maxTotalMass > 0f) {
+                statToTotal[0] = StatDefOf.Mass;
+                maxTotalStat[0] = ((Properties)props).maxTotalMass;
+            }
+            */
+
+
         }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
+    } // end CompDeepStorage
 
 
 } // close LWM.DeepStorage namespace.  Thank you for reading!  =^.^=

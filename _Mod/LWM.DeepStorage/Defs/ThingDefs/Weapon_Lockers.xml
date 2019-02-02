@@ -46,9 +46,12 @@
 	</building>
 	<comps>
 		<li Class="LWM.DeepStorage.Properties" >
-      <!--TODO: revisit, by mass?-->
-			<maxNumberStacks>6</maxNumberStacks>
-			<timeStoringTakes>50</timeStoringTakes>
+		  <!--TODO: revisit, by mass?-->
+		  <minNumberStacks>2</minNumberStacks><!-- Can always store at least two weapons! -->
+		  <maxNumberStacks>8</maxNumberStacks>
+		  <maxTotalMass>14</maxTotalMass>
+		  <maxMassOfStoredItem>10</maxMassOfStoredItem>
+		  <timeStoringTakes>100</timeStoringTakes>
 		</li>
 	</comps>
 	<researchPrerequisites>

@@ -46,22 +46,49 @@ namespace LWM.DeepStorage
             Utils.Err(NoStorageBlockerseIn, "Looking for blockers for " + thing + " at " + c);
             // Check if storage location is in an uber-storage building:
             SlotGroup slotGroup = c.GetSlotGroup(map);
+            CompDeepStorage cds = null;
             if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
-                (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null) {
+                (cds = (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>()) == null) {
                 //                Log.Warning("  ...letting vanilla handle it.");
                 return true; // normal spot, NoStorageBlockersIn() will handle it
             }
-
-            var maxStacks = ((ThingWithComps)slotGroup.parent).GetComp<CompDeepStorage>().maxNumberStacks;
+            __result = false; // NoStorageBlockersIn returns false if there's a blocker
+                              // Default to having a blocker unless EVERYTHING is okay
+                              //  (We return false from this Patch function to skip original method)
+            // If there is a maximum size of items that will fit in the unit, quit:
+            if (cds.limitingFactorForItem > 0f) {
+                if (thing.GetStatValue(cds.stat) > cds.limitingFactorForItem) {
+                    Utils.Warn(NoStorageBlockerseIn, "Thing has " + cds.stat + " of " +
+                        thing.GetStatValue(StatDefOf.Mass) + " but max allowed is " +
+                        cds.limitingFactorForItem);
+                    return false;
+                }
+            }
+            // We will usually care how many stacks can fit here:
+            var maxStacks = cds.maxNumberStacks;
+            // If maxTotalMass is set, we will keep track of how much "room" we have as well:
+            float totalAmountHereSoFar=0f;
+            if (cds.limitingTotalFactorForCell > 0f) {
+                totalAmountHereSoFar = thing.GetStatValue(cds.stat);
+            }
 
             var objInStack = 0;
-            __result = false; // NoStorageBlockersIn returns false if there's a blocker
-                              //  We return false from Patch to skip original method
             List<Thing> list = map.thingGrid.ThingsListAt(c);
-            for (int i = 0; i < list.Count; i++) {
+            for (int i = 0; i < list.Count; i++) { //loop thru cell's contents
                 Thing thing2 = list[i];
                 Utils.Warn(NoStorageBlockerseIn, "  ...checking: does " + thing2 + " block?");
-                if (thing2.def.EverStorable(false)) {
+                if (thing2.def.EverStorable(false)) { // an "item" as it were
+                    if (cds.limitingTotalFactorForCell > 0f) {
+                        totalAmountHereSoFar += (thing2.GetStatValue(cds.stat)*thing2.stackCount);
+                        Utils.Warn(NoStorageBlockerseIn, "  Checking 'mass' " + thing2.GetStatValue(cds.stat) +
+                                   " vs running total " + totalAmountHereSoFar);
+                        if (totalAmountHereSoFar > cds.limitingTotalFactorForCell &&
+                            objInStack + 1 > cds.minNumberStacks) { // Must accept minimum (haven't incremented objInStack yet)
+                            Utils.Warn(NoStorageBlockerseIn, "  BLOCKS: Over mass limit ("
+                                               + cds.limitingTotalFactorForCell + ")");
+                            return false;
+                        }
+                    }
                     if (!thing2.CanStackWith(thing)) {
                         objInStack++;
                     } else if (thing2.stackCount >= thing.def.stackLimit) {

@@ -525,7 +525,8 @@
 	  </defaultStorageSettings>
       </building>
       <inspectorTabs>
-	  <li>ITab_Storage</li>
+	<li>ITab_Storage</li>
+	<li>LWM.DeepStorage.ITab_DeepStorage_Inventory</li>
       </inspectorTabs>
       <staticSunShadowHeight>0.8</staticSunShadowHeight>
       <surfaceType>Item</surfaceType>

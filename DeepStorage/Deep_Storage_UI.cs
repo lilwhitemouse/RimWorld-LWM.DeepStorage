@@ -60,7 +60,7 @@ namespace LWM.DeepStorage
     public class ITab_DeepStorage_Inventory : ITab {
         private Vector2 scrollPosition = Vector2.zero;
 
-        private float scrollViewHeight;
+        private float scrollViewHeight=1000f;
 
         private const float TopPadding = 20f;
 
@@ -83,7 +83,6 @@ namespace LWM.DeepStorage
         public ITab_DeepStorage_Inventory() {
             this.size = new Vector2(460f, 450f);
             this.labelKey = "Contents"; // could define <LWM.Contents>Contents</LWM.Contents> in Keyed language, but why not use what's there.
-//            this.labelKey = "LWM.DeepStorage.Inventory"; // Define <LWM.DeepStorage.Inventory>Inventory</LWM.DeepStorage.Inventory> in a Keyed Language XML file
         }
 
         protected override void FillTab() {
@@ -94,19 +93,17 @@ namespace LWM.DeepStorage
             GUI.BeginGroup(position);
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
-            Rect outRect = new Rect(0f, 45f, position.width, position.height);
-            Rect viewRect = new Rect(0f, 45f, position.width - 16f, this.scrollViewHeight);
 
-            float num = 0f;
+            //TODO: handle each cell separately?
 
             cabinetInvList.Clear();
 
             Building_Storage cabinetBuilding = SelThing as Building_Storage;
             List<IntVec3> cabinetStorageCells = cabinetBuilding.AllSlotCellsList();
             foreach (IntVec3 storageCell in cabinetStorageCells) {
-                cabinetInvList.AddRange(storageCell.GetThingList(cabinetBuilding.Map));
-                cabinetInvList.RemoveAll(Thing => Thing == SelThing); // Ignore the cabinet building itself
-                cabinetInvList.RemoveAll(Thing => Thing.def.category == ThingCategory.Mote); // Ignore motes that appear during the delay when a pawn is hauling something to/from the cabinet building
+                foreach (Thing t in cabinetBuilding.Map.thingGrid.ThingsListAt(storageCell)) {
+                    if (t.def.EverStorable(false)) cabinetInvList.Add(t);
+                }
             }
 
             cabinetInvList = cabinetInvList.OrderBy((Thing x) => x.def.defName).
@@ -117,22 +114,29 @@ namespace LWM.DeepStorage
                 }).
                 ThenByDescending((Thing x) => (x.HitPoints / x.MaxHitPoints)).ToList();
 
-            // TODO: Show total mass of contents / cabinet capacity in kg
-            //DrawMassInfo(ref num, viewRect.width, cabinetInvList, cabinetMaxCapacity);
-            num += 22f;
+            float curY = 0f;
+            Widgets.ListSeparator(ref curY, position.width, labelKey.Translate());
+            curY += 5f;
+            // Show count of contents, mass, etc:
+            DisplayHeaderInfo(ref curY, position.width-16f,
+                              cabinetBuilding, cabinetStorageCells.Count, cabinetInvList);
 
-            Widgets.ListSeparator(ref num, viewRect.width, labelKey.Translate());
+            Rect outRect = new Rect(0f, 10f + curY, position.width, position.height-curY);
+            // viewRect is inside the ScrollView, so it starts at y=0f
+            Rect viewRect = new Rect(0f, 0f, position.width - 16f, this.scrollViewHeight);
+
 
             Widgets.BeginScrollView(outRect, ref this.scrollPosition, viewRect, true);
 
-            for (int i = 0; i < cabinetInvList.Count; i++) {
-                this.DrawThingRow(ref num, viewRect.width, cabinetInvList[i]);
-            }
+            curY = 0f; // now inside ScrollView
 
+            for (int i = 0; i < cabinetInvList.Count; i++) {
+                this.DrawThingRow(ref curY, viewRect.width, cabinetInvList[i]);
+            }
             cabinetInvList.Clear();
 
             if (Event.current.type == EventType.Layout) {
-                this.scrollViewHeight = num + 30f;
+                this.scrollViewHeight = curY + 25f; //25f buffer
             }
 
             Widgets.EndScrollView();
@@ -192,15 +196,30 @@ namespace LWM.DeepStorage
             y += 28f;
         }
 
-        private void DrawMassInfo(ref float curY, float width, List<Thing> itemsList, float maxCapacity) {
+        // LWM rewrote most of this method to meet their implementation CompDeepStorage
+        private void DisplayHeaderInfo(ref float curY, float width, Building_Storage cabinet, 
+                                       int numCells, List<Thing> itemsList) {
+            CompDeepStorage cds = cabinet.GetComp<CompDeepStorage>();
+            if (cds == null) return; // what are we even doing here, mmm?
+
             Rect rect = new Rect(0f, curY, width, 22f);
-            float itemsTotalMass = 0;
-
-            foreach (Thing currentThing in itemsList) {
-                itemsTotalMass += currentThing.GetStatValue(StatDefOf.Mass, true) * (float)currentThing.stackCount;
+            if (itemsList.Count<1) {
+                Widgets.Label(rect, "NoItemsAreStoredHere".Translate());
+                curY += 22;
+                return;
             }
-
-            Widgets.Label(rect, "LWM.ContentsTotalMass".Translate(itemsTotalMass.ToString("0.##"), maxCapacity.ToString("0.##")));
+            float itemsTotalMass = 0; // or Bulk for CE ;p
+            for (int i=0; i<itemsList.Count; i++) {
+                itemsTotalMass += itemsList[i].GetStatValue(cds.stat, true) * (float)itemsList[i].stackCount;
+            }
+            if (cds.limitingTotalFactorForCell > 0f) {
+                Widgets.Label(rect, "LWM.ContentHeaderOneOf".Translate(itemsList.Count.ToString(),
+                              cds.stat.ToString(), itemsTotalMass.ToString("0.##"),
+                              (cds.limitingTotalFactorForCell * numCells).ToString("0.##")));
+            } else {
+                Widgets.Label(rect, "LWM.ContentHeaderOne".Translate(itemsList.Count.ToString(),
+                              cds.stat.ToString(), itemsTotalMass.ToString("0.##")));
+            }
             curY += 22f;
         }
     } /* End sumghai's itab */
