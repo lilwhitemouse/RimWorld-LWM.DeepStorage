@@ -6,12 +6,13 @@
 	<description>(Experimental) A locker for storing multiple weapons. Items stored in this will not deteriorate, even if outside.</description>
 	<graphicData>
 		<texPath>Things/Building/Furniture/WeaponHolders/weaponsLocker</texPath>
-		<graphicClass>Graphic_Single</graphicClass>
+		<graphicClass>Graphic_Multi</graphicClass>
 		<drawSize>(3,3)</drawSize>
     <drawRotated>false</drawRotated>
 	</graphicData>
 <defaultPlacingRot>South</defaultPlacingRot>
-<uiIconOffset>(0,0.25)</uiIconOffset>
+<!--<uiIconOffset>(0,0.25)</uiIconOffset>-->
+<uiIconPath>Things/Building/Furniture/WeaponHolders/weaponsLocker_UI</uiIconPath>
 	<castEdgeShadows>true</castEdgeShadows>
 	<size>(1,1)</size>
 	<statBases>
