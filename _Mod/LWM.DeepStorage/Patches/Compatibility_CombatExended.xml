@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Compatibility for CombatExtended, specifications from sumghai,
+     who actually plays it, and has a vision for how it should work.
+     No one else has made any requests, so he gets pretty much 
+     exactly what he wants ^.^ -->
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Combat Extended</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationReplace">
+          <xpath>Defs/ThingDef[defName="LWM_WeaponsLockerLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+          <value>
+            <li Class='LWM.DeepStorage.Properties'>
+              <minNumberStacks>2</minNumberStacks>
+              <maxNumberStacks>60</maxNumberStacks><!-- Increased to 60 stacks for small items  [holy crap! But, okay! 8) -LWM]-->
+              <maxTotalMass>55</maxTotalMass>
+              <altStat>Bulk</altStat>
+              <maxMassOfStoredItem>10</maxMassOfStoredItem><!-- also bulk -->
+              <timeStoringTakes>100</timeStoringTakes>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="LWM_WeaponsLockerLocker"]/building/fixedStorageSettings/filter/categories</xpath>
+          <value>
+            <li>Ammo</li>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/categories</xpath>
+          <value>
+            <li>Ammo</li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM's Deep Storage: patched for Combat Extended</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>
