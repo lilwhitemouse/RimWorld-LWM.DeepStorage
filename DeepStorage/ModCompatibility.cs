@@ -6,7 +6,6 @@ using Verse;
 using System.Reflection;
 
 
-
 namespace LWM.DeepStorage
 {
     /*****************************************************
@@ -61,6 +60,13 @@ namespace LWM.DeepStorage
         }
     }
 
-
+    /* A cheap cute way to post a Message, for when an xml patch operation is done :p */
+    public class PatchMessage : PatchOperation {
+        protected override bool ApplyWorker(System.Xml.XmlDocument xml) {
+            Log.Message(message);
+            return true;
+        }
+        protected string message;
+    }
 
 }
