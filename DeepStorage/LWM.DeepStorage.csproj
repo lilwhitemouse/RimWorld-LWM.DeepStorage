@@ -9,7 +9,7 @@
     <AssemblyName>LWM.DeepStorage</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <UseMSBuildEngine>false</UseMSBuildEngine>
-    <ReleaseVersion>0.6</ReleaseVersion>
+    <ReleaseVersion>0.7</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,25 +38,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\RimWorld\RimWorldLinux_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\RimWorld\RimWorldLinux_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\RimWorld\RimWorldLinux_Data\Managed\UnityEngine.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
+    <Reference Include="System.Xml" />
     <Reference Include="0Harmony">
-      <HintPath>..\_Mod\DeepStorage\Assemblies\0Harmony.dll</HintPath>
+      <HintPath>..\packages\UnlimitedHugs.Rimworld.HugsLib.6.1.1\lib\net35\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\RimWorld\RimWorldLinux_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\RimWorld\RimWorldLinux_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\RimWorld\RimWorldLinux_Data\Managed\Assembly-CSharp.dll</HintPath>
+    <Reference Include="HugsLib">
+      <HintPath>..\packages\UnlimitedHugs.Rimworld.HugsLib.6.1.1\lib\net35\HugsLib.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -233,6 +227,7 @@
     <None Include="..\_Mod\LWM.DeepStorage\Languages\English\Keyed\LWM.DeepStorage.Keys.xml">
       <Link>_Mod\LWM.DeepStorage\Languages\English\Keyed\LWM.DeepStorage.Keys.xml</Link>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="_Mod\LWM.DeepStorage\Languages\English\" />

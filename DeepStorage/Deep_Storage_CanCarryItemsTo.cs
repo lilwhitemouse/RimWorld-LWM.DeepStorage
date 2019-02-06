@@ -140,14 +140,15 @@ namespace LWM.DeepStorage
     //   maybe p.RaceProps.Animal or p.RaceProps.HumanLike
     [HarmonyPatch(typeof(StoreUtility), "IsGoodStoreCell")]
     class Patch_IsGoodStoreCell {
+        public static Intelligence NecessaryIntelligenceToUseDeepStorage=Intelligence.Humanlike;
         static void Postfix(ref bool __result, IntVec3 c, Map map, Pawn carrier) {
             if (__result == false) return;
-            if (carrier == null) return;
-            if (carrier.RaceProps.Humanlike) return; // humans can carry wherever
-            // non-human here!
+            if (carrier?.RaceProps == null) return;
+            if (carrier.RaceProps.intelligence >= NecessaryIntelligenceToUseDeepStorage)
+                return; // smart enough to use whatever.
+            // okay, potentially need to see if we're looking at deep storage after all:
             if (LWM.DeepStorage.Utils.CanStoreMoreThanOneThingAt(map, c)) {
                 __result = false;
-                return;
             }
             return;
         }
