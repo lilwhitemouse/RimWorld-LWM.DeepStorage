@@ -11,7 +11,7 @@
     <match Class="PatchOperationSequence">
       <operations>
         <li Class="PatchOperationReplace">
-          <xpath>/Defs/ThingDef[defName="LWM_WeaponsLockerLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+          <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
           <value>
             <li Class='LWM.DeepStorage.Properties'>
               <minNumberStacks>2</minNumberStacks>
