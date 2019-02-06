@@ -11,26 +11,21 @@
     <match Class="PatchOperationSequence">
       <operations>
         <li Class="PatchOperationReplace">
-          <xpath>Defs/ThingDef[defName="LWM_WeaponsLockerLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+          <xpath>/Defs/ThingDef[defName="LWM_WeaponsLockerLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
           <value>
             <li Class='LWM.DeepStorage.Properties'>
               <minNumberStacks>2</minNumberStacks>
               <maxNumberStacks>60</maxNumberStacks><!-- Increased to 60 stacks for small items  [holy crap! But, okay! 8) -LWM]-->
               <maxTotalMass>55</maxTotalMass>
               <altStat>Bulk</altStat>
-              <maxMassOfStoredItem>10</maxMassOfStoredItem><!-- also bulk -->
+              <!-- next is also bulk; may need to be tweaked in the future for CE weapons with higher bulk values (e.g assault, sniper and anti-material rifles) -->
+              <maxMassOfStoredItem>16</maxMassOfStoredItem>
               <timeStoringTakes>100</timeStoringTakes>
             </li>
           </value>
         </li>
         <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="LWM_WeaponsLockerLocker"]/building/fixedStorageSettings/filter/categories</xpath>
-          <value>
-            <li>Ammo</li>
-          </value>
-        </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/categories</xpath>
+          <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/categories</xpath>
           <value>
             <li>Ammo</li>
           </value>
