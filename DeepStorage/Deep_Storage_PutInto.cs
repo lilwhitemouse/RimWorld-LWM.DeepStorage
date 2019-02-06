@@ -181,11 +181,16 @@ namespace LWM.DeepStorage
      * us.  Currently, there is a check during spawning, and if there is
      * another "item"-category object there, that item is bumped aside
      * (placed in "near" mode).
+     *     
+     * We want items to get place on top of each other in Deep Storage, 
+     * and on loading the game.  If things get bumped around during play,
+     * that's (probably) up to the player to deal with.    
      * 
-     * We patch Spawn(...) to change the test from
+     * We patch Spawn(...) to change the test for "bumping" from
      *     if (newThing.def.category == ThingCategory.Item)
      * to
      *     if (newThing.def.category == ThingCategory.Item && 
+     *         !respawningAfterLoad
      *         !LWM.DeepStorage.Utils.CanStoreMoreThanOneThingAt(Map,loc))
      * (I could probably manage without the Utils function, but this is
      *  much easier in terms of C# -> IL magic)
@@ -199,6 +204,7 @@ namespace LWM.DeepStorage
             // replace if (newThing.def.category == ThingCategory.Item)
             // with
             //         if (newThing.def.category == ThingCategory.Item && 
+            //             !respawningAfterLoad &&
             //             !LWM.DeepStorage.Utils.CanStoreMoreThanOneThingAt(Map,loc))
             // The original branch in the code is at:
             //          /* 0x002B85A2 02           */ IL_015E: ldarg.0
@@ -221,13 +227,20 @@ namespace LWM.DeepStorage
                         if (code[i + 1]?.opcode == OpCodes.Ldfld && //thing.def.category!
                             code[i + 1]?.operand == typeof(Verse.ThingDef).GetField("category")) {
                             i++;
+                            // 
                             yield return code[i++]; // the category
                             yield return code[i++]; // ldc.i4.2  ("item" category)
                             // i now points to the branch operation; we need the label
                             System.Reflection.Emit.Label branchLabel;
                             branchLabel = (Label)code[i].operand;
-                            yield return code[i++];
+                            yield return code[i++]; // branch if not equal to branchLabel
                             CodeInstruction c;
+                            // if (respawningAfterLoad) jump...
+                            c = new CodeInstruction(OpCodes.Ldarg_S, 5); // 5 is respawningAfterLoad
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Brtrue,branchLabel);
+                            yield return c;
+                            // if (CanStoreMoreThanOneThingAt(map,loc)) jump...
                             c = new CodeInstruction(OpCodes.Ldarg_2); // map
                             yield return c;
                             c = new CodeInstruction(OpCodes.Ldarg_1); // loc
