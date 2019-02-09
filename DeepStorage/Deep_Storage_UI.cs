@@ -102,7 +102,7 @@ namespace LWM.DeepStorage
             List<IntVec3> cabinetStorageCells = cabinetBuilding.AllSlotCellsList();
             foreach (IntVec3 storageCell in cabinetStorageCells) {
                 foreach (Thing t in cabinetBuilding.Map.thingGrid.ThingsListAt(storageCell)) {
-                    if (t.def.EverStorable(false)) cabinetInvList.Add(t);
+                    if (t.Spawned && t.def.EverStorable(false)) cabinetInvList.Add(t);
                 }
             }
 

@@ -111,7 +111,7 @@ namespace LWM.DeepStorage
                 }
                 return false;
             }
-            //            Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true");
+                        Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true");
             return true;
             Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true!");
             List<Thing> lx = map.thingGrid.ThingsListAt(loc);

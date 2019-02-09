@@ -67,6 +67,7 @@
     <Compile Include="Deep_Storage_RemoveFrom.cs" />
     <Compile Include="Deep_Storage_PutInto.cs" />
     <Compile Include="ModCompatibility.cs" />
+    <Compile Include="Deep_Storage_Display.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">
