@@ -115,7 +115,11 @@ namespace LWM.DeepStorage
                 ThenByDescending((Thing x) => (x.HitPoints / x.MaxHitPoints)).ToList();
 
             float curY = 0f;
-            Widgets.ListSeparator(ref curY, position.width, labelKey.Translate());
+            Widgets.ListSeparator(ref curY, position.width, labelKey.Translate()
+                #if DEBUG
+                +cabinetBuilding.ToString()
+                #endif
+                );
             curY += 5f;
             // Show count of contents, mass, etc:
             DisplayHeaderInfo(ref curY, position.width-16f,

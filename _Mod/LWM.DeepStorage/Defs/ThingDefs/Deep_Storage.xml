@@ -15,6 +15,7 @@
 	
 	<surfaceType>Item</surfaceType><!--??????-->
 	<fillPercent>0.4</fillPercent><!-- -TODO...wtf? -->
+	<drawGUIOverlay>true</drawGUIOverlay>
 	<!-- <castEdgeShadows>true</castEdgeShadows>	-->
 	<!-- 	<staticSunShadowHeight>0.5</staticSunShadowHeight>-->
 

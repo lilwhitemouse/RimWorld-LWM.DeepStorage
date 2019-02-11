@@ -111,7 +111,7 @@ namespace LWM.DeepStorage
                 }
                 return false;
             }
-                        Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true");
+            //            Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true");
             return true;
             Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true!");
             List<Thing> lx = map.thingGrid.ThingsListAt(loc);
@@ -217,11 +217,20 @@ namespace LWM.DeepStorage
         }
 
         public int minNumberStacks = 1;
-        public int maxNumberStacks = 1;
+        public int maxNumberStacks = 2;
         public int timeStoringTakes = 1000; // measured in ticks
         public float maxTotalMass = 0f;
         public float maxMassOfStoredItem = 0f;
         public StatDef altStat=null;
+        public bool showContents=false;
+
+        public GuiOverlayType guiOverlay=GuiOverlayType.CountOfItems;
+    }
+    
+    public enum GuiOverlayType : byte {
+        Normal,
+        CountOfItems,
+        TotalCount,
     }
 
     public class CompDeepStorage : ThingComp {
@@ -268,6 +277,18 @@ namespace LWM.DeepStorage
                 return ((Properties)this.props).timeStoringTakes;
             }
         }
+        public bool showContents {
+            get {
+                return ((Properties)this.props).showContents;
+            }
+        }
+
+        public Properties cdsProps { // b/c I hate typing :p
+            get {
+                return ((Properties)this.props);
+            }
+        }
+        
 
 
         public StatDef stat = StatDefOf.Mass;
