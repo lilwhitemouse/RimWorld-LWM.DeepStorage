@@ -37,6 +37,16 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <!-- For msbuild on command line.  Seriously, they cannot use the same xml structure? :p -->
+    <PostBuildEvent>/bin/cp "$(MSBuildProjectDirectory)/$(OutputPath)/$(AssemblyName).dll" "$(MSBuildProjectDirectory)/../_Mod/LWM.DeepStorage/Assemblies/"</PostBuildEvent>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>AfterBuild</type>
+          <command>/bin/cp ${TargetFile} ${ProjectDir}/../_Mod/LWM.DeepStorage/Assemblies/</command>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
