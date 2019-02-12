@@ -136,6 +136,7 @@
 	  <li Class="LWM.DeepStorage.Properties" >
 	      <maxNumberStacks>5</maxNumberStacks>
 	      <timeStoringTakes>300</timeStoringTakes>
+	      <overlayType>SumOfAllItems</overlayType>
 	  </li>
       </comps>
   </ThingDef>
@@ -182,6 +183,7 @@
 	  <li Class="LWM.DeepStorage.Properties">
 	    <maxNumberStacks>5</maxNumberStacks>
 	    <timeStoringTakes>350</timeStoringTakes>
+	    <overlayType>SumOfAllItems</overlayType><!--TODO: SumOfItemsPerCell?-->
 	  </li>
       </comps>
   </ThingDef>
@@ -229,6 +231,7 @@
 	  <li Class="LWM.DeepStorage.Properties" >
 	      <maxNumberStacks>6</maxNumberStacks>
 	      <timeStoringTakes>100</timeStoringTakes>
+	      <overlayType>SumOfAllItems</overlayType>
 	  </li>
       </comps>
   </ThingDef>
@@ -274,6 +277,7 @@
 	  <li Class="LWM.DeepStorage.Properties" >
 	      <maxNumberStacks>4</maxNumberStacks>
 	      <timeStoringTakes>800</timeStoringTakes>
+	      <overlayType>SumOfAllItems</overlayType>
 	  </li>
       </comps>
   </ThingDef>
@@ -316,6 +320,7 @@
 	  <li Class="LWM.DeepStorage.Properties" >
 	      <maxNumberStacks>4</maxNumberStacks>
 	      <timeStoringTakes>1000</timeStoringTakes>
+	      <overlayType>SumOfAllItems</overlayType>
 	  </li>
       </comps>
   </ThingDef>
@@ -358,6 +363,7 @@
 	  <li Class="LWM.DeepStorage.Properties" >
 	      <maxNumberStacks>5</maxNumberStacks>
 	      <timeStoringTakes>100</timeStoringTakes>
+	      <overlayType>CountOfStacksPerCell</overlayType><!-- TODO: maybe an overlay that displays quality somehow? -->
 	  </li>
       </comps>
   </ThingDef>
@@ -401,6 +407,7 @@
 	  <li Class="LWM.DeepStorage.Properties" >
 	      <maxNumberStacks>5</maxNumberStacks>
 	      <timeStoringTakes>50</timeStoringTakes>
+	      <overlayType>SumOfAllItems</overlayType>
 	  </li>
       </comps>
   </ThingDef>
@@ -559,6 +566,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
 	  </shadowData>
 	  <drawRotated>false</drawRotated>
       </graphicData>
+      <drawGUIOverlay>false</drawGUIOverlay>
       <castEdgeShadows>true</castEdgeShadows><!-- Useful effect? Is it worth it?-->
       <size>(1,1)</size>
       <pathCost>50</pathCost>

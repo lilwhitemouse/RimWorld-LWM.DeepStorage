@@ -222,15 +222,17 @@ namespace LWM.DeepStorage
         public float maxTotalMass = 0f;
         public float maxMassOfStoredItem = 0f;
         public StatDef altStat=null;
-        public bool showContents=false;
+        public bool showContents=true;
 
-        public GuiOverlayType guiOverlay=GuiOverlayType.CountOfItems;
+        public GuiOverlayType overlayType=GuiOverlayType.Normal;
     }
     
     public enum GuiOverlayType : byte {
         Normal,
-        CountOfItems,
-        TotalCount,
+        CountOfAllStacks,       // Centered on DSU
+        CountOfStacksPerCell,   // Standard overlay position for each cell
+        SumOfAllItems,          // Centered on DSU
+        //SumOfItemsPerCell,      // etc. TODO?
     }
 
     public class CompDeepStorage : ThingComp {

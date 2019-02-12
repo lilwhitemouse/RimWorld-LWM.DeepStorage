@@ -54,7 +54,7 @@ namespace LWM.DeepStorage
                 // Next code instruction is to call ThingsListAt.
                 i++; // We want our own list
                 yield return new CodeInstruction(OpCodes.Call, Harmony.AccessTools.Method(
-                                                     "LWM.DeepStorage.PatchDisplay_SectionLayer_Things_Regenerate:DisplayThingList"));
+                                                     "LWM.DeepStorage.PatchDisplay_SectionLayer_Things_Regenerate:ThingListToDisplay"));
                 break; // that's all we need to change!
             }
             for (;i<code.Count; i++) {
@@ -64,7 +64,7 @@ namespace LWM.DeepStorage
             yield break;
         }
 
-        static public List<Thing> DisplayThingList(Map map, IntVec3 loc) {
+        static public List<Thing> ThingListToDisplay(Map map, IntVec3 loc) {
             CompDeepStorage cds;
             ThingWithComps building;
             SlotGroup slotGroup=loc.GetSlotGroup(map);
@@ -105,19 +105,22 @@ namespace LWM.DeepStorage
         public static void Postfix(Building_Storage __instance,Thing newItem) {
             CompDeepStorage cds;
             if ((cds = __instance.TryGetComp<CompDeepStorage>()) == null) return;
+
+            if (cds.cdsProps.overlayType != GuiOverlayType.Normal || !cds.showContents) {
+                // Remove gui overlay - this includes number of stackabe item, quality, etc
+                __instance.Map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Remove(newItem);
+            }
+            
             if (cds.showContents) return;
 
             if (newItem.def.drawerType != DrawerType.MapMeshOnly) {
                 __instance.Map.dynamicDrawManager.DeRegisterDrawable(newItem);
             }
-            __instance.Map.tooltipGiverList.Notify_ThingDespawned(newItem);
+            __instance.Map.tooltipGiverList.Notify_ThingDespawned(newItem); // should this go with guioverlays?
             
             // Note: not removing linker here b/c I don't think it's applicable to DS?
             
-            // Remove gui overlay - this includes number of stackabe item, quality, etc
-            __instance.Map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Remove(newItem);
-
-            newItem.DirtyMapMesh(newItem.Map); // for items with a map mesh
+            newItem.DirtyMapMesh(newItem.Map); // for items with a map mesh; probably unnecessary?
         }
     }
 
@@ -127,72 +130,108 @@ namespace LWM.DeepStorage
         public static void Postfix(Building_Storage __instance, Map map) {
             CompDeepStorage cds;
             if ((cds = __instance.TryGetComp<CompDeepStorage>()) == null) return;
-            if (cds.showContents) return;
             
             foreach (IntVec3 cell in __instance.AllSlotCells()) {
                 foreach (Thing thing in map.thingGrid.ThingsAt(cell)) {
                     if (!thing.Spawned || !thing.def.EverStorable(false)) continue; // don't make people walking past be invisible...
+
+                    if (cds.cdsProps.overlayType != GuiOverlayType.Normal || !cds.showContents) {
+                        // Remove gui overlay - this includes number of stackabe item, quality, etc
+                        map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Remove(thing);
+                    }
+                    if (cds.showContents) continue;
                     if (thing.def.drawerType != DrawerType.MapMeshOnly) {
                         map.dynamicDrawManager.DeRegisterDrawable(thing);
                     }
-                    map.tooltipGiverList.Notify_ThingDespawned(thing);
+                    map.tooltipGiverList.Notify_ThingDespawned(thing); // should this go with guioverlays?
 
                     // Don't need to thing.DirtyMapMesh(map); because of course it's dirty on spawn setup ;p
-
-                    // Do remove gui overlay - this includes number of stackabe item, quality, etc
-                    map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Remove(thing);
                 }
             }
         }
     }
 
-    /**************** GUI Overlay ***************/
+    /**************** GUI Overlay *****************/
     [HarmonyPatch(typeof(Thing),"DrawGUIOverlay")]
     static class Add_DSU_GUI_Overlay {
-        static IntVec2 vOne = new IntVec2(1,1);
         static bool Prefix(Thing __instance) {
+            if (Find.CameraDriver.CurrentZoom != CameraZoomRange.Closest) return false;
             Building_Storage DSU = __instance as Building_Storage;
             if (DSU == null) return true;
             CompDeepStorage cds = DSU.GetComp<CompDeepStorage>();
             if (cds == null) return true;
-            if (cds.cdsProps.guiOverlay == LWM.DeepStorage.GuiOverlayType.Normal) return true;
+            if (cds.cdsProps.overlayType == LWM.DeepStorage.GuiOverlayType.Normal) return true;
 
-            if (cds.cdsProps.guiOverlay == GuiOverlayType.CountOfItems) {
-                // probably Weapons Lockers, Armor Racks, Clothing Racks etc...
-                if (true||__instance.def.size == vOne) {
-                    List<Thing> things=__instance.Map.thingGrid.ThingsListAtFast(__instance.Position)
-                        .FindAll(t=>t.def.EverStorable(false));
-                    if (AllSameType(things)) {
-                        GenMapUI.DrawThingLabel(__instance,"x"+things.Count.ToStringCached());
-                    } else {
-                        GenMapUI.DrawThingLabel(__instance,"[ "+things.Count.ToStringCached()+" ]");
-                    }
-                    return false;
+            List<Thing> things;
+            String s;
+            if (cds.cdsProps.overlayType == GuiOverlayType.CountOfAllStacks) {
+                // probably Armor Racks, Clothing Racks, Weapon Lockers etc...
+                things = new List<Thing>();
+                foreach (IntVec3 c in DSU.AllSlotCellsList()) {
+                    things.AddRange(__instance.Map.thingGrid.ThingsListAtFast(c).FindAll(t=>t.def.EverStorable(false)));
                 }
-                // size is not (1,1)
-//                foreach (IntVec3 c in ...  maybe not?  Hmmm....
-            }
-            if (cds.cdsProps.guiOverlay == GuiOverlayType.TotalCount) {
-                // probably food baskets, skips, etc...
-                //   TODO: if (size is 1,1), etc??
-                List<Thing>things;
-                if (__instance.def.size == vOne) {
-                    things=__instance.Map.thingGrid.ThingsListAtFast(__instance.Position);
-                } else {
-                    things=new List<Thing>();
-                    foreach (IntVec3 c in DSU.slotGroup.CellsList){
-                        things.AddRange(__instance.Map.thingGrid.ThingsListAtFast(__instance.Position)
-                                        .FindAll(t=>t.def.EverStorable(false)));
-                    }
-                }
-                // if all same type?
+
+                if (things.Count ==0) {
+                    if (cds.cdsProps.showContents) return false;  // If it's empty, player will see!
+                    s="LWM_DS_Empty".Translate();
+                } else if (things.Count ==1)
+                    s=1.ToStringCached(); // Why not s="1";?  You never know, someone may be playing in...
+                else if (AllSameType(things))
+                    s="x"+things.Count.ToStringCached();
+                else
+                    s="[ "+things.Count.ToStringCached()+" ]";
+                GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(__instance,0f),s,GenMapUI.DefaultThingLabelColor);
                 return false;
             }
 
-            return true; // TODO :p
+            if (cds.cdsProps.overlayType == GuiOverlayType.CountOfStacksPerCell) {
+                // maybe Armor Racks, Clothing Racks?
+                foreach (IntVec3 c in DSU.AllSlotCellsList()) {
+                    things=__instance.Map.thingGrid.ThingsListAtFast(c).FindAll(t=>t.def.EverStorable(false));
+                    if (things.Count ==0) {
+                        if (cds.cdsProps.showContents) continue; // if it's empty, player will see!
+                        s="LWM_DS_Empty".Translate();
+                    } else if (things.Count ==1)
+                        s=1.ToStringCached(); // ..a language that doesn't use arabic numerals?
+                    else if (AllSameType(things))
+                        s="x"+things.Count.ToStringCached();
+                    else
+                        s="[ "+things.Count.ToStringCached()+" ]";
+                    GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(c),s,GenMapUI.DefaultThingLabelColor);
+                }
+                return false;
+            }
+            if (cds.cdsProps.overlayType == GuiOverlayType.SumOfAllItems) {
+                // probably food baskets, skips, etc...
+                things=new List<Thing>();
+                foreach (IntVec3 c in DSU.slotGroup.CellsList){
+                    things.AddRange(__instance.Map.thingGrid.ThingsListAtFast(c)
+                                    .FindAll(t=>t.def.EverStorable(false)));
+                }
+
+                if (things.Count ==0) {
+                    if (cds.cdsProps.showContents) return false;  // if it's empty, player will see
+                    s="LWM_DS_Empty".Translate();
+                } else {
+                    int count=things[0].stackCount;
+                    bool allTheSame=true;
+                    for (int i=1; i<things.Count; i++) {
+                        if (things[i].def != things[0].def) allTheSame=false;
+                        count+=things[i].stackCount;
+                    }
+                    if (allTheSame)
+                        s=count.ToStringCached();
+                    else
+                        s="[ "+count.ToStringCached()+" ]";
+                }
+                GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(__instance,0f),s,GenMapUI.DefaultThingLabelColor);                
+                return false;
+            }
+            Log.Warning("LWM DeepStorage: could not find GuiOverlayType of "+cds.cdsProps.overlayType);
+            return true;
         }
         private static bool AllSameType(List<Thing> l) {
-            if (l.Count < 1) return true;
+            if (l.Count < 2) return true;
             for (int i=1; i<l.Count;i++) {
                 if (l[i].def != l[0].def) return false;
             }

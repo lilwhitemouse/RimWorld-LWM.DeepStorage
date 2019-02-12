@@ -9,4 +9,5 @@
   <LWM_DS_Int_Animal>Animal</LWM_DS_Int_Animal>
   <LWM_DS_Int_ToolUser>Tool User</LWM_DS_Int_ToolUser>
   <LWM_DS_Int_Humanlike>Humanlike (Default) (LWM * of approval)</LWM_DS_Int_Humanlike>
+  <LWM_DS_Empty>empty</LWM_DS_Empty>
 </LanguageData>

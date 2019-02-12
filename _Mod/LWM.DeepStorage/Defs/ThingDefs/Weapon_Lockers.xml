@@ -51,6 +51,8 @@
         <maxTotalMass>14</maxTotalMass>
         <maxMassOfStoredItem>10</maxMassOfStoredItem>
         <timeStoringTakes>100</timeStoringTakes>
+	<showContents>false</showContents>
+	<overlayType>CountOfStacksPerCell</overlayType>
       </li>
     </comps>
     <researchPrerequisites>

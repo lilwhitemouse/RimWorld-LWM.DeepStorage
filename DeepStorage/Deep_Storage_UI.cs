@@ -117,7 +117,7 @@ namespace LWM.DeepStorage
             float curY = 0f;
             Widgets.ListSeparator(ref curY, position.width, labelKey.Translate()
                 #if DEBUG
-                +cabinetBuilding.ToString()
+                +"    ("+cabinetBuilding.ToString()+")" // extra info for debugging
                 #endif
                 );
             curY += 5f;
