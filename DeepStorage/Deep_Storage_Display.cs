@@ -106,6 +106,16 @@ namespace LWM.DeepStorage
             CompDeepStorage cds;
             if ((cds = __instance.TryGetComp<CompDeepStorage>()) == null) return;
 
+            /****************** Put DSU at top of list *******************/
+            /*  This is important for selecting next objects?  I think?  */
+            List<Thing> list = newItem.Map.thingGrid.ThingsListAt(newItem.Position);
+//TODO: SpawnSetup, too...
+            list.Remove(__instance);
+            list.Add(__instance);
+//            list.Insert(0, __instance);
+
+            /****************** Set display for items correctly *******************/
+
             if (cds.cdsProps.overlayType != GuiOverlayType.Normal || !cds.showContents) {
                 // Remove gui overlay - this includes number of stackabe item, quality, etc
                 __instance.Map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Remove(newItem);
@@ -132,7 +142,8 @@ namespace LWM.DeepStorage
             if ((cds = __instance.TryGetComp<CompDeepStorage>()) == null) return;
             
             foreach (IntVec3 cell in __instance.AllSlotCells()) {
-                foreach (Thing thing in map.thingGrid.ThingsAt(cell)) {
+                List<Thing> list = map.thingGrid.ThingsListAt(cell);
+                foreach (Thing thing in list) {
                     if (!thing.Spawned || !thing.def.EverStorable(false)) continue; // don't make people walking past be invisible...
 
                     if (cds.cdsProps.overlayType != GuiOverlayType.Normal || !cds.showContents) {
@@ -146,7 +157,11 @@ namespace LWM.DeepStorage
                     map.tooltipGiverList.Notify_ThingDespawned(thing); // should this go with guioverlays?
 
                     // Don't need to thing.DirtyMapMesh(map); because of course it's dirty on spawn setup ;p
-                }
+                } // end cell
+                // Now put the DSU at the top of the ThingsList here:
+                list.Remove(__instance);
+//                list.Insert(0, __instance);
+                list.Add(__instance);
             }
         }
     }

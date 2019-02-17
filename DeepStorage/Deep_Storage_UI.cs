@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using Harmony;
 using RimWorld;
 using UnityEngine;
@@ -43,6 +44,7 @@ namespace LWM.DeepStorage
                     if (t.Map != Find.CurrentMap) {
                         return true; // Don't know where the player is looking
                     }
+                    // TODO: make this cleaner:
                     if (Utils.CanStoreMoreThanOneThingAt(t.Map,t.Position)) {
                         __instance.ClearSelection();
                         // Select the Deep Storage Unit:
@@ -55,6 +57,91 @@ namespace LWM.DeepStorage
             return true; // not us
         }
     } // end HandleMapClick's patch
+
+
+    /************************* Let user click on DSU instead of giant pile of stacks! ******************/
+    /* We would like it so when a player clicks on a DSU that has stuff in it,
+     * the DSU gets selected instead of the first item, then the 2nd item, etc.
+     * 
+     * The reason the items get selected first is that ThingsUnderMouse sorts
+     * usng CompareThingsByDrawAltitude - and buildings are below items.
+     * So, we add a call to SortForDeepStorage.
+     *
+     * However, we only want to use the SortForDeepStorage if we are selecting
+     * a single object!  If we are selecting all Wheat on the screen, (double click) 
+     * we almost certainly want the default behavior.
+     * 
+     * So we control whether we sort by adding a flag to SelectUnderMouse.
+     * 
+     * Basically, we make ThingsUnderMouse() into ThingsUnderMouse(useSortForDeepStorage=false),
+     * and make SelectUnderMouse() call it with true.
+     */
+    [HarmonyPatch(typeof(Verse.GenUI),"ThingsUnderMouse")]
+    public static class Patch_GenUI_ThingsUnderMouse {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+            // First marker we are looking for is
+            //   ldftn int32 Verse.GenUI::CompareThingsByDrawAltitude(class Verse.Thing, class Verse.Thing)
+            var wrongComparison = Harmony.AccessTools.Method("Verse.GenUI:CompareThingsByDrawAltitude");
+            if (wrongComparison == null) {
+                Log.Error("LWM: Deep Storage: harmony transpiler fail: no CompareThingsByDrawAltitude");
+            }
+            // Second marker we are looking for is
+            //   callvirt instance void class
+            //     [mscorlib]System.Collections.Generic.List`1<class Verse.Thing>::Sort(class [mscorlib]System.Comparison`1<!0>)
+            var sortFunction = typeof(System.Collections.Generic.List<Thing>)
+                               .GetMethod("Sort", new Type[] {typeof(System.Comparison<Thing>)});
+
+            var code = new List<CodeInstruction>(instructions);
+            var i = 0; // using multiple 'for' loops
+            bool foundMarkerOne=false;
+            for (; i < code.Count; i++) {
+                yield return code[i];
+                if (code[i].opcode == OpCodes.Ldftn && code[i].operand == wrongComparison) {
+                    foundMarkerOne=true;
+                }
+                if (foundMarkerOne && code[i].opcode == OpCodes.Callvirt && code[i].operand == sortFunction) {
+                    // We insert our own sorting function here, to put DSUs on top of click order:
+                    yield return new CodeInstruction(OpCodes.Ldloc_S,6); // the temporary list
+                    yield return new CodeInstruction(OpCodes.Call, Harmony.AccessTools.
+                                                     Method("LWM.DeepStorage.Patch_GenUI_ThingsUnderMouse:SortForDeepStorage"));
+                    i++;
+                    break; // our work is done here
+                }
+            }
+            for (; i < code.Count; i++) { // finish up
+                yield return code[i];
+            }
+        }
+
+        static public bool useSortForDeepStorage=false;
+        // Put DeepStorage at the top of the list:
+        static public void SortForDeepStorage(List<Thing> list) {
+            if (!useSortForDeepStorage) return;
+            useSortForDeepStorage=false;
+            if (list.Count <2) return;
+            for (int i=list.Count-1; i>0; i--) { // don't need to check i=0
+                if (list[i].TryGetComp<CompDeepStorage>()!=null) {
+                    Thing t=list[i];
+                    list.RemoveAt(i);
+                    list.Insert(0,t);
+                    return; // That's all we needed!
+                }
+            }
+        }        
+    }
+    [HarmonyPatch(typeof(RimWorld.Selector), "SelectUnderMouse")]
+    static class Make_Select_Under_Mouse_Use_SortForDeepStorage {
+        static void Prefix() {
+            Patch_GenUI_ThingsUnderMouse.useSortForDeepStorage=true;
+        }
+    }
+    [HarmonyPatch(typeof(RimWorld.Selector),"SelectAllMatchingObjectUnderMouseOnScreen")]
+    static class Make_DoubleClick_Work {
+        static void Prefix(Selector __instance) {
+            if (__instance.SingleSelectedThing?.TryGetComp<CompDeepStorage>()!=null)
+                __instance.ClearSelection();
+        }
+    }
 
     /********* UI ITab from sumghai - thanks! ********/
     public class ITab_DeepStorage_Inventory : ITab {
@@ -200,7 +287,7 @@ namespace LWM.DeepStorage
             y += 28f;
         }
 
-        // LWM rewrote most of this method to meet their implementation CompDeepStorage
+        // LWM rewrote most of this method to meet their implementation of CompDeepStorage
         private void DisplayHeaderInfo(ref float curY, float width, Building_Storage cabinet, 
                                        int numCells, List<Thing> itemsList) {
             CompDeepStorage cds = cabinet.GetComp<CompDeepStorage>();
