@@ -113,34 +113,175 @@ namespace LWM.DeepStorage
             }
         }
 
-        static public bool useSortForDeepStorage=false;
+        public enum DSSort : byte {
+            Vanilla,
+            SingleSelect,
+            MultiSelect,
+        }
+
+        /* A flag to get passed to GenUI.ThingsUnderMouse() - make sure to set it *and unset it back to Vanilla* manually */
+        /*   (because it's not a real parameter - that's more trouble than I want) */
+        static public DSSort sortForDeepStorage=DSSort.Vanilla;
+        
         // Put DeepStorage at the top of the list:
         static public void SortForDeepStorage(List<Thing> list) {
-            if (!useSortForDeepStorage) return;
-            useSortForDeepStorage=false;
-            if (list.Count <2) return;
-            for (int i=list.Count-1; i>0; i--) { // don't need to check i=0
-                if (list[i].TryGetComp<CompDeepStorage>()!=null) {
-                    Thing t=list[i];
-                    list.RemoveAt(i);
-                    list.Insert(0,t);
-                    return; // That's all we needed!
-                }
+            Log.Warning("Checking list, sort type will be: " + sortForDeepStorage);
+            for (int a=0; a<list.Count; a++) {
+                Log.Warning("Orig has: "+list[a]);
             }
-        }        
+            if (sortForDeepStorage==DSSort.Vanilla) return;
+            if (sortForDeepStorage==DSSort.SingleSelect) {
+                /* Single Select: for RimWorld.Selector's SelectUnderMouse() -
+                 *   which selects a single item.
+                 * We want any DSU to be on the top of the list so it gets
+                 *   selected first!
+                 */
+                if (list.Count <2) return; // too few to care
+                for (int i=list.Count-1; i>0; i--) { // don't need to check i=0; if it's a DSU, we're already good
+                    if (list[i].TryGetComp<CompDeepStorage>()!=null) {
+                        Thing t=list[i];
+                        list.RemoveAt(i);
+                        list.Insert(0,t);
+                        return; // That's all we needed!
+                    }
+                }
+                return;
+            }
+            if (sortForDeepStorage==DSSort.MultiSelect) {
+                /* Multi Select: for RimWorld.Selector's SelectAllMatchingObjectUnderMouseOnScreen() - 
+                 *   which happens when a user double clicks and selects all matching items on the 
+                 *   screen.
+                 * The behavior we want: whatever is on "top" - last added, whatever is displayed
+                 *   on screen - should be what gets multi-selected.
+                 * Problem: ThingsUnderMouse sorts by Altitude - and that does not preserve
+                 *   the sort order the ThingList uses.
+                 * So we will pull whatever item is last in the ThingList and put it at the top
+                 *   of the selectable list.
+                 * Kashmar.
+                 */
+                if (list.Count <2) return; // too few to care
+                CompDeepStorage cds;
+                for (int i=list.Count-1; i >=0; i--) {
+                    // might as well count down, DSUs should be at the end?
+                    if ((cds=list[i].TryGetComp<CompDeepStorage>())!=null) {
+                        // Okay, now we have to make the sorting happen.
+                        // Find the location cell we are using:
+                        IntVec3 cell = IntVec3.Invalid;
+                        // use the location of an item that is in storage:
+                        for (int j=0; j<list.Count; j++) {
+                            Log.Warning("Checking for storable object with position: "+list[j]);
+                            if (list[j].def.EverStorable(false)) {
+                                cell=list[j].Position;
+                                break;
+                            }
+                        }
+                        if (cell == IntVec3.Invalid) {
+                            // There are no storable objects here, so
+                            //   go with default behavior
+                            return;
+                        }
+                        List<Thing> thingsList=Find.CurrentMap.thingGrid.ThingsListAt(cell);
+                        for (int a=0; a<thingsList.Count; a++) {
+                            Log.Error("ThingsListAt: "+thingsList[a]);
+                        }
+                        for (int k=thingsList.Count-1; k>=0; k--) {
+                            if (thingsList[k].def.EverStorable(false)) {
+                                if (list.Remove(thingsList[k])) { // found item in our list!
+                                    list.Insert(0,thingsList[k]);
+                                    Log.Error("-----Putting "+thingsList[k]+" at beginning of list");
+                                    return; // Ha - sorted!
+                                }
+                                // That item wasn't in the list for some reason, continue...
+                            }
+                        }
+                        return; // Found DSU, but no objects to make double-clickable?
+                    }
+                }
+                return; // not in Deep Storage
+            }
+        } // end SortForDeepStorage
+    } // done with Patch_GenUI_ThingsUnderMouse
+    [HarmonyPatch(typeof(Verse.Thing), "Print")]
+    static class Figure_Out_Graphics {
+        static void Postfix(Thing __instance) {
+            IntVec3 c=__instance.Position;
+            if (c==IntVec3.Invalid) return;
+            if ((c.x==184 && (c.z==103 || c.z==104))||__instance.def.defName == "MealSimple" || __instance.def.defName=="MealFine") {
+                Log.Warning("Printing "+__instance.stackCount+__instance+" at "+c);
+            }
+        }
+    }
+    [HarmonyPatch(typeof(Verse.Thing), "Draw", new Type[] {})]
+    static class Figure_Out_Dynamic_Graphics {
+        public static int x=0;
+        static bool Prefix(Thing __instance) {
+            if ( x > 500) return true;
+            x++;
+            IntVec3 c=__instance.Position;
+            if (c==IntVec3.Invalid) return true;
+            if (__instance.def.defName == "MealSimple" || __instance.def.defName=="MealFine") {
+//            if ((c.x==184 && (c.z==103 || c.z==104))) {
+//                if (__instance.def.defName=="MealSimple") return false;
+                Log.Warning("Drawing "+__instance.stackCount+__instance+" at "+c);
+                return true;
+            }
+            return true;
+        }
     }
     [HarmonyPatch(typeof(RimWorld.Selector), "SelectUnderMouse")]
     static class Make_Select_Under_Mouse_Use_SortForDeepStorage {
         static void Prefix() {
-            Patch_GenUI_ThingsUnderMouse.useSortForDeepStorage=true;
+            Patch_GenUI_ThingsUnderMouse.sortForDeepStorage = Patch_GenUI_ThingsUnderMouse.DSSort.SingleSelect;
+        }
+        static void Postfix() {
+            Patch_GenUI_ThingsUnderMouse.sortForDeepStorage = Patch_GenUI_ThingsUnderMouse.DSSort.Vanilla;
         }
     }
     [HarmonyPatch(typeof(RimWorld.Selector),"SelectAllMatchingObjectUnderMouseOnScreen")]
     static class Make_DoubleClick_Work {
         static void Prefix(Selector __instance) {
-            if (__instance.SingleSelectedThing?.TryGetComp<CompDeepStorage>()!=null)
-                __instance.ClearSelection();
+            // If the DSU is still selected from the first click of SelectUnderMouse(),
+            //   it will get included in the SelectAll...  So we clear the selection - this should be fine in general?
+            //   It may affect some weird use cases, but if that ever turns into a problem, I can fix this.
+            __instance.ClearSelection();
+            Patch_GenUI_ThingsUnderMouse.sortForDeepStorage = Patch_GenUI_ThingsUnderMouse.DSSort.MultiSelect;
         }
+        static void Postfix() {
+            Patch_GenUI_ThingsUnderMouse.sortForDeepStorage = Patch_GenUI_ThingsUnderMouse.DSSort.Vanilla;
+        }
+        static void PrefixOhFFS(Selector __instance) {
+//            if (__instance.SingleSelectedThing?.TryGetComp<CompDeepStorage>()!=null)
+            __instance.ClearSelection();
+            var soum=Harmony.AccessTools.Method("RimWorld.Selector:SelectableObjectsUnderMouse");
+            List<object> list = ((IEnumerable<object>)soum.Invoke(__instance, null)).ToList<object>();//   __instance.SelectableObjectsUnderMouse().ToList<object>();
+            Log.Warning("DoubleClick:");
+            foreach (object o in list) {
+                if (o is Thing) {
+                    Log.Warning("Hey, this is selectable: "+o.ToString());
+                }
+            }
+            Map map = Find.CurrentMap;
+            if (map != null) {
+                List<Thing> l = map.thingGrid.ThingsListAt(IntVec3.FromVector3(UI.MouseMapPosition()));
+                foreach (Thing t in l) {
+                    Log.Warning("Thinglist has: "+t);
+                }
+
+                MyDel ms = delegate(Thing A, Thing B) {
+                    var s = Harmony.AccessTools.Method("Verse.GenUI:CompareThingsByDrawAltitude");
+                    int i = (int)s.Invoke(null, new object[] {A,B});
+                    return i;
+                };
+                var c = new Comparison<Thing>(ms);
+                List<Thing> l2 = new List<Thing>(l);
+                l2.Sort(c);
+                // jeeze
+                foreach (Thing t in l2) {
+                    Log.Warning("Sorted Thinglist has "+t);
+                }
+            }
+        }
+            public delegate int MyDel(Thing A, Thing B);
     }
 
     /********* UI ITab from sumghai - thanks! ********/

@@ -150,10 +150,15 @@ namespace LWM.DeepStorage
                         // Remove gui overlay - this includes number of stackabe item, quality, etc
                         map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Remove(thing);
                     }
-                    if (cds.showContents) continue;
                     if (thing.def.drawerType != DrawerType.MapMeshOnly) {
                         map.dynamicDrawManager.DeRegisterDrawable(thing);
                     }
+                    if (cds.showContents) {
+                        map.dynamicDrawManager.RegisterDrawable(thing);
+                        continue;
+                    }
+
+
                     map.tooltipGiverList.Notify_ThingDespawned(thing); // should this go with guioverlays?
 
                     // Don't need to thing.DirtyMapMesh(map); because of course it's dirty on spawn setup ;p
@@ -166,6 +171,26 @@ namespace LWM.DeepStorage
         }
     }
 
+    [HarmonyPatch(typeof(Verse.Thing),"get_DrawPos")]
+    static class Ensure_Top_Item_In_DSU_Draws_Correctly {
+        static void Postfix(Thing __instance, ref Vector3 __result) {
+            CompDeepStorage cds;
+            if (__instance.Map == null || __instance.Position == IntVec3.Invalid || (__instance is Building) ||
+                (cds=((__instance.Position.GetSlotGroup(__instance.Map)?.parent) as ThingWithComps)?.TryGetComp<CompDeepStorage>())==null)
+                return;
+            // Is it the last thing in the list of stored things?
+            List<Thing> l = __instance.Map.thingGrid.ThingsListAt(__instance.Position);
+            for (int i=l.Count-1; i>0; i--) {
+                if (l[i] is Building) continue;
+                if (l[i] == __instance) {
+                    __result.y+=0.05f;
+                }
+                if (l[i].def.EverStorable(false)) return; // not last.
+            }
+        }
+    }
+
+    
     /**************** GUI Overlay *****************/
     [HarmonyPatch(typeof(Thing),"DrawGUIOverlay")]
     static class Add_DSU_GUI_Overlay {

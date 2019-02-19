@@ -240,6 +240,38 @@ namespace LWM.DeepStorage
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
             }
+
+            yield return new Command_Action
+            {
+                defaultLabel="Mix",
+                action=delegate()
+                {
+                    Figure_Out_Dynamic_Graphics.x=0;
+                    Building_Storage p = parent as Building_Storage;
+                    foreach (var c in p.GetSlotGroup().CellsList) {
+                        var l = parent.Map.thingGrid.ThingsListAt(c);
+                        foreach (Thing t in l) {
+                            Log.Warning(t.stackCount.ToString()+t+" at "+c);
+                        }
+                        for (int i=0; i<l.Count;i++) {
+                            Thing first = l[i];
+                            if (!l[i].def.EverStorable(false))
+                                continue;
+                            l.Remove(first);
+                            l.Add(first);
+                            Map map=parent.Map;
+                            map.dynamicDrawManager.DeRegisterDrawable(first);
+                            map.dynamicDrawManager.RegisterDrawable(first);
+
+                            foreach (Thing t in l) {
+                                Log.Warning("Now :"+t.stackCount+t);
+                            }
+                            break;
+                        }
+                        return;  // only do one cell
+                    }
+                }
+            };
             // I left this lovely testing code in - oops.
             //yield return new Command_Action
             //{
