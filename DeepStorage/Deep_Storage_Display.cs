@@ -52,7 +52,7 @@ namespace LWM.DeepStorage
      *     identical one* in the pawn's inventory.
      * Note2: When an item is added to DS, we put the DSU at the
      *     end of the thingsListAt - for better display and 
-     *     for selecting the DSU on first click.
+     *     for selecting the DSU on first click.  TODO: Do I need to do this?
      * 
      *********************************************/
 
