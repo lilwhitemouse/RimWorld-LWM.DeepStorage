@@ -98,6 +98,48 @@ namespace LWM.DeepStorage
      * TODO: if DSU despawns, dirty map mesh, add things back to lists, etc.
      */
 
+
+    // Make non-mesh things invisible when loaded in Deep Storage
+    [HarmonyPatch(typeof(Building_Storage), "SpawnSetup")]
+    public static class PatchDisplay_SpawnSetup {
+        public static void Postfix(Building_Storage __instance, Map map) {
+            CompDeepStorage cds;
+            if ((cds = __instance.TryGetComp<CompDeepStorage>()) == null) return;
+            
+            foreach (IntVec3 cell in __instance.AllSlotCells()) {
+                List<Thing> list = map.thingGrid.ThingsListAt(cell);
+                bool alreadyFoundItemOnTop=false;
+                for (int i=list.Count-1; i>=0; i--) {
+                    Thing thing=list[i];
+                    if (!thing.Spawned || !thing.def.EverStorable(false)) continue; // don't make people walking past be invisible...
+
+                    
+                    if (cds.cdsProps.overlayType != GuiOverlayType.Normal || !cds.showContents) {
+                        // Remove gui overlay - this includes number of stackabe item, quality, etc
+                        map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Remove(thing);
+                    }
+                    if (thing.def.drawerType != DrawerType.MapMeshOnly) {
+                        if (!alreadyFoundItemOnTop) {
+                            Utils.TopThingInDeepStorage.Add(thing);
+                        }
+                        if (!cds.showContents) {
+                            map.dynamicDrawManager.DeRegisterDrawable(thing);
+                        }
+                    }
+                    alreadyFoundItemOnTop=true;  // it's true now, one way or another!
+
+                    if (!cds.showContents) {
+                        map.tooltipGiverList.Notify_ThingDespawned(thing); // should this go with guioverlays?
+                    }
+
+                    // Don't need to thing.DirtyMapMesh(map); because of course it's dirty on spawn setup ;p
+                } // end cell
+                // Now put the DSU at the top of the ThingsList here:
+                list.Remove(__instance);
+                list.Add(__instance);
+            }
+        }
+    }
     
     // Make non-mesh things invisible: they have to be de-registered on being added to a DSU:
     [HarmonyPatch(typeof(Building_Storage),"Notify_ReceivedThing")]
@@ -109,83 +151,90 @@ namespace LWM.DeepStorage
             /****************** Put DSU at top of list *******************/
             /*  This is important for selecting next objects?  I think?  */
             List<Thing> list = newItem.Map.thingGrid.ThingsListAt(newItem.Position);
-//TODO: SpawnSetup, too...
             list.Remove(__instance);
             list.Add(__instance);
-//            list.Insert(0, __instance);
 
             /****************** Set display for items correctly *******************/
+            /*** Clean up old "what was on top" ***/
+            foreach (Thing t in list) {
+                Utils.TopThingInDeepStorage.Remove(t);
+            }
+            
+            /*** Complex meshes have a few rules for DeepStorage ***/
+            if (newItem.def.drawerType != DrawerType.MapMeshOnly) {
+                //  If they are on top, they should be drawn on top:
+                if (cds.showContents)
+                    Utils.TopThingInDeepStorage.Add(newItem);
+                else // If we are not showing contents, don't draw them:
+                    __instance.Map.dynamicDrawManager.DeRegisterDrawable(newItem);
+            }
 
+            /*** Gui overlay - remove if the DSU draws it, or if the item is invisible ***/
             if (cds.cdsProps.overlayType != GuiOverlayType.Normal || !cds.showContents) {
                 // Remove gui overlay - this includes number of stackabe item, quality, etc
                 __instance.Map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Remove(newItem);
             }
-            
-            if (cds.showContents) return;
 
-            if (newItem.def.drawerType != DrawerType.MapMeshOnly) {
-                __instance.Map.dynamicDrawManager.DeRegisterDrawable(newItem);
-            }
+            if (!cds.showContents) return; // anything after is for invisible items
+
+            /*** tool tip, dirt mesh, etc ***/
             __instance.Map.tooltipGiverList.Notify_ThingDespawned(newItem); // should this go with guioverlays?
-            
-            // Note: not removing linker here b/c I don't think it's applicable to DS?
-            
             newItem.DirtyMapMesh(newItem.Map); // for items with a map mesh; probably unnecessary?
+            // Note: not removing linker here b/c I don't think it's applicable to DS?
         }
     }
 
-    // Make non-mesh things invisible when loaded in Deep Storage
-    [HarmonyPatch(typeof(Building_Storage), "SpawnSetup")]
-    public static class PatchDisplay_SpawnSetup {
-        public static void Postfix(Building_Storage __instance, Map map) {
-            CompDeepStorage cds;
-            if ((cds = __instance.TryGetComp<CompDeepStorage>()) == null) return;
-            
-            foreach (IntVec3 cell in __instance.AllSlotCells()) {
-                List<Thing> list = map.thingGrid.ThingsListAt(cell);
-                foreach (Thing thing in list) {
-                    if (!thing.Spawned || !thing.def.EverStorable(false)) continue; // don't make people walking past be invisible...
+    // Son. Of. A. Biscuit.  This does not work:
+    //   Notify_LostThing is an empty declaration, and it seems to be optimized out of existance,
+    //   so Harmony cannot attach to it.  The game crashes - with no warning - when the patched
+    //   method gets called.
+    #if false
+    [HarmonyPatch(typeof(RimWorld.Building_Storage), "Notify_LostThing")]
+    public static class PatchDisplay_Notify_LostThing {
+        static void Postfix(){
+            return; // crashes instantly when Notify_LostThing is called ;_;
+        }
 
-                    if (cds.cdsProps.overlayType != GuiOverlayType.Normal || !cds.showContents) {
-                        // Remove gui overlay - this includes number of stackabe item, quality, etc
-                        map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Remove(thing);
-                    }
-                    if (thing.def.drawerType != DrawerType.MapMeshOnly) {
-                        map.dynamicDrawManager.DeRegisterDrawable(thing);
-                    }
-                    if (cds.showContents) {
-                        map.dynamicDrawManager.RegisterDrawable(thing);
-                        continue;
-                    }
-
-
-                    map.tooltipGiverList.Notify_ThingDespawned(thing); // should this go with guioverlays?
-
-                    // Don't need to thing.DirtyMapMesh(map); because of course it's dirty on spawn setup ;p
-                } // end cell
-                // Now put the DSU at the top of the ThingsList here:
-                list.Remove(__instance);
-//                list.Insert(0, __instance);
-                list.Add(__instance);
+        static void Postfix_I_Would_Like_To_Use(Building_Storage __instance, Thing newItem) {
+            Utils.TopThingInDeepStorage.Remove(newItem);
+            if (__instance.TryGetComp<CompDeepStorage>() == null) return;
+            List<Thing> list = newItem.Map.thingGrid.ThingsListAt(newItem.Position);
+            for (int i=list.Count-1; i>0; i--) {
+                if (!list[i].def.EverStorable(false)) continue;
+                Utils.TopThingInDeepStorage.Add(list[i]);
+                return;
             }
         }
     }
-
+    #endif
+    
+    [HarmonyPatch(typeof(Verse.Thing), "DeSpawn")]
+    static class Cleanup_For_DeepStorage_Thing_At_DeSpawn {
+        static void Prefix(Thing __instance) {
+            // I wish I could just do this:
+            // Utils.TopThingInDeepStorage.Remove(__instance);
+            // But, because I cannot patch Notify_LostThing, I have to do its work here:  >:/
+            if (!Utils.TopThingInDeepStorage.Contains(__instance)) return;
+            if (__instance.Position == IntVec3.Invalid) return; // ???
+            CompDeepStorage cds;
+            if ((cds=((__instance.Position.GetSlotGroup(__instance.Map)?.parent) as ThingWithComps)?.
+                 TryGetComp<CompDeepStorage>())==null) return;
+            if (!cds.showContents) return;
+            List<Thing> list = __instance.Map.thingGrid.ThingsListAtFast(__instance.Position);
+            for (int i=list.Count-1; i>=0; i--) {
+                if (!list[i].def.EverStorable(false)) continue;
+                if (list[i] == __instance) continue;
+                Utils.TopThingInDeepStorage.Add(list[i]);
+                return;
+            }
+        }
+    }
+    
     [HarmonyPatch(typeof(Verse.Thing),"get_DrawPos")]
     static class Ensure_Top_Item_In_DSU_Draws_Correctly {
         static void Postfix(Thing __instance, ref Vector3 __result) {
-            CompDeepStorage cds;
-            if (__instance.Map == null || __instance.Position == IntVec3.Invalid || (__instance is Building) ||
-                (cds=((__instance.Position.GetSlotGroup(__instance.Map)?.parent) as ThingWithComps)?.TryGetComp<CompDeepStorage>())==null)
-                return;
-            // Is it the last thing in the list of stored things?
-            List<Thing> l = __instance.Map.thingGrid.ThingsListAt(__instance.Position);
-            for (int i=l.Count-1; i>0; i--) {
-                if (l[i] is Building) continue;
-                if (l[i] == __instance) {
-                    __result.y+=0.05f;
-                }
-                if (l[i].def.EverStorable(false)) return; // not last.
+            if (Utils.TopThingInDeepStorage.Contains(__instance)) {
+                __result.y+=0.05f;                
             }
         }
     }

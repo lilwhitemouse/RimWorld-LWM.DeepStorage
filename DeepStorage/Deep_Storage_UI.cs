@@ -125,10 +125,6 @@ namespace LWM.DeepStorage
         
         // Put DeepStorage at the top of the list:
         static public void SortForDeepStorage(List<Thing> list) {
-            Log.Warning("Checking list, sort type will be: " + sortForDeepStorage);
-            for (int a=0; a<list.Count; a++) {
-                Log.Warning("Orig has: "+list[a]);
-            }
             if (sortForDeepStorage==DSSort.Vanilla) return;
             if (sortForDeepStorage==DSSort.SingleSelect) {
                 /* Single Select: for RimWorld.Selector's SelectUnderMouse() -
@@ -169,7 +165,6 @@ namespace LWM.DeepStorage
                         IntVec3 cell = IntVec3.Invalid;
                         // use the location of an item that is in storage:
                         for (int j=0; j<list.Count; j++) {
-                            Log.Warning("Checking for storable object with position: "+list[j]);
                             if (list[j].def.EverStorable(false)) {
                                 cell=list[j].Position;
                                 break;
@@ -181,14 +176,10 @@ namespace LWM.DeepStorage
                             return;
                         }
                         List<Thing> thingsList=Find.CurrentMap.thingGrid.ThingsListAt(cell);
-                        for (int a=0; a<thingsList.Count; a++) {
-                            Log.Error("ThingsListAt: "+thingsList[a]);
-                        }
                         for (int k=thingsList.Count-1; k>=0; k--) {
                             if (thingsList[k].def.EverStorable(false)) {
-                                if (list.Remove(thingsList[k])) { // found item in our list!
+                                if (list.Remove(thingsList[k])) { // found item from ThingsList in OUR list!
                                     list.Insert(0,thingsList[k]);
-                                    Log.Error("-----Putting "+thingsList[k]+" at beginning of list");
                                     return; // Ha - sorted!
                                 }
                                 // That item wasn't in the list for some reason, continue...
@@ -201,33 +192,7 @@ namespace LWM.DeepStorage
             }
         } // end SortForDeepStorage
     } // done with Patch_GenUI_ThingsUnderMouse
-    [HarmonyPatch(typeof(Verse.Thing), "Print")]
-    static class Figure_Out_Graphics {
-        static void Postfix(Thing __instance) {
-            IntVec3 c=__instance.Position;
-            if (c==IntVec3.Invalid) return;
-            if ((c.x==184 && (c.z==103 || c.z==104))||__instance.def.defName == "MealSimple" || __instance.def.defName=="MealFine") {
-                Log.Warning("Printing "+__instance.stackCount+__instance+" at "+c);
-            }
-        }
-    }
-    [HarmonyPatch(typeof(Verse.Thing), "Draw", new Type[] {})]
-    static class Figure_Out_Dynamic_Graphics {
-        public static int x=0;
-        static bool Prefix(Thing __instance) {
-            if ( x > 500) return true;
-            x++;
-            IntVec3 c=__instance.Position;
-            if (c==IntVec3.Invalid) return true;
-            if (__instance.def.defName == "MealSimple" || __instance.def.defName=="MealFine") {
-//            if ((c.x==184 && (c.z==103 || c.z==104))) {
-//                if (__instance.def.defName=="MealSimple") return false;
-                Log.Warning("Drawing "+__instance.stackCount+__instance+" at "+c);
-                return true;
-            }
-            return true;
-        }
-    }
+
     [HarmonyPatch(typeof(RimWorld.Selector), "SelectUnderMouse")]
     static class Make_Select_Under_Mouse_Use_SortForDeepStorage {
         static void Prefix() {
@@ -249,39 +214,6 @@ namespace LWM.DeepStorage
         static void Postfix() {
             Patch_GenUI_ThingsUnderMouse.sortForDeepStorage = Patch_GenUI_ThingsUnderMouse.DSSort.Vanilla;
         }
-        static void PrefixOhFFS(Selector __instance) {
-//            if (__instance.SingleSelectedThing?.TryGetComp<CompDeepStorage>()!=null)
-            __instance.ClearSelection();
-            var soum=Harmony.AccessTools.Method("RimWorld.Selector:SelectableObjectsUnderMouse");
-            List<object> list = ((IEnumerable<object>)soum.Invoke(__instance, null)).ToList<object>();//   __instance.SelectableObjectsUnderMouse().ToList<object>();
-            Log.Warning("DoubleClick:");
-            foreach (object o in list) {
-                if (o is Thing) {
-                    Log.Warning("Hey, this is selectable: "+o.ToString());
-                }
-            }
-            Map map = Find.CurrentMap;
-            if (map != null) {
-                List<Thing> l = map.thingGrid.ThingsListAt(IntVec3.FromVector3(UI.MouseMapPosition()));
-                foreach (Thing t in l) {
-                    Log.Warning("Thinglist has: "+t);
-                }
-
-                MyDel ms = delegate(Thing A, Thing B) {
-                    var s = Harmony.AccessTools.Method("Verse.GenUI:CompareThingsByDrawAltitude");
-                    int i = (int)s.Invoke(null, new object[] {A,B});
-                    return i;
-                };
-                var c = new Comparison<Thing>(ms);
-                List<Thing> l2 = new List<Thing>(l);
-                l2.Sort(c);
-                // jeeze
-                foreach (Thing t in l2) {
-                    Log.Warning("Sorted Thinglist has "+t);
-                }
-            }
-        }
-            public delegate int MyDel(Thing A, Thing B);
     }
 
     /********* UI ITab from sumghai - thanks! ********/
@@ -457,6 +389,7 @@ namespace LWM.DeepStorage
     } /* End sumghai's itab */
     /* Now make the itab open automatically! */
     /*   Thanks to Falconne for doing this in ImprovedWorkbenches, and showing how darn useful it is! */
+    /* TODO: make it keep storage open if storage is already open */
     [HarmonyPatch(typeof(Selector), "Select")]
     public static class Open_DS_Tab_On_Select {
         public static void Postfix(Selector __instance) {
