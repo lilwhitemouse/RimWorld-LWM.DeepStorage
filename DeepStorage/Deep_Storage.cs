@@ -235,7 +235,7 @@ namespace LWM.DeepStorage
         CountOfAllStacks,       // Centered on DSU
         CountOfStacksPerCell,   // Standard overlay position for each cell
         SumOfAllItems,          // Centered on DSU
-        //SumOfItemsPerCell,      // etc. TODO?
+        //SumOfItemsPerCell,      // etc. TODO?  For e.g., Big Shelf?
     }
 
     public class CompDeepStorage : ThingComp {

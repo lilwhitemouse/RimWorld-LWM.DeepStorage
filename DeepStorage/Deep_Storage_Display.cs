@@ -14,6 +14,46 @@ namespace LWM.DeepStorage
      * 
      * Make giant piles of Deep Storage stuff look tider!
      * 
+     * Multiple aspects:
+     *
+     * 1.  Make items invisisble if the DSU makes them invisible
+     *     (patch Regenerate and modify adding items to DeepStorage
+     *      to deregister drawing them)
+     * 2.  Make it so the last item added to the Deep Storage,
+     *     the item on top, shows on top.
+     *     Why?
+     *     Because the way Unity works, the very first mesh drawn
+     *     is "over" later meshes drawn.  As far as I can tell,
+     *     the meshes get drawn once, and then get put down
+     *     multiple times - once for each object.  So the mesh for
+     *     Simple meals will ALWAYS cover the mesh for Fine meals.
+     *     Even if in a specific case, it is "Draw()n" later.
+     *     Fix
+     *     Create a HashSet (in Utils) to keep track of what
+     *     items are on top (I think that was fastest).  When an
+     *     item is added to DeepStorage, make sure the correct
+     *     item is in the HashSet.  When an item gets removed,
+     *     take it out of the HashSet and make sure the correct
+     *     item IS in there.
+     *     Patch Thing's DrawPos getter, so that when an item
+     *     is on "top" of the DeepStorage pile, its draw height
+     *     (altitude, "y", whatever) is sliiiightly higher than
+     *     normal.  Viola!  It gets drawn on top.
+     * 3.  Do a pretty - and useful - GUI overlay on DSUs, as
+     *     appropriate.
+     *     (on adding to DSU, turn off normal GUI overlay;
+     *     make a gui overlay for the DSU)
+     *
+     * Note:  The way the game handles storage, we don't have to
+     *     re-register items to be drawn, turn back on their GUI,
+     *     or any of that.
+     *     Why?
+     *     The game *unspawns the old item* and then *creates an
+     *     identical one* in the pawn's inventory.
+     * Note2: When an item is added to DS, we put the DSU at the
+     *     end of the thingsListAt - for better display and 
+     *     for selecting the DSU on first click.
+     * 
      *********************************************/
 
     /**********************************
@@ -98,8 +138,16 @@ namespace LWM.DeepStorage
      * TODO: if DSU despawns, dirty map mesh, add things back to lists, etc.
      */
 
-
+    /* NOTE: an item can be added to Deep Storage in two ways:
+     *  2.  Something puts it there (Notify_ReceivedThing called)
+     *  1.  The game loads.
+     *  Both need to be addressed.
+     */
+    
     // Make non-mesh things invisible when loaded in Deep Storage
+    // Making item on top display on top: loaded items on "top" need to go into the HashSet
+    // Gui Overlay: loaded items' overlays should not display
+    // Put DeepStorage at the end of the ThingsList so it can be clicked on?
     [HarmonyPatch(typeof(Building_Storage), "SpawnSetup")]
     public static class PatchDisplay_SpawnSetup {
         public static void Postfix(Building_Storage __instance, Map map) {
@@ -113,7 +161,6 @@ namespace LWM.DeepStorage
                     Thing thing=list[i];
                     if (!thing.Spawned || !thing.def.EverStorable(false)) continue; // don't make people walking past be invisible...
 
-                    
                     if (cds.cdsProps.overlayType != GuiOverlayType.Normal || !cds.showContents) {
                         // Remove gui overlay - this includes number of stackabe item, quality, etc
                         map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Remove(thing);
@@ -131,7 +178,6 @@ namespace LWM.DeepStorage
                     if (!cds.showContents) {
                         map.tooltipGiverList.Notify_ThingDespawned(thing); // should this go with guioverlays?
                     }
-
                     // Don't need to thing.DirtyMapMesh(map); because of course it's dirty on spawn setup ;p
                 } // end cell
                 // Now put the DSU at the top of the ThingsList here:
@@ -141,7 +187,10 @@ namespace LWM.DeepStorage
         }
     }
     
-    // Make non-mesh things invisible: they have to be de-registered on being added to a DSU:
+    // Make non-mesh things invisible: they have to be de-registered on being added to a DSU
+    // Making item on top display on top: added items need to go into the HashSet
+    // Gui Overlay: added items' overlays should not display
+    // Put DeepStorage at the end of the ThingsList so it can be clicked on?
     [HarmonyPatch(typeof(Building_Storage),"Notify_ReceivedThing")]
     public static class PatchDisplay_Notify_ReceivedThing {
         public static void Postfix(Building_Storage __instance,Thing newItem) {
@@ -184,6 +233,8 @@ namespace LWM.DeepStorage
         }
     }
 
+    /*** Removing an item from DeepStorage necessitates re-calculating which item is "on top" ***/
+    
     // Son. Of. A. Biscuit.  This does not work:
     //   Notify_LostThing is an empty declaration, and it seems to be optimized out of existance,
     //   so Harmony cannot attach to it.  The game crashes - with no warning - when the patched
@@ -214,11 +265,13 @@ namespace LWM.DeepStorage
             // I wish I could just do this:
             // Utils.TopThingInDeepStorage.Remove(__instance);
             // But, because I cannot patch Notify_LostThing, I have to do its work here:  >:/
-            if (!Utils.TopThingInDeepStorage.Contains(__instance)) return;
+            if (!Utils.TopThingInDeepStorage.Remove(__instance)) return;
             if (__instance.Position == IntVec3.Invalid) return; // ???
+            // So it was at one point in Deep Storage.  Is it still?
             CompDeepStorage cds;
             if ((cds=((__instance.Position.GetSlotGroup(__instance.Map)?.parent) as ThingWithComps)?.
                  TryGetComp<CompDeepStorage>())==null) return;
+            // Figure out what is on top now:
             if (!cds.showContents) return;
             List<Thing> list = __instance.Map.thingGrid.ThingsListAtFast(__instance.Position);
             for (int i=list.Count-1; i>=0; i--) {
@@ -229,12 +282,16 @@ namespace LWM.DeepStorage
             }
         }
     }
-    
+
+    /* The magic to make what is on top get displayed above everything else: */
+    /* (thank you DuckDuckGo for providing this approach, and thak you to everyone
+     *  who helped people who had similar which-mesh-is-on-top problems)
+     */
     [HarmonyPatch(typeof(Verse.Thing),"get_DrawPos")]
     static class Ensure_Top_Item_In_DSU_Draws_Correctly {
         static void Postfix(Thing __instance, ref Vector3 __result) {
             if (Utils.TopThingInDeepStorage.Contains(__instance)) {
-                __result.y+=0.05f;                
+                __result.y+=0.05f; // The default altitudes are around .45 apart, so .05 should be about right.
             }
         }
     }

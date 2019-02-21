@@ -73,8 +73,8 @@ namespace LWM.DeepStorage
      * 
      * So we control whether we sort by adding a flag to SelectUnderMouse.
      * 
-     * Basically, we make ThingsUnderMouse() into ThingsUnderMouse(useSortForDeepStorage=false),
-     * and make SelectUnderMouse() call it with true.
+     * Basically, we make ThingsUnderMouse() into ThingsUnderMouse(sortType),
+     * and make SelectUnderMouse() call it with SortForSingleClick (or whatever I named it).
      */
     [HarmonyPatch(typeof(Verse.GenUI),"ThingsUnderMouse")]
     public static class Patch_GenUI_ThingsUnderMouse {
@@ -193,6 +193,7 @@ namespace LWM.DeepStorage
         } // end SortForDeepStorage
     } // done with Patch_GenUI_ThingsUnderMouse
 
+    // Single click should select the Deep Storage unit
     [HarmonyPatch(typeof(RimWorld.Selector), "SelectUnderMouse")]
     static class Make_Select_Under_Mouse_Use_SortForDeepStorage {
         static void Prefix() {
@@ -202,6 +203,7 @@ namespace LWM.DeepStorage
             Patch_GenUI_ThingsUnderMouse.sortForDeepStorage = Patch_GenUI_ThingsUnderMouse.DSSort.Vanilla;
         }
     }
+    // Double click should multi-select all of whatever item is on top (similar to how items on shelves behave)
     [HarmonyPatch(typeof(RimWorld.Selector),"SelectAllMatchingObjectUnderMouseOnScreen")]
     static class Make_DoubleClick_Work {
         static void Prefix(Selector __instance) {
