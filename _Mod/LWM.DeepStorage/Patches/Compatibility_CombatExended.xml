@@ -31,7 +31,7 @@
           </value>
         </li>
         <li Class="LWM.DeepStorage.PatchMessage">
-          <message>LWM's Deep Storage: patched for Combat Extended</message>
+          <message>LWM Deep Storage: activated compatibility patch for Combat Extended</message>
         </li>
       </operations>
     </match>

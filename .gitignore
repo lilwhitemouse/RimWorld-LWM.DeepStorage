@@ -1,5 +1,6 @@
 .vs/
 /DeepStorage/obj/
+/DeepStorage/bin/
 *.swp
 *~
 
