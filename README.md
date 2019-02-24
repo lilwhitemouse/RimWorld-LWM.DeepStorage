@@ -15,6 +15,14 @@ Pallets, clothing racks, food storage trays, etc.  You can also write your own &
 
 ## Installation
  * Put the LWM.DeepStorage folder (under _Mod) inside your game's Mod/ folder.  Update often?
+ 
+## Note on Building the Project Yourself
+The build project is designed for use on Linux in my personal laptop.  If you want to build the project yourself, you will need to - at a minumum:
+ 1. Ensure the Requirements/References point to your correct locations for the RimWorld Assembly-CSharp and UnityEngine dlls.
+ 2. Ensure the nupkg requirement for HugsLib is working
+ 3. Change the Custom Commands for your system.
+ * I am using monodevelop 7.7 and msbuild on the Debian-based SolydX flavour of Linux.
+ * All of these details are located in the .csproj file, or you can use monodevelop's UI to change these settings.
 
 ## Deep Storage Units
  * Big Shelf - a shelf with enough space to store two items per cell
