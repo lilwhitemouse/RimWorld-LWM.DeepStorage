@@ -67,6 +67,7 @@ Also (currently) includes some code from Ratysz, allowing right-click to select 
 Released under GPL 3.0.
 All of LWM's code (and sumghai's additions) are also released under LGPL, because I think that the LGPL is the license we should actually be using for mods.  Not that anyone is likely to complain, but altho we have a stupid copyright system, we should still use it correctly.
 All of LWM's code (and sumghai's) are also available to Ludeon Studios, should they be incorporated into the base RimWorld game.
+Thanks to Marnador for the RimWorld font.  Thanks to Pardeike for Harmony.  Awesome.
 
 </description>
 <url>https://github.com/lilwhitemouse/RimWorld-LWM.DeepStorage</url>

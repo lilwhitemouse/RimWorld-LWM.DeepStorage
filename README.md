@@ -83,3 +83,5 @@ All of LWM's code (and sumghai's additions) are also released under LGPL, becaus
 
 All of LWM's code (and sumghai's) are also available to Ludeon Studios, should they be incorporated into the base RimWorld game.
 
+Thanks to Marnador for the RimWorld font.  Thanks to Pardeike for Harmony.  Awesome.
+
