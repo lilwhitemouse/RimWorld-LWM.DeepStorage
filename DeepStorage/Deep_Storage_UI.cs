@@ -222,6 +222,7 @@ namespace LWM.DeepStorage
         }
     }
 
+    /*///////////////////////////////////////////////////////////////////*/
     /********* UI ITab from sumghai - thanks! ********/
     public class ITab_DeepStorage_Inventory : ITab {
         private Vector2 scrollPosition = Vector2.zero;
@@ -395,7 +396,6 @@ namespace LWM.DeepStorage
     } /* End sumghai's itab */
     /* Now make the itab open automatically! */
     /*   Thanks to Falconne for doing this in ImprovedWorkbenches, and showing how darn useful it is! */
-    /* TODO: make it keep storage open if storage is already open */
     [HarmonyPatch(typeof(Selector), "Select")]
     public static class Open_DS_Tab_On_Select {
         public static void Postfix(Selector __instance) {
@@ -405,9 +405,23 @@ namespace LWM.DeepStorage
             if (!(t is ThingWithComps)) return;
             CompDeepStorage cds = t.TryGetComp<CompDeepStorage>();
             if (cds == null) return;
+            // Off to a good start; it's a DSU
+            // Check to see if a tab is already open.
+            var pane= (MainTabWindow_Inspect)MainButtonDefOf.Inspect.TabWindow;
+            Type alreadyOpenTabType = pane.OpenTabType;
+            if (alreadyOpenTabType != null) {
+                var listOfTabs=t.GetInspectTabs();
+                foreach (var x in listOfTabs) {
+                    if (x.GetType() == alreadyOpenTabType) { // Misses any subclassing?
+                        return; // standard Selector behavior should kick in.
+                    }
+                }
+            }
+            // If not, open ours!
+            // TODO: Open Storage Settings if it's empty!
+            // TODO: ...make this happen for shelves, heck, any storage buildings.
             ITab_DeepStorage_Inventory tab = t.GetInspectTabs().OfType<ITab_DeepStorage_Inventory>().First();
             if (tab == null) { Log.Error("LWM Deep Storage object " + t + " does not have an inventory tab?");  return; }
-            var pane= (MainTabWindow_Inspect)MainButtonDefOf.Inspect.TabWindow;
             tab.OnOpen();
             pane.OpenTabType = typeof(ITab_DeepStorage_Inventory);
         }
