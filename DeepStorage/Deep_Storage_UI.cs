@@ -76,6 +76,10 @@ namespace LWM.DeepStorage
      * Basically, we make ThingsUnderMouse() into ThingsUnderMouse(sortType),
      * and make SelectUnderMouse() call it with SortForSingleClick (or whatever I named it).
      */
+    // Add new sort inside ThingsUnderMouse
+    // After the list is sorted via CompareThingsByDrawAltitude, we insert code to sort the list
+    //   in our new function SortForDeepStorage.
+    //   SortForDeepStorage will use a flag that was set before ThingsUnderMouse was called.
     [HarmonyPatch(typeof(Verse.GenUI),"ThingsUnderMouse")]
     public static class Patch_GenUI_ThingsUnderMouse {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
@@ -104,7 +108,7 @@ namespace LWM.DeepStorage
                     yield return new CodeInstruction(OpCodes.Ldloc_S,6); // the temporary list
                     yield return new CodeInstruction(OpCodes.Call, Harmony.AccessTools.
                                                      Method("LWM.DeepStorage.Patch_GenUI_ThingsUnderMouse:SortForDeepStorage"));
-                    i++;
+                    i++; // VERY VERY important -.^
                     break; // our work is done here
                 }
             }
