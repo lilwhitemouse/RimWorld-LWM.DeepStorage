@@ -9,6 +9,15 @@ using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
                               // XXX:
 using UnityEngine;
+/*******************************************************************************************
+           IMPORTANT NOTE:   This file IS NOT USED
+           
+           It is kept here as a set of notes for a possible alternative approach to
+           modding the job
+           
+           See instead DeepStorage_Pause.cs
+ *******************************************************************************************/
+
 
 // NOTE: PlaceCarriedThingInCellFacing not actually used?
 //  You know...I could have just written my own job definition and inserted it via
