@@ -63,7 +63,22 @@ namespace LWM.DeepStorage
 
     /*****************  RimWorld CommonSense (avil, aka CGFighter)  **********
      * Fix a problem with pawns trying to merge foodstuff that cannot merge
-     *   when the foodstuff is in DeepStorage
+     *   when the foodstuff is in DeepStorage.
+     * 
+     * The problem is that pawns will look for Merge jobs, and the vanilla
+     *   Merge job doesn't check if things the merging items CanStackWith() - 
+     *   it only checks if the defs are equal.
+     *   In vanilla, or with CommonSense, this doesn't cause a problem, because
+     *   NoStorageBlockersIn won't let the job be created, so that test fails.
+     *   But in LWM's Deep Storage (or other multi-storage solutions), 
+     *   NoStorageBlockersIn has been patched to allow multiple stacks, so the
+     *   job can get created, even tho the items cannot actually stack.
+     *
+     * Solution:
+     *   Replace the vanilla test
+     *     if (thing.def==t.def) ...
+     *   with
+     *     if (thing.CanStackWith(t)) ...
      */
     [HarmonyPatch(typeof(WorkGiver_Merge), "JobOnThing")]
     static class Compatibility_RimWorld_CommonSense {
