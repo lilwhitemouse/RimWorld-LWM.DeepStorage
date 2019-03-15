@@ -63,7 +63,8 @@ namespace LWM.DeepStorage
 
     /*****************  RimWorld CommonSense (avil, aka CGFighter)  **********
      * Fix a problem with pawns trying to merge foodstuff that cannot merge
-     *   when the foodstuff is in DeepStorage.
+     *   when the foodstuff is in DeepStorage.  Only happens when CommonSense
+     *   doesn't allow stacking of weird food and normal food.
      * 
      * The problem is that pawns will look for Merge jobs, and the vanilla
      *   Merge job doesn't check if things the merging items CanStackWith() - 
