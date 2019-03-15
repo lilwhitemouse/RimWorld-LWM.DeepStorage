@@ -84,11 +84,13 @@ namespace LWM.DeepStorage
     static class Compatibility_RimWorld_CommonSense {
         public static bool Prepare(HarmonyInstance instance) {
             // Look for RimWorld_CommonSense...hope there isn't anyone else naming one Common Sense...
-            if (!ModLister.HasActiveModWithName("Common Sense")) {
-                return false;
+            if (ModLister.HasActiveModWithName("Common Sense")
+                // || ModLister.HasActiveModWithName( /*insert name of another multi-stack mod*/)
+                ) {
+                Log.Message("LWM DeepStorage: Activating Compatibility Patch for CGFighter's Common Sense");
+                return true;
             }
-            Log.Message("LWM DeepStorage: Activating Compatibility Patch for CGFighter's Common Sense");
-            return true;
+            return false;
         }
         // Replace WorkGiver_Merge's JobOnThing's test of "if (thing.def==t.def) ..." with
         //                                                "if (thing.CanStackWith(t)) ..."
