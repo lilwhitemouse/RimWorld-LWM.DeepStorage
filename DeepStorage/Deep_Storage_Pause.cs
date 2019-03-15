@@ -58,7 +58,7 @@ namespace LWM.DeepStorage
             //  stuff down if failure happens?
 
             Action placeStuff = __result.initAction;
-            // NOTE: none of this happens if the game is being loaded while storing is going on:
+            // NOTE: none of this PreInitAtion happens if the game is being loaded while storing is going on:
             //   This means, among other things, that pawns don't get progress bars on reload
             //   I could make it happen if it ever gets to be important...
             __result.AddPreInitAction(delegate ()
@@ -66,7 +66,7 @@ namespace LWM.DeepStorage
                 Pawn actor = __result.actor;
                 Job curJob = actor.jobs.curJob;
                 IntVec3 cell = curJob.GetTarget(cellInd).Cell;
-                Utils.Err(PlaceHauledThingInCell, "PreInitAction called for " + actor+"'s haul job to "+cell);
+                Utils.Err(PlaceHauledThingInCell, "PreInitAction called for " + actor+"'s haul job "+curJob.def.driverClass+" to "+cell);
                 //                Log.Error("Place Hauled Thing in Cell:  Toil preInit!  Putting in "+cell.ToString());
                 //                actor.jobs.debugLog = true;
                 if (actor.carryTracker.CarriedThing == null)
@@ -116,7 +116,7 @@ namespace LWM.DeepStorage
 
             // The tickAction is only called if we are going into Deep Storage,
             //   otherwise the toil is over after initAction and no ticks happen.
-            // This will still get called even on load/save.
+            // This will still get called even on load/save, because ticks count down.
             __result.tickAction = delegate ()
             {
                 Pawn pawn = __result.actor;

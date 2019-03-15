@@ -57,6 +57,7 @@ namespace LWM.DeepStorage
     public class Utils {
         static bool[] showDebug ={
             true,  // "Testing" will always be true
+            
             false, // No Storage Blockers In
             false, // Haul To Cell Storage Job
             false, // Try Place Direct
@@ -212,7 +213,7 @@ namespace LWM.DeepStorage
         public static HashSet<Thing> TopThingInDeepStorage = new HashSet<Thing>(); // for display
         
     } // End Utils class
-
+    
     /******************* the custom Comp class and XML LWM.DeepStorage.Properties *****/
     public class Properties : CompProperties {
         public Properties() {

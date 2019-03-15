@@ -6,10 +6,64 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 using UnityEngine;
-
+using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 
 
 namespace LWM.DeepStorage {
+    /* Some code to trace every line of a function:  *
+     *   (specifically, Thing's CanStackWith())      *
+     *   Requires using System.Reflection.Emit;      */
+#if false
+
+    [HarmonyPatch(typeof(Thing), "CanStackWith")]
+    static class Trace_CanStackWith {
+        public static void Prefix(Thing __instance, Thing other) {
+            Log.Error("Can Thing "+__instance.stackCount+__instance+" stack with "+other.stackCount+other+"?");
+        }
+
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+            int i=0;
+            foreach (CodeInstruction code in instructions) {
+                List<Label> ls=code.labels;
+                code.labels=new List<Label>();
+                CodeInstruction c = new CodeInstruction(OpCodes.Ldarg_0);
+                c.labels=ls;
+                yield return c;
+                yield return new CodeInstruction(OpCodes.Ldc_I4, i++);
+
+                if (code.opcode == OpCodes.Ret) {
+                    yield return new CodeInstruction(OpCodes.Call, Harmony.AccessTools.
+                                                     Method("LWM.DeepStorage.Trace_CanStackWith:ReturnTest"));
+                } else { // other calls possible as well
+                    yield return new CodeInstruction(OpCodes.Ldstr, code.ToString());                                        
+                    yield return new CodeInstruction(OpCodes.Call, Harmony.AccessTools.
+                                                     Method("LWM.DeepStorage.Trace_CanStackWith:JustTrace"));
+                }
+                yield return code;
+            }
+        }
+
+        static void JustTrace(Thing t, int n, string s) {
+            if (t?.def?.defName!="Kibble") return; // If you need to be specific
+            Log.Warning("..."+t.stackCount+t+": line "+n+": "+s);
+        }
+        
+        static bool DoMyTest(bool result, Thing t, int n) {
+            //if (t?.def?.defName == "Kibble") { // as needed
+                Log.Warning("...-------------------returning "+result+" for "+t.stackCount+t+" at entry "+n); 
+            //}
+            return result; /* because we pop it off the stack */
+        }
+        
+        public static void Postfix(bool __result) {
+            Log.Warning("Actual result: "+__result); /* Note: this can be changed by other mods, of course... */
+        }
+    }
+
+#endif
+
+
+    
 #if false
     //    [HarmonyPatch(typeof(WorkGiver_Merge), "JobOnThing")]
     class Patch_WorkGiver_Merge {

@@ -47,6 +47,7 @@ namespace LWM.DeepStorage
      * We patch via postfix to catch case 2).
      * We also patch via postfix to make sure all of the stacks are tidy
      **************************************/
+    // TODO: can we traspile this?  No?
     [HarmonyPatch(typeof(Verse.GenPlace), "TryPlaceDirect")]
     class Patch_TryPlaceDirect {
         static void Prefix(ref Thing __state, Thing thing, IntVec3 loc)
@@ -56,6 +57,32 @@ namespace LWM.DeepStorage
             //  #HarmonyGotcha
             __state = thing;
             Utils.Err(TryPlaceDirect, "LWM:TryPlaceDirect: going to place " + thing.stackCount + thing + " at " + loc);
+            #if false
+            Map map; // please add parameter in Previx() line
+            List<Thing> thingList = loc.GetThingList(map);
+            int i=0;
+            while (i < thingList.Count)
+            {
+                Thing thing3 = thingList[i];
+                Log.Warning("Things here: "+thingList[i].stackCount+thingList[i]);
+                if (!thing3.CanStackWith(thing))
+                {
+                    Log.Warning("Cannot stack");
+                    i++;
+                }
+                else
+                {
+                    int stackCount = thing.stackCount;
+                    if (thing3.TryAbsorbStack(thing, true))
+                    {
+                        Log.Error("Thing3 absorbed the stack!!!!");
+                        return;
+                    }
+                    Log.Error("Tried to absorb, but failed.  ResultingThing is null??");
+                }
+            }
+            Log.Error("...everything passed");
+            #endif
         }
         static void Postfix(ref bool __result, Thing __state, IntVec3 loc, Map map,
                             ref Thing resultingThing, Action<Thing, int> placedAction) {
@@ -78,7 +105,7 @@ namespace LWM.DeepStorage
                 //   (case three - something weird going on possibly involving carrying?)
                 //        (all bets are off anyway >_< )
                 // Probably, the pawn put down what they were carrying, and all is good.
-                Utils.Warn(TryPlaceDirect, "  successfully placed " + resultingThing.stackCount + resultingThing.ToString());
+                Utils.Warn(TryPlaceDirect, "  successfully placed " + resultingThing.stackCount + resultingThing.ToString()+" ("+__result+")");
                 Utils.TidyStacksOf(resultingThing);
                 return;
             }
@@ -164,10 +191,10 @@ namespace LWM.DeepStorage
             __result = true; // nothing unplaced!
 
             Utils.Warn(TryPlaceDirect, "...created " + resultingThing.ToString());
-            placedAction?.Invoke(thing, thing.stackCount);
+            placedAction?.Invoke(thing, thing.stackCount);// Okay, I like this notation
             Utils.TidyStacksOf(resultingThing);
             return; // with __result=!flag (probably "true");
-        } // end TryPlaceDi// Okay, I like this notationrect's Postfix
+        } // end TryPlaceDirect's Postfix
     } // end patching TryPlaceDirect
 
 
@@ -182,7 +209,7 @@ namespace LWM.DeepStorage
      * another "item"-category object there, that item is bumped aside
      * (placed in "near" mode).
      *     
-     * We want items to get place on top of each other in Deep Storage, 
+     * We want items to get placed on top of each other in Deep Storage, 
      * and on loading the game.  If things get bumped around during play,
      * that's (probably) up to the player to deal with.    
      * 

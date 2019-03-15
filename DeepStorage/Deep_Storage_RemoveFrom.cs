@@ -29,7 +29,8 @@ namespace LWM.DeepStorage
      * to get around a problem that pawns have picking up from Deep Storage:
      * If they are picking up a stack of, say, 7 wood, and they need 25, 
      * they don't look for any more wood in the Deep Storage (probably because
-     * it has been reserved....by our pawn :p )  So we patch to check if the Thing 
+     * it has been reserved....by our pawn? Or maybe just b/c the carry logic
+     * doesn't look elsewhere?  Who knows.)  So we patch to check if the Thing 
      * being picked up is in Deep Storage, and if it is, see if its stackCount
      * can be adjusted to match the job from other stacks in the Deep Storage unit.
      * #DeepMagic #YouHaveBeenWarned
