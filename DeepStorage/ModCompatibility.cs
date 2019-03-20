@@ -81,9 +81,11 @@ namespace LWM.DeepStorage
      *   with
      *     if (thing.CanStackWith(t)) ...
      */
+    /***** NOTE:  This patch was merged directly into CommonSense, so the patch is not needed *****/
     [HarmonyPatch(typeof(WorkGiver_Merge), "JobOnThing")]
     static class Compatibility_RimWorld_CommonSense {
         public static bool Prepare(HarmonyInstance instance) {
+            return false;    /***** NOTE:  This patch was merged directly into CommonSense, so the patch is not needed *****/
             // Look for RimWorld_CommonSense...hope there isn't anyone else naming one Common Sense...
             if (ModLister.HasActiveModWithName("Common Sense")
                 // || ModLister.HasActiveModWithName( /*insert name of another multi-stack mod*/)
