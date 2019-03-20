@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
-  <HugsLib.UpdateFeatureDef Abstract="true" Name="LWM_DS_UpdateFeatureBase">
+  <!--  <HugsLib.UpdateFeatureDef Abstract="true" Name="LWM_DS_UpdateFeatureBase">
     <modNameReadable>LWM's Deep Storage</modNameReadable>
     <modIdentifier>LWM_DeepStorage</modIdentifier>
   </HugsLib.UpdateFeatureDef>
@@ -14,6 +14,6 @@ Sorry about that; I did not plan ahead well enough when merging someone else's w
 
 Also, new mod option: you can allow your animals (robots, etc) to carry to deep storage too, if you really want!
 
-Enjoy!  --LWM</content>
-  </HugsLib.UpdateFeatureDef>
+Enjoy!  -LWM</content>
+  </HugsLib.UpdateFeatureDef>-->
 </Defs>
