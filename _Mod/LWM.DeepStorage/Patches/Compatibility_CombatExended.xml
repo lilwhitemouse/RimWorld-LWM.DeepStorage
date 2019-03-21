@@ -21,6 +21,8 @@
               <!-- next is also bulk; may need to be tweaked in the future for CE weapons with higher bulk values (e.g assault, sniper and anti-material rifles) -->
               <maxMassOfStoredItem>16</maxMassOfStoredItem>
               <timeStoringTakes>100</timeStoringTakes>
+			  <showContents>false</showContents>
+			  <overlayType>CountOfStacksPerCell</overlayType>
             </li>
           </value>
         </li>
