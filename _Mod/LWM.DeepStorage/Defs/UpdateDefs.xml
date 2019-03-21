@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
-  <!--  <HugsLib.UpdateFeatureDef Abstract="true" Name="LWM_DS_UpdateFeatureBase">
+	<!--  <HugsLib.UpdateFeatureDef Abstract="true" Name="LWM_DS_UpdateFeatureBase">
     <modNameReadable>LWM's Deep Storage</modNameReadable>
     <modIdentifier>LWM_DeepStorage</modIdentifier>
   </HugsLib.UpdateFeatureDef>

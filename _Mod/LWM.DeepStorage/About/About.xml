@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-<name>LWM's Deep Storage</name>
-<author>Little White Mouse</author>
-<supportedVersions>
-  <li>1.0</li>
-</supportedVersions>
-<description>
+	<name>LWM's Deep Storage</name>
+	<author>Little White Mouse</author>
+	<supportedVersions>
+		<li>1.0</li>
+	</supportedVersions>
+	<description>
 &lt;size=24&gt;This is a &lt;b&gt;functional&lt;/b&gt; version of Deep Storage Units that will likely be [WIP] for a while yet.&lt;/size&gt;
 
 LWM presents yet another way to deal with your storage needs:  Deep Storage units!
@@ -69,6 +69,6 @@ All of LWM's code (and sumghai's additions) are also released under LGPL, becaus
 All of LWM's code (and sumghai's) are also available to Ludeon Studios, should they be incorporated into the base RimWorld game.
 Thanks to Marnador for the RimWorld font.  Thanks to Pardeike for Harmony.  Awesome.
 
-</description>
-<url>https://github.com/lilwhitemouse/RimWorld-LWM.DeepStorage</url>
+	</description>
+	<url>https://github.com/lilwhitemouse/RimWorld-LWM.DeepStorage</url>
 </ModMetaData>
