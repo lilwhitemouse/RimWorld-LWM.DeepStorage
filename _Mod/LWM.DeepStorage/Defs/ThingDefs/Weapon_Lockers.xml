@@ -47,8 +47,8 @@
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
         <minNumberStacks>2</minNumberStacks><!-- Can always store at least two weapons! -->
-        <maxNumberStacks>12</maxNumberStacks><!-- Possibly can store a lot more! -->
-        <maxTotalMass>14</maxTotalMass>
+        <maxNumberStacks>100</maxNumberStacks><!-- Caters for large number of items with low mass e.g. knives-->
+        <maxTotalMass>72</maxTotalMass><!-- Equivalent to 20 assault rifles -->
         <maxMassOfStoredItem>10</maxMassOfStoredItem>
         <timeStoringTakes>100</timeStoringTakes>
 	<showContents>false</showContents>

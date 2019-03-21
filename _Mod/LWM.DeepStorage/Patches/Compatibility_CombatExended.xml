@@ -15,8 +15,8 @@
           <value>
             <li Class='LWM.DeepStorage.Properties'>
               <minNumberStacks>2</minNumberStacks>
-              <maxNumberStacks>60</maxNumberStacks><!-- Increased to 60 stacks for small items  [holy crap! But, okay! 8) -LWM]-->
-              <maxTotalMass>55</maxTotalMass>
+              <maxNumberStacks>100</maxNumberStacks><!-- Caters for large number of items with low bulk e.g. knives-->
+              <maxTotalMass>205</maxTotalMass><!-- Equivalent to 20 assault rifles -->
               <altStat>Bulk</altStat>
               <!-- next is also bulk; may need to be tweaked in the future for CE weapons with higher bulk values (e.g assault, sniper and anti-material rifles) -->
               <maxMassOfStoredItem>16</maxMassOfStoredItem>
