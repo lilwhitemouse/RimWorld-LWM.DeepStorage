@@ -11,7 +11,7 @@
       <drawRotated>false</drawRotated>
     </graphicData>
     <defaultPlacingRot>South</defaultPlacingRot>
-    <uiIconPath>Things/Building/Furniture/WeaponHolders/weaponsLocker_UI</uiIconPath>
+    <uiIconPath>UI/weaponsLocker</uiIconPath>
     <castEdgeShadows>true</castEdgeShadows>
     <size>(1,1)</size>
     <statBases>
