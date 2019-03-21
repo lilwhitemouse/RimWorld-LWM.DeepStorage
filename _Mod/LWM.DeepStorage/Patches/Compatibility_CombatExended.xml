@@ -10,17 +10,19 @@
     </mods>
     <match Class="PatchOperationSequence">
       <operations>
-        <li Class="PatchOperationReplace">
-          <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
-          <value>
-            <li Class='LWM.DeepStorage.Properties'>
+	<li Class="PatchOperationReplace">
+	  <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+	  <value>
+	    <li Class='LWM.DeepStorage.Properties'>
               <minNumberStacks>2</minNumberStacks>
-              <maxNumberStacks>60</maxNumberStacks><!-- Increased to 60 stacks for small items  [holy crap! But, okay! 8) -LWM]-->
-              <maxTotalMass>55</maxTotalMass>
+              <maxNumberStacks>100</maxNumberStacks><!-- Caters for large number of items with low mass e.g. knives  [goodness, but okay! 8)  Also, knives are small, so okay! -LWM]-->
+              <maxTotalMass>205</maxTotalMass><!-- Equivalent to 20 assault rifles -->
               <altStat>Bulk</altStat>
-              <!-- next is also bulk; may need to be tweaked in the future for CE weapons with higher bulk values (e.g assault, sniper and anti-material rifles) -->
+              <!-- next is also based on bulk; may need to be tweaked in the future for CE weapons with higher bulk values (e.g assault, sniper and anti-material rifles) -->
               <maxMassOfStoredItem>16</maxMassOfStoredItem>
-              <timeStoringTakes>100</timeStoringTakes>
+              <timeStoringTakes>120</timeStoringTakes><!-- packing in tight takes time -->
+              <showContents>false</showContents>
+              <overlayType>CountOfStacksPerCell</overlayType>
             </li>
           </value>
         </li>

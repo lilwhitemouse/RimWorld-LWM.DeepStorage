@@ -23,7 +23,7 @@
     <stuffCategories>
       <li>Metallic</li>
     </stuffCategories>
-    <costStuffCount>50</costStuffCount>
+    <costStuffCount>70</costStuffCount>
     <building>
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
@@ -47,12 +47,12 @@
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
         <minNumberStacks>2</minNumberStacks><!-- Can always store at least two weapons! -->
-        <maxNumberStacks>12</maxNumberStacks><!-- Possibly can store a lot more! -->
-        <maxTotalMass>14</maxTotalMass>
+        <maxNumberStacks>50</maxNumberStacks><!-- I am ambivalent about this -->
+        <maxTotalMass>50</maxTotalMass><!-- ~14 assault rifles -->
         <maxMassOfStoredItem>10</maxMassOfStoredItem>
-        <timeStoringTakes>100</timeStoringTakes>
-	<showContents>false</showContents>
-	<overlayType>CountOfStacksPerCell</overlayType>
+        <timeStoringTakes>120</timeStoringTakes>
+        <showContents>false</showContents>
+        <overlayType>CountOfStacksPerCell</overlayType>
       </li>
     </comps>
     <researchPrerequisites>
