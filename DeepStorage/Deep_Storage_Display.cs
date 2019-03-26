@@ -258,7 +258,8 @@ namespace LWM.DeepStorage
         }
     }
     #endif
-    
+
+    /* We have to make a general check in DeSpawn to see if it was in DeepStorage before it disappears */
     [HarmonyPatch(typeof(Verse.Thing), "DeSpawn")]
     static class Cleanup_For_DeepStorage_Thing_At_DeSpawn {
         static void Prefix(Thing __instance) {
@@ -307,6 +308,7 @@ namespace LWM.DeepStorage
             CompDeepStorage cds = DSU.GetComp<CompDeepStorage>();
             if (cds == null) return true;
             if (cds.cdsProps.overlayType == LWM.DeepStorage.GuiOverlayType.Normal) return true;
+            if (cds.cdsProps.overlayType == GuiOverlayType.None) return false;
 
             List<Thing> things;
             String s;

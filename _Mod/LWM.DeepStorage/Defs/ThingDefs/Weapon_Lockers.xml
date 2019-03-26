@@ -1,134 +1,129 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Defs>
+<Defs> <!-- Thanks to sumghai for help with this; icons are his -->
 
-	<!-- Wooden Weapons Cabinet for tribal, medieval and pre-industrial playthroughs -->
+  <!-- Wooden Weapons Cabinet for tribal, medieval and pre-industrial playthroughs -->
+  <!--       also available for lazy colonists -->
+  <ThingDef ParentName="LWM_DeepStorage" >
+    <defName>LWM_WeaponsCabinet</defName>
+    <label>Weapons Cabinet</label>
+    <description>A cabinet for storing multiple weapons. Items stored in this will not deteriorate, even if outside.</description>
+    <graphicData>
+      <texPath>Things/Building/Furniture/WeaponHolders/weaponsCabinet</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3,3)</drawSize>
+      <drawRotated>false</drawRotated>
+    </graphicData>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <uiIconPath>Things/Building/Furniture/WeaponHolders/weaponsCabinet_UI</uiIconPath>
+    <castEdgeShadows>true</castEdgeShadows>
+    <size>(1,1)</size>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <WorkToBuild>600</WorkToBuild>
+      <Flammability>1.0</Flammability>
+      <Mass>8</Mass>
+    </statBases>
+    <stuffCategories>
+      <li>Woody</li>
+      <li>Metallic</li><!-- You build it from what you can? -->
+    </stuffCategories>
+    <costStuffCount>50</costStuffCount>
+    <building>
+      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+      <fixedStorageSettings>
+	<priority>Important</priority>
+	<filter>
+	  <categories>
+	    <li>Weapons</li>
+	  </categories>
+	</filter>
+      </fixedStorageSettings>
+      <defaultStorageSettings>
+	<priority>Important</priority>
+	<filter>
+	  <categories>
+	    <li>Weapons</li>
+	  </categories>
+	</filter>
+      </defaultStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+	<minNumberStacks>2</minNumberStacks><!-- Can always store at least two weapons! -->
+	<maxNumberStacks>40</maxNumberStacks><!-- I am ambivalent about this -->
+	<maxTotalMass>35</maxTotalMass><!-- ~10 assault rifles -->
+	<maxMassOfStoredItem>10</maxMassOfStoredItem>
+	<timeStoringTakes>100</timeStoringTakes><!-- slightly lower than locker as less packing to do -->
+	<showContents>false</showContents>
+	<overlayType>CountOfStacksPerCell</overlayType>
+      </li>
+    </comps>
+    <researchPrerequisites>
+      <li>ComplexFurniture</li>
+    </researchPrerequisites>
+  </ThingDef>
 
-	<ThingDef ParentName="LWM_DeepStorage" >
-		<defName>LWM_WeaponsCabinet</defName>
-		<label>Weapons Cabinet</label>
-		<description>A cabinet for storing multiple weapons. Items stored in this will not deteriorate, even if outside.</description>
-		<graphicData>
-			<texPath>Things/Building/Furniture/WeaponHolders/weaponsCabinet</texPath>
-			<graphicClass>Graphic_Multi</graphicClass>
-			<drawSize>(3,3)</drawSize>
-			<drawRotated>false</drawRotated>
-		</graphicData>
-		<defaultPlacingRot>South</defaultPlacingRot>
-		<uiIconPath>UI/weaponsCabinet</uiIconPath>
-		<castEdgeShadows>true</castEdgeShadows>
-		<size>(1,1)</size>
-		<statBases>
-			<MaxHitPoints>200</MaxHitPoints>
-			<WorkToBuild>600</WorkToBuild>
-			<Flammability>1.0</Flammability>
-			<Mass>8</Mass>
-		</statBases>
-		<stuffCategories>
-			<li>Woody</li>
-		</stuffCategories>
-		<costStuffCount>50</costStuffCount>
-		<building>
-			<preventDeteriorationOnTop>true</preventDeteriorationOnTop>
-			<ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
-			<fixedStorageSettings>
-				<priority>Important</priority>
-				<filter>
-					<categories>
-						<li>Weapons</li>
-					</categories>
-				</filter>
-			</fixedStorageSettings>
-			<defaultStorageSettings>
-				<priority>Important</priority>
-				<filter>
-					<categories>
-						<li>Weapons</li>
-					</categories>
-				</filter>
-			</defaultStorageSettings>
-		</building>
-		<comps>
-			<li Class="LWM.DeepStorage.Properties" >
-				<minNumberStacks>2</minNumberStacks>
-				<!-- Can always store at least two weapons! -->
-				<maxNumberStacks>50</maxNumberStacks>
-				<!-- I am ambivalent about this -->
-				<maxTotalMass>50</maxTotalMass>
-				<!-- ~14 assault rifles -->
-				<maxMassOfStoredItem>10</maxMassOfStoredItem>
-				<timeStoringTakes>120</timeStoringTakes>
-				<showContents>false</showContents>
-				<overlayType>CountOfStacksPerCell</overlayType>
-			</li>
-		</comps>
-		<researchPrerequisites>
-			<li>ComplexFurniture</li>
-		</researchPrerequisites>
-	</ThingDef>
-
-	<!-- Metallic Weapons Locker for industrial, modern and spacer playthroughs -->
-
-	<ThingDef ParentName="LWM_DeepStorage" >
-		<defName>LWM_WeaponsLocker</defName>
-		<label>Weapons Locker</label>
-		<description>A locker for storing multiple weapons. Items stored in this will not deteriorate, even if outside.</description>
-		<graphicData>
-			<texPath>Things/Building/Furniture/WeaponHolders/weaponsLocker</texPath>
-			<graphicClass>Graphic_Multi</graphicClass>
-			<drawSize>(3,3)</drawSize>
-			<drawRotated>false</drawRotated>
-		</graphicData>
-		<defaultPlacingRot>South</defaultPlacingRot>
-		<uiIconPath>UI/weaponsLocker</uiIconPath>
-		<castEdgeShadows>true</castEdgeShadows>
-		<size>(1,1)</size>
-		<statBases>
-			<MaxHitPoints>200</MaxHitPoints>
-			<WorkToBuild>600</WorkToBuild>
-			<Flammability>0.1</Flammability>
-			<Mass>8</Mass>
-		</statBases>
-		<stuffCategories>
-			<li>Metallic</li>
-		</stuffCategories>
-		<costStuffCount>50</costStuffCount>
-		<building>
-			<preventDeteriorationOnTop>true</preventDeteriorationOnTop>
-			<ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
-			<fixedStorageSettings>
-				<priority>Important</priority>
-				<filter>
-					<categories>
-						<li>Weapons</li>
-					</categories>
-				</filter>
-			</fixedStorageSettings>
-			<defaultStorageSettings>
-				<priority>Important</priority>
-				<filter>
-					<categories>
-						<li>Weapons</li>
-					</categories>
-				</filter>
-			</defaultStorageSettings>
-		</building>
-		<comps>
-			<li Class="LWM.DeepStorage.Properties" >
-				<minNumberStacks>2</minNumberStacks>
-				<!-- Can always store at least two weapons! -->
-				<maxNumberStacks>50</maxNumberStacks>
-				<!-- I am ambivalent about this -->
-				<maxTotalMass>50</maxTotalMass>
-				<!-- ~14 assault rifles -->
-				<maxMassOfStoredItem>10</maxMassOfStoredItem>
-				<timeStoringTakes>120</timeStoringTakes>
-				<showContents>false</showContents>
-				<overlayType>CountOfStacksPerCell</overlayType>
-			</li>
-		</comps>
-		<researchPrerequisites>
-			<li>ComplexFurniture</li>
-			<li>Machining</li>
-		</researchPrerequisites>
-	</ThingDef>
+  <!-- Metallic Weapons Locker for industrial, modern and spacer playthroughs -->
+  <!--   or for anyone who builds some good careful metal-working tools -->	
+  <ThingDef ParentName="LWM_DeepStorage" >
+    <defName>LWM_WeaponsLocker</defName>
+    <label>Weapons Locker</label>
+    <description>A locker for storing multiple weapons, with a higher capacity than wooden weapons cabinets. Items stored in this will not deteriorate, even if outside.</description>
+    <graphicData>
+      <texPath>Things/Building/Furniture/WeaponHolders/weaponsLocker</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3,3)</drawSize>
+      <drawRotated>false</drawRotated>
+    </graphicData>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <uiIconPath>Things/Building/Furniture/WeaponHolders/weaponsLocker_UI</uiIconPath>
+    <castEdgeShadows>true</castEdgeShadows>
+    <size>(1,1)</size>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <WorkToBuild>600</WorkToBuild>
+      <Flammability>0.1</Flammability>
+      <Mass>8</Mass>
+    </statBases>
+    <stuffCategories>
+      <li>Metallic</li>
+    </stuffCategories>
+    <costStuffCount>70</costStuffCount>
+    <building>
+      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+      <fixedStorageSettings>
+        <priority>Important</priority>
+        <filter>
+          <categories>
+            <li>Weapons</li>
+          </categories>
+        </filter>
+      </fixedStorageSettings>
+      <defaultStorageSettings>
+        <priority>Important</priority>
+        <filter>
+          <categories>
+            <li>Weapons</li>
+          </categories>
+        </filter>
+      </defaultStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <minNumberStacks>2</minNumberStacks><!-- Can always store at least two weapons! -->
+        <maxNumberStacks>50</maxNumberStacks><!-- I am ambivalent about this -->
+        <maxTotalMass>50</maxTotalMass><!-- ~14 assault rifles -->
+        <maxMassOfStoredItem>10</maxMassOfStoredItem>
+        <timeStoringTakes>120</timeStoringTakes>
+        <showContents>false</showContents>
+        <overlayType>CountOfStacksPerCell</overlayType>
+      </li>
+    </comps>
+    <researchPrerequisites>
+      <li>ComplexFurniture</li>
+      <li>Machining</li>
+    </researchPrerequisites>
+  </ThingDef>
 </Defs>

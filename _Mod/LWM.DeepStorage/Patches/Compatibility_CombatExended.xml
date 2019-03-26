@@ -11,12 +11,30 @@
 		<match Class="PatchOperationSequence">
 			<operations>
 				<li Class="PatchOperationReplace">
-					<xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+					<xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
 					<value>
 						<li Class='LWM.DeepStorage.Properties'>
 							<minNumberStacks>2</minNumberStacks>
 							<maxNumberStacks>100</maxNumberStacks>
 							<!-- Caters for large number of items with low mass e.g. knives  [goodness, but okay! 8)  Also, knives are small, so okay! -LWM]-->
+							<maxTotalMass>165</maxTotalMass>
+							<!-- Equivalent to 16 assault rifles, lower than metallic weapons lockers -->
+							<altStat>Bulk</altStat>
+							<!-- next is also based on bulk; may need to be tweaked in the future for CE weapons with higher bulk values (e.g assault, sniper and anti-material rifles) -->
+							<maxMassOfStoredItem>16</maxMassOfStoredItem>
+							<timeStoringTakes>100</timeStoringTakes><!-- slightly lower than locker as less packing to do -->
+							<showContents>false</showContents>
+							<overlayType>CountOfStacksPerCell</overlayType>
+						</li>
+					</value>
+				</li>
+        <li Class="PatchOperationReplace">
+					<xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+					<value>
+						<li Class='LWM.DeepStorage.Properties'>
+							<minNumberStacks>2</minNumberStacks>
+							<maxNumberStacks>100</maxNumberStacks>
+							<!-- Caters for large number of items withlow mass e.g. knives  [goodness, but okay! 8)  Also, knives are small, so okay! -LWM]-->
 							<maxTotalMass>205</maxTotalMass>
 							<!-- Equivalent to 20 assault rifles -->
 							<altStat>Bulk</altStat>
