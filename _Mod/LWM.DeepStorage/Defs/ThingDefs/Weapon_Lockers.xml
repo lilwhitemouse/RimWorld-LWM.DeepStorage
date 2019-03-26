@@ -69,7 +69,7 @@
   <ThingDef ParentName="LWM_DeepStorage" >
     <defName>LWM_WeaponsLocker</defName>
     <label>Weapons Locker</label>
-    <description>A locker for storing multiple weapons, with a higher capacity than wooden weapons cabinets. Items stored in this will not deteriorate, even if outside.</description>
+    <description>A high capacity metal locker for efficiently storing many weapons. Items stored in this will not deteriorate, even if outside.</description>
     <graphicData>
       <texPath>Things/Building/Furniture/WeaponHolders/weaponsLocker</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
