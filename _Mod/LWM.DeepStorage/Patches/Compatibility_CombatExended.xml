@@ -3,6 +3,9 @@
      who actually plays it, and has a vision for how it should work.
      No one else has made any requests, so he gets pretty much 
      exactly what he wants ^.^ -->
+<!-- Note that the Cabinet and Locker, despite different requirements,
+     have the same storage capacity; this may change in the future, but
+     if so, not by much-->
 <Patch>
   <Operation Class="PatchOperationFindMod">
     <mods>
@@ -11,7 +14,7 @@
     <match Class="PatchOperationSequence">
       <operations>
 	<li Class="PatchOperationReplace">
-	  <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+	  <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker" or defName="LWM_WeaponsCabinet"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
 	  <value>
 	    <li Class='LWM.DeepStorage.Properties'>
               <minNumberStacks>2</minNumberStacks>
