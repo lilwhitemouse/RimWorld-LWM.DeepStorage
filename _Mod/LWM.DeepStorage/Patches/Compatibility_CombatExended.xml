@@ -2,10 +2,8 @@
 <!-- Compatibility for CombatExtended, specifications from sumghai,
      who actually plays it, and has a vision for how it should work.
      No one else has made any requests, so he gets pretty much 
-     exactly what he wants ^.^ -->
-<!-- Note that the Cabinet and Locker, despite different requirements,
-     have the same storage capacity; this may change in the future, but
-     if so, not by much-->
+     exactly what he wants ^.^
+     First, Cabinets, then Lockers -->
 <Patch>
   <Operation Class="PatchOperationFindMod">
     <mods>
@@ -14,7 +12,23 @@
     <match Class="PatchOperationSequence">
       <operations>
 	<li Class="PatchOperationReplace">
-	  <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker" or defName="LWM_WeaponsCabinet"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+	  <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+	  <value>
+	    <li Class='LWM.DeepStorage.Properties'>
+	      <minNumberStacks>2</minNumberStacks>
+	      <maxNumberStacks>100</maxNumberStacks><!-- Caters for large number of items with low mass e.g. knives  [goodness, but okay! 8)  Also, knives are small, so okay! -LWM]-->
+	      <maxTotalMass>165</maxTotalMass><!-- Equivalent to 16 assault rifles, lower than metallic weapons lockers -->
+	      <altStat>Bulk</altStat>
+	      <!-- next is also based on bulk; may need to be tweaked in the future for CE weapons with higher bulk values (e.g assault, sniper and anti-material rifles) -->
+	      <maxMassOfStoredItem>16</maxMassOfStoredItem>
+	      <timeStoringTakes>100</timeStoringTakes><!-- slightly lower than locker as less packing to do -->
+	      <showContents>false</showContents>
+	      <overlayType>CountOfStacksPerCell</overlayType>
+	    </li>
+	  </value>
+	</li>
+	<li Class="PatchOperationReplace">
+	  <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
 	  <value>
 	    <li Class='LWM.DeepStorage.Properties'>
               <minNumberStacks>2</minNumberStacks>
