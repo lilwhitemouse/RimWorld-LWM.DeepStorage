@@ -69,7 +69,7 @@
   <ThingDef ParentName="LWM_DeepStorage" >
     <defName>LWM_WeaponsLocker</defName>
     <label>Weapons Locker</label>
-    <description>A high capacity metal locker for efficiently storing many weapons. Items stored in this will not deteriorate, even if outside.</description>
+    <description>A high-capacity metal locker for securely storing many weapons. Items stored in this will not deteriorate, even if outside.</description>
     <graphicData>
       <texPath>Things/Building/Furniture/WeaponHolders/weaponsLocker</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
@@ -113,7 +113,7 @@
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
         <minNumberStacks>2</minNumberStacks><!-- Can always store at least two weapons! -->
-        <maxNumberStacks>50</maxNumberStacks><!-- I am ambivalent about this -->
+        <maxNumberStacks>50</maxNumberStacks><!-- I am ambivalent about this but sumghai was persuasive -->
         <maxTotalMass>50</maxTotalMass><!-- ~14 assault rifles -->
         <maxMassOfStoredItem>10</maxMassOfStoredItem>
         <timeStoringTakes>120</timeStoringTakes>
