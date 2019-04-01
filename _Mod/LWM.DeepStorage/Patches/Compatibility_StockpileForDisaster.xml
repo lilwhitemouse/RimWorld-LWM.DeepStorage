@@ -8,9 +8,6 @@
     <mods>
       <li>[1.0]-StockpileForDisaster</li>
     </mods>
-    <nomatch Class="LWM.DeepStorage.PatchMessage">
-      <message>WTF</message>
-    </nomatch>
     <match Class="PatchOperationSequence">
       <operations>
 	<li Class="PatchOperationAdd">
