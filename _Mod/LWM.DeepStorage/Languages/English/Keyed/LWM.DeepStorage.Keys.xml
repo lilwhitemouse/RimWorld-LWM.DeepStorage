@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-	<NoItemsAreStoredHere>No items are currently stored here.</NoItemsAreStoredHere>
-	<LWM.ContentHeaderOne>{0} stacks/items with total {1} of {2} kg</LWM.ContentHeaderOne>
-	<LWM.ContentHeaderOneOf>{0} stacks/items with total {1} of {2} / {3} kg</LWM.ContentHeaderOneOf>
-	<!-- HugsLib Settings Keys: -->
-	<LWM_DS_IntTitle>Intelligence Required to Haul to Deep Storage</LWM_DS_IntTitle>
-	<LWM_DS_IntDesc>Most alien races have "Humanlike" or better.  Most animals are "animal."  Vanilla Mechanoids are "tool users"  Robots for various mods?  Your guess is as good as mine.</LWM_DS_IntDesc>
-	<LWM_DS_Int_Animal>Animal</LWM_DS_Int_Animal>
-	<LWM_DS_Int_ToolUser>Tool User</LWM_DS_Int_ToolUser>
-	<LWM_DS_Int_Humanlike>Humanlike (Default) (LWM * of approval)</LWM_DS_Int_Humanlike>
-	<LWM_DS_Empty>empty</LWM_DS_Empty>
+  <NoItemsAreStoredHere>No items are currently stored here.</NoItemsAreStoredHere>
+  <LWM.ContentHeaderOne>{0} stacks/items with total {1} of {2} kg</LWM.ContentHeaderOne>
+  <LWM.ContentHeaderOneOf>{0} stacks/items with total {1} of {2} / {3} kg</LWM.ContentHeaderOneOf>
+  <!-- HugsLib Settings Keys: -->
+  <LWM_DS_IntTitle>Intelligence Required to Haul to Deep Storage</LWM_DS_IntTitle>
+  <LWM_DS_IntDesc>Most alien races have "Humanlike" or better.  Most animals are "animal."  Vanilla Mechanoids are "tool users"  Robots for various mods?  Your guess is as good as mine.</LWM_DS_IntDesc>
+  <LWM_DS_Int_Animal>Animal</LWM_DS_Int_Animal>
+  <LWM_DS_Int_ToolUser>Tool User</LWM_DS_Int_ToolUser>
+  <LWM_DS_Int_Humanlike>Humanlike (Default) (LWM * of approval)</LWM_DS_Int_Humanlike>
+  <LWM_DS_Empty>empty</LWM_DS_Empty>
 </LanguageData>
