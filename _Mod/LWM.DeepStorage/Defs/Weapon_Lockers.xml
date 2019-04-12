@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs> <!-- Thanks to sumghai for help with this; icons are his -->
-
   <!-- Wooden Weapons Cabinet for tribal, medieval and pre-industrial playthroughs -->
   <!--       also available for lazy colonists -->
   <ThingDef ParentName="LWM_DeepStorage" >
@@ -8,13 +7,13 @@
     <label>Weapons Cabinet</label>
     <description>A cabinet for storing multiple weapons. Items stored in this will not deteriorate, even if outside.</description>
     <graphicData>
-      <texPath>Things/Building/Furniture/WeaponHolders/weaponsCabinet</texPath>
+      <texPath>sumghai/weaponsCabinet</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <drawSize>(3,3)</drawSize>
       <drawRotated>false</drawRotated>
     </graphicData>
     <defaultPlacingRot>South</defaultPlacingRot>
-    <uiIconPath>Things/Building/Furniture/WeaponHolders/weaponsCabinet_UI</uiIconPath>
+    <uiIconPath>sumghai/weaponsCabinet_UI</uiIconPath>
     <castEdgeShadows>true</castEdgeShadows>
     <size>(1,1)</size>
     <statBases>
@@ -71,13 +70,13 @@
     <label>Weapons Locker</label>
     <description>A high-capacity metal locker for securely storing many weapons. Items stored in this will not deteriorate, even if outside.</description>
     <graphicData>
-      <texPath>Things/Building/Furniture/WeaponHolders/weaponsLocker</texPath>
+      <texPath>sumghai/weaponsLocker</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <drawSize>(3,3)</drawSize>
       <drawRotated>false</drawRotated>
     </graphicData>
     <defaultPlacingRot>South</defaultPlacingRot>
-    <uiIconPath>Things/Building/Furniture/WeaponHolders/weaponsLocker_UI</uiIconPath>
+    <uiIconPath>sumghai/weaponsLocker_UI</uiIconPath>
     <castEdgeShadows>true</castEdgeShadows>
     <size>(1,1)</size>
     <statBases>

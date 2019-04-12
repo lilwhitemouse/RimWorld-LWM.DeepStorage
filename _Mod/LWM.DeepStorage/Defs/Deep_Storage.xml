@@ -82,7 +82,7 @@
     <description>A mini-grainery for storing raw food and plant matter.</description>
     <pathCost>100</pathCost>
     <graphicData>
-      <texPath>Things/Building/Furniture/skullywag/Basket/Basket</texPath>
+      <texPath>skullywag/Basket/Basket</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <drawSize>(4,3)</drawSize>
       <shadowData>
@@ -133,7 +133,7 @@
     <description>A set of cabinets and shelves for stocking medicines.</description>
     <pathCost>100</pathCost>
     <graphicData>
-      <texPath>Things/Building/Furniture/skullywag/MedCab/MedCab</texPath>
+      <texPath>skullywag/MedCab/MedCab</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <drawSize>(3,2)</drawSize>
       <shadowData><!-- TODO: -->
@@ -181,7 +181,7 @@
     <label>Skip</label>
     <description>A large metal bin for tossing heavy things in.  These skips are not covered; they are open to the weather.</description>
     <graphicData>
-      <texPath>Things/Building/Furniture/skullywag/Skip/Skip</texPath>
+      <texPath>skullywag/Skip/Skip</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <drawSize>(3,2)</drawSize>
     </graphicData>
@@ -228,7 +228,7 @@
     <label>Pallet</label>
     <description>A flat pallet for packing things.  Does not protect against the weather.  Sometimes difficult to manage, but useful nonetheless.</description>
     <graphicData>
-      <texPath>Things/Building/Furniture/skullywag/Pallet/Pallet</texPath>
+      <texPath>skullywag/Pallet/Pallet</texPath>
       <drawSize>(4,3)</drawSize>
       <graphicClass>Graphic_Multi</graphicClass>
     </graphicData>
@@ -317,7 +317,7 @@
     <label>Clothing Rack</label>
     <description>A covered rack for storing clothing for easy, quick access and a tidy room.</description>
     <graphicData>
-      <texPath>Things/Building/Furniture/skullywag/ClothingRack/ClothingRack</texPath>
+      <texPath>skullywag/ClothingRack/ClothingRack</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <drawSize>(3,2)</drawSize>
     </graphicData>
@@ -362,7 +362,7 @@
     <label>Meal Tray Rack</label>
     <description>This is a tall tray rack; haulers carry meals and treats here for storage.</description>
     <graphicData>
-      <texPath>Things/Building/Furniture/skullywag/TrayRack/TrayRack</texPath>
+      <texPath>skullywag/TrayRack/TrayRack</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <drawSize>(4,3)</drawSize>
     </graphicData>
@@ -409,7 +409,7 @@
        <description>A short description</description>
        
        <graphicData>
-       <texPath>path to texture, e.g., Things/Building/Furniture/myFurniture should point to myFurniture.png, etc.</texPath>
+       <texPath>path to texture, e.g., myFurniture should point to myFurniture.png, etc.</texPath>
        etc/myFurniture/myFurniture if you have myFurniture/myFurniture.png
        <graphicClass>common ones are Graphic_Multi and Graphic_Single(1x1 only)</graphicClass>
        <drawSize>(X,Y) - how big the texture pictures are.  If you have a half-square border around (2,1), it's (3,2)</drawSize>
@@ -548,7 +548,7 @@
 
     Note that you can only fit so many giant corpses into one space, even if you stack them.  The frame will only hold so much weight.</description>
     <graphicData>
-      <texPath>Things/Building/Furniture/MeatHook</texPath>
+      <texPath>MeatHook</texPath>
       <graphicClass>Graphic_Single</graphicClass>
       <drawSize>(1,1)</drawSize>
       <shadowData>
