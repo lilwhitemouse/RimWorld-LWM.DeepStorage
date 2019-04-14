@@ -152,7 +152,7 @@ namespace LWM.DeepStorage
     public static class PatchDisplay_SpawnSetup {
         public static void Postfix(Building_Storage __instance, Map map) {
             CompDeepStorage cds;
-            if ((cds = __instance.TryGetComp<CompDeepStorage>()) == null) return;
+            if ((cds = __instance.GetComp<CompDeepStorage>()) == null) return;
             
             foreach (IntVec3 cell in __instance.AllSlotCells()) {
                 List<Thing> list = map.thingGrid.ThingsListAt(cell);
@@ -259,7 +259,9 @@ namespace LWM.DeepStorage
     }
     #endif
 
-    /* We have to make a general check in DeSpawn to see if it was in DeepStorage before it disappears */
+    /* Item Removed from Deep Storage: reprise: */
+    /* We have to make a general check in DeSpawn to see if it was in DeepStorage before it disappears 
+     * If so, make sure display is correct */
     [HarmonyPatch(typeof(Verse.Thing), "DeSpawn")]
     static class Cleanup_For_DeepStorage_Thing_At_DeSpawn {
         static void Prefix(Thing __instance) {
@@ -284,7 +286,51 @@ namespace LWM.DeepStorage
         }
     }
 
-    /* The magic to make what is on top get displayed above everything else: */
+    /*************** Deep Storage DeSpawns (destroyed, minified, etc) *****************/
+    [HarmonyPatch(typeof(Verse.Building), "DeSpawn")]
+    public static class Patch_Building_DeSpawn_For_Building_Storage {
+        [HarmonyPriority(Priority.First)] // MUST execute, cannot be postfix,
+                                          // as some elements already null (e.g., map)
+        public static void Prefix(Building __instance) {
+            CompDeepStorage cds;
+            if ((cds = __instance.GetComp<CompDeepStorage>())==null) return;
+            Map map=__instance.Map;
+            if (map == null) {
+                Log.Error("DeepStorage despawning: Map is null; some assets may not display properly: "
+                          +__instance.ToString()); return;
+            }
+            ISlotGroupParent DSU = __instance as Building_Storage;
+            foreach (IntVec3 cell in DSU.AllSlotCells()) {
+                List<Thing> list = map.thingGrid.ThingsListAt(cell);
+                Thing t;
+                for (int i=0; i<list.Count;i++) {
+                    t=list[i];
+                    Utils.TopThingInDeepStorage.Remove(t); // just take them all, to be safe
+                    if (t==null) { Log.Warning("DeepStorage despawning: tried to clean up null object"); continue;}
+                    if (!t.Spawned || !t.def.EverStorable(false)) continue;
+                    if (t.def.drawerType != DrawerType.MapMeshOnly)
+                    {   // should be safe to register even if already registered
+                        map.dynamicDrawManager.RegisterDrawable(t);
+                    }
+                    // from the ListerThings code:
+                    if (ThingRequestGroup.HasGUIOverlay.Includes(t.def)) {
+                        if (!map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Contains(t)) {
+                            map.listerThings.ThingsInGroup(ThingRequestGroup.HasGUIOverlay).Add(t);
+                        }
+                    }
+                    // Just to make sure it's not in the tooltip list twice:
+                    //    Is this ineffecient?  Yes.
+                    //    It also means that if anything changes whether cds.showContents, nothing breaks
+                    //    Also, this only happens rarely, so ineffecient is okay.
+                    map.tooltipGiverList.Notify_ThingDespawned(t);
+                    map.tooltipGiverList.Notify_ThingSpawned(t);
+                } // end list of things at                
+            } // end foreach cell of despawning DSU
+        }  //end postfix
+    } // end patch for when DSU despawns
+
+    /* The workhouse solving #2 (from top of file)
+     * The magic to make what is on top get displayed "above" everything else: */
     /* (thank you DuckDuckGo for providing this approach, and thak you to everyone
      *  who helped people who had similar which-mesh-is-on-top problems)
      */
@@ -292,7 +338,8 @@ namespace LWM.DeepStorage
     static class Ensure_Top_Item_In_DSU_Draws_Correctly {
         static void Postfix(Thing __instance, ref Vector3 __result) {
             if (Utils.TopThingInDeepStorage.Contains(__instance)) {
-                __result.y+=0.05f; // The default altitudes are around .45 apart, so .05 should be about right.
+                __result.y+=0.05f; // The default "altitudes" are around .45 apart, so .05 should be about right.
+                                   //             altitudes here are "terrain," "buildings," etc.
             }
         }
     }
