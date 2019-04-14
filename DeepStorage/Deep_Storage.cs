@@ -240,7 +240,7 @@ namespace LWM.DeepStorage
         None,                   // Some users may want this
     }
 
-    public class CompDeepStorage : ThingComp {
+    public class CompDeepStorage : ThingComp, IHoldMultipleThings.IHoldMultipleThings {
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
@@ -343,6 +343,30 @@ namespace LWM.DeepStorage
 
 
         }
+
+        #region IHoldMultipleThings //PickUpAndHaul Compatibility
+        public bool CapacityAt(ThingDef def, IntVec3 storeCell, Map map, out int capacity)
+        {
+            ISlotGroupParent slotGroup = map.haulDestinationManager.SlotGroupParentAt(storeCell);
+            int maxStacks = (slotGroup as ThingWithComps)?.GetComp<CompDeepStorage>()?.maxNumberStacks ?? 0;
+
+            List<Thing> stuffHere = map.thingGrid.ThingsListAt(storeCell);
+
+            int max = maxStacks * def.stackLimit;
+
+            capacity = Math.Min(max, stuffHere.Where(x => x.def.EverStorable(false) && x.def == def)
+                                              .Select(x => x.def.stackLimit - x.stackCount)
+                                              .Sum());
+            return capacity > 0;
+        }
+
+        public bool StackableAt(ThingDef def, IntVec3 storeCell, Map map)
+            => (map.haulDestinationManager.SlotGroupParentAt(storeCell) as ThingWithComps)?.GetComp<CompDeepStorage>()?.maxNumberStacks > 0
+            && map.thingGrid.ThingsListAt(storeCell).Where(x => x.def.EverStorable(false) && x.def == def)
+                  .Select(x => x.def.stackLimit - x.stackCount).Any();
+
+        #endregion
+
     } // end CompDeepStorage
 
 
