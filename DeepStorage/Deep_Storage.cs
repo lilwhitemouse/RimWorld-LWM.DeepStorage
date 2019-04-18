@@ -73,7 +73,7 @@ namespace LWM.DeepStorage
             Deep_Storage_Job, PlaceHauledThingInCell
         }
 
-        // Nifty? Won't even be compiled in if not DEBUG
+        // Nifty! Won't even be compiled in if not DEBUG
         [System.Diagnostics.Conditional("DEBUG")]
         public static void Warn(DBF l, string s) {
             if (showDebug[(int)l])
@@ -240,7 +240,7 @@ namespace LWM.DeepStorage
         None,                   // Some users may want this
     }
 
-    public class CompDeepStorage : ThingComp {
+    public class CompDeepStorage : ThingComp, IHoldMultipleThings.IHoldMultipleThings {
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
@@ -341,7 +341,60 @@ namespace LWM.DeepStorage
             }
             */
 
+        }
 
+        public int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {
+            int capacity = 0;
+            /* First test, is it even light enough to go in this DS? */
+            //      No rocket launchers in jewelry boxes?
+            if (this.limitingFactorForItem > 0f) {
+                if (thing.GetStatValue(this.stat) > this.limitingFactorForItem)
+                    return 0;
+            }
+            float totalWeightStoredHere=0f;  //mass, or bulk, etc.
+
+            List<Thing> list = map.thingGrid.ThingsListAt(cell);
+            var stacksStoredHere=0;
+            for (int i=0; i<list.Count;i++) {
+                Thing thingInStorage = list[i];
+                if (thingInStorage.def.EverStorable(false)) { // an "item" we care about
+                    stacksStoredHere+=1;
+                    if (this.limitingTotalFactorForCell > 0f) {
+                        totalWeightStoredHere +=thingInStorage.GetStatValue(this.stat)*thingInStorage.stackCount;
+                        if (totalWeightStoredHere > this.limitingTotalFactorForCell &&
+                            stacksStoredHere >= this.minNumberStacks) {
+                            return 0;
+                        }
+                    }
+                    if (thingInStorage.CanStackWith(thing)) {
+                        if (thingInStorage.stackCount < thingInStorage.def.stackLimit) {
+                            capacity += thingInStorage.def.stackLimit - thingInStorage.stackCount;
+                        }
+                    }
+                } // item
+            } // end of cell's contents...
+            // Count empty spaces:
+            if (this.maxNumberStacks > stacksStoredHere) {
+                capacity+=(this.maxNumberStacks-stacksStoredHere)*thing.def.stackLimit;
+            }
+            if (this.limitingTotalFactorForCell > 0f) {
+                totalWeightStoredHere = this.limitingTotalFactorForCell - totalWeightStoredHere; // now storable here :p
+                if (totalWeightStoredHere <= 0f) {
+                    return 0;
+                }
+                capacity = Math.Min(capacity, (int)(totalWeightStoredHere/thing.GetStatValue(this.stat)));
+            }
+            return capacity;
+        }
+        /************************** IHoldMultipleThings interface ************************/
+        /* For compatibility with Mehni's PickUpAndHaul                                  */
+        public bool CapacityAt(Thing thing, IntVec3 cell, Map map, out int capacity) {
+            capacity = this.CapacityToStoreThingAt(thing, map, cell);
+            if (capacity > 0) return true;
+            return false;
+        }
+        public bool StackableAt(Thing thing, IntVec3 cell, Map map) {
+            return this.CapacityToStoreThingAt(thing,map,cell) > 0;
         }
     } // end CompDeepStorage
 

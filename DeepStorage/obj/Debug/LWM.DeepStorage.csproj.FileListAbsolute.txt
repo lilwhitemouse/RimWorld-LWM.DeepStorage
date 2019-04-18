@@ -26,3 +26,4 @@
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/0Harmony.dll
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/HugsLib.dll
 /home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/HugsLib.xml
+/home/peter/play/rimworld/LWM.DeepStorage/DeepStorage/bin/Debug/IHoldMultipleThings.dll

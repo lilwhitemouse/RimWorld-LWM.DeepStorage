@@ -65,6 +65,9 @@
       <HintPath>..\packages\UnlimitedHugs.Rimworld.HugsLib.6.1.1\lib\net35\HugsLib.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
+    <Reference Include="IHoldMultipleThings"><!-- Mehni's PickUpAndHold Compatibility -->
+      <HintPath>..\packages\IHoldMultipleThings.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Deep_Storage.cs" />
