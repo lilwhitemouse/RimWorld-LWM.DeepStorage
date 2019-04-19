@@ -95,7 +95,7 @@
       <li>Woody</li>
       <li>Stony</li>
     </stuffCategories>
-    <costStuffCount>50</costStuffCount>
+    <costStuffCount>80</costStuffCount><!--Okay, these are big, if they are holding all that food!-->
     <statBases>
       <MaxHitPoints>50</MaxHitPoints>
       <Mass>8</Mass>
@@ -253,10 +253,13 @@
         <filter>
           <categories>
             <li>ResourcesRaw</li>
-            <li>Leathers</li>
-            <li>MortarShells</li>
-            <li>Drugs</li>
+            <li>Textiles</li><!-- Only finished products.  If I need to limit for compatibility patching, I can do that -->
+            <li>MortarShells</li><!--I feel ambivalent about this...-->
+            <!--<li>Drugs</li>--><!--Let's put this in the pallet with wrapping, where loose drugs can be bundled together-->
           </categories>
+          <disallowedCategories>
+            <li>PlantMatter</li><!--Again, no loose things-->
+          </disallowedCategories>
         </filter>
       </fixedStorageSettings>
     </building>
@@ -295,11 +298,14 @@
         <filter>
           <categories>
             <li>ResourcesRaw</li>
-            <li>Textiles</li><!-- can hold more things b/c bags! -->
+            <li>Textiles</li>
             <li>MortarShells</li>
-            <li>Drugs</li>
+            <li>Drugs</li><!-- can hold more things b/c bags! -->
             <li>PlantMatter</li>
           </categories>
+          <thingDefs>
+            <li>Kibble</li><!-- Bags might smell after, but what's the scent of cat food among friends?-->
+          </thingDefs>
         </filter>
       </fixedStorageSettings>
     </building>
@@ -570,7 +576,7 @@
     <stuffCategories>
       <li>Metallic</li>
     </stuffCategories>
-    <costStuffCount>65</costStuffCount>
+    <costStuffCount>75</costStuffCount>
     <building>
       <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
       <ignoreStoredThingsBeauty>false</ignoreStoredThingsBeauty>
@@ -597,10 +603,14 @@
     </building>
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
-        <maxNumberStacks>3</maxNumberStacks><!-- TODO -->
+        <minNumberStacks>2</minNumberStacks>
+        <maxNumberStacks>12</maxNumberStacks><!-- todo? -->
         <timeStoringTakes>25</timeStoringTakes>
+        <maxTotalMass>560</maxTotalMass><!-- Two Megatheria -->
+                                        <!--Fun fact: giant sloths apparently dug ancient caves. Giant caves.  As burrows.-->
+        <overlayType>CountOfStacksPerCell</overlayType>
       </li>
     </comps>
   </ThingDef>
-
+  <!--TODO: put template here -->
 </Defs>
