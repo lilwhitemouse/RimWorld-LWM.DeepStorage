@@ -125,6 +125,7 @@
         <overlayType>SumOfAllItems</overlayType>
       </li>
     </comps>
+    <researchPrerequisites Inherit="false"></researchPrerequisites><!-- Why not allow; granieries have been around forEVER -->
   </ThingDef>
 
   <ThingDef Name="LWM_Medicine_Cabinet" ParentName="LWM_DeepStorage">
@@ -487,6 +488,9 @@
        1000 is a while, 300 is a bit, 0 is no time at all (like a vanilla shelf)
        </li>
        </comps>
+       <researchPrerequisites Inherit="false">  - false to remove or change research Prereqs away from ComplexFurniture
+         <li>...<li> - leave empty (with false above) for no prereqs, change with false, or just add new ones
+       </researchPrerequisites>
        </ThingDef>
   -->
 
@@ -603,7 +607,7 @@
     </building>
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
-        <minNumberStacks>2</minNumberStacks>
+        <minNumberStacks>2</minNumberStacks><!-- minimum one in the air, one on the ground -->
         <maxNumberStacks>12</maxNumberStacks><!-- todo? -->
         <timeStoringTakes>25</timeStoringTakes>
         <maxTotalMass>560</maxTotalMass><!-- Two Megatheria -->
@@ -611,6 +615,9 @@
         <overlayType>CountOfStacksPerCell</overlayType>
       </li>
     </comps>
+    <researchPrerequisites Inherit="false">
+      <li>Smithing</li><!-- Forging strong chains - we're lifting bloody muffalos here -->
+    </researchPrerequisites>
   </ThingDef>
   <!--TODO: put template here -->
 </Defs>
