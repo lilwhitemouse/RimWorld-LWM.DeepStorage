@@ -296,7 +296,7 @@
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
       <fixedStorageSettings>
-        <filter>
+        <filter Inherit="false">
           <categories>
             <li>ResourcesRaw</li>
             <li>Textiles</li>
