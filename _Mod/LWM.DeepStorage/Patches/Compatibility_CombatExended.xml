@@ -27,6 +27,14 @@
 	    </li>
 	  </value>
 	</li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet"]/building/defaultStorageSettings/filter</xpath>
+          <value>
+            <categories>
+              <li>Weapons</li>
+            </categories>
+          </value>
+        </li>
 	<li Class="PatchOperationReplace">
 	  <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
 	  <value>
@@ -41,6 +49,14 @@
               <showContents>false</showContents>
               <overlayType>CountOfStacksPerCell</overlayType>
             </li>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker"]/building/defaultStorageSettings/filter</xpath>
+          <value>
+            <categories>
+              <li>Weapons</li>
+            </categories>
           </value>
         </li>
         <li Class="PatchOperationAdd">
