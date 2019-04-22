@@ -280,10 +280,11 @@ namespace LWM.DeepStorage
                 return ((Properties)this.props).maxNumberStacks;
             }
         }
-        public int timeStoringTakes {
-            get {
-                return ((Properties)this.props).timeStoringTakes;
-            }
+        public int timeStoringTakes() {
+            return ((Properties)this.props).timeStoringTakes;
+        }        
+        public int timeStoringTakes(IntVec3 cell) {
+            return ((Properties)this.props).timeStoringTakes;
         }
         public bool showContents {
             get {

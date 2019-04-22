@@ -75,14 +75,14 @@ namespace LWM.DeepStorage
                     return;
                 }
                 SlotGroup slotGroup = actor.Map.haulDestinationManager.SlotGroupAt(cell);
-                ThingComp comp;
-                if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
-                    (comp = ((ThingWithComps)slotGroup.parent).TryGetComp<CompDeepStorage>()) == null)
+                CompDeepStorage cds;
+                if (!(slotGroup?.parent is ThingWithComps) ||
+                    (cds = (((ThingWithComps)slotGroup?.parent)?.GetComp<CompDeepStorage>()))==null)
                 {
                     Utils.Warn(PlaceHauledThingInCell, "not going into Deep Storage");
                     return; // initAction still around, will handle
                 }
-                int timeStoringTakes = ((LWM.DeepStorage.Properties)comp.props).timeStoringTakes;
+                int timeStoringTakes = cds.timeStoringTakes(cell);
                 if (timeStoringTakes <= 0)
                 { // just like vanilla
                     Utils.Warn(PlaceHauledThingInCell, "Instantaneous storing time");
