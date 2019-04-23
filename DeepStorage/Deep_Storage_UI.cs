@@ -222,7 +222,7 @@ namespace LWM.DeepStorage
         }
     }
 
-    /*///////////////////////////////////////////////////////////////////*/
+    /*////////////////////////////////////////////////////////////////////////////////////////////////*/
     /********* UI ITab from sumghai - thanks! ********/
     public class ITab_DeepStorage_Inventory : ITab {
         private Vector2 scrollPosition = Vector2.zero;
@@ -420,12 +420,32 @@ namespace LWM.DeepStorage
             // If not, open ours!
             // TODO: Open Storage Settings if it's empty!
             // TODO: ...make this happen for shelves, heck, any storage buildings.
-            ITab_DeepStorage_Inventory tab = t.GetInspectTabs().OfType<ITab_DeepStorage_Inventory>().First();
+            ITab tab = null;
+            /* If there are no items stored, default intead to settings (preferably with note about being empty?) */
+            // If we find a stored item, open Contents tab:
+            // TODO: Make storage settings tab show label if it's empty
+            if (t.Spawned && t is IStoreSettingsParent && t is ISlotGroupParent) {
+                foreach (IntVec3 c in ((ISlotGroupParent)t).GetSlotGroup().CellsList) {
+                    List<Thing> l = t.Map.thingGrid.ThingsListAt(c);
+                    foreach (Thing tmp in l) {
+                        if (tmp.def.EverStorable(false)) {
+                            goto EndLoop;
+                            // Seriously?  C# doesn't have "break 2;"?
+                        }
+                    }
+                }
+                tab = t.GetInspectTabs().OfType<ITab_Storage>().First();
+            }
+          EndLoop:
+            if (tab == null) { tab = t.GetInspectTabs().OfType<ITab_DeepStorage_Inventory>().First(); }
             if (tab == null) { Log.Error("LWM Deep Storage object " + t + " does not have an inventory tab?");  return; }
             tab.OnOpen();
-            pane.OpenTabType = typeof(ITab_DeepStorage_Inventory);
+            if (tab is ITab_DeepStorage_Inventory)
+                pane.OpenTabType = typeof(ITab_DeepStorage_Inventory);
+            else
+                pane.OpenTabType = typeof(ITab_Storage);
         }
-    }
+    } // end patch of Select
 }
 
 // Used under GPL 3 from Ratysz.  Also with permission.  Thanks, RT!
