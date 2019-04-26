@@ -206,12 +206,12 @@
             <li>StoneChunks</li>
             <li>ResourcesRaw</li>
           </categories>
-          <disallowedCategories>
-            <li>PlantMatter</li>
-          </disallowedCategories>
           <thingDefs>
             <li>ChunkSlagSteel</li>
           </thingDefs>
+          <disallowedCategories>
+            <li>PlantMatter</li>
+          </disallowedCategories>
         </filter>
       </fixedStorageSettings>
     </building>

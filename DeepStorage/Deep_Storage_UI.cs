@@ -418,8 +418,7 @@ namespace LWM.DeepStorage
                 }
             }
             // If not, open ours!
-            // TODO: Open Storage Settings if it's empty!
-            // TODO: ...make this happen for shelves, heck, any storage buildings.
+            // TODO: ...make this happen for shelves, heck, any storage buildings?
             ITab tab = null;
             /* If there are no items stored, default intead to settings (preferably with note about being empty?) */
             // If we find a stored item, open Contents tab:
@@ -445,7 +444,7 @@ namespace LWM.DeepStorage
             else
                 pane.OpenTabType = typeof(ITab_Storage);
         }
-    } // end patch of Select
+    } // end patch of Select to open ITab
 }
 
 // Used under GPL 3 from Ratysz.  Also with permission.  Thanks, RT!
