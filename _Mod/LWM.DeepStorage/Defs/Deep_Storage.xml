@@ -131,7 +131,7 @@
   <ThingDef Name="LWM_Medicine_Cabinet" ParentName="LWM_DeepStorage">
     <defName>LWM_Medicine_Cabinet</defName>
     <label>Medicine Cabinet</label>
-    <description>A set of cabinets and shelves for stocking medicines.</description>
+    <description>A set of cabinets and shelves for stocking medicines and drugs.  Recommended to keep an eye on children.</description>
     <pathCost>100</pathCost>
     <graphicData>
       <texPath>skullywag/MedCab/MedCab</texPath>
@@ -146,7 +146,7 @@
       <li>Metallic</li>
       <li>Woody</li>
     </stuffCategories>
-    <costStuffCount>50</costStuffCount>
+    <costStuffCount>60</costStuffCount>
     <statBases>
       <MaxHitPoints>25</MaxHitPoints>
       <Mass>8</Mass>
@@ -158,10 +158,11 @@
         <filter>
           <categories>
             <li>Medicine</li>
+            <li>Drugs</li><!-- Kafouille asked for this.  Makes sense. -->
           </categories>
           <thingDefs>
             <li>Neutroamine</li>
-            <li>Penoxycyline</li>
+            <!--<li>Penoxycyline</li>-->
           </thingDefs>
         </filter>
       </fixedStorageSettings>
@@ -206,12 +207,12 @@
             <li>StoneChunks</li>
             <li>ResourcesRaw</li>
           </categories>
-          <disallowedCategories>
-            <li>PlantMatter</li>
-          </disallowedCategories>
           <thingDefs>
             <li>ChunkSlagSteel</li>
           </thingDefs>
+          <disallowedCategories>
+            <li>PlantMatter</li>
+          </disallowedCategories>
         </filter>
       </fixedStorageSettings>
     </building>
