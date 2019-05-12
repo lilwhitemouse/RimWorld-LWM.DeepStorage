@@ -56,7 +56,7 @@ namespace LWM.DeepStorage
             var m = predicateClass.GetMethods(AccessTools.all)
                                  .FirstOrDefault(t => t.Name.Contains("m__"));
             if (m == null) {
-                Log.Error("LWM.Deep_Storage: Cound not find Verse.AI.Toils_Haul:c__AnonStorey0<>m__0");
+                Log.Error("LWM.Deep_Storage: Could not find Verse.AI.Toils_Haul:c__AnonStorey0<>m__0");
             }
             return m;
         }
