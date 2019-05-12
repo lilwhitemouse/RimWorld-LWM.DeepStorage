@@ -57,6 +57,14 @@ namespace LWM.DeepStorage
             //TODO?  Make a wrapper around old initAction that doesn't put 
             //  stuff down if failure happens?
 
+            SlotGroup groupAt = __result?.actor?.Map?.haulDestinationManager?.SlotGroupAt(__result.actor?.CurJob?.GetTarget(cellInd).Cell ?? IntVec3.Invalid);
+
+            if ((groupAt?.parent as ThingWithComps)?.GetComp<CompDeepStorage>() == null)
+            {
+                Utils.Err(PlaceHauledThingInCell, "Not going into Deep Storage, exiting ASAP without modifying anything.");
+                return;
+            }
+
             Action placeStuff = __result.initAction;
             // NOTE: none of this PreInitAtion happens if the game is being loaded while storing is going on:
             //   This means, among other things, that pawns don't get progress bars on reload
