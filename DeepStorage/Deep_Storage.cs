@@ -55,7 +55,7 @@ namespace LWM.DeepStorage
     /***********************************************************************/
 
     public class Utils {
-        static bool[] showDebug ={
+        static public bool[] showDebug ={
             true,  // "Testing" will always be true
             
             false, // No Storage Blockers In
