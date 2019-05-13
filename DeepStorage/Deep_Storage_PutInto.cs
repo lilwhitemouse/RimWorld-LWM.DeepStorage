@@ -92,7 +92,7 @@ namespace LWM.DeepStorage
 
             if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
                 ((ThingWithComps)slotGroup.parent).TryGetComp<CompDeepStorage>() == null) {
-                Utils.Warn(TryPlaceDirect, "  (placed NOT in Deep Storage: with result " + __result + ")");
+                Utils.Warn(TryPlaceDirect, "  (placed "+__state+" NOT in Deep Storage: with result " + __result + ")");
                 return;
             }
 

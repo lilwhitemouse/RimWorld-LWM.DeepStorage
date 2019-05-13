@@ -54,6 +54,7 @@ namespace LWM.DeepStorage
         public static void Postfix(Toil __result, TargetIndex cellInd)
         {
             Utils.Err(PlaceHauledThingInCell, "Starting new haul job, toils created");
+
             //TODO?  Make a wrapper around old initAction that doesn't put 
             //  stuff down if failure happens?
 
@@ -80,6 +81,12 @@ namespace LWM.DeepStorage
                     (cds = (((ThingWithComps)slotGroup?.parent)?.GetComp<CompDeepStorage>()))==null)
                 {
                     Utils.Warn(PlaceHauledThingInCell, "not going into Deep Storage");
+                    // Pick Up & Haul reuses Toils, maybe I broke this one in an earlier run:
+                    if (__result.initAction==null) {
+                        Utils.Warn(PlaceHauledThingInCell, "  (restoring initAction)");
+                        __result.initAction=placeStuff;
+                        return;
+                    }
                     return; // initAction still around, will handle
                 }
                 int timeStoringTakes = cds.timeStoringTakes(cell);
