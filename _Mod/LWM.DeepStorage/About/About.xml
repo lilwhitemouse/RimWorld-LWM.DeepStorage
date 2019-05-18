@@ -6,7 +6,7 @@
   <li>1.0</li>
 </supportedVersions>
 <description>
-&lt;size=24&gt;This is a &lt;b&gt;functional&lt;/b&gt; version of Deep Storage Units that will likely be [WIP] for a while yet.&lt;/size&gt;
+&lt;size=24&gt;Deep Storage Units, yet another storage solution (that will likely be [WIP] for some time).&lt;/size&gt;
 
 LWM presents yet another way to deal with your storage needs:  Deep Storage units!
 
@@ -34,21 +34,21 @@ Pallets, clothing racks, food storage trays, etc.  You can also write your own &
 Using Deep Storage - bonus tip:  If you have selected an item in DeepStorage, if you right-click, you jump the storage unit!
 
 &lt;b&gt;Known Bugs&lt;/b&gt;
- * If something destroys a DSU (or a player moves it while items are in it), items may become invisible.  Saving and re-loading will solve this problem.
- * If, for whatever reason, more items end up in Deep Storage than a DSU can hold, pawns will not notice and will leave them there.  Yes, it's obscure.
+ * It may be possible to end up with a small amount of free storage from time to time.  (An extra partially filled stack)
 
 &lt;b&gt;Planned/Likely Changes&lt;/b&gt;
- * Possibly limit by mass.
- * Possibly limit by total mass.
- * Possible options
+ * Possible more options
  * Possible changes to how much/what kinds of stuff is allowed in various units
  * Possible more units
- * Wooden Weapon Cabinets for pre-industrial eras.
 
 &lt;b&gt;Compatibility (load Deep Storage after these)&lt;/b&gt;
  * Combat Extended - Weapon Lockers can store a maximum total Bulk (Sumghai)
  * RimWorld Search Agency (Hauling Hysteresis): hysteresis disabled for DSUs
 
+&lt;b&gt;Known To Be Compatible With
+ * Common Sense
+ * Pick Up and Haul
+ 
 &lt;b&gt;Uncompatibility - or - Strange Bugs?&lt;/b&gt;
  * Likely uncompatible with other storage solutions that pile lots of things in one place (extended storage, RT_Shelves, ???)
  * I f***ed with the Selector and some mesh Drawing.  It's possible, altho unlikely, this may cause an incompatibility

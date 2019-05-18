@@ -1,6 +1,6 @@
 # LWM's DeepStorage - a mod for RimWorld
 
-## This is a functional version of Deep Storage Units that will likely be [WIP] for a while yet.
+## Deep Storage Units, yet another storage solution (that will likely be [WIP] for some time).
 
 LWM presents yet another way to deal with your storage needs:  Deep Storage units!
 
@@ -39,20 +39,20 @@ The build project is designed for use on Linux in my personal laptop.  If you wa
 Using Deep Storage - bonus tip:  If you have selected an item in DeepStorage, if you right-click, you jump the storage unit!
 
 ## Known Bugs
- * If something destroys a DSU (or a player moves it while items are in it), items may become invisible.  Saving and re-loading will solve this problem.
- * If, for whatever reason, more items end up in Deep Storage than a DSU can hold, pawns will not notice and will leave them there.  Yes, it's obscure.
+ * It may be possible to end up with a small amount of free storage from time to time.  (An extra partially filled stack)
 
 ## Planned/Likely Changes
- * Possibly limit by mass.
- * Possibly limit by total mass.
- * Possible options
+ * Possible more options
  * Possible changes to how much/what kinds of stuff is allowed in various units
  * Possible more units
- * Wooden Weapon Cabinets for pre-industrial eras.
 
 ## Compatibility (load Deep Storage after these)
  * Combat Extended - Weapon Lockers can store a maximum total Bulk (Sumghai)
  * RimWorld Search Agency (Hauling Hysteresis): hysteresis disabled for DSUs
+
+## Known To Be Compatible With
+ * Common Sense
+ * Pick Up and Haul
 
 ## Uncompatibility - or - Strange Bugs?
  * Likely uncompatible with other storage solutions that pile lots of things in one place (extended storage, RT_Shelves, ???)

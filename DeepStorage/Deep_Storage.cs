@@ -65,12 +65,13 @@ namespace LWM.DeepStorage
             false, // Tidy Stacks Of
             false, // Deep_Storage_Job
             false, // Place Hauled Thing In Cell (wait functionaliy)
+            false, // ShouldRemoveFromStorage
         };
 
         public enum DBF // DeBugFlag
         {
             Testing, NoStorageBlockerseIn, HaulToCellStorageJob, TryPlaceDirect, Spawn, TidyStacksOf,
-            Deep_Storage_Job, PlaceHauledThingInCell
+            Deep_Storage_Job, PlaceHauledThingInCell, ShouldRemoveFromStorage
         }
 
         // Nifty! Won't even be compiled in if not DEBUG

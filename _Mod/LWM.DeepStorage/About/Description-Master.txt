@@ -1,4 +1,4 @@
-[h1]This is a [b]functional[/b] version of Deep Storage Units that will likely be [WIP] for a while yet.[/h1]
+[h1]Deep Storage Units, yet another storage solution (that will likely be [WIP] for some time).[/h1]
 
 LWM presents yet another way to deal with your storage needs:  Deep Storage units!
 
@@ -31,24 +31,26 @@ Using Deep Storage - bonus tip:  If you have selected an item in DeepStorage, if
 
 [u]Known Bugs[/u]
 [list]
- [*] If something destroys a DSU (or a player moves it while items are in it), items may become invisible.  Saving and re-loading will solve this problem.
- [*] If, for whatever reason, more items end up in Deep Storage than a DSU can hold, pawns will not notice and will leave them there.  Yes, it's obscure.
+ [*] It may be possible to end up with a small amount of free storage from time to time.  (An extra partially filled stack)
 [/list]
 
 [u]Planned/Likely Changes[/u]
 [list]
- [*] Possibly limit by mass.
- [*] Possibly limit by total mass.
- [*] Possible options
+ [*] Possible more options
  [*] Possible changes to how much/what kinds of stuff is allowed in various units
  [*] Possible more units
- [*] Wooden Weapon Cabinets for pre-industrial eras.
 [/list]
 
 [u]Compatibility (load Deep Storage after these)[/u]
 [list]
  [*] Combat Extended - Weapon Lockers can store a maximum total Bulk (Sumghai)
  [*] RimWorld Search Agency (Hauling Hysteresis): hysteresis disabled for DSUs
+[/list]
+
+[u]Known To Be Compatible With
+[list]
+ [*] Common Sense
+ [*] Pick Up and Haul
 [/list]
 
 [u]Uncompatibility - or - Strange Bugs?[/u]
@@ -87,7 +89,7 @@ Note: About.xml uses actual HTML:
 
 Steam requires its own description to be uploaded, and it uses [h1]...[/h1], [u]...[/u], [list]... [*]... [*]...[/list], etc as above.
 
-GitHub's README uses a DIFFERENT systme, of course.  See ../../../README.md
+GitHub's README uses a DIFFERENT system, of course.  See ../../../README.md
 # Header one
 ## Header two
 ** bold **
