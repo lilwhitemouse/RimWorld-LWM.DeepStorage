@@ -47,7 +47,7 @@ Using Deep Storage - bonus tip:  If you have selected an item in DeepStorage, if
  [*] RimWorld Search Agency (Hauling Hysteresis): hysteresis disabled for DSUs
 [/list]
 
-[u]Known To Be Compatible With
+[u]Known To Be Compatible With[/u]
 [list]
  [*] Common Sense
  [*] Pick Up and Haul
