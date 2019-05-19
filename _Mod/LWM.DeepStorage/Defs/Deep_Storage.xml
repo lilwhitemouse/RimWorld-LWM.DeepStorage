@@ -56,7 +56,7 @@
     -->
     <inspectorTabs>
       <li>ITab_Storage</li>
-      <li>LWM.DeepStorage.ITab_DeepStorage_Inventory</li><!--Good call, sumghai-->
+      <li>LWM.DeepStorage.ITab_DeepStorage_Inventory</li><!--Contents tab: Good call, sumghai-->
     </inspectorTabs>
 
     <filthLeaving>Filth_RubbleBuilding</filthLeaving>

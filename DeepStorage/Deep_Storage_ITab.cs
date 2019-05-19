@@ -15,7 +15,7 @@ namespace LWM.DeepStorage
      *   That saved a lot of work.                 *
      * Other requests from various ppl on steam    *
      *                                             */
-    public class ITab_DeepStorage_Contents : ITab {
+    public class ITab_DeepStorage_Inventory : ITab {
         private Vector2 scrollPosition = Vector2.zero;
         private float scrollViewHeight=1000f;
         private const float TopPadding = 20f;
@@ -26,18 +26,21 @@ namespace LWM.DeepStorage
         private const float ThingLeftX = 36f;
         private const float StandardLineHeight = 22f;
         private static List<Thing> listOfStoredItems = new List<Thing>();
+        private static List<string> listOfReservingPawns= new List<string>();
 //        public float cabinetMaxCapacity = 123; // Placeholder variable for cabinet max capacity; replace with XML-driven value
 
-        public ITab_DeepStorage_Contents() {
+        public ITab_DeepStorage_Inventory() {
             this.size = new Vector2(460f, 450f);
             this.labelKey = "Contents"; // could define <LWM.Contents>Contents</LWM.Contents> in Keyed language, but why not use what's there.
         }
 
         protected override void FillTab() {
             Text.Font = GameFont.Small;
-            Rect rect = new Rect(0f, 20f, this.size.x, this.size.y - 20f);
-            Rect rect2 = rect.ContractedBy(10f);
-            Rect position = new Rect(rect2.x, rect2.y, rect2.width, rect2.height);
+//            Rect rect = new Rect(0f, 20f, this.size.x, this.size.y - 20f);
+            Rect rect = new Rect(0f, 0f, this.size.x, this.size.y);
+//            Rect rect2 = rect.ContractedBy(10f);
+//            Rect position = new Rect(rect2.x, rect2.y, rect2.width, rect2.height);
+            Rect position = rect.ContractedBy(10f);
             GUI.BeginGroup(position);
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
@@ -46,9 +49,10 @@ namespace LWM.DeepStorage
 
             listOfStoredItems.Clear();
 
-            Building_Storage storageBuilding = SelThing as Building_Storage;
+            Building_Storage storageBuilding = this.SelThing as Building_Storage;
             List<IntVec3> cabinetStorageCells = storageBuilding.AllSlotCellsList();
             foreach (IntVec3 storageCell in cabinetStorageCells) {
+                // Possible TODO: keep track of any items that go overCapacity?
                 foreach (Thing t in storageBuilding.Map.thingGrid.ThingsListAt(storageCell)) {
                     if (t.Spawned && t.def.EverStorable(false)) listOfStoredItems.Add(t);
                 }
@@ -150,7 +154,7 @@ namespace LWM.DeepStorage
         }
 
         // LWM rewrote most of this method to meet their implementation of CompDeepStorage
-        private void DisplayHeaderInfo(ref float curY, float width, Building_Storage cabinet, 
+        private void DisplayHeaderInfo(ref float curY, float width, Building_Storage building, 
                                        int numCells, List<Thing> itemsList) {
             // Header information regardless of what the storage building is:
             Rect rect = new Rect(0f, curY, width, 22f);
@@ -163,26 +167,55 @@ namespace LWM.DeepStorage
                 return;
             }
 
-            CompDeepStorage cds = cabinet.GetComp<CompDeepStorage>();
+            CompDeepStorage cds = building.GetComp<CompDeepStorage>();
             if (cds == null) return; // what are we even doing here, mmm?  In a vanilla shelf, probably!
 
-
-            
+            bool flagUseStackInsteadOfItem=false; // "3/4 Items" vs "3/4 Stacks"
             float itemsTotalMass = 0; // or Bulk for CE ;p
             for (int i=0; i<itemsList.Count; i++) {
                 itemsTotalMass += itemsList[i].GetStatValue(cds.stat, true) * (float)itemsList[i].stackCount;
+                if (itemsList[i].def.stackLimit > 1) flagUseStackInsteadOfItem=true;
             }
             if (cds.limitingTotalFactorForCell > 0f) {
-                Widgets.Label(rect, "LWM.ContentHeaderOneOf".Translate(itemsList.Count.ToString(),
+                string tmpLabel="LWM.ContentHeaderItemsMass";
+                if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentHeaderStacksMass";
+                Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
+                              cds.maxNumberStacks*numCells,
                               cds.stat.ToString(), itemsTotalMass.ToString("0.##"),
                               (cds.limitingTotalFactorForCell * numCells).ToString("0.##")));
             } else {
-                Widgets.Label(rect, "LWM.ContentHeaderOne".Translate(itemsList.Count.ToString(),
+                string tmpLabel="LWM.ContentHeaderItems";
+                if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentHeaderStacks";
+                Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
+                              cds.maxNumberStacks*numCells,
                               cds.stat.ToString(), itemsTotalMass.ToString("0.##")));
             }
             curY += 22f;
-        }
-    } /* End sumghai's itab */
+
+            /* Pawn reservations.  I hope this cuts down on questions in the Steam thread */
+            List<Pawn>pwns=building.Map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer);
+            if (pwns.Count > 0) {
+                listOfReservingPawns.Clear();
+                List<IntVec3> buildingCells=building.AllSlotCellsList();
+                for (int i=0; i<buildingCells.Count; i++) {
+                    Pawn p=building.Map.reservationManager.FirstRespectedReserver(buildingCells[i], pwns[0]);
+                    if (p!=null) {
+                        listOfReservingPawns.Add(p.ToString());
+                    }
+                }
+                if (listOfReservingPawns.Count > 0) {
+                    if (listOfReservingPawns.Count==1) {
+                        Widgets.Label(rect, "LWM.ContentHeaderPawnUsing".Translate(listOfReservingPawns[0]));
+                    } else {
+                        Widgets.Label(rect, "LWM.ContentHeaderPawnsUsing".Translate(
+                                          String.Join(", ", listOfReservingPawns.ToArray())));
+                    }
+                    curY+=22f;
+                }
+            } // end checking pawn reservations
+            
+        } // end Header for ITab
+    } /* End itab */
     /* Now make the itab open automatically! */
     /*   Thanks to Falconne for doing this in ImprovedWorkbenches, and showing how darn useful it is! */
     [HarmonyPatch(typeof(Selector), "Select")]
@@ -225,11 +258,11 @@ namespace LWM.DeepStorage
                 tab = t.GetInspectTabs().OfType<ITab_Storage>().First();
             }
           EndLoop:
-            if (tab == null) { tab = t.GetInspectTabs().OfType<ITab_DeepStorage_Contents>().First(); }
+            if (tab == null) { tab = t.GetInspectTabs().OfType<ITab_DeepStorage_Inventory>().First(); }
             if (tab == null) { Log.Error("LWM Deep Storage object " + t + " does not have an inventory tab?");  return; }
             tab.OnOpen();
-            if (tab is ITab_DeepStorage_Contents)
-                pane.OpenTabType = typeof(ITab_DeepStorage_Contents);
+            if (tab is ITab_DeepStorage_Inventory)
+                pane.OpenTabType = typeof(ITab_DeepStorage_Inventory);
             else
                 pane.OpenTabType = typeof(ITab_Storage);
         }

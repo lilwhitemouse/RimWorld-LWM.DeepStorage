@@ -26,25 +26,15 @@ namespace LWM.DeepStorage
                                         false);
             }
 
-//StockpileForDisaster.EntityListComp</compClass>
+            /* TODO: More compatibility with StockpileForDisaster
             var sfdType=Harmony.AccessTools.TypeByName("StockpileForDisaster.EntityListComp");
             if (sfdType==null) {
-                Log.Error("Diddn't find type :p "+sfdType);
+                Log.Error("Didn't find type?? "+sfdType);
             } else {
                 Log.Error("Found type "+sfdType);
-//                var x = Harmony.AccessTools.Method("StockpileForDisaster.EntityListComp");
-                
-
             }
-            sfdType=Harmony.AccessTools.TypeByName("StockpileForDisaXster.EntXityListComp");
-            if (sfdType==null) {
-                Log.Error("Diddn't find nonexistant type!");
-            } else {
-                Log.Error("Found type "+sfdType);
-//                var x = Harmony.AccessTools.Method("StockpileForDisaster.EntityListComp");
-                
 
-            }
+            }*/
             #endif
 
             
