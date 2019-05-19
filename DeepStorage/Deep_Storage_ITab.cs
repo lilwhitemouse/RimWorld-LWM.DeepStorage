@@ -181,14 +181,14 @@ namespace LWM.DeepStorage
                 if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentHeaderStacksMass";
                 Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
                               cds.maxNumberStacks*numCells,
-                              cds.stat.ToString(), itemsTotalMass.ToString("0.##"),
+                              cds.stat.ToString().ToLower(), itemsTotalMass.ToString("0.##"),
                               (cds.limitingTotalFactorForCell * numCells).ToString("0.##")));
             } else {
                 string tmpLabel="LWM.ContentHeaderItems";
                 if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentHeaderStacks";
                 Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
                               cds.maxNumberStacks*numCells,
-                              cds.stat.ToString(), itemsTotalMass.ToString("0.##")));
+                              cds.stat.ToString().ToLower(), itemsTotalMass.ToString("0.##")));
             }
             curY += 22f;
 
@@ -204,6 +204,7 @@ namespace LWM.DeepStorage
                     }
                 }
                 if (listOfReservingPawns.Count > 0) {
+                    rect = new Rect(0f, curY, width, 22f);   
                     if (listOfReservingPawns.Count==1) {
                         Widgets.Label(rect, "LWM.ContentHeaderPawnUsing".Translate(listOfReservingPawns[0]));
                     } else {
