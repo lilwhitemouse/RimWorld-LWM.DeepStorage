@@ -25,7 +25,29 @@ namespace LWM.DeepStorage
                                        "Turn ON/OFF all debugging - this is a lot of trace, and only available on debug builds",
                                         false);
             }
+
+//StockpileForDisaster.EntityListComp</compClass>
+            var sfdType=Harmony.AccessTools.TypeByName("StockpileForDisaster.EntityListComp");
+            if (sfdType==null) {
+                Log.Error("Diddn't find type :p "+sfdType);
+            } else {
+                Log.Error("Found type "+sfdType);
+//                var x = Harmony.AccessTools.Method("StockpileForDisaster.EntityListComp");
+                
+
+            }
+            sfdType=Harmony.AccessTools.TypeByName("StockpileForDisaXster.EntXityListComp");
+            if (sfdType==null) {
+                Log.Error("Diddn't find nonexistant type!");
+            } else {
+                Log.Error("Found type "+sfdType);
+//                var x = Harmony.AccessTools.Method("StockpileForDisaster.EntityListComp");
+                
+
+            }
             #endif
+
+            
             AssignSettings();
         }
 

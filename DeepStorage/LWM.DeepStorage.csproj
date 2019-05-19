@@ -78,6 +78,7 @@
     <Compile Include="Debugging.cs" />
     <Compile Include="Deep_Storage_Jobs.cs" />
     <Compile Include="Deep_Storage_UI.cs" />
+    <Compile Include="Deep_Storage_ITab.cs" />
     <Compile Include="Deep_Storage_CanCarryItemsTo.cs" />
     <Compile Include="Deep_Storage_RemoveFrom.cs" />
     <Compile Include="Deep_Storage_PutInto.cs" />
