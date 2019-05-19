@@ -177,21 +177,29 @@ namespace LWM.DeepStorage
                 if (itemsList[i].def.stackLimit > 1) flagUseStackInsteadOfItem=true;
             }
             if (cds.limitingTotalFactorForCell > 0f) {
-                string tmpLabel="LWM.ContentHeaderItemsMass";
-                if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentHeaderStacksMass";
+                string tmpLabel="LWM.ContentsHeaderItemsMass";
+                if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentsHeaderStacksMass";
                 Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
                               cds.maxNumberStacks*numCells,
                               cds.stat.ToString().ToLower(), itemsTotalMass.ToString("0.##"),
                               (cds.limitingTotalFactorForCell * numCells).ToString("0.##")));
             } else {
-                string tmpLabel="LWM.ContentHeaderItems";
-                if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentHeaderStacks";
+                string tmpLabel="LWM.ContentsHeaderItems";
+                if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentsHeaderStacks";
                 Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
                               cds.maxNumberStacks*numCells,
                               cds.stat.ToString().ToLower(), itemsTotalMass.ToString("0.##")));
             }
             curY += 22f;
-
+            /* Limiting factor for Item: what's too damn big */
+            if (cds.limitingFactorForItem > 0f) {
+                rect = new Rect(0f, curY, width, 22f);
+                Widgets.Label(rect, "LWM.ContentsHeaderMaxSize".Translate(
+                                  cds.stat.ToString().ToLower(),
+                                  cds.limitingFactorForItem.ToString("0.##")
+                                  ));
+                curY+=22f;
+            }
             /* Pawn reservations.  I hope this cuts down on questions in the Steam thread */
             List<Pawn>pwns=building.Map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer);
             if (pwns.Count > 0) {
@@ -206,9 +214,9 @@ namespace LWM.DeepStorage
                 if (listOfReservingPawns.Count > 0) {
                     rect = new Rect(0f, curY, width, 22f);   
                     if (listOfReservingPawns.Count==1) {
-                        Widgets.Label(rect, "LWM.ContentHeaderPawnUsing".Translate(listOfReservingPawns[0]));
+                        Widgets.Label(rect, "LWM.ContentsHeaderPawnUsing".Translate(listOfReservingPawns[0]));
                     } else {
-                        Widgets.Label(rect, "LWM.ContentHeaderPawnsUsing".Translate(
+                        Widgets.Label(rect, "LWM.ContentsHeaderPawnsUsing".Translate(
                                           String.Join(", ", listOfReservingPawns.ToArray())));
                     }
                     curY+=22f;

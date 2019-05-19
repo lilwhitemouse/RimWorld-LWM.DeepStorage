@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <NoItemsAreStoredHere>No items are currently stored here.</NoItemsAreStoredHere>
-  <LWM.ContentHeaderStacksMass>{0} / {1} stacks with total {2} of {3} / {4} kg</LWM.ContentHeaderStacksMass>
-  <LWM.ContentHeaderItemsMass>{0} / {1} items with total {2} of {3} / {4} kg</LWM.ContentHeaderItemsMass>
-  <LWM.ContentHeaderStacks>{0} / {1} stacks with total {2} of {3} kg</LWM.ContentHeaderStacks>
-  <LWM.ContentHeaderItems>{0} / {1} items with total {2} of {3} kg</LWM.ContentHeaderItems>
-  <LWM.ContentHeaderPawnUsing>  {0} is using this.</LWM.ContentHeaderPawnUsing>
-  <LWM.ContentHeaderPawnsUsing>  This is being used by {0}.</LWM.ContentHeaderPawnsUsing>
+  <LWM.ContentsHeaderStacksMass>{0} / {1} stacks with total {2} of {3} / {4} kg</LWM.ContentsHeaderStacksMass>
+  <LWM.ContentsHeaderItemsMass>{0} / {1} items with total {2} of {3} / {4} kg</LWM.ContentsHeaderItemsMass>
+  <LWM.ContentsHeaderStacks>{0} / {1} stacks with total {2} of {3} kg</LWM.ContentsHeaderStacks>
+  <LWM.ContentsHeaderItems>{0} / {1} items with total {2} of {3} kg</LWM.ContentsHeaderItems>
+  <LWM.ContentsHeaderMaxSize>    Maximum {0} of {1} kg</LWM.ContentsHeaderMaxSize>
+  <LWM.ContentsHeaderPawnUsing>  {0} is using this.</LWM.ContentsHeaderPawnUsing>
+  <LWM.ContentsHeaderPawnsUsing>  This is being used by: {0}.</LWM.ContentsHeaderPawnsUsing><!-- "Red, John, Abigail" etc -->
   <!-- HugsLib Settings Keys: -->
   <LWM_DS_IntTitle>Intelligence Required to Haul to Deep Storage</LWM_DS_IntTitle>
   <LWM_DS_IntDesc>Most alien races have "Humanlike" or better.  Most animals are "animal."  Vanilla Mechanoids are "tool users"  Robots for various mods?  Your guess is as good as mine.</LWM_DS_IntDesc>
