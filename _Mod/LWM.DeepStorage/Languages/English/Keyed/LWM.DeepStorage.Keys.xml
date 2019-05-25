@@ -5,7 +5,7 @@
   <LWM.ContentsHeaderItemsMass>{0} / {1} items with total {2} of {3} / {4} kg</LWM.ContentsHeaderItemsMass>
   <LWM.ContentsHeaderStacks>{0} / {1} stacks with total {2} of {3} kg</LWM.ContentsHeaderStacks>
   <LWM.ContentsHeaderItems>{0} / {1} items with total {2} of {3} kg</LWM.ContentsHeaderItems>
-  <LWM.ContentsHeaderMaxSize>    Maximum {0} of {1} kg</LWM.ContentsHeaderMaxSize>
+  <LWM.ContentsHeaderMaxSize>    (Cannot store items above a {0} of {1} kg)</LWM.ContentsHeaderMaxSize>
   <LWM.ContentsHeaderPawnUsing>  {0} is using this.</LWM.ContentsHeaderPawnUsing>
   <LWM.ContentsHeaderPawnsUsing>  This is being used by: {0}.</LWM.ContentsHeaderPawnsUsing><!-- "Red, John, Abigail" etc -->
   <!-- HugsLib Settings Keys: -->

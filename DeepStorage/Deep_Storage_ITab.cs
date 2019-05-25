@@ -86,6 +86,10 @@ namespace LWM.DeepStorage
             Widgets.BeginScrollView(outRect, ref this.scrollPosition, viewRect, true);
 
             curY = 0f; // now inside ScrollView
+            if (listOfStoredItems.Count<1) {
+                Widgets.Label(rect, "NoItemsAreStoredHere".Translate());
+                curY += 22;
+            }
 
             for (int i = 0; i < listOfStoredItems.Count; i++) {
                 this.DrawThingRow(ref curY, viewRect.width, listOfStoredItems[i]);
@@ -103,25 +107,44 @@ namespace LWM.DeepStorage
         }
 
         private void DrawThingRow(ref float y, float width, Thing thing) {
-            Rect rect = new Rect(0f, y, width, 28f);
-            Widgets.InfoCardButton(rect.width - 24f, y, thing);
-            rect.width -= 24f;
+            // Sumghai started from the right, and that's fine with me:
+            
+            /***** InfoCardButton is the little "i" that pulls up full info on the item. *****/
+            //   It's 24f by 24f in size
+            width-=24f;
+            Widgets.InfoCardButton(width, y, thing);
 
-            Rect rect2 = new Rect(rect.width - 24f, y, 24f, 24f);
-            TooltipHandler.TipRegion(rect2, "Allow/Forbid"); // Replace "Allow/Forbid" with a translated entry in a Keyed Language XML file
-
+            /***** Allow/Forbid toggle                                                   *****/
+            //   We make this 24 by 24 too:
+            width-=24f;
+            Rect forbidRect = new Rect(width, y, 24f, 24f); // is creating this rect actually necessary?
+            TooltipHandler.TipRegion(forbidRect, "Allow/Forbid"); // TODO: Replace "Allow/Forbid" with a translated entry in a Keyed Language XML file
             bool forbidFlag = !thing.IsForbidden(Faction.OfPlayer);
-
-            Widgets.Checkbox(rect2.x, rect2.y, ref forbidFlag, 24f, false, true, null, null);
-
+            Widgets.Checkbox(forbidRect.x, forbidRect.y, ref forbidFlag, 24f, false, true, null, null);
             ForbidUtility.SetForbidden(thing, !forbidFlag,false);
+            
+            /***** Mass                                            *****/
+            width-=60f; // Caravans use 100f
+            Rect massRect = new Rect(width,y,60f,28f);
+            RimWorld.Planet.CaravanThingsTabUtility.DrawMass(thing, massRect);
+            /***** How soon does it rot? *****/
+            if (thing.def.IsNutritionGivingIngestible) {
+                CompRottable cr = thing.TryGetComp<CompRottable>();
+                if (cr != null) {
+                    int rotTicks=Math.Min(int.MaxValue, cr.TicksUntilRotAtCurrentTemp);
+                    if (rotTicks < 36000000) {
+                        width-=60f;  // Caravans use 75f?  TransferableOneWayWidget.cs
+                        Rect rotRect=new Rect(width,y,60f,28f);
+                        GUI.color = Color.yellow;
+                        Widgets.Label(rotRect, (rotTicks/60000f).ToString("0.#"));
+                        GUI.color = Color.white;
+                        TooltipHandler.TipRegion(rotRect, "DaysUntilRotTip".Translate());
+                    }
+                }
+            } // finish how long food will last
 
-            rect.width -= 24f;
 
-            Rect rect3 = rect;
-            rect3.xMin = rect3.xMax - 60f;
-            RimWorld.Planet.CaravanThingsTabUtility.DrawMass(thing, rect3);
-            rect.width -= 60f;
+            Rect rect = new Rect(0f,y,width,28f);
             if (Mouse.IsOver(rect)) {
                 GUI.color = ITab_Pawn_Gear.HighlightColor;
                 GUI.DrawTexture(rect, TexUI.HighlightTex);
@@ -133,9 +156,13 @@ namespace LWM.DeepStorage
             GUI.color = ITab_Pawn_Gear.ThingLabelColor;
             Rect rect4 = new Rect(36f, y, rect.width - 36f, rect.height);
             string text = thing.LabelCap;
-            Apparel apparel = thing as Apparel;
+//            Apparel apparel = thing as Apparel;
             Text.WordWrap = false;
-            Widgets.Label(rect4, text.Truncate(rect4.width, null));
+//            Widgets.Label(rect4, text.Truncate(rect4.width, null));
+            if (Widgets.ButtonText(rect4, text.Truncate(rect4.width, null),false)) {
+                Find.Selector.ClearSelection();
+                Find.Selector.Select(thing);
+            }
             Text.WordWrap = true;
             string text2 = thing.DescriptionDetailed;
             if (thing.def.useHitPoints) {
@@ -161,11 +188,6 @@ namespace LWM.DeepStorage
             // TODO: Add hooks for other mods:
             //   E.g., StockpileForDisaster has a nice little checkbox that shows whether 
             //   pawns can freely take from the unit, or whether restrictions are in effect
-            if (itemsList.Count<1) {
-                Widgets.Label(rect, "NoItemsAreStoredHere".Translate());
-                curY += 22;
-                return;
-            }
 
             CompDeepStorage cds = building.GetComp<CompDeepStorage>();
             if (cds == null) return; // what are we even doing here, mmm?  In a vanilla shelf, probably!
@@ -221,8 +243,7 @@ namespace LWM.DeepStorage
                     }
                     curY+=22f;
                 }
-            } // end checking pawn reservations
-            
+            } // end checking pawn reservations            
         } // end Header for ITab
     } /* End itab */
     /* Now make the itab open automatically! */
