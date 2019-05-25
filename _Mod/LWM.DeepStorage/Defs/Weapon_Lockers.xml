@@ -35,6 +35,7 @@
 	<filter>
 	  <categories>
 	    <li>Weapons</li>
+            <li>Artifacts</li>
 	  </categories>
 	</filter>
       </fixedStorageSettings>
@@ -47,8 +48,8 @@
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
 	<minNumberStacks>2</minNumberStacks><!-- Can always store at least two weapons! -->
-	<maxNumberStacks>40</maxNumberStacks><!-- I am ambivalent about this -->
-	<maxTotalMass>35</maxTotalMass><!-- ~10 assault rifles -->
+	<maxNumberStacks>30</maxNumberStacks><!--Wooden cabinet is not as flexible as metal -->
+	<maxTotalMass>30</maxTotalMass><!-- ~8 assault rifles --><!--Its pieces cannot be moved as precisely to fit as many-->
 	<maxMassOfStoredItem>10</maxMassOfStoredItem>
 	<timeStoringTakes>100</timeStoringTakes><!-- slightly lower than locker as less packing to do -->
 	<showContents>false</showContents>
