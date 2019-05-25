@@ -107,27 +107,32 @@ namespace LWM.DeepStorage
         }
 
         private void DrawThingRow(ref float y, float width, Thing thing) {
-            // Sumghai started from the right, and that's fine with me:
+            // Sumghai started from the right, as several things in vanilla do, and that's fine with me:
             
-            /***** InfoCardButton is the little "i" that pulls up full info on the item. *****/
+            /************************* InfoCardButton *************************/
+            //       (it's the little "i" that pulls up full info on the item.)
             //   It's 24f by 24f in size
             width-=24f;
             Widgets.InfoCardButton(width, y, thing);
 
-            /***** Allow/Forbid toggle                                                   *****/
+            /************************* Allow/Forbid toggle *************************/
             //   We make this 24 by 24 too:
             width-=24f;
             Rect forbidRect = new Rect(width, y, 24f, 24f); // is creating this rect actually necessary?
-            TooltipHandler.TipRegion(forbidRect, "Allow/Forbid"); // TODO: Replace "Allow/Forbid" with a translated entry in a Keyed Language XML file
-            bool forbidFlag = !thing.IsForbidden(Faction.OfPlayer);
-            Widgets.Checkbox(forbidRect.x, forbidRect.y, ref forbidFlag, 24f, false, true, null, null);
-            ForbidUtility.SetForbidden(thing, !forbidFlag,false);
+            bool allowFlag = !thing.IsForbidden(Faction.OfPlayer);
+            if (allowFlag)
+                TooltipHandler.TipRegion(forbidRect, "CommandNotForbiddenDesc".Translate());
+            else
+                TooltipHandler.TipRegion(forbidRect, "CommandForbiddenDesc".Translate());
+//            TooltipHandler.TipRegion(forbidRect, "Allow/Forbid"); // TODO: Replace "Allow/Forbid" with a translated entry in a Keyed Language XML file
+            Widgets.Checkbox(forbidRect.x, forbidRect.y, ref allowFlag, 24f, false, true, null, null);
+            ForbidUtility.SetForbidden(thing, !allowFlag,false);
             
-            /***** Mass                                            *****/
+            /************************* Mass *************************/
             width-=60f; // Caravans use 100f
             Rect massRect = new Rect(width,y,60f,28f);
             RimWorld.Planet.CaravanThingsTabUtility.DrawMass(thing, massRect);
-            /***** How soon does it rot? *****/
+            /************************* How soon does it rot? *************************/
             if (thing.def.IsNutritionGivingIngestible) {
                 CompRottable cr = thing.TryGetComp<CompRottable>();
                 if (cr != null) {
@@ -143,27 +148,29 @@ namespace LWM.DeepStorage
                 }
             } // finish how long food will last
 
-
-            Rect rect = new Rect(0f,y,width,28f);
-            if (Mouse.IsOver(rect)) {
+            /************************* Text area *************************/
+            // TODO: use a ButtonInvisible over the entire area with a label and the icon.
+            Rect itemRect = new Rect(0f,y,width,28f);
+            if (Mouse.IsOver(itemRect)) {
                 GUI.color = ITab_Pawn_Gear.HighlightColor;
-                GUI.DrawTexture(rect, TexUI.HighlightTex);
+                GUI.DrawTexture(itemRect, TexUI.HighlightTex);
             }
             if (thing.def.DrawMatSingle != null && thing.def.DrawMatSingle.mainTexture != null) {
                 Widgets.ThingIcon(new Rect(4f, y, 28f, 28f), thing, 1f);
             }
             Text.Anchor = TextAnchor.MiddleLeft;
-            GUI.color = ITab_Pawn_Gear.ThingLabelColor;
-            Rect rect4 = new Rect(36f, y, rect.width - 36f, rect.height);
+            GUI.color = ITab_Pawn_Gear.ThingLabelColor; // TODO: Aaaaah, sure?
+            Rect textRect = new Rect(36f, y, itemRect.width - 36f, itemRect.height);
             string text = thing.LabelCap;
-//            Apparel apparel = thing as Apparel;
             Text.WordWrap = false;
-//            Widgets.Label(rect4, text.Truncate(rect4.width, null));
-            if (Widgets.ButtonText(rect4, text.Truncate(rect4.width, null),false)) {
+            Widgets.Label(textRect, text.Truncate(textRect.width, null));
+//            if (Widgets.ButtonText(rect4, text.Truncate(rect4.width, null),false)) {
+            if (Widgets.ButtonInvisible(itemRect)) {
                 Find.Selector.ClearSelection();
                 Find.Selector.Select(thing);
             }
             Text.WordWrap = true;
+            /************************* mouse-over description *************************/
             string text2 = thing.DescriptionDetailed;
             if (thing.def.useHitPoints) {
                 string text3 = text2;
@@ -176,7 +183,7 @@ namespace LWM.DeepStorage
                     thing.MaxHitPoints
                 });
             }
-            TooltipHandler.TipRegion(rect, text2);
+            TooltipHandler.TipRegion(itemRect, text2);
             y += 28f;
         }
 
