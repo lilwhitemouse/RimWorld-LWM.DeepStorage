@@ -95,6 +95,7 @@
         <filter>
           <categories>
             <li>Weapons</li>
+            <li>Artifacts</li>
           </categories>
         </filter>
       </fixedStorageSettings>
