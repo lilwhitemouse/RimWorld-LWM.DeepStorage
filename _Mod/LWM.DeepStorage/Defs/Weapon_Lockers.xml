@@ -26,7 +26,7 @@
       <li>Woody</li>
       <li>Metallic</li><!-- You build it from what you can? -->
     </stuffCategories>
-    <costStuffCount>50</costStuffCount>
+    <costStuffCount>75</costStuffCount><!--Dresser costs 60 to build, and this has weirder requirements-->
     <building>
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
@@ -78,7 +78,7 @@
     <castEdgeShadows>true</castEdgeShadows>
     <size>(1,1)</size>
     <statBases>
-      <MaxHitPoints>200</MaxHitPoints>
+      <MaxHitPoints>150</MaxHitPoints><!--thin metal sheets-->
       <WorkToBuild>600</WorkToBuild>
       <Flammability>0.1</Flammability>
       <Mass>8</Mass>
@@ -86,7 +86,7 @@
     <stuffCategories>
       <li>Metallic</li>
     </stuffCategories>
-    <costStuffCount>70</costStuffCount>
+    <costStuffCount>70</costStuffCount><!-- This sheets cost less than bulk metal? -->
     <building>
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
