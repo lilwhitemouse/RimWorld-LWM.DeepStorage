@@ -1,5 +1,6 @@
 <Patch>
     <!-- Compatibility for RimCuisine. Allows processed foods (eg: dried meat) to be stored in food baskets. Allows new foods and drinks to be stored on the meal rack.-->
+    <!-- Credits to DrZhivago for this, the well-fed counterreveloutionary -->
     <!--=====Rim Cuisine=====-->
     <Operation Class="PatchOperationFindMod">
         <mods>
@@ -9,13 +10,13 @@
             <success>Always</success>
             <operations>
                 <li Class="PatchOperationAdd">
-                    <xpath>Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/categories</xpath>
+                    <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/categories</xpath>
                     <value>
                         <li>FoodProcessed</li>
                     </value>
                 </li>
                 <li Class="PatchOperationAdd">
-                    <xpath>Defs/ThingDef[defName="LWM_MealRack"]/building/fixedStorageSettings/filter/categories</xpath>
+                    <xpath>/Defs/ThingDef[defName="LWM_MealRack"]/building/fixedStorageSettings/filter/categories</xpath>
                     <value>
                         <li>FoodMealsJoy</li>
                         <li>DrinkMealsJoy</li>
