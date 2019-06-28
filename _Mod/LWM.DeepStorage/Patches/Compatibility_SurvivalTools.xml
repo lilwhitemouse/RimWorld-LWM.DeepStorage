@@ -1,0 +1,20 @@
+<Patch>
+    <!-- Compatibility for Survival Tools. Allows tools to be stored in weapon lockers. -->
+    <!--=====[XND] Survival Tools=====-->
+    <Operation Class="PatchOperationFindMod">
+        <mods>
+            <li>[XND] Survival Tools</li>
+        </mods>
+        <match Class="PatchOperationSequence">
+            <success>Always</success>
+            <operations>
+                <li Class="PatchOperationAdd">
+                    <xpath>Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
+                    <value>
+                        <li>SurvivalTools</li>
+                    </value>
+                </li>
+            </operations>
+        </match>
+    </Operation>
+</Patch>
