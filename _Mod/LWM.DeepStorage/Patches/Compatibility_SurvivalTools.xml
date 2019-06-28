@@ -9,7 +9,7 @@
             <success>Always</success>
             <operations>
                 <li Class="PatchOperationAdd">
-                    <xpath>Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
+                    <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
                     <value>
                         <li>SurvivalTools</li>
                     </value>
