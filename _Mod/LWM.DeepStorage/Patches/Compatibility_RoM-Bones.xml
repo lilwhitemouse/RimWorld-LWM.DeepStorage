@@ -9,7 +9,7 @@
             <success>Always</success>
             <operations>
                 <li Class="PatchOperationAdd">
-                    <xpath>Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+                    <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>
                     <value>
                         <li>ROMB_Marrow</li>
                         <li>ROMB_Gelatin</li>
