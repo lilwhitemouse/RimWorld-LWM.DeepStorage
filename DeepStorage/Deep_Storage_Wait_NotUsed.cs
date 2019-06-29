@@ -204,7 +204,7 @@ namespace LWM.DeepStorage
             yield return new CodeInstruction(OpCodes.Ldloc_S, 4); // the slotGroup
             yield return new CodeInstruction(OpCodes.Call, Harmony.AccessTools
                          .Method("LWM.DeepStorage.Wait_Utils:InsertingDeepStorageToil"));
-            Label label = new Label();
+            Label label = new Label(); // WRONG: Use ILGenerator's DefineLabel
             yield return new CodeInstruction(OpCodes.Brfalse, label);
             yield return new CodeInstruction(OpCodes.Ret);
             code[i].labels.Add(label);
