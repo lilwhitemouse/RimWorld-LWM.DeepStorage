@@ -14,6 +14,9 @@
                         <li>SurvivalTools</li>
                     </value>
                 </li>
+                <li Class="LWM.DeepStorage.PatchMessage">
+                    <message>LWM Deep Storage: activated compatibility patch for [XND] Survival Tools</message>
+                </li>
             </operations>
         </match>
     </Operation>
