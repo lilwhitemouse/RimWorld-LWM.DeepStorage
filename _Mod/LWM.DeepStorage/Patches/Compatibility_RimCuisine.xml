@@ -12,7 +12,7 @@
                 <li Class="PatchOperationAdd">
                     <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/categories</xpath>
                     <value>
-                        <li>FoodProcessed</li>
+                        <li>FoodProcessed</li><!-- Let the user sort out exactly how they want to handle processed food-->
                     </value>
                 </li>
                 <li Class="PatchOperationAdd">
@@ -20,6 +20,7 @@
                     <value>
                         <li>FoodMealsJoy</li>
                         <li>DrinkMealsJoy</li>
+                        <li>FoodProcessed</li>
                     </value>
                 </li>
             </operations>
