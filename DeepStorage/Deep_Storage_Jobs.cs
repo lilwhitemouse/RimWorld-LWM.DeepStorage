@@ -27,6 +27,14 @@ namespace LWM.DeepStorage
      * The important part here is that HaulToCellStorageJob counts how many
      *   of a stackable thing to carry to a slotGroup (storage)
      * 
+     * We patch with Harmony Transpiler to replace
+     *   Thing someThing=p.Map.thingGrid.ThingAt(someCell, t.def);
+     * with
+     *   if (inDeepStorage) {
+     *     someThing=NullOrLastThingAt(Map, somecell, t.def);
+     *   } else {
+     *     someThing=p.Map.thingGrid.ThingAt(someCell, t.def);
+     *   }
      **************************************/
     [HarmonyPatch(typeof(Verse.AI.HaulAIUtility), "HaulToCellStorageJob")]
     class Patch_HaulToCellStorageJob {
