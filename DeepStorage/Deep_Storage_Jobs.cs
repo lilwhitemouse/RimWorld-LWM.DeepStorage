@@ -27,36 +27,14 @@ namespace LWM.DeepStorage
      * The important part here is that HaulToCellStorageJob counts how many
      *   of a stackable thing to carry to a slotGroup (storage)
      * 
-     * We patch via prefix by first checking if the slotGroup in question is part of a
-     * Deep Storage unit.  If it is, then we take over (and duplicate a little bit of code)
-     * and do the more complicated calculation of how many to carry.
-     * 
-     * We run through the same idea as the original function with a bunch of loops thrown in
      **************************************/
     [HarmonyPatch(typeof(Verse.AI.HaulAIUtility), "HaulToCellStorageJob")]
     class Patch_HaulToCellStorageJob {
-        public static IEnumerable<CodeInstruction> XTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
-            var l=XTranspiler(instructions ,generator).ToList();
-            string s="Code:";
-            int i=0;
-            foreach (var c in l) {
-                if (c.opcode==OpCodes.Stloc_2 ||
-                    c.opcode==OpCodes.Stloc_S) {
-                    Log.Warning(""+i+": "+c);
-                } else {
-                    Log.Message(""+i+": "+c);
-                }
-                s+="\n"+i+": "+c;
-                i++;
-                yield return c;
-            }
-            Log.Error(s);
-        }
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
             List<CodeInstruction> code=instructions.ToList();
             // a function call we need to check against a few times:
             var callThingAt=AccessTools.Method(typeof(ThingGrid), "ThingAt", new Type[] {typeof(IntVec3),typeof(ThingDef)});
-            var inDeepStorage=generator.DeclareLocal(typeof(bool));
+            var inDeepStorage=generator.DeclareLocal(typeof(bool)); // new local variable
 
             bool checkedInDeepStorage=false;
             for (int i=0;i<code.Count;i++) {
@@ -131,31 +109,8 @@ namespace LWM.DeepStorage
                     code[i].labels.Add(vanillaThingAt);
                 } // end test for p.Map.thingGrid etc.
                 yield return code[i];
-                if (code[i].opcode==OpCodes.Stloc_3 && code[i-1].opcode==OpCodes.Add && false) {
-                    Log.Error("adding trace line "+i);
-                    yield return new CodeInstruction(OpCodes.Ldc_I4, i);
-                    yield return new CodeInstruction(OpCodes.Ldloc_3);
-                    yield return new CodeInstruction(OpCodes.Ldloc_0);
-                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(Job), "count"));
-                    yield return new CodeInstruction(OpCodes.Ldloc_S, 4);
-                    yield return new CodeInstruction(OpCodes.Ldloc_2);
-                    yield return new CodeInstruction(OpCodes.Ldloc, 7);
-                    yield return new CodeInstruction(OpCodes.Call,
-                                                     AccessTools.Method("LWM.DeepStorage.Patch_HaulToCellStorageJob:LOGX"));
-
-//                                                     AccessTools.Method("LWM.DeepStorge.Patch_HaulToCellStorageJob:LOGX"));
-                }
             }
         } // end Transpiler
-
-        public static void LOGX(int line, int num, int count, float statValue, Thing t1, Thing t2) {
-//        public static void LOGX(int num) {
-            Log.Message("----"+line+": "+num+" vs "+count+" (total max: "+statValue+")");
-            if (t1 != null) Log.Message("        t1 is "+t1.stackCount+" "+t1);
-            if (t2 != null) Log.Message("        t2 is "+t2.stackCount+" "+t2);
-            
-//            Log.Message("------"+num);
-        }
 
         // TODO: move this logic to DeepStorage.cs
         public static Thing NullOrLastThingAt(Map map, IntVec3 c, ThingDef def) {
@@ -190,6 +145,13 @@ namespace LWM.DeepStorage
             Utils.Err(HaulToCellStorageJob, "Final Job size is "+__result.count);
         }
 
+        /* Original patch:
+         * We patch via prefix by first checking if the slotGroup in question is part of a
+         * Deep Storage unit.  If it is, then we take over (and duplicate a little bit of code)
+         * and do the more complicated calculation of how many to carry.
+         * 
+         * We run through the same idea as the original function with a bunch of loops thrown in
+         */
         
         //  It might be possible to do this via Transpiler, but it's harder, so we do it this way.
         //      static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -309,8 +271,6 @@ namespace LWM.DeepStorage
         }
 #endif
     } // done patching HaulToCellStorageJob
-
-
 
 }
 
