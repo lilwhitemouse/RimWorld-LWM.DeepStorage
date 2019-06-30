@@ -35,6 +35,23 @@ namespace LWM.DeepStorage
      **************************************/
     [HarmonyPatch(typeof(Verse.AI.HaulAIUtility), "HaulToCellStorageJob")]
     class Patch_HaulToCellStorageJob {
+        public static IEnumerable<CodeInstruction> XTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
+            var l=XTranspiler(instructions ,generator).ToList();
+            string s="Code:";
+            int i=0;
+            foreach (var c in l) {
+                if (c.opcode==OpCodes.Stloc_2 ||
+                    c.opcode==OpCodes.Stloc_S) {
+                    Log.Warning(""+i+": "+c);
+                } else {
+                    Log.Message(""+i+": "+c);
+                }
+                s+="\n"+i+": "+c;
+                i++;
+                yield return c;
+            }
+            Log.Error(s);
+        }
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
             List<CodeInstruction> code=instructions.ToList();
             // a function call we need to check against a few times:
@@ -66,6 +83,8 @@ namespace LWM.DeepStorage
                  *
                  * This is tricky.
                  * Luckily, the result of ThingAt is always StLoc'd somewhere, LdLoc'd, and then BrFalsed.
+                 *   So it's easy to find.
+                 * Note I could do more slick optimazations here, but I'm going to stick with what I have.
                  */
                 if (code[i].opcode==OpCodes.Ldarg_0 && // Pawn p
                     // Next codeinstruction we want: callvirt Verse.Map get_Map()
@@ -75,7 +94,11 @@ namespace LWM.DeepStorage
                     code[i+2].opcode==OpCodes.Ldfld &&
                     code[i+2].operand==Harmony.AccessTools.Field(typeof(Map), "thingGrid")) { // p.Map.thingGrid...
                     ////////////// Put our branch here ////////////////
-                    yield return new CodeInstruction(OpCodes.Ldloc, inDeepStorage);
+                    // Steal any labels lying around:
+                    var c= new CodeInstruction(OpCodes.Ldloc, inDeepStorage);
+                    c.labels=code[i].labels;
+                    code[i]=new CodeInstruction(OpCodes.Ldarg_0);
+                    yield return c;
                     Label vanillaThingAt = generator.DefineLabel();
                     yield return new CodeInstruction(OpCodes.Brfalse,vanillaThingAt);
                     // 2 things to do:
@@ -108,8 +131,31 @@ namespace LWM.DeepStorage
                     code[i].labels.Add(vanillaThingAt);
                 } // end test for p.Map.thingGrid etc.
                 yield return code[i];
+                if (code[i].opcode==OpCodes.Stloc_3 && code[i-1].opcode==OpCodes.Add && false) {
+                    Log.Error("adding trace line "+i);
+                    yield return new CodeInstruction(OpCodes.Ldc_I4, i);
+                    yield return new CodeInstruction(OpCodes.Ldloc_3);
+                    yield return new CodeInstruction(OpCodes.Ldloc_0);
+                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(Job), "count"));
+                    yield return new CodeInstruction(OpCodes.Ldloc_S, 4);
+                    yield return new CodeInstruction(OpCodes.Ldloc_2);
+                    yield return new CodeInstruction(OpCodes.Ldloc, 7);
+                    yield return new CodeInstruction(OpCodes.Call,
+                                                     AccessTools.Method("LWM.DeepStorage.Patch_HaulToCellStorageJob:LOGX"));
+
+//                                                     AccessTools.Method("LWM.DeepStorge.Patch_HaulToCellStorageJob:LOGX"));
+                }
             }
         } // end Transpiler
+
+        public static void LOGX(int line, int num, int count, float statValue, Thing t1, Thing t2) {
+//        public static void LOGX(int num) {
+            Log.Message("----"+line+": "+num+" vs "+count+" (total max: "+statValue+")");
+            if (t1 != null) Log.Message("        t1 is "+t1.stackCount+" "+t1);
+            if (t2 != null) Log.Message("        t2 is "+t2.stackCount+" "+t2);
+            
+//            Log.Message("------"+num);
+        }
 
         // TODO: move this logic to DeepStorage.cs
         public static Thing NullOrLastThingAt(Map map, IntVec3 c, ThingDef def) {
@@ -129,14 +175,22 @@ namespace LWM.DeepStorage
                         lastThing=l[i];
                 }
             }
-            Utils.Err(HaulToCellStorageJob, "  Final count of free slots: "+freeSlots);
-            if (freeSlots > 0) return null;
+            if (freeSlots > 0) {
+                Utils.Err(HaulToCellStorageJob, "  Final count of free slots: "+freeSlots);
+                return null;
+            }
             Utils.Err(HaulToCellStorageJob, "  Final item count: "+((lastThing==null)?
                                                "NULL":lastThing.stackCount.ToString()));
             return lastThing; // if this is also null, we have a problem :p
         }
 
 #if DEBUG
+
+        public static void Postfix(Job __result) {
+            Utils.Err(HaulToCellStorageJob, "Final Job size is "+__result.count);
+        }
+
+        
         //  It might be possible to do this via Transpiler, but it's harder, so we do it this way.
         //      static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         //public static bool Prefix(out Job __result, Pawn p, Thing t, IntVec3 storeCell, bool fitInStoreCell) {
@@ -255,7 +309,6 @@ namespace LWM.DeepStorage
         }
 #endif
     } // done patching HaulToCellStorageJob
-
 
 
 
