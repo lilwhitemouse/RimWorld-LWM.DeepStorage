@@ -119,10 +119,9 @@ namespace LWM.DeepStorage
             int maxNumberStacks = ((ThingWithComps)slotGroup.parent).GetComp<CompDeepStorage>().maxNumberStacks;
             // We know there was at least one thing here, and it either doesn't stack with our thing
             //   or its stack is full.
-            // So, we go thru the items that are there, but starting at [1]:
-            //  (1 should be safe because it would already have been accessed by default function)
-            int thingsHere = 1;
-            for (int i = 1; i < list.Count; i++) {
+            // So, we go thru the items that are there
+            int thingsHere = 0;
+            for (int i = 0; i < list.Count; i++) {
                 Thing thing2 = list[i];
                 if (!thing2.def.EverStorable(false)) {
                     //not an object we count
@@ -131,6 +130,11 @@ namespace LWM.DeepStorage
                 thingsHere++;
                 Utils.Warn(TryPlaceDirect, "  Currently there are "+thingsHere+
                            " things here, max: "+maxNumberStacks);
+                if (thingsHere==1) {
+                    //  (should be safe because 1st haulable stack would already have been
+                    //   tested by default vanilla function)
+                    continue;
+                }
                 //unfortunately, we have to duplicate some of the original code:
                 if (!thing2.CanStackWith(thing)) {
                     Utils.Warn(TryPlaceDirect, "...ignoring \"other\" stack " + thing2.ToString());
