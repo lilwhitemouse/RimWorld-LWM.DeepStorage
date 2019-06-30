@@ -23,6 +23,9 @@
                         <li>FoodProcessed</li>
                     </value>
                 </li>
+                <li Class="LWM.DeepStorage.PatchMessage">
+                    <message>LWM Deep Storage: activated compatibility patch for RimCuisine</message>
+                </li>
             </operations>
         </match>
     </Operation>
