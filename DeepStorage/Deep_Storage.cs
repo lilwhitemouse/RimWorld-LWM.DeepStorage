@@ -124,7 +124,14 @@ namespace LWM.DeepStorage
             return true;
             #pragma warning restore CS0162 // Unreachable code detected
         }
-
+        public static bool CanStoreMoreThanOneThingIn(SlotGroup slotGroup) {
+            if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
+                (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null)
+            {
+                return false;
+            }
+            return true;
+        }
         // Sometimes it's very important to not have 3 stacks of Brick with
         //   5 in one stack, 72 in another, and 45 in the last.
         // This will likely get called any time Pawns put something into Deep Storage
