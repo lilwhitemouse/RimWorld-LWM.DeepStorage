@@ -122,7 +122,7 @@ namespace LWM.DeepStorage
                 if (!l[i].def.EverStorable(false)) continue;
                 freeSlots--;
                 Utils.Warn(HaulToCellStorageJob, "  Checking item "+l[i]+"; now have "+freeSlots+" left.");
-                if (!(l[i].def == def)) continue;
+                if (!(l[i].def == def)) continue; // possible problem if defs are same but cannot stack?
                 if (lastThing == null) lastThing=l[i];
                 else {
                     if (l[i].stackCount <= lastThing.stackCount)
