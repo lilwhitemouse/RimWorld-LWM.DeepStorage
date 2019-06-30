@@ -116,10 +116,12 @@ namespace LWM.DeepStorage
             CompDeepStorage cds=(c.GetSlotGroup(map).parent as ThingWithComps).GetComp<CompDeepStorage>();
             var l=map.thingGrid.ThingsListAtFast(c); // we know it's a slotgroup, so it's valid :p
             var freeSlots=cds.maxNumberStacks;
+            Utils.Err(HaulToCellStorageJob, "  testing for def "+def+" at "+c+"; "+freeSlots+" slots.");
             Thing lastThing=null;
             for (int i=0; i<l.Count;i++) {
                 if (!l[i].def.EverStorable(false)) continue;
                 freeSlots--;
+                Utils.Warn(HaulToCellStorageJob, "  Checking item "+l[i]+"; now have "+freeSlots+" left.");
                 if (!(l[i].def == def)) continue;
                 if (lastThing == null) lastThing=l[i];
                 else {
@@ -127,15 +129,22 @@ namespace LWM.DeepStorage
                         lastThing=l[i];
                 }
             }
+            Utils.Err(HaulToCellStorageJob, "  Final count of free slots: "+freeSlots);
             if (freeSlots > 0) return null;
+            Utils.Err(HaulToCellStorageJob, "  Final item count: "+((lastThing==null)?
+                                               "NULL":lastThing.stackCount.ToString()));
             return lastThing; // if this is also null, we have a problem :p
         }
-    
+
+#if DEBUG
         //  It might be possible to do this via Transpiler, but it's harder, so we do it this way.
         //      static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        public static bool PrefixXXX(out Job __result, Pawn p, Thing t, IntVec3 storeCell, bool fitInStoreCell) {
+        //public static bool Prefix(out Job __result, Pawn p, Thing t, IntVec3 storeCell, bool fitInStoreCell) {
+        public static bool Prefix(Pawn p, Thing t, IntVec3 storeCell, bool fitInStoreCell) {
             Utils.Err(HaulToCellStorageJob, "Job request for " + t.stackCount + t.ToString() + " by pawn " + p.ToString() +
                       " to " + storeCell.ToString());
+            return true;
+/*            Job __result;
             SlotGroup slotGroup = p.Map.haulDestinationManager.SlotGroupAt(storeCell);
             if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
                 (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null) {
@@ -242,7 +251,9 @@ namespace LWM.DeepStorage
               // Count stays at job.count
             Utils.Warn(HaulToCellStorageJob, "Final count: " + job.count);
             return false;
+            */
         }
+#endif
     } // done patching HaulToCellStorageJob
 
 
