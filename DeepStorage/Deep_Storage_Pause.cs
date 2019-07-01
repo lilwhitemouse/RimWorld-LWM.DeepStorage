@@ -42,11 +42,10 @@ namespace LWM.DeepStorage
      * Also done, setting up fail conditions.    
      *   (still some TODO)
      * 
-     * NOTE: Better approach would be to patch the toil creation
-     *       in the JobDriver_HaulToCell, but that would involve
-     *       Transpiler editing of an IEnumerable jump table.
+     * NOTE: Better approach would be to patch the toil creation  \
+     *       in the JobDriver_HaulToCell, but that would involve   --- Probably not - not all mods use the same job
+     *       Transpiler editing of an IEnumerable jump table.     /
      * 
-     *       Not this week.
      */
     [HarmonyPatch(typeof(Toils_Haul), "PlaceHauledThingInCell")]
     public static class Patch_PlaceHauledThingInCell_Toil
@@ -90,7 +89,8 @@ namespace LWM.DeepStorage
                     return; // initAction still around, will handle
                 }
                 int timeStoringTakes = cds.timeStoringTakes(cell);
-                if (timeStoringTakes <= 0)
+                if (timeStoringTakes <= 0
+                    || !Settings.storingTakesTime ) //boo, hiss, but some ppl use it
                 { // just like vanilla
                     Utils.Warn(PlaceHauledThingInCell, "Instantaneous storing time");
                     return;
