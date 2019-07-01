@@ -101,7 +101,7 @@ namespace LWM.DeepStorage
                     
                     // i now points to "branch if equal"
                     CodeInstruction c = new CodeInstruction(OpCodes.Brtrue);
-                    c.operand = code[i].operand; // grab it's target
+                    c.operand = code[i].operand; // grab its target
                     yield return c;
                     i++; // advance past beq
                     // continue returning everything:
