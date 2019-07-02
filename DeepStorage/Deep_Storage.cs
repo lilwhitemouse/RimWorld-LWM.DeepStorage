@@ -85,6 +85,11 @@ namespace LWM.DeepStorage
             if (showDebug[(int)l])
                 Log.Error("LWM." + l.ToString() + ": " + s);
         }
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void Mess(DBF l, string s) {
+            if (showDebug[(int)l])
+                Log.Message("LWM."+l.ToString()+": "+s);
+        }
 
         // This gets checked a lot.  Sometimes the test is done in-place (if will 
         //   need to use the slotGroup later, for example), but when using Harmony 
