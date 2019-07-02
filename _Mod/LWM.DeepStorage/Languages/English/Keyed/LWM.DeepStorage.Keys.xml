@@ -15,12 +15,17 @@
   <LWM.ContentsHeaderMaxSize>    (Cannot store items above a {0} of {1} kg)</LWM.ContentsHeaderMaxSize>
   <LWM.ContentsHeaderPawnUsing>  {0} is using this.</LWM.ContentsHeaderPawnUsing>
   <LWM.ContentsHeaderPawnsUsing>  This is being used by: {0}.</LWM.ContentsHeaderPawnsUsing><!-- "Red, John, Abigail" etc -->
+  <!-- Settings -->
+  <LWMDSstoringDelaySettings>Storing Delay Settings</LWMDSstoringDelaySettings>
+  <LWMDSstoringTakesTimeLabel>If you really want to turn off the delay while storing, uncheck this.</LWMDSstoringTakesTimeLabel>
+  <LWMDSstoringTakesTimeDesc>Turning this off is not how LWM plays.  But hey, it's your game!  You do you!</LWMDSstoringTakesTimeDesc>
+  <LWMDSstoringGlobalScale>Global Storing Time:  {0}%\nIf you want to adjust how long it takes pawns to store items (maybe you think it takes too long), you can adjust this setting, and it will apply to all storage units.</LWMDSstoringGlobalScale>
   <!-- HugsLib Settings Keys: -->
   <LWM_DS_IntTitle>Intelligence Required to Haul to Deep Storage</LWM_DS_IntTitle>
-  <LWM_DS_IntDesc>Most alien races have "Humanlike" or better.  Most animals are "animal."  Vanilla Mechanoids are "tool users"  Robots for various mods?  Your guess is as good as mine.</LWM_DS_IntDesc>
-  <LWM_DS_Int_Animal>Animal</LWM_DS_Int_Animal>
-  <LWM_DS_Int_ToolUser>Tool User</LWM_DS_Int_ToolUser>
-  <LWM_DS_Int_Humanlike>Humanlike (Default) (LWM * of approval)</LWM_DS_Int_Humanlike>
+  <LWM_DS_IntDesc>This option can let your animals/robots/whatever haul TO Deep Storage.\nMost alien races have "Humanlike" or better.  Most animals are "animal."  Vanilla Mechanoids are "tool users"  Robots for various mods?  Your guess is as good as mine.\nNote that ANYONE may take FROM Deep Storage.</LWM_DS_IntDesc>
+  <LWM_DS_Int_Animal>Animal (Animals and some robots)</LWM_DS_Int_Animal>
+  <LWM_DS_Int_ToolUser>Tool User (Mechanoids and some robots)</LWM_DS_Int_ToolUser>
+  <LWM_DS_Int_Humanlike>Humanlike (Humans, most aliens, Default) (LWM * of approval)</LWM_DS_Int_Humanlike>
   <LWM_DS_Empty>empty</LWM_DS_Empty>
 
 

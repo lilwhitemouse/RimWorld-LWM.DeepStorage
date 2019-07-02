@@ -16,8 +16,8 @@ namespace LWM.DeepStorage
         private SettingHandle<bool>[] debugONorOFF = new SettingHandle<bool>[Utils.showDebug.Length];
         public override void DefsLoaded() {
             // Setting to allow bionic racoons to haul to Deep Storage:
-            intSetting=Settings.GetHandle("get_intelligence", "LWM_DS_IntTitle".Translate(),
-                 "LWM_DS_IntDesc".Translate(), Intelligence.Humanlike, null, "LWM_DS_Int_");
+            intSetting=Settings.GetHandle("get_intelligence", "DO NOT CHANGE THIS.",
+                 "CHANGE ALL SETTINGS BY USING THE BUTTON ABOVE", Intelligence.Humanlike, null, "LWM_DS_Int_");
 
             #if DEBUG
             for (int i=1; i<Utils.showDebug.Length; i++) {
@@ -50,7 +50,12 @@ namespace LWM.DeepStorage
         }
 
         public void AssignSettings() {
-            Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage = intSetting;
+            if (!LWM.DeepStorage.Settings.intelligenceWasChanged) {
+                Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage = intSetting;
+                if (Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage == Intelligence.Humanlike) {
+                    LWM.DeepStorage.Settings.intelligenceWasChanged = true; // never change it here again...
+                }
+            }
 
         }
         public void UpdateDebug() {
