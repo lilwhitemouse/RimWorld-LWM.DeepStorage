@@ -79,7 +79,7 @@
   <ThingDef Name="LWM_Food_Basket" ParentName="LWM_DeepStorage">
     <defName>LWM_Food_Basket</defName>
     <label>Food Basket</label>
-    <description>A mini-grainery for storing raw food and plant matter.</description>
+    <description>A mini-granary for storing raw food and plant matter.</description>
     <pathCost>100</pathCost>
     <graphicData>
       <texPath>skullywag/Basket/Basket</texPath>
