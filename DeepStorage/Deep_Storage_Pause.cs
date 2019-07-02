@@ -95,6 +95,7 @@ namespace LWM.DeepStorage
                     Utils.Warn(PlaceHauledThingInCell, "Instantaneous storing time");
                     return;
                 }
+                timeStoringTakes =(int)(timeStoringTakes*Settings.storingGlobalScale);
                 // Remove the initAction so it doesn't happen before waiting starts:
                 __result.initAction = null;
                 if (actor.jobs.curDriver.ticksLeftThisToil < 1) // test is probably superfluous
