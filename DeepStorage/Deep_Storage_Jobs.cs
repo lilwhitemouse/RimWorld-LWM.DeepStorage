@@ -253,7 +253,7 @@ namespace LWM.DeepStorage
             for (int i = 0; i < stuffHere.Count; i++) // thing list at storeCell
             {
                 Thing thing2 = stuffHere[i];
-                // We look thru for stacks of storeable things; if they match our thing t, 
+                // We look thru for stacks of storable things; if they match our thing t, 
                 //   we see how many we can carry there!
                 if (thing2.def.EverStorable(false)) {
                     Utils.Warn(HaulToCellStorageJob, "... already have a stack here of " + thing2.stackCount + " of " + thing2.ToString());
@@ -267,7 +267,7 @@ namespace LWM.DeepStorage
                             return false;
                         }
                     }
-                } // if storeable
+                } // if storable
             } // thing list at storeCell
 
             if (howManyStacks < maxStacks || job.count >= t.def.stackLimit) {
@@ -297,7 +297,7 @@ namespace LWM.DeepStorage
                 howManyStacks = 0;
                 for (int j = 0; j < stuffHere.Count; j++) {
                     Thing thing2 = stuffHere[j];
-                    // We look thru for stacks of storeable things; if they match our thing t, 
+                    // We look thru for stacks of storable things; if they match our thing t, 
                     //   we see how many we can carry there!
                     if (thing2.def.EverStorable(false)) {
                         Utils.Warn(HaulToCellStorageJob, "... already have a stack here of " + thing2.stackCount + " of " + thing2.ToString());
@@ -311,7 +311,7 @@ namespace LWM.DeepStorage
                                 return false;
                             }
                         }
-                    } // if storeable
+                    } // if storable
                 } // done looking at all stuff in c
                 // So...how many stacks WERE there in c?
                 if (howManyStacks < maxStacks) {

@@ -1,0 +1,27 @@
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>[RF] Fertile Fields [1.0]</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <success>Always</success>
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <value>
+            <li>PlantScraps</li>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <value><!-- Heh.  I mean, garbage, right? -->
+            <li>PlantScraps</li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for Fertile Fields</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>
