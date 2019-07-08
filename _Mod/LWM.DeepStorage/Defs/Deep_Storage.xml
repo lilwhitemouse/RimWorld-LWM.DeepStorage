@@ -268,7 +268,9 @@
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
         <maxNumberStacks>4</maxNumberStacks>
-        <timeStoringTakes>800</timeStoringTakes>
+        <minTimeStoringTakes>300</minTimeStoringTakes>
+        <additionalTimeEachStack>175</additionalTimeEachStack>
+<!--        <timeStoringTakes>800</timeStoringTakes>-->
         <overlayType>SumOfAllItems</overlayType>
       </li>
     </comps>
@@ -557,7 +559,7 @@
     <label>Meat Hook</label>
     <description>A tall metal frame with several hooks hanging from chains.  A simple crank allows hoisting several hanging things into the air.  A way to store the dead bodies of fellow animals you have killed, before cutting them up and consuming their flesh.  You monster.
 
-    Note that you can only fit so many giant corpses into one space, even if you stack them.  The frame will only hold so much weight.</description>
+Note that you can only fit so many giant corpses into one space, even if you stack them.  The frame will only hold so much weight.</description>
     <graphicData>
       <texPath>MeatHook</texPath>
       <graphicClass>Graphic_Single</graphicClass>

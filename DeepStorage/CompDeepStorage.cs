@@ -18,8 +18,10 @@ namespace LWM.DeepStorage
             this.compClass = typeof(LWM.DeepStorage.CompDeepStorage);
         }
 
+        /************************* Stat window (information window) ***********************/
+        // This will hopefully reduce the number of annoying questions in the discussion thread
+        //   "What does this store?  Can I put X in there?"
         private static StatCategoryDef DeepStorageCategory=null;
-
         public override IEnumerable<StatDrawEntry> SpecialDisplayStats(StatRequest req) {
             foreach (StatDrawEntry s in base.SpecialDisplayStats(req)) {
                 yield return s;
@@ -44,28 +46,117 @@ namespace LWM.DeepStorage
             if (maxMassOfStoredItem > 0f) yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_maxMassOfStoredItem".Translate(),
                                                                          kg(maxMassOfStoredItem),
                                                                          8, "LWM_DS_maxMassOfStoredItemDesc".Translate());
+            if (AllowedCategoriesString!="") yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_allowedCategories".Translate(),
+                                                                            AllowedCategoriesString,
+                                                                            7, "LWM_DS_allowedCategoriesDesc".Translate());
+            if (AllowedDefsString!="") yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_allowedDefs".Translate(),
+                                                                      AllowedDefsString,
+                                                                      6, "LWM_DS_allowedDefsDesc".Translate());
+            if (DisallowedString!="") yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_disallowedStuff".Translate(),
+                                                                     DisallowedString,
+                                                                     5, "LWM_DS_disallowedStuffDesc".Translate());
+//            if (parent?.building?.fixedStorageSettings?.filter
             yield break;
         }
-    private string kg(float s) {
-        if (altStat==null) {
-            return "LWM_DS_kg".Translate(s);
+        private string kg(float s) {
+            if (altStat==null) {
+                return "LWM_DS_kg".Translate(s);
+            }
+            return "LWM_DS_BulkEtcOf".Translate(s, altStat.label);
         }
-        return "LWM_DS_BulkEtcOf".Translate(s, altStat.label);
-    }
+        /************************* Done with Stat window ***********************/
+
+        
         public override void ResolveReferences(ThingDef parentDef) {
             base.ResolveReferences(parentDef);
-            size=parentDef.Size.Area; // no way to actually get this via def :p
+            parent=parentDef; // no way to actually get this via def :p
+            size=parentDef.Size.Area;
+        }
+        
+        public string AllowedCategoriesString {
+            get {
+                if (categoriesString==null) {
+                    categoriesString="";
+                    ThingFilter tf=parent?.building?.fixedStorageSettings?.filter;
+                    if (tf==null) {
+                        Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
+                        return "";
+                    }
+                    var c=(List<string>)Harmony.AccessTools.Field(typeof(ThingFilter), "categories").GetValue(tf);
+                    if (c.NullOrEmpty()) return "";
+                    foreach (var x in c) {
+                        if (categoriesString!="") categoriesString+="\n";
+                        categoriesString+=DefDatabase<ThingCategoryDef>.GetNamed(x, true).LabelCap;
+                    }
+                }
+                return categoriesString;
+            }
+        }
+
+        public string AllowedDefsString {
+            get {
+                if (defsString==null) {
+                    defsString="";
+                    ThingFilter tf=parent?.building?.fixedStorageSettings?.filter;
+                    if (tf==null) {
+                        Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
+                        return "";
+                    }
+                    var d=(List<ThingDef>)Harmony.AccessTools.Field(typeof(ThingFilter), "thingDefs").GetValue(tf);
+                    if (d.NullOrEmpty()) return "";
+                    foreach (var x in d) {
+                        if (defsString!="") defsString+="\n";
+                        defsString+=x.LabelCap;
+                    }
+                }
+                return defsString;
+            }
+        }
+        public string DisallowedString{
+            get {
+                if (disallowedString==null) {
+                    disallowedString="";
+                    ThingFilter tf=parent?.building?.fixedStorageSettings?.filter; // look familiar yet?
+                    if (tf==null) {
+                        Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
+                        return "";
+                    }
+                    var c=(List<string>)Harmony.AccessTools.Field(typeof(ThingFilter), "disallowedCategories").GetValue(tf);
+                    if (!(c.NullOrEmpty())) {
+                        foreach (var x in c) {
+                            if (disallowedString!="") disallowedString+="\n";
+                            disallowedString+=DefDatabase<ThingCategoryDef>.GetNamed(x, true).LabelCap;
+                        }
+                    }
+                    var d=(List<ThingDef>)Harmony.AccessTools.Field(typeof(ThingFilter), "disallowedThingDefs").GetValue(tf);
+                    if (!(d.NullOrEmpty())) {
+                        foreach (var x in d) {
+                            if (defsString!="") defsString+="\n";
+                            defsString+=x.LabelCap;
+                        }
+                    }
+                }
+                return disallowedString;
+            }
         }
 
 
         public int minNumberStacks = 1;
         public int maxNumberStacks = 2;
         public int timeStoringTakes = 1000; // measured in ticks
+        public int minTimeStoringTakes =-1;
+        public int additionalTimeEachStack=-1;
         public float maxTotalMass = 0f;
         public float maxMassOfStoredItem = 0f;
         public StatDef altStat=null;
         public bool showContents=true;
+        
         public int size=0;
+        public ThingDef parent=null; // :p
+        
+        private string categoriesString=null; // for the Stats window (information window)
+        private string defsString=null;
+        private string disallowedString=null;
 
         public GuiOverlayType overlayType=GuiOverlayType.Normal;
     }
@@ -119,11 +210,21 @@ namespace LWM.DeepStorage
                 return ((Properties)this.props).maxNumberStacks;
             }
         }
-        public int timeStoringTakes() {
+/*        public int timeStoringTakes() {
             return ((Properties)this.props).timeStoringTakes;
-        }        
-        public int timeStoringTakes(IntVec3 cell) {
-            return ((Properties)this.props).timeStoringTakes;
+        }        */
+        public int TimeStoringTakes(Map map, IntVec3 cell) {
+            if (cdsProps.minTimeStoringTakes <0) {
+                return ((Properties)this.props).timeStoringTakes;
+            }
+            int t=cdsProps.minTimeStoringTakes;
+            var l=map.thingGrid.ThingsListAtFast(cell);
+            for (int i=0; i<l.Count; i++) {
+                if (l[i].def.EverStorable(false)) {
+                    t+=cdsProps.additionalTimeEachStack;
+                }
+            }
+            return t;
         }
         public bool showContents {
             get {
