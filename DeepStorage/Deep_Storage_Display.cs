@@ -441,7 +441,7 @@ namespace LWM.DeepStorage
                                 else if (AllSameType(things))
                                     s="x"+things.Count.ToStringCached();
                                 else
-                                    s="[ x"+things.Count.ToStringCached()+" ]";
+                                    s="[ "+things.Count.ToStringCached()+" ]";
                                 GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(c),s,GenMapUI.DefaultThingLabelColor);
                                 goto WhyDoesCSharpNotHaveBreakTwo;
                             } else {
