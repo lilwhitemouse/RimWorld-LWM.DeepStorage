@@ -3,6 +3,135 @@
 
   <!--============================== Storage ==============================-->
 
+  <!-- Template:
+//// Basics
+<ThingDef Name="OPTIONAL-Unique_Name-Optional_but_you_can_use_it_as_ParentName_later_if_you_want"
+            ParentName="LWM_DeepStorage"> - ParentName="LWM_DeepStorage" is NOT optional
+  <defName>YourTag_Unique_defName_goes_here</defName> - not user visible.  Only _ and letters; *no numbers*
+  <label>Furniture Name (for humans to read)</label>
+  <description>A short description.
+
+This template demonstrates that whitespace is obeyed in the description.</description>
+
+//// Graphic stuff
+  <graphicData>
+    <graphicClass>common ones are Graphic_Multi and Graphic_Single(1x1 only?)</graphicClass>
+    <texPath>path to texture, e.g., myFurniture should point to myFurniture.png</texPath>
+         For example, myFurniture/myFurniture if you have myFurniture/myFurniture_east.png
+    <drawSize>(X,Y) - how big the texture pictures are.  If you have a half-square border around (2,1), it's (3,2)</drawSize>
+       If you have a full square border, it's (4,3), etc.
+    <shaderType>Optional.  CutoutComplex - if you use it, I have no idea what it does</shaderType>
+    // Shadows   
+    <shadowData>This is one option for shadows.  If you use this, don't use anything else
+      <volume>(X,Y,Z) where Y is heigh of shadow above ground.  A short (2,1) object might want (1.8,.1,.8)</volume>
+      <offset>(X,0,Z) if you want the shadow offset for whatever reason</offset>
+          +Z diretion means to the South
+          -X direction is off to the right??
+    </shadowData>
+    // see below for more shadow options
+  </graphicData>
+  <castEdgeShadows>true</castEdgeShadows>  makes soft fuzzy shadowy rectangle around object's foot
+      (Can't use shadow volume above; ...as of 1.0, you can?  If you want that look.)
+  <staticSunShadowHeight>0.5</staticSunShadowHeight>makes sharp rectangular shadow this high
+      (Can't use shadow volume above...now can?)
+
+//// Building basics
+  <size>(2,1) is default</size>Default is (2,1) - you only need to set something if it's different
+  <statBases>
+    <MaxHitPoints>50 is not many</MaxHitPoints>
+    <WorkToBuild>Chess table has 1000 (wooden gives "117" in game); bed has around 150? Ish?</WorkToBuild>
+    <Flammability>1.0 is flammable?  0 is not?</Flammability>
+    <Beauty>how beautiful.  Negative numbers are ugly.</Beauty>
+    <Mass>10</Mass> in kg
+    </statBases>
+    <pathCost>150</pathCost> - Hard to walk thru.  Best to leave it.
+  /// Cost:  
+  <stuffCategories>What it can be made from
+    <li>Leathery</li>
+    <li>Fabric</li>
+    <li>Metallic</li>
+    <li>Woody</li>
+    <li>Stony</li>
+  </stuffCategories>
+  <costStuffCount>45</costStuffCount>How much it costs.
+     To do things with fixed costs (in addition to stuff costs or whatever):
+  <costList><Cloth>25</Cloth><Steel>20</Steel><etc></etc></costList>
+     Note that it's impossible (so far) to have more than one "stuff" choice
+  // Storage:
+  <building>
+    <preventDeteriorationOnTop>false</etc>Optional - you can turn off preventing deterioration if you want.  Default is true
+    <ignoreStoredThingsBeauty>false</etc>Optional - you can stop ignoring things' beauty if you want.  Default is true.
+    <fixedStorageSettings> - what it is CAPABLE of storing
+      <filter>
+        <categories> See the core Defs/ThingCategoryDefs/ThingCategories.xml
+          <li>FoodRaw</li>
+          <li>PlantMatter</li>
+          <li>Textiles</li>
+          <li>Medicine</li>
+          <li>Weapons</li>
+          <li>Etc - you can find more</li>
+        </categories>
+        <thingDefs>
+          <li>RocketLauncherThingDef</li>
+          <li>ThingDefForPrettyHatFromAMod</li>
+          <li>Gold</li>
+          <li>Etc - single items, look up the defName</li>
+          <li>sometimes, it's WoodLog, not Wood, so be careful</li>
+        </thingDefs>
+      </filter>
+      <disallowedCategories>
+        <li>AnotherCategoryThatDoesNOTGoInStorage</li>
+      </disallowedCategories>
+    </fixedStorageSettings>  // There are more filter settings if you want to search the code base
+  <defaultStorageSettings> Optional - IF YOU WANT (defaults to nothing) - What the building is ready to accept
+    // (I don't like this, because pawns may haul things there I don't want before I change the settings.
+        There's a mod "No Default Shelf Storage" that turns this off for vanilla shelves.
+        This is turned ON for Combat Extended weapons lockers.)
+    <priority>Low up to Critical</priority> - defaults to important
+      <filter>
+        As above.  If you leave this section out, storage units won't start with things checked off,
+        which can be very nice.
+      </filter>
+    </defaultStorageSettings>
+  </building>
+  <researchPrerequisites Inherit="false">OPTIONAL  - false to remove or change research Prereqs away from ComplexFurniture
+    <li>...<li> - leave empty (with false above) for no prereqs, change with false, or just add new ones
+  </researchPrerequisites>
+  <comps>  /// Deep Storage!
+    <li Class="LWM.DeepStorage.Properties" >
+      <maxNumberStacks>2</maxNumberStacks> - how many stacks can be in each cell at once
+      <minNumberStacks>1</minNumberStacks> - per cell
+      Two ways to say how long storing takes:  (users can always scale storing time in mod options)
+      Flat storing time:
+      <timeStoringTakes>1000</timeStoringTakes> - how many Ticks storing takes
+         1000 is a long while, 300 is a bit, 0 is no time at all (like a vanilla shelf)
+      Scaling storing time:
+      <minTimeStoringTakes>300</minTimeStoringTakes>
+      <additionalTimeEachStack>100</additionalTimeEachStack> - each stack already in that cell
+          So if you are putting catfood in a bowl, but it already has 2 dogfood and 1 fishfood,
+          this will get added three times.
+      <additionalTimeEachDef>200</additionalTimeEachDef> - each different type of thing
+          Technically, each item that cannot stack with other items.
+          So if you are putting catfood in a bowl, but it already has 2 dogfood and 1 fishfood,
+          this will get added twice.
+      Mass restrictions:    
+      <maxTotalMass></maxTotalMass> - per cell
+      <maxMassOfStoredItem></maxMassOfStoredItem> - per item.  Items bigger than this just cannot fit
+      <altStat></altStat> - to use something besides vanilla mass.  E.g., CombatExtended's Bulk.
+      Display:
+      <showContents>true</showContents>
+      Pick an overlay:
+      <overlayType>Normal</overlayType> - topmost item shows its usual overlay
+      <overlayType>CountOfAllStacks</overlayType> - centered on the DSU - for non-stackable items?
+      <overlayType>CountOfStacksPerCell</overlayType> - standard overlay position for each cell
+      <overlayType>SumOfAllItems</overlayType> - centered on DSU, for stackable items
+      <overlayType>SumOfAllItemsPerCell</overlayType> - etc.
+      <overlayType>None</overlayType> - if you want this for some reason?
+    </li>
+  </comps>
+</ThingDef>
+  -->
+  
   <!-- Mostly copied from shelf -->
   <ThingDef Name="LWM_DeepStorage" ParentName="FurnitureWithQualityBase" Abstract="true"><!--  Class="LWM.DeepStorage.DeepStorageDef">-->
     <defName>LWM_DeepStorage</defName><!-- this defname doesn't actually exist in-game, does it? -->
@@ -35,20 +164,7 @@
     <researchPrerequisites>
       <li>ComplexFurniture</li>
     </researchPrerequisites>
-    <!-- <castEdgeShadows>true</castEdgeShadows>        -->
-    <!--         <staticSunShadowHeight>0.5</staticSunShadowHeight>-->
-
-    <!--
-        <castEdgeShadows>false</castEdgeShadows>
-        <staticSunShadowHeight>0</staticSunShadowHeight>-->
-    <!--<castEdgeShadows>true</castEdgeShadows> soft fuzzy(?) shadows around footprint of building -->
-    <!--<staticSunShadowHeight>0.9</staticSunShadowHeight>  Sharp rectangular shadows. -->
-    <!-- THose do no mix with <shadowData> ... stuff.
-         which can include <volume>(X,Y,Z)</volume>, so a short 2,1-sized building may have a shadow 2,.1,1
-         <offset>(X,Y,Z)</offset> lets you move it...directions seem counterintuitive? +Z means ...S, which is correct...
-         ugh.  if X is -2, shadow's off to the right.  If Z is 2, shadow is off to the south :p
-    -->
-    <minifiedDef>MinifiedThing</minifiedDef>
+    <minifiedDef>MinifiedThing</minifiedDef><!--If user doesn't like it, user doesn't have to use it-->
     <!-- thingCategories are covered by FurnitureBase
          <thingCategories>
          <li>BuildingsFurniture</li>
@@ -61,7 +177,7 @@
 
     <filthLeaving>Filth_RubbleBuilding</filthLeaving>
     <building>
-      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+      <preventDeteriorationOnTop>true</preventDeteriorationOnTop><!-- Might be overridden -->
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty><!-- Might be overridden -->
       <defaultStorageSettings>
         <priority>Important</priority><!--It's what *I* use, so it's what you get ^.^-->
@@ -70,8 +186,55 @@
       </defaultStorageSettings>
     </building>
     <comps>
+      <!--<li Class="LWM.DeepStorage.Properties">
+        <maxNumberStacks>2</maxNumberStacks>
+      </li>-->
+    </comps>
+  </ThingDef>
+
+  <!-- As a nice easy first Deep Storage Unit -->
+  <ThingDef Name="LWM_Big_Shelf" ParentName="LWM_DeepStorage">
+    <defName>LWM_BigShelf</defName><!-- name change to reduce chance of mod conflict.  See Updates.cs -->
+    <label>Big Shelf</label>
+    <description>A shelf for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nItems stored in this will not deteriorate, even if outside.</description>
+    <thingClass>Building_Storage</thingClass>
+    <graphicData>
+      <texPath>Things/Building/Furniture/Shelf</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3,2)</drawSize>
+    </graphicData>
+    <fillPercent>0.4</fillPercent>
+    <castEdgeShadows>true</castEdgeShadows>
+    <stuffCategories>
+      <li>Metallic</li>
+      <li>Woody</li>
+      <li>Stony</li>
+    </stuffCategories>
+    <costStuffCount>65</costStuffCount>
+    <!-- Little extra stuff for more bracing -->
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <!--Fewer hp b/c more precarious-->
+      <Mass>16</Mass>
+      <WorkToBuild>1200</WorkToBuild>
+      <Flammability>1.0</Flammability>
+    </statBases>
+    <size>(2,1)</size>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <building>
+      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+      <defaultStorageSettings>
+        <priority>Important</priority>
+      </defaultStorageSettings>
+    </building>
+    <staticSunShadowHeight>0.9</staticSunShadowHeight>
+    <comps>
       <li Class="LWM.DeepStorage.Properties">
         <maxNumberStacks>2</maxNumberStacks>
+        <minTimeStoringTakes>25</minTimeStoringTakes>
+        <additionalTimeEachStack>75</additionalTimeEachStack>
+        <overlayType>SumOfItemsPerCell</overlayType>
       </li>
     </comps>
   </ThingDef>
@@ -412,146 +575,7 @@
 
   <!-- TODO: Hat Rack? -->
 
-  <!-- Template:
-       <ThingDef Name="Unique_Name-Optional_but_you_can_use_it_for_ParentName_later_on_if_you_want" ParentName="LWM_DeepStorage">
-       <defName>YourTag_Unique_defName_goes_here</defName> - not user visible.  Only letters and _ - *no numbers*
-       <label>Furniture Name (for humans to read)</label>
-       <description>A short description</description>
-       
-       <graphicData>
-       <texPath>path to texture, e.g., myFurniture should point to myFurniture.png, etc.</texPath>
-       etc/myFurniture/myFurniture if you have myFurniture/myFurniture.png
-       <graphicClass>common ones are Graphic_Multi and Graphic_Single(1x1 only)</graphicClass>
-       <drawSize>(X,Y) - how big the texture pictures are.  If you have a half-square border around (2,1), it's (3,2)</drawSize>
-       If you have a full square border, it's (4,3), etc.
-       <shaderType>CutoutComplex - if you use it, I have no idea what it does</shaderType>
-       <shadowData>This is one option for shadows.  If you use this, don't use anything else
-       <volume>(X,Y,Z) where Y is heigh of shadow.  A short (2,1) object might want (1.8,.1,.8)</volume>
-       <offset>(X,0,Z) if you want the shadow offset for whatever reason</offset>
-       </shadowData>
-       <see below for more shadow options/>
-       </graphicData>
-       <castEdgeShadows>true</castEdgeShadows> Can't use shadow volume above; makes shadowy rectangle around object
-       <staticSunShadowHeight>0.5</staticSunShadowHeight>Can't use shadow volume above; makes sharp square shadow this high
-       <size>(2,1) is default</size>Default is (2,1) - you only need to set something if it's different
-       <statBases>
-       <MaxHitPoints>50 is not many, </MaxHitPoints>
-       <WorkToBuild>Chess table has 1000 (wooden gives "117" in game); bed has around 150? Ish?</WorkToBuild>
-       <Flammability>1.0 is flammable?  0 is not?  I think?</Flammability>
-       <Beauty>how beautiful.  Negative numbers are ugly.</Beauty>
-       <Mass>10</Mass> in kg
-       </statBases>
-       <stuffCategories>What it can be made from
-       <li>Leathery</li>
-       <li>Fabric</li>
-       <li>Metallic</li>
-       <li>Woody</li>
-       <li>Stony</li>
-       </stuffCategories>
-       <costStuffCount>45</costStuffCount>How much it costs.  I have no idea how to do mixed costs off the top of my head
-       <costList><Cloth>25</Cloth><Steel>20</Steel><etc></etc></costList>
-       <building>
-       <preventDeteriorationOnTop>false</etc>- you can turn off preventing deterioration if you want.  Default is true
-       <ignoreStoredThingsBeauty>false</etc> - you can stop ignoring things' beauty if you want.  Default is true.
-       <fixedStorageSettings> - what it is capable of storing
-       <filter>
-       <categories> See the core Defs/ThingCategoryDefs/ThingCategories.xml
-       <li>FoodRaw</li>
-       <li>PlantMatter</li>
-       <li>Textiles</li>
-       <li>Medicine</li>
-       <li>Weapons</li>
-       <li>Etc - you can find more</li>
-       </categories>
-       <thingDefs>
-       <li>RocketLauncherThingDef</li>
-       <li>ThingDefForPrettyHatFromAMod</li>
-       <li>Gold</li>
-       <li>Etc - single items, look up the defName</li>
-       <li>sometimes, it's WoodLog, not Wood, so be careful</li>
-       </thingDefs>
-       </filter>
-       <disallowedCategories>
-       <li>AnotherCategoryThatDoesNOTGoInStorage</li>
-       </disallowedCategories>
-       </fixedStorageSettings>
-       <defaultStorageSettings> - IF YOU WANT (defaults to nothing)
-       <priority>Low up to Critical</priority> - defaults to important
-       <filter>
-       As above.  If you leave this section out, storage units won't start with things checked off,
-       which can be very nice.
-       </filter>
-       </defaultStorageSettings>
-       </building>
-       <comps>
-       <li Class="LWM.DeepStorage.Properties" >  - if you override this, make sure you include everything.
-       anything not included resets to defaults.
-       <maxNumberStacks>4</maxNumberStacks> - how many stacks can be here at once
-       <timeStoringTakes>1000</timeStoringTakes> - how many Ticks storing takes
-       1000 is a while, 300 is a bit, 0 is no time at all (like a vanilla shelf)
-       </li>
-       </comps>
-       <researchPrerequisites Inherit="false">  - false to remove or change research Prereqs away from ComplexFurniture
-         <li>...<li> - leave empty (with false above) for no prereqs, change with false, or just add new ones
-       </researchPrerequisites>
-       </ThingDef>
-  -->
 
-
-  <ThingDef ParentName="FurnitureWithQualityBase">
-    <defName>BigShelf</defName>
-    <label>Big Shelf</label>
-    <description>A shelf for storing miscellaneous items. Items stored in this will not deteriorate, even if outside.</description>
-    <thingClass>Building_Storage</thingClass>
-    <graphicData>
-      <texPath>Things/Building/Furniture/Shelf</texPath>
-      <graphicClass>Graphic_Multi</graphicClass>
-      <drawSize>(3,2)</drawSize>
-    </graphicData>
-    <altitudeLayer>Building</altitudeLayer>
-    <passability>PassThroughOnly</passability>
-    <fillPercent>0.4</fillPercent>
-    <castEdgeShadows>true</castEdgeShadows>
-    <stuffCategories>
-      <li>Metallic</li>
-      <li>Woody</li>
-      <li>Stony</li>
-    </stuffCategories>
-    <costStuffCount>65</costStuffCount>
-    <!-- Little extra stuff for more bracing -->
-    <statBases>
-      <MaxHitPoints>80</MaxHitPoints>
-      <!--Fewer hp b/c more precarious-->
-      <Mass>16</Mass>
-      <WorkToBuild>1200</WorkToBuild>
-      <Flammability>1.0</Flammability>
-    </statBases>
-    <size>(2,1)</size>
-    <defaultPlacingRot>South</defaultPlacingRot>
-    <building>
-      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
-      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
-      <defaultStorageSettings>
-        <priority>Important</priority>
-      </defaultStorageSettings>
-    </building>
-    <inspectorTabs>
-      <li>ITab_Storage</li>
-      <li>LWM.DeepStorage.ITab_DeepStorage_Inventory</li>
-    </inspectorTabs>
-    <staticSunShadowHeight>0.8</staticSunShadowHeight>
-    <surfaceType>Item</surfaceType>
-    <canOverlapZones>false</canOverlapZones>
-    <researchPrerequisites>
-      <li>ComplexFurniture</li>
-    </researchPrerequisites>
-    <comps>
-      <li Class="LWM.DeepStorage.Properties">
-        <maxNumberStacks>2</maxNumberStacks>
-        <timeStoringTakes>100</timeStoringTakes>
-      </li>
-    </comps>
-  </ThingDef>
 
   <!-- =========== purely LWM creations ========== -->
   <ThingDef Name="LWM_MeatHook" ParentName="LWM_DeepStorage">

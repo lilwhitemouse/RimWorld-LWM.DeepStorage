@@ -330,7 +330,7 @@ namespace LWM.DeepStorage
     } // end patch for when DSU despawns
 
     /* The workhouse solving #2 (from top of file)
-     * The magic to make what is on top get displayed "above" everything else: */
+     * The magic to make what-is-on-top get displayed "above" everything else: */
     /* (thank you DuckDuckGo for providing this approach, and thak you to everyone
      *  who helped people who had similar which-mesh-is-on-top problems)
      */
@@ -339,7 +339,7 @@ namespace LWM.DeepStorage
         static void Postfix(Thing __instance, ref Vector3 __result) {
             if (Utils.TopThingInDeepStorage.Contains(__instance)) {
                 __result.y+=0.05f; // The default "altitudes" are around .45 apart, so .05 should be about right.
-                                   //             altitudes here are "terrain," "buildings," etc.
+                                   //             "altitudes" here are "terrain," "buildings," etc.
             }
         }
     }
@@ -349,7 +349,7 @@ namespace LWM.DeepStorage
     [HarmonyPatch(typeof(Thing),"DrawGUIOverlay")]
     static class Add_DSU_GUI_Overlay {
         static bool Prefix(Thing __instance) {
-            if (Find.CameraDriver.CurrentZoom != CameraZoomRange.Closest) return false;
+            if (Find.CameraDriver.CurrentZoom != CameraZoomRange.Closest) return true; // maybe someone changes this? Who knows.
             Building_Storage DSU = __instance as Building_Storage;
             if (DSU == null) return true;
             CompDeepStorage cds = DSU.GetComp<CompDeepStorage>();
@@ -419,7 +419,47 @@ namespace LWM.DeepStorage
                     else
                         s="[ "+count.ToStringCached()+" ]";
                 }
-                GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(__instance,0f),s,GenMapUI.DefaultThingLabelColor);                
+                GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(__instance,0f),s,GenMapUI.DefaultThingLabelColor);
+                return false;
+            }
+            if (cds.cdsProps.overlayType == GuiOverlayType.SumOfItemsPerCell) {
+                // Big Shelves
+                bool anyItems=false;
+                foreach (IntVec3 c in DSU.AllSlotCellsList()) {
+                    bool itemsWithStackSizeOne=false;
+                    things=__instance.Map.thingGrid.ThingsListAtFast(c).FindAll(t=>t.def.EverStorable(false));
+                    if (things.Count > 0) {
+                        anyItems=true;
+                        int count=0;
+                        for (int i=0; i<things.Count; i++) {
+                            // Break logic if there is anything with a stackLimit of 1
+                            //   show instead the count of stacks:
+                            if (itemsWithStackSizeOne || things[i].def.stackLimit==1) {
+                                itemsWithStackSizeOne=true;
+                                if (things.Count ==1)
+                                    s=1.ToStringCached(); // ..a language that doesn't use arabic numerals?
+                                else if (AllSameType(things))
+                                    s="x"+things.Count.ToStringCached();
+                                else
+                                    s="[ x"+things.Count.ToStringCached()+" ]";
+                                GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(c),s,GenMapUI.DefaultThingLabelColor);
+                                goto WhyDoesCSharpNotHaveBreakTwo;
+                            } else {
+                                count+=things[i].stackCount;
+                            }
+                        } // end list of things.
+                        if (AllSameType(things))
+                            s=count.ToStringCached();
+                        else
+                            s="[ "+count.ToStringCached()+" ]";
+                        GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(c),s,GenMapUI.DefaultThingLabelColor);
+                    } // if count > 0
+                    WhyDoesCSharpNotHaveBreakTwo:;
+                } // foreach cell
+                if (!anyItems && !cds.cdsProps.showContents) { // there are no items, but no way to see that.
+                    s="LWM_DS_Empty".Translate();
+                    GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(__instance,0f),s,GenMapUI.DefaultThingLabelColor);
+                }
                 return false;
             }
             Log.Warning("LWM DeepStorage: could not find GuiOverlayType of "+cds.cdsProps.overlayType);

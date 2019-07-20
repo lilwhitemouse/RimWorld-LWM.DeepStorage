@@ -145,20 +145,20 @@ namespace LWM.DeepStorage
         public int maxNumberStacks = 2;
         public int timeStoringTakes = 1000; // measured in ticks
         public int minTimeStoringTakes =-1;
-        public int additionalTimeEachStack=-1;
+        public int additionalTimeEachStack=-1; // extra time to store for each stack already there
+        public int additionalTimeEachDef=-1;   // extra time to store for each different type of object there
         public float maxTotalMass = 0f;
         public float maxMassOfStoredItem = 0f;
         public StatDef altStat=null;
         public bool showContents=true;
-        
+        public GuiOverlayType overlayType=GuiOverlayType.Normal;
+                
         public int size=0;
-        public ThingDef parent=null; // :p
-        
+        public ThingDef parent=null; // :p  Have to keep track of this myself
+
         private string categoriesString=null; // for the Stats window (information window)
         private string defsString=null;
         private string disallowedString=null;
-
-        public GuiOverlayType overlayType=GuiOverlayType.Normal;
     }
     
     public enum GuiOverlayType : byte {
@@ -166,7 +166,7 @@ namespace LWM.DeepStorage
         CountOfAllStacks,       // Centered on DSU
         CountOfStacksPerCell,   // Standard overlay position for each cell
         SumOfAllItems,          // Centered on DSU
-        //SumOfItemsPerCell,      // etc. TODO?  For e.g., Big Shelf?
+        SumOfItemsPerCell,      // For e.g., Big Shelf
         None,                   // Some users may want this
     }
 
@@ -215,8 +215,11 @@ namespace LWM.DeepStorage
         }        */
         public int TimeStoringTakes(Map map, IntVec3 cell) {
             if (cdsProps.minTimeStoringTakes <0) {
+                // Basic version
                 return ((Properties)this.props).timeStoringTakes;
             }
+            // having a minTimeStoringTakes, adjusted:
+            // TODO: additionTimeEachDef
             int t=cdsProps.minTimeStoringTakes;
             var l=map.thingGrid.ThingsListAtFast(cell);
             for (int i=0; i<l.Count; i++) {
@@ -288,7 +291,6 @@ namespace LWM.DeepStorage
                 maxTotalStat[0] = ((Properties)props).maxTotalMass;
             }
             */
-
         }
 
         public int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {

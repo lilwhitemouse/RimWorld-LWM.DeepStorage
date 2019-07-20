@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Harmony;
 using RimWorld;
@@ -14,7 +15,6 @@ namespace LWM.DeepStorage {
      *   (specifically, Thing's CanStackWith())      *
      *   Requires using System.Reflection.Emit;      */
 #if false
-
     [HarmonyPatch(typeof(Thing), "CanStackWith")]
     static class Trace_CanStackWith {
         public static void Prefix(Thing __instance, Thing other) {
