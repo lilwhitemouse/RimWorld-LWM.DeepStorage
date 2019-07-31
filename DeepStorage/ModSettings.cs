@@ -7,7 +7,8 @@ namespace LWM.DeepStorage
     public class Settings : ModSettings {
         public static bool storingTakesTime=true;
         public static float storingGlobalScale=1f;
-        
+        public static bool storingTimeConsidersStackSize=true;
+
         public static bool intelligenceWasChanged=false;
 
 //        private static float scrollViewHeight=100f;
@@ -34,9 +35,12 @@ namespace LWM.DeepStorage
                                              ref storingTakesTime, "LWMDSstoringTakesTimeDesc".Translate());
             l.Label("LWMDSstoringGlobalScale".Translate((storingGlobalScale*100f).ToString("0.")));
             storingGlobalScale=l.Slider(storingGlobalScale, 0f, 2f);
+            l.CheckboxLabeled("LWMDSstoringTimeConsidersStackSize".Translate(),
+                              ref storingTimeConsidersStackSize, "LWMDSstoringTimeConsidersStackSizeDesc".Translate());
             if (l.ButtonText("LWMDSstoringDelaySettings".Translate()+": "+"ResetBinding".Translate()/*Reset to Default*/)) {
                 storingTakesTime=true;
                 storingGlobalScale=1f;
+                storingTimeConsidersStackSize=true;
             }
             l.GapLine();
 

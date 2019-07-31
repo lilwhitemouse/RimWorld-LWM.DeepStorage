@@ -286,7 +286,7 @@ namespace LWM.DeepStorage
                 }
             }
             // additional Time Stack Size
-            if (cdsProps.additionalTimeStackSize>0f) {
+            if (Settings.storingTimeConsidersStackSize && cdsProps.additionalTimeStackSize>0f) {
                 float factor=1f;
                 if (thing.def.smallVolume || // if it's small (silver, gold)
                     (   // or on the list (compost for Fertile Fields?)
