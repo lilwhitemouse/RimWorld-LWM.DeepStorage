@@ -145,8 +145,10 @@ namespace LWM.DeepStorage
         public int maxNumberStacks = 2;
         public int timeStoringTakes = 1000; // measured in ticks
         public int minTimeStoringTakes =-1;
-        public int additionalTimeEachStack=-1; // extra time to store for each stack already there
-        public int additionalTimeEachDef=-1;   // extra time to store for each different type of object there
+        public int additionalTimeEachStack=0; // extra time to store for each stack already there
+        public int additionalTimeEachDef=0;   // extra time to store for each different type of object there
+        public float additionalTimeStackSize=0f; // item with stack size 75 may take longer to store
+        public List<ThingDef> quickStoringItems=null;
         public float maxTotalMass = 0f;
         public float maxMassOfStoredItem = 0f;
         public StatDef altStat=null;
@@ -171,11 +173,28 @@ namespace LWM.DeepStorage
     }
 
     public class CompDeepStorage : ThingComp, IHoldMultipleThings.IHoldMultipleThings {
+        //public float y=0f;
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
             }
-
+            #if false
+            yield return new Command_Action {
+                defaultLabel="Y-=.1",
+                action=delegate () {
+                    y-=0.1f;
+                    Messages.Message("Offset: "+y,MessageTypeDefOf.NeutralEvent);
+                }
+            };
+            yield return new Command_Action {
+                defaultLabel="Y+=.1",
+                action=delegate () {
+                    y+=0.1f;
+                    Messages.Message("Offset: "+y,MessageTypeDefOf.NeutralEvent);
+                }
+            };
+            #endif
+                
             // I left this lovely testing code in - oops.
             //yield return new Command_Action
             //{
@@ -213,19 +232,73 @@ namespace LWM.DeepStorage
 /*        public int timeStoringTakes() {
             return ((Properties)this.props).timeStoringTakes;
         }        */
-        public int TimeStoringTakes(Map map, IntVec3 cell) {
+        public int TimeStoringTakes(Map map, IntVec3 cell, Pawn pawn) {
             if (cdsProps.minTimeStoringTakes <0) {
                 // Basic version
                 return ((Properties)this.props).timeStoringTakes;
             }
+            Thing thing=pawn?.carryTracker?.CarriedThing;
+            if (thing==null) {
+                Log.Error("LWM.DeepStorage: null CarriedThing");
+                return 0;
+            }
             // having a minTimeStoringTakes, adjusted:
             // TODO: additionTimeEachDef
             int t=cdsProps.minTimeStoringTakes;
-            var l=map.thingGrid.ThingsListAtFast(cell);
+            var l=map.thingGrid.ThingsListAtFast(cell).FindAll(x=>x.def.EverStorable(false));
+            bool thingToPlaceIsDifferentFromAnythingThere=false; // Do I count storing thing as a separate def?
+            if (l.Count>0) {
+                thingToPlaceIsDifferentFromAnythingThere=true;
+            }
+            // additional Time for Each Stack:
             for (int i=0; i<l.Count; i++) {
-                if (l[i].def.EverStorable(false)) {
-                    t+=cdsProps.additionalTimeEachStack;
+                t+=cdsProps.additionalTimeEachStack;
+                if (cdsProps.additionalTimeEachDef>0 &&
+                    l[i].CanStackWith(thing)) {
+                    // some defs cannot stack with themselves (esp under other mods,
+                    //   for example, common sense doesn't allow meals with and w/o
+                    //   insect meat to stack)
+                    // Note: As far as I know, this works for items with stack sizes of 1, too.
+                    thingToPlaceIsDifferentFromAnythingThere=false;
                 }
+            }
+            // additional Time for Each Def (really for each thing that doesn't stack)
+            if (cdsProps.additionalTimeEachDef>0) {
+                if (thingToPlaceIsDifferentFromAnythingThere) t+=cdsProps.additionalTimeEachDef;
+                // l2=l mod CanStackWith()
+                // That is, l2 is a maximal list of objects that cannot stack with each other from l.
+                // That is, l2 is l with all things that can stack together reduced to one item.
+                List<Thing> l2=new List<Thing>(l);
+                int i=0;
+                for (; i<l2.Count; i++) {
+                    int j=i+1;
+                    while (j<l2.Count) {
+                        if (l2[i].CanStackWith(l2[j])) {
+                            l2.RemoveAt(j);
+                        } else {
+                            j++;
+                        }
+                    }
+                }
+                // now l2 is prepared
+                if (l2.Count > 1) {
+                    t+=(cdsProps.additionalTimeEachDef*(l2.Count-1));
+                }
+            }
+            // additional Time Stack Size
+            if (cdsProps.additionalTimeStackSize>0f) {
+                float factor=1f;
+                if (thing.def.smallVolume || // if it's small (silver, gold)
+                    (   // or on the list (compost for Fertile Fields?)
+                        (!cdsProps.quickStoringItems.NullOrEmpty()) &&
+                        cdsProps.quickStoringItems.Contains(thing.def)
+                        )
+                    ) {
+                    factor=0.05f;
+                }
+                t+=(int)(cdsProps.additionalTimeStackSize *
+                    pawn.carryTracker.CarriedThing.stackCount *
+                    factor);
             }
             return t;
         }

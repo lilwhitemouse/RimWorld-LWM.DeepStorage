@@ -18,6 +18,28 @@
             <li>PlantScraps</li>
           </value>
         </li>
+        <!-- Add to quickStoringItems for skip -->
+        <li Class="PatchOperationConditional">
+          <!-- Make sure quickStoringItems is there -->
+          <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/comps/li[@Class='LWM.DeepStorage.Properties']/quickStoringItems</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+            <value><quickStoringItems></quickStoringItems></value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/comps/li[@Class='LWM.DeepStorage.Properties']/quickStoringItems</xpath>
+          <value>
+            <li>PlantScraps</li>
+            <li>RottedMush</li>
+            <li>RawCompost</li>
+            <li>Fertilizer</li>
+            <li>CrushedRocks</li>
+            <li>PileofDirt</li>
+            <li>SandPile</li>
+            <!-- No RFFClay - clay is much harder to move.  Better on pallets anyway? -->
+          </value>
+        </li>          
         <li Class="LWM.DeepStorage.PatchMessage">
           <message>LWM Deep Storage: activated compatibility patch for Fertile Fields</message>
         </li>

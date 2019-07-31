@@ -360,7 +360,7 @@ namespace LWM.DeepStorage
             List<Thing> things;
             String s;
             if (cds.cdsProps.overlayType == GuiOverlayType.CountOfAllStacks) {
-                // probably Armor Racks, Clothing Racks, Weapon Lockers etc...
+                // maybe Armor Racks, Clothing Racks, def Weapon Lockers etc...
                 things = new List<Thing>();
                 foreach (IntVec3 c in DSU.AllSlotCellsList()) {
                     things.AddRange(__instance.Map.thingGrid.ThingsListAtFast(c).FindAll(t=>t.def.EverStorable(false)));
@@ -392,7 +392,11 @@ namespace LWM.DeepStorage
                         s="x"+things.Count.ToStringCached();
                     else
                         s="[ "+things.Count.ToStringCached()+" ]";
-                    GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(c),s,GenMapUI.DefaultThingLabelColor);
+                    var l2=GenMapUI.LabelDrawPosFor(c);
+//                    l2.x+=cds.x;
+//                    l2.y+=cds.y;
+                    l2.y+=10f;
+                    GenMapUI.DrawThingLabel(l2,s,GenMapUI.DefaultThingLabelColor);
                 }
                 return false;
             }
@@ -442,7 +446,9 @@ namespace LWM.DeepStorage
                                     s="x"+things.Count.ToStringCached();
                                 else
                                     s="[ "+things.Count.ToStringCached()+" ]";
-                                GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(c),s,GenMapUI.DefaultThingLabelColor);
+                                var l=GenMapUI.LabelDrawPosFor(c);
+                                l.y+=10f;
+                                GenMapUI.DrawThingLabel(l,s,GenMapUI.DefaultThingLabelColor);
                                 goto WhyDoesCSharpNotHaveBreakTwo;
                             } else {
                                 count+=things[i].stackCount;
@@ -452,7 +458,9 @@ namespace LWM.DeepStorage
                             s=count.ToStringCached();
                         else
                             s="[ "+count.ToStringCached()+" ]";
-                        GenMapUI.DrawThingLabel(GenMapUI.LabelDrawPosFor(c),s,GenMapUI.DefaultThingLabelColor);
+                        var l2=GenMapUI.LabelDrawPosFor(c);
+                        l2.y+=10f;
+                        GenMapUI.DrawThingLabel(l2,s,GenMapUI.DefaultThingLabelColor);
                     } // if count > 0
                     WhyDoesCSharpNotHaveBreakTwo:;
                 } // foreach cell

@@ -88,7 +88,7 @@ namespace LWM.DeepStorage
                     }
                     return; // initAction still around, will handle
                 }
-                int timeStoringTakes = cds.TimeStoringTakes(actor.Map,cell);
+                int timeStoringTakes = cds.TimeStoringTakes(actor.Map,cell, actor);
                 if (timeStoringTakes <= 0
                     || !Settings.storingTakesTime ) //boo, hiss, but some ppl use it
                 { // just like vanilla

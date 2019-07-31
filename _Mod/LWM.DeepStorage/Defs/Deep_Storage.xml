@@ -11,7 +11,7 @@
   <label>Furniture Name (for humans to read)</label>
   <description>A short description.
 
-This template demonstrates that whitespace is obeyed in the description.</description>
+This template demonstrates that whitespace is obeyed in the description.\n\nSo are newline characters</description>
 
 //// Graphic stuff
   <graphicData>
@@ -45,7 +45,7 @@ This template demonstrates that whitespace is obeyed in the description.</descri
     <Mass>10</Mass> in kg
     </statBases>
     <pathCost>150</pathCost> - Hard to walk thru.  Best to leave it.
-  /// Cost:  
+/// Cost:
   <stuffCategories>What it can be made from
     <li>Leathery</li>
     <li>Fabric</li>
@@ -57,7 +57,11 @@ This template demonstrates that whitespace is obeyed in the description.</descri
      To do things with fixed costs (in addition to stuff costs or whatever):
   <costList><Cloth>25</Cloth><Steel>20</Steel><etc></etc></costList>
      Note that it's impossible (so far) to have more than one "stuff" choice
-  // Storage:
+/// Research  Prereqs:
+  <researchPrerequisites Inherit="false">OPTIONAL  - false to remove or change research Prereqs away from ComplexFurniture
+    <li>...<li> - leave empty (with false above) for no prereqs, change with false, or just add new ones
+  </researchPrerequisites>
+// Storage:  (What can be stored)
   <building>
     <preventDeteriorationOnTop>false</etc>Optional - you can turn off preventing deterioration if you want.  Default is true
     <ignoreStoredThingsBeauty>false</etc>Optional - you can stop ignoring things' beauty if you want.  Default is true.
@@ -94,10 +98,8 @@ This template demonstrates that whitespace is obeyed in the description.</descri
       </filter>
     </defaultStorageSettings>
   </building>
-  <researchPrerequisites Inherit="false">OPTIONAL  - false to remove or change research Prereqs away from ComplexFurniture
-    <li>...<li> - leave empty (with false above) for no prereqs, change with false, or just add new ones
-  </researchPrerequisites>
-  <comps>  /// Deep Storage!
+/// Deep Storage!
+  <comps>
     <li Class="LWM.DeepStorage.Properties" >
       <maxNumberStacks>2</maxNumberStacks> - how many stacks can be in each cell at once
       <minNumberStacks>1</minNumberStacks> - per cell
@@ -131,7 +133,7 @@ This template demonstrates that whitespace is obeyed in the description.</descri
   </comps>
 </ThingDef>
   -->
-  
+
   <!-- Mostly copied from shelf -->
   <ThingDef Name="LWM_DeepStorage" ParentName="FurnitureWithQualityBase" Abstract="true"><!--  Class="LWM.DeepStorage.DeepStorageDef">-->
     <defName>LWM_DeepStorage</defName><!-- this defname doesn't actually exist in-game, does it? -->
@@ -233,7 +235,7 @@ This template demonstrates that whitespace is obeyed in the description.</descri
       <li Class="LWM.DeepStorage.Properties">
         <maxNumberStacks>2</maxNumberStacks>
         <minTimeStoringTakes>25</minTimeStoringTakes>
-        <additionalTimeEachStack>75</additionalTimeEachStack>
+        <additionalTimeEachStack>75</additionalTimeEachStack><!-- Top shelf harder to reach? -->
         <overlayType>SumOfItemsPerCell</overlayType>
       </li>
     </comps>
@@ -294,7 +296,7 @@ This template demonstrates that whitespace is obeyed in the description.</descri
   <ThingDef Name="LWM_Medicine_Cabinet" ParentName="LWM_DeepStorage">
     <defName>LWM_Medicine_Cabinet</defName>
     <label>Medicine Cabinet</label>
-    <description>A set of cabinets and shelves for stocking medicines and drugs.  Recommended to keep an eye on children.</description>
+    <description>A set of cabinets and shelves for stocking medicines and drugs.  Recommended: keep an eye on children.</description>
     <pathCost>100</pathCost>
     <graphicData>
       <texPath>skullywag/MedCab/MedCab</texPath>
@@ -325,7 +327,7 @@ This template demonstrates that whitespace is obeyed in the description.</descri
           </categories>
           <thingDefs>
             <li>Neutroamine</li>
-            <!--<li>Penoxycyline</li>-->
+            <!--<li>Penoxycyline</li>Under drugs now!-->
           </thingDefs>
         </filter>
       </fixedStorageSettings>
@@ -333,7 +335,10 @@ This template demonstrates that whitespace is obeyed in the description.</descri
     <comps>
       <li Class="LWM.DeepStorage.Properties">
         <maxNumberStacks>5</maxNumberStacks>
-        <timeStoringTakes>350</timeStoringTakes>
+        <!--<timeStoringTakes>350</timeStoringTakes>-->
+        <minTimeStoringTakes>250</minTimeStoringTakes>
+        <additionalTimeEachStack>25</additionalTimeEachStack>
+        <additionalTimeEachDef>25</additionalTimeEachDef>
         <overlayType>SumOfAllItems</overlayType>
         <!--TODO: SumOfItemsPerCell?-->
       </li>
@@ -344,7 +349,9 @@ This template demonstrates that whitespace is obeyed in the description.</descri
   <ThingDef Name="LWM.Skip"  ParentName="LWM_DeepStorage" >
     <defName>LWM_DeepStorage_Skip</defName>
     <label>Skip</label>
-    <description>A large metal bin for tossing heavy things in.  These skips are not covered; they are open to the weather.</description>
+    <description>A large metal bin for tossing heavy things in.  These skips are not covered; they are open to the weather.
+
+Note: tossing large amounts of steel in willy-nilly means that it takes a while to find the steel you want later.  The mod author has abstracted that as a longer time for storing large stacks of items.  Pretend your pawns have to climb in and stack everything so the doggies can pick it up easily.</description>
     <graphicData>
       <texPath>skullywag/Skip/Skip</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
@@ -355,7 +362,7 @@ This template demonstrates that whitespace is obeyed in the description.</descri
       <MaxHitPoints>250</MaxHitPoints>
       <WorkToBuild>780</WorkToBuild>
       <Flammability>0.1</Flammability>
-      <Beauty>-3</Beauty>
+      <Beauty>-5</Beauty><!-- Let's be honest, this is probably low: ugly beat up dumpster -->
       <Mass>5</Mass><!-- If you are dragging it around, let's pretend you fashion wheels for it, eh? -->
     </statBases>
     <stuffCategories>
@@ -382,7 +389,11 @@ This template demonstrates that whitespace is obeyed in the description.</descri
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
         <maxNumberStacks>6</maxNumberStacks>
-        <timeStoringTakes>100</timeStoringTakes>
+        <minTimeStoringTakes>100</minTimeStoringTakes>
+        <!--Got to climb in, get it positioned right, etc-->
+        <additionalTimeStackSize>10</additionalTimeStackSize>
+        <!--<additionalTimeWoody>10</additionalTimeWoody>
+        <additionalTimeStony>10</additionalTimeStony>???-->
         <overlayType>SumOfAllItems</overlayType>
       </li>
     </comps>
@@ -403,7 +414,7 @@ This template demonstrates that whitespace is obeyed in the description.</descri
       <MaxHitPoints>100</MaxHitPoints>
       <WorkToBuild>600</WorkToBuild>
       <Flammability>1.0</Flammability>
-      <Beauty>-1</Beauty><!-- just a lump of ugly boards -->
+      <Beauty>-2</Beauty><!-- just a lump of ugly boards -->
       <Mass>10</Mass>
     </statBases>
     <stuffCategories>
@@ -432,7 +443,8 @@ This template demonstrates that whitespace is obeyed in the description.</descri
       <li Class="LWM.DeepStorage.Properties" >
         <maxNumberStacks>4</maxNumberStacks>
         <minTimeStoringTakes>300</minTimeStoringTakes>
-        <additionalTimeEachStack>175</additionalTimeEachStack>
+        <additionalTimeEachStack>120</additionalTimeEachStack>
+        <additionalTimeEachDef>60</additionalTimeEachDef>
 <!--        <timeStoringTakes>800</timeStoringTakes>-->
         <overlayType>SumOfAllItems</overlayType>
       </li>
@@ -471,7 +483,7 @@ This template demonstrates that whitespace is obeyed in the description.</descri
             <li>PlantMatter</li>
           </categories>
           <thingDefs>
-            <li>Kibble</li><!-- Bags might smell after, but what's the scent of cat food among friends?-->
+            <li>Kibble</li><!-- Bags might smell awful later, but what's the scent of cat food among friends?-->
           </thingDefs>
         </filter>
       </fixedStorageSettings>
@@ -479,7 +491,10 @@ This template demonstrates that whitespace is obeyed in the description.</descri
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
         <maxNumberStacks>4</maxNumberStacks>
-        <timeStoringTakes>1000</timeStoringTakes>
+        <minTimeStoringTakes>425</minTimeStoringTakes>
+        <additionalTimeEachStack>120</additionalTimeEachStack>
+        <additionalTimeEachDef>60</additionalTimeEachDef>
+<!--        <timeStoringTakes>1000</timeStoringTakes>-->
         <overlayType>SumOfAllItems</overlayType>
       </li>
     </comps>
@@ -522,7 +537,8 @@ This template demonstrates that whitespace is obeyed in the description.</descri
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
         <maxNumberStacks>5</maxNumberStacks>
-        <timeStoringTakes>100</timeStoringTakes>
+        <minTimeStoringTakes>90</minTimeStoringTakes>
+        <additionalTimeEachStack>15</additionalTimeEachStack>
         <overlayType>CountOfStacksPerCell</overlayType>
         <!-- TODO: maybe an overlay that displays quality somehow? -->
       </li>
@@ -567,7 +583,10 @@ This template demonstrates that whitespace is obeyed in the description.</descri
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
         <maxNumberStacks>5</maxNumberStacks>
-        <timeStoringTakes>50</timeStoringTakes>
+        <!--<timeStoringTakes>50</timeStoringTakes>-->
+        <minTimeStoringTakes>35</minTimeStoringTakes>
+        <additionalTimeEachStack>5</additionalTimeEachStack>
+        <additionalTimeEachDef>2</additionalTimeEachDef>
         <overlayType>SumOfAllItems</overlayType>
       </li>
     </comps>
@@ -627,7 +646,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
             <li>CorpsesAnimal</li>
           </categories>
           <specialFiltersToDisallow>
-            <li>AllowRotten</li><!-- Allow player to hang rotten corpses if they want?  Eew -->
+            <li>AllowRotten</li><!-- We allow player to hang rotten corpses if they want...?  Eew -->
           </specialFiltersToDisallow>
         </filter>
       </defaultStorageSettings>
@@ -636,9 +655,11 @@ Note that you can only fit so many giant corpses into one space, even if you sta
       <li Class="LWM.DeepStorage.Properties" >
         <minNumberStacks>2</minNumberStacks><!-- minimum one in the air, one on the ground -->
         <maxNumberStacks>12</maxNumberStacks><!-- todo? -->
-        <timeStoringTakes>25</timeStoringTakes>
+        <minTimeStoringTakes>25</minTimeStoringTakes>
+        <additionalTimeEachStack>20</additionalTimeEachStack><!-- More things on the hooks means more effort to get an empty hook -->
         <maxTotalMass>560</maxTotalMass><!-- Two Megatheria -->
                                         <!--Fun fact: giant sloths apparently dug ancient caves. Giant caves.  As burrows.-->
+                                        <!--We only recently realized what these weird caves were.-->
         <overlayType>CountOfStacksPerCell</overlayType>
       </li>
     </comps>

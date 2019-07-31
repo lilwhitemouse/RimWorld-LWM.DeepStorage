@@ -221,6 +221,16 @@ namespace LWM.DeepStorage
             Patch_GenUI_ThingsUnderMouse.sortForDeepStorage = Patch_GenUI_ThingsUnderMouse.DSSort.Vanilla;
         }
     }
+
+    // If there are 10 artifacts in a weapons locker, it's nice to be able to tell which one you are about to activate:
+    // Add "  (Label for Artifact)" to the right-click label.
+    [HarmonyPatch(typeof(RimWorld.CompUsable), "get_FloatMenuOptionLabel")]
+    static public class MakeArtifactsActivateLabelNameArtifact {
+        static void Postfix(ref string __result, CompUsable __instance) {
+            __result=__result+" ("+__instance.parent.LabelCap+")";
+        }
+
+    }
 }
 
 // Used under GPL 3 from Ratysz.  Also with permission.  Thanks, RT!
