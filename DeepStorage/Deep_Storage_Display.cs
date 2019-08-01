@@ -51,8 +51,16 @@ namespace LWM.DeepStorage
      *     The game *unspawns the old item* and then *creates an
      *     identical one* in the pawn's inventory.
      * Note2: When an item is added to DS, we put the DSU at the
-     *     end of the thingsListAt - for better display and 
-     *     for selecting the DSU on first click.  TODO: Do I need to do this?
+     *     end of the thingsListAt.
+     *     Vanilla behavior, pre-save:
+     *       stuff-in-storage (at end of list)
+     *       Shelf
+     *     Vanilla behavior, post-save:
+     *       Shelf (at end of list)
+     *       stuff-in-storage
+     *     It is better to ensure a DSU is at the end of the
+     *     list than risk DSU being in the middle of the list
+     *     after a save and reload.
      * 
      *********************************************/
 
@@ -135,7 +143,6 @@ namespace LWM.DeepStorage
      * is created.
      * If the DSU itself despawns, however, we need to make sure everything
      * is visible!
-     * TODO: if DSU despawns, dirty map mesh, add things back to lists, etc.
      */
 
     /* NOTE: an item can be added to Deep Storage in two ways:
@@ -147,7 +154,7 @@ namespace LWM.DeepStorage
     // Make non-mesh things invisible when loaded in Deep Storage
     // Making item on top display on top: loaded items on "top" need to go into the HashSet
     // Gui Overlay: loaded items' overlays should not display
-    // Put DeepStorage at the end of the ThingsList so it can be clicked on?
+    // Put DeepStorage at the end of the ThingsList for proper display post-save
     [HarmonyPatch(typeof(Building_Storage), "SpawnSetup")]
     public static class PatchDisplay_SpawnSetup {
         public static void Postfix(Building_Storage __instance, Map map) {
@@ -190,7 +197,7 @@ namespace LWM.DeepStorage
     // Make non-mesh things invisible: they have to be de-registered on being added to a DSU
     // Making item on top display on top: added items need to go into the HashSet
     // Gui Overlay: added items' overlays should not display
-    // Put DeepStorage at the end of the ThingsList so it can be clicked on?
+    // Put DeepStorage at the end of the ThingsList for consistant display:
     [HarmonyPatch(typeof(Building_Storage),"Notify_ReceivedThing")]
     public static class PatchDisplay_Notify_ReceivedThing {
         public static void Postfix(Building_Storage __instance,Thing newItem) {
@@ -198,7 +205,7 @@ namespace LWM.DeepStorage
             if ((cds = __instance.TryGetComp<CompDeepStorage>()) == null) return;
 
             /****************** Put DSU at top of list *******************/
-            /*  This is important for selecting next objects?  I think?  */
+            /*  See note 2 at top of file re: display                    */
             List<Thing> list = newItem.Map.thingGrid.ThingsListAt(newItem.Position);
             list.Remove(__instance);
             list.Add(__instance);
