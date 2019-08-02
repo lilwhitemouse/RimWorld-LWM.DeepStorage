@@ -7,6 +7,7 @@
   <LWM_DS_TotalAndPerCell>{0} total; {1} per cell</LWM_DS_TotalAndPerCell>
   <LWM_DS_kg>{0}kg</LWM_DS_kg><!-- mass -->
   <LWM_DS_BulkEtcOf>{0} {1}</LWM_DS_BulkEtcOf><!-- for CE:  "15 bulk", etc -->
+  <LWM_DSU_GainsName>The {0} is now called {1}.</LWM_DSU_GainsName><!-- rename building -->
   <!-- Content tab -->
   <LWM.ContentsHeaderStacksMass>{0} / {1} stacks with total {2} of {3} / {4} kg</LWM.ContentsHeaderStacksMass>
   <LWM.ContentsHeaderItemsMass>{0} / {1} items with total {2} of {3} / {4} kg</LWM.ContentsHeaderItemsMass>

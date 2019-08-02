@@ -178,6 +178,18 @@ namespace LWM.DeepStorage
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
             }
+            yield return new Command_Action
+			{
+				icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
+				defaultLabel = "CommandRenameZoneLabel".Translate(),
+//				defaultDesc = "CommandRenameZoneDesc".Translate(),
+				action = delegate()
+				{
+					Find.WindowStack.Add(new Dialog_RenameDSU(this));
+				},
+				hotKey = KeyBindingDefOf.Misc1
+			};
+
             #if false
             yield return new Command_Action {
                 defaultLabel="Y-=.1",
@@ -217,6 +229,23 @@ namespace LWM.DeepStorage
             //        }// each cell
             //    },// end action
             //};
+        }
+
+        public override string TransformLabel(string label) {
+            if (this.buildingLabel=="") return label;
+            return buildingLabel;
+        }
+
+        public override string CompInspectStringExtra() {
+            if (this.buildingLabel=="") {
+                return null;
+            }
+            // in case you could not tell, I was tired when I wrote this:
+            string s=buildingLabel;
+            buildingLabel="";
+            string origLabel=parent.Label;
+            buildingLabel=s;
+            return origLabel;
         }
 
         public int minNumberStacks {
@@ -316,19 +345,6 @@ namespace LWM.DeepStorage
         
 
 
-        public StatDef stat = StatDefOf.Mass;
-        /*******  For only one limiting stat: (mass, or bulk for CombatExtended)  *******/
-        public float limitingFactorForItem=0f;
-        public float limitingTotalFactorForCell=0f;
-        /*******  Viable approach if anyone ever wants to limit storage based on >1 stat:
-         *          We can revisit this is anyone ever requests it
-         *          (this approach would need a for loop in _CanCarryItemsTo.cs, etc)
-        public float[] maxStatOfStoredItem = { };
-        public StatDef[] statForStoredItem = { };
-        public float[] maxTotalStat = { };
-        public StatDef[] statToTotal = { };
-        */
-
 
         public override void Initialize(CompProperties props) {
             base.Initialize(props);
@@ -419,6 +435,25 @@ namespace LWM.DeepStorage
         public bool StackableAt(Thing thing, IntVec3 cell, Map map) {
             return this.CapacityToStoreThingAt(thing,map,cell) > 0;
         }
+
+        public override void PostExposeData() { // why not call it "ExposeData" anyway?
+            Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
+        }
+
+                public StatDef stat = StatDefOf.Mass;
+        /*******  For only one limiting stat: (mass, or bulk for CombatExtended)  *******/
+        public float limitingFactorForItem=0f;
+        public float limitingTotalFactorForCell=0f;
+        /*******  Viable approach if anyone ever wants to limit storage based on >1 stat:
+         *          We can revisit this is anyone ever requests it
+         *          (this approach would need a for loop in _CanCarryItemsTo.cs, etc)
+        public float[] maxStatOfStoredItem = { };
+        public StatDef[] statForStoredItem = { };
+        public float[] maxTotalStat = { };
+        public StatDef[] statToTotal = { };
+        */
+        public string buildingLabel="";
+
     } // end CompDeepStorage
 
 
