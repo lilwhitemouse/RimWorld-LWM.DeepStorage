@@ -192,6 +192,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
         <maxNumberStacks>2</maxNumberStacks>
       </li>-->
     </comps>
+    <designationCategory>LWM_DS_Storage</designationCategory><!--architect menu location-->
   </ThingDef>
 
   <!-- As a nice easy first Deep Storage Unit -->

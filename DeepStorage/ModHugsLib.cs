@@ -39,6 +39,7 @@ namespace LWM.DeepStorage
 
             
             AssignSettings();
+            LWM.DeepStorage.Settings.DefsLoaded();
         }
 
         public override void SettingsChanged() {
