@@ -11,9 +11,19 @@ namespace LWM.DeepStorage
         public static float storingGlobalScale=1f;
         public static bool storingTimeConsidersStackSize=true;
 
-        private static string architectMenuDesignationCatDefDefName="LWM_DS_Storage";
-        public static DesignationCategoryDef architectLWM_DS_Storage_DesignationCatDef=null; // keep track of this as it may be removed from DefDatabase
-        public static DesignationCategoryDef architectCurrentDesignationCatDef=null;
+        // Architect Menu:
+        // The defName for the DesignationCategoryDef the mod items are in by default:
+        // To change for another mod, change this const string, and then add to the
+        // file ModName/Languages/English(etc)/Keyed/settings(or whatever).xml:
+        // <[const string]_ArchitectMenuSettings>Location on Architect Menu:</...>
+        // Copy and paste the rest of anything that says "Architect Menu"
+        // Change the list of new mod items in the final place "Architect Menu" tells you to
+        private const string architectMenuDefaultDesigCatDef="LWM_DS_Storage";
+        private static string architectMenuDesigCatDef=architectMenuDefaultDesigCatDef;
+
+
+//        public static DesignationCategoryDef architectLWM_DS_Storage_DesignationCatDef=null; // keep track of this as it may be removed from DefDatabase
+//        public static DesignationCategoryDef architectCurrentDesignationCatDef=null;
 
         private static List<ThingDef> allDeepStorageUnits=null;
 
@@ -55,54 +65,70 @@ namespace LWM.DeepStorage
             }
 
 
+            // Architect Menu:
             l.GapLine();  //Architect Menu location
-            string tmp;
+/*
+//            string archLabel=
+//            if (archLabel==n
 //            l.Label("LWMDSarchitectMenuSettings".Translate());
-            if (architectMenuDesignationCatDefDefName=="LWM_DS_Storage") {
-                if (architectLWM_DS_Storage_DesignationCatDef==null) {
-                    Log.Error("LWM.DeepStorage: architectLWM_DS_Storage_DesignationCatDef was null; this should never happen.");
-                    tmp="ERROR";
-                } else {
-                    tmp=architectCurrentDesignationCatDef.LabelCap; // todo: (default)
-                }
+            if (architectMenuDesigCatDef==architectMenuDefaultDesigCatDef) {
+//                if (architectLWM_DS_Storage_DesignationCatDef==null) {
+//                    Log.Error("LWM.DeepStorage: architectLWM_DS_Storage_DesignationCatDef was null; this should never happen.");
+//                    tmp="ERROR";
+//                } else {
+//                    tmp=architectCurrentDesignationCatDef.LabelCap; // todo: (default)
+//                }
+                archLabel+=" ("+
             } else {
                 var x=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDesignationCatDefDefName, false);
                 if (x==null) {
                     // TODO
                 }
                 tmp=x.LabelCap; // todo: (<menuname>)
-            }
-            if ( l.ButtonTextLabeled("LWMDSarchitectMenuSettings".Translate(), tmp) ) {
+            }*/
+            if ( l.ButtonTextLabeled((architectMenuDefaultDesigCatDef+"_ArchitectMenuSettings").Translate(), // Label
+                                     // value of dropdown button:
+                                     DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDesigCatDef)?.LabelCap
+                                     ?? "--ERROR--") ) { // error display text
+//                                     , DefDatabase<DesigarchitectMenuDesigCatDef) ) {
                 // Float menu for architect Menu choice:
                 List<FloatMenuOption> alist = new List<FloatMenuOption>();
-                var arl=DefDatabase<DesignationCategoryDef>.AllDefsListForReading;
-                alist.Add(new FloatMenuOption(architectLWM_DS_Storage_DesignationCatDef.LabelCap+" ("+"default".Translate()+")",
+                var arl=DefDatabase<DesignationCategoryDef>.AllDefsListForReading; //all reading list
+                alist.Add(new FloatMenuOption(DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef).LabelCap
+                                              +" ("+"default".Translate()+")",
                                               delegate () {
-//                                                  architectCurrentDesignationCatDef=architectLWM_DS_Storage_DesignationCatDef;
-                                                  architectMenuDesignationCatDefDefName="LWM_DS_Storage";
                                                   Utils.Mess(Utils.DBF.Settings, "Architect Menu placement set to default Storage");
-                                                  SettingsChanged();
-                                              }, MenuOptionPriority.Default, null, null, 0f, null, null));                
+                                                  ChangeArchitectMenuLocation(architectMenuDefaultDesigCatDef);
+//                                                  architectCurrentDesignationCatDef=architectLWM_DS_Storage_DesignationCatDef;
+//                                                  architectMenuDesignationCatDefDefName="LWM_DS_Storage";
+//
+//                                                  SettingsChanged();
+                                              }, MenuOptionPriority.Default, null, null, 0f, null, null));
+                // Architect Menu:  You may remove the "Furniture" references here if you wish
                 alist.Add(new FloatMenuOption(DefDatabase<DesignationCategoryDef>.GetNamed("Furniture").LabelCap,
                                               delegate () {
 //                                                  architectCurrentDesignationCatDef=
 //                                                      DefDatabase<DesignationCategoryDef>.GetNamed("Furniture");
-                                                  architectMenuDesignationCatDefDefName="Furniture";
                                                   Utils.Mess(Utils.DBF.Settings, "Architect Menu placement set to Furniture.");
-                                                  SettingsChanged();
+                                                  ChangeArchitectMenuLocation("Furniture");
+//                                                  architectMenuDesignationCatDefDefName="Furniture";
+//
+//                                                  SettingsChanged();
                                               }, MenuOptionPriority.Default,null,null,0f,null,null));
-                foreach (var adcd in arl) {
-                    if (adcd.defName!="LWM_DS_Storage" && adcd.defName!="Furniture")
+                foreach (var adcd in arl) { //architect designation cat def
+                    if (adcd.defName!=architectMenuDefaultDesigCatDef && adcd.defName!="Furniture")
                         alist.Add(new FloatMenuOption(adcd.LabelCap,
                                                       delegate () {
 //                                                          architectCurrentDesignationCatDef=adcd;
-                                                          architectMenuDesignationCatDefDefName=adcd.defName;
+//                                                          architectMenuDesignationCatDefDefName=adcd.defName;
                                                           Utils.Mess(Utils.DBF.Settings, "Architect Menu placement set to "+adcd);
-                                                          SettingsChanged();
+                                                          ChangeArchitectMenuLocation(adcd.defName);
+//                                                          SettingsChanged();
                                                       }, MenuOptionPriority.Default,null,null,0f,null,null));
                 }
                 Find.WindowStack.Add(new FloatMenu(alist));
             }
+            // finished drawing settings for Architect Menu
 
 
                
@@ -111,13 +137,55 @@ namespace LWM.DeepStorage
 
         public static void DefsLoaded() {
             // Todo? If settings are different from defaults, then:
-            SettingsChanged();
+            Setup();
+            // Architect Menu:
+            if (architectMenuDesigCatDef != architectMenuDefaultDesigCatDef) {
+                ChangeArchitectMenuLocation(architectMenuDesigCatDef, true);
+            }
+//            SettingsChanged();
         }
 
         public static void SettingsChanged() {
             Setup();
-            Utils.Warn(Utils.DBF.Settings, "SettingsChanged()");
-            var prevDesignationCatDef=architectCurrentDesignationCatDef;
+
+        }
+
+        // Architect Menu:
+        public static void ChangeArchitectMenuLocation(string newDefName, bool loadingOnStartup=false) {
+//            Utils.Warn(Utils.DBF.Settings, "SettingsChanged()");
+            DesignationCategoryDef prevDesignationCatDef;
+            if (loadingOnStartup) prevDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);
+            else prevDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDesigCatDef, false);
+            DesignationCategoryDef newDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(newDefName);
+            if (newDesignationCatDef == null) {
+                Log.Error("Failed to change Architect Menu settings!");
+                return;
+            }
+            // Architect Menu: Specify all your buildings/etc:
+            //   var allMyBuildings=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.HasComp(etc)));
+            foreach (var d in allDeepStorageUnits) {
+                d.designationCategory=newDesignationCatDef;
+            }
+            // Flush designation category defs:
+            prevDesignationCatDef?.ResolveReferences();
+            newDesignationCatDef.ResolveReferences();
+            // To remove mod's DesignationCategoryDef from Architect menu:
+            //   remove it from RimWorld.MainTabWindow_Architect's desPanelsCached.
+            // We remove it from the desPanelsCached rather than removing the def from
+            //   the DefDatabasea nd then re-doing the entire caching process, because:
+            //   1.  Removing a def from the DefDatabase is probably a bad idea:
+            //       entries have an index; who knows what happens if it changes?
+            //   2.  Compatibility with other mods is somewhat safer this way.
+            List<ArchitectCategoryTab> archMenu=(List<ArchitectCategoryTab>)Harmony.AccessTools
+                .Field(typeof(RimWorld.MainTabWindow_Architect), "desPanelsCached")
+                .GetValue((MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow);
+            archMenu.RemoveAll(t=>t.def.defName==architectMenuDefaultDesigCatDef);
+
+            archMenu.Add(new ArchitectCategoryTab(newDesignationCatDef));
+            archMenu.Sort((a,b)=>a.def.order.CompareTo(b.def.order));
+            architectMenuDesigCatDef=newDefName;
+/*
+            
             if (architectMenuDesignationCatDefDefName=="LWM_DS_Storage") { // default
                 if (DefDatabase<DesignationCategoryDef>.GetNamedSilentFail("LWM_DS_Storage") == null) {
                     Utils.Mess(Utils.DBF.Settings,"Adding 'Storage' to the architect menu.");
@@ -136,30 +204,12 @@ namespace LWM.DeepStorage
 
                 architectCurrentDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDesignationCatDefDefName);
             }
-            foreach (var d in allDeepStorageUnits) {
-                d.designationCategory=architectCurrentDesignationCatDef;
-                // Add any other changes here ^.^
-            }
             prevDesignationCatDef?.ResolveReferences();
             architectCurrentDesignationCatDef.ResolveReferences();
-            // To remove Storage from Architect menu:
-            //   remove it from RimWorld.MainTabWindow_Architect's desPanelsCached.
-            // We remove it from the desPanelsCached rather than removing the def from
-            //   the DefDatabasea nd then re-doing the entire caching process, because:
-            //   1.  Removing a def from the DefDatabase is probably a bad idea:
-            //       entries have an index; who knows what happens if it changes?
-            //   2.  Compatibility with other mods is somewhat safer this way.
-            List<ArchitectCategoryTab> archMenu=(List<ArchitectCategoryTab>)Harmony.AccessTools
-                .Field(typeof(RimWorld.MainTabWindow_Architect), "desPanelsCached")
-                .GetValue((MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow);
-            archMenu.RemoveAll(t=>t.def.defName=="LWM_DS_Storage");
-
-            archMenu.Add(new ArchitectCategoryTab(architectLWM_DS_Storage_DesignationCatDef));
-            archMenu.Sort((a,b)=>a.def.order.CompareTo(b.def.order));
-
             
 //            Harmony.AccessTools.Method(typeof(RimWorld.MainTabWindow_Architect), "CacheDesPanels")
 //                .Invoke((), null);
+*/
             Utils.Warn(Utils.DBF.Settings, "Settings changed architect menu");
             
         }
@@ -169,15 +219,14 @@ namespace LWM.DeepStorage
         //     (testing shows this is VERY correct!!)
         //   There's probably some rimworld annotation that I could use, but this works:
         private static void Setup() {
-            //Utils.Warn(Utils.DBF.Settings, "Settings: Setup() called");
             if (allDeepStorageUnits.NullOrEmpty()) {
                 allDeepStorageUnits=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.HasComp(typeof(CompDeepStorage)));
                 Utils.Mess(Utils.DBF.Settings, "  allDeepStorageUnits initialized: "+allDeepStorageUnits.Count+" units");
             }
-            if (architectLWM_DS_Storage_DesignationCatDef==null) {
+            /*           if (architectLWM_DS_Storage_DesignationCatDef==null) {
                 architectLWM_DS_Storage_DesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed("LWM_DS_Storage");
                 Utils.Mess(Utils.DBF.Settings, "  Designation Category Def loaded: "+architectLWM_DS_Storage_DesignationCatDef);
-            }
+            }*/
         }
 
         public override void ExposeData() {
@@ -187,7 +236,8 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref storingGlobalScale, "storing_global_scale", 1f);
             Scribe_Values.Look(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "int_to_use_DS", Intelligence.Humanlike);
             Scribe_Values.Look(ref intelligenceWasChanged, "int_was_changed", false);
-            Scribe_Values.Look(ref architectMenuDesignationCatDefDefName, "architect_desig", "LWM_DS_Storage");
+            // Architect Menu:
+            Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
         }
     }
 

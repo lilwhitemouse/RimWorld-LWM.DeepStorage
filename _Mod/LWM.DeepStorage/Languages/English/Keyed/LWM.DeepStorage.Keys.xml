@@ -23,7 +23,7 @@
   <LWMDSstoringGlobalScale>Global Storing Time:  {0}%\nIf you want to adjust how long it takes pawns to store items (maybe you think it takes too long), you can adjust this setting, and it will apply to all storage units.</LWMDSstoringGlobalScale>
   <LWMDSstoringTimeConsidersStackSize>Does storing time consider stack size?</LWMDSstoringTimeConsidersStackSize>
   <LWMDSstoringTimeConsidersStackSizeDesc>If selected (default), storing 75 of something may take longer than storing 3.  This mainly affects Skips.  You probably want to turn this off if you are using a mod that makes stack sizes really big.</LWMDSstoringTimeConsidersStackSizeDesc>
-  <LWMDSarchitectMenuSettings>Location on Architect Menu:</LWMDSarchitectMenuSettings>
+  <LWM_DS_Storage_ArchitectMenuSettings>Location on Architect Menu:</LWM_DS_Storage_ArchitectMenuSettings>
   <!-- HugsLib Settings Keys: -->
   <LWM_DS_IntTitle>Intelligence Required to Haul to Deep Storage</LWM_DS_IntTitle>
   <LWM_DS_IntDesc>This option can let your animals/robots/whatever haul TO Deep Storage.\nMost alien races have "Humanlike" or better.  Most animals are "animal."  Vanilla Mechanoids are "tool users"  Robots for various mods?  Your guess is as good as mine.\nNote that ANYONE may take FROM Deep Storage.</LWM_DS_IntDesc>
