@@ -13,13 +13,15 @@ namespace LWM.DeepStorage
 
         // Architect Menu:
         // The defName for the DesignationCategoryDef the mod items are in by default:
-        // To change for another mod, change this const string, and then add to the
+        // To use this code in another mod, change this const string, and then add to the
         // file ModName/Languages/English(etc)/Keyed/settings(or whatever).xml:
         // <[const string]_ArchitectMenuSettings>Location on Architect Menu:</...>
         // Copy and paste the rest of anything that says "Architect Menu"
         // Change the list of new mod items in the final place "Architect Menu" tells you to
         private const string architectMenuDefaultDesigCatDef="LWM_DS_Storage";
         private static string architectMenuDesigCatDef=architectMenuDefaultDesigCatDef;
+        //   For later use if def is removed from menu...so we can put it back:
+        private static DesignationCategoryDef architectMenuActualDef=null;
 
 
 //        public static DesignationCategoryDef architectLWM_DS_Storage_DesignationCatDef=null; // keep track of this as it may be removed from DefDatabase
@@ -94,7 +96,9 @@ namespace LWM.DeepStorage
                 // Float menu for architect Menu choice:
                 List<FloatMenuOption> alist = new List<FloatMenuOption>();
                 var arl=DefDatabase<DesignationCategoryDef>.AllDefsListForReading; //all reading list
-                alist.Add(new FloatMenuOption(DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef).LabelCap
+                //oops:
+//                alist.Add(new FloatMenuOption(DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef).LabelCap
+                alist.Add(new FloatMenuOption(architectMenuActualDef.LabelCap
                                               +" ("+"default".Translate()+")",
                                               delegate () {
                                                   Utils.Mess(Utils.DBF.Settings, "Architect Menu placement set to default Storage");
@@ -137,6 +141,7 @@ namespace LWM.DeepStorage
 
         public static void DefsLoaded() {
             // Todo? If settings are different from defaults, then:
+            
             Setup();
             // Architect Menu:
             if (architectMenuDesigCatDef != architectMenuDefaultDesigCatDef) {
@@ -156,6 +161,12 @@ namespace LWM.DeepStorage
             DesignationCategoryDef prevDesignationCatDef;
             if (loadingOnStartup) prevDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);
             else prevDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDesigCatDef, false);
+            // If switching to default, put default into def database.
+            if (newDefName == architectMenuDefaultDesigCatDef) {
+                if (DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef, false)==null) {
+                    DefDatabase<DesignationCategoryDef>.Add(architectMenuActualDef);
+                }
+            }
             DesignationCategoryDef newDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(newDefName);
             if (newDesignationCatDef == null) {
                 Log.Error("Failed to change Architect Menu settings!");
@@ -169,21 +180,72 @@ namespace LWM.DeepStorage
             // Flush designation category defs:
             prevDesignationCatDef?.ResolveReferences();
             newDesignationCatDef.ResolveReferences();
-            // To remove mod's DesignationCategoryDef from Architect menu:
+            // To remove the mod's DesignationCategoryDef from Architect menu:
             //   remove it from RimWorld.MainTabWindow_Architect's desPanelsCached.
-            // We remove it from the desPanelsCached rather than removing the def from
-            //   the DefDatabasea nd then re-doing the entire caching process, because:
-            //   1.  Removing a def from the DefDatabase is probably a bad idea:
-            //       entries have an index; who knows what happens if it changes?
-            //   2.  Compatibility with other mods is somewhat safer this way.
-            List<ArchitectCategoryTab> archMenu=(List<ArchitectCategoryTab>)Harmony.AccessTools
+            // To do that, we remove it from the DefDatabase and then rebuild the cache.
+            //   Removing only the desPanelsCached entry does work: the entry is
+            //   recreated when a new game is started.  So if the options are changed
+            //   and then a new game started...the change gets lost.
+            // So we have to update the DefsDatabase.
+            // This is potentially difficult: the .index can get changed, and that
+            //   can cause problems.  But nothing seems to use the .index for any
+            //   DesignationCategoryDef except for the menu, so manually adjusting
+            //   the DefsDatabase is safe enough:
+            if (newDefName != architectMenuDefaultDesigCatDef) {
+                DesignationCategoryDef tmp;
+                if ((tmp=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef, false))!=null) {
+                    bool isCategoryEmpty=true;
+//                    Log.Message("Removing old menu!");
+/*                    var b=typeof(DefDatabase<>).MakeGenericType(new Type[] {typeof(DesignationCategoryDef)});
+                    var c=Harmony.AccessTools.Method(b, "Remove");
+                    if (c==null) Log.Error("Whelp, c is null"); */
+                    // DefDatabase<DesignationCategoryDef>.Remove(tmp);
+                    if (!tmp.AllResolvedDesignators.NullOrEmpty()) {
+                        foreach (var d in tmp.AllResolvedDesignators) {
+                            if (!tmp.specialDesignatorClasses.Contains(d)) {
+                                isCategoryEmpty=false;
+                                break;
+                            }
+                        }
+                    }
+                    if (isCategoryEmpty) // DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Remove(tmp);
+                        typeof(DefDatabase<>).MakeGenericType(new Type[] {typeof(DesignationCategoryDef)})
+                            .GetMethod("Remove", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
+                            .Invoke (null, new object [] { tmp });
+                    // No need to SetIndices() or anything: .index are not used for DesignationCategoryDef(s).  I hope.
+                }
+            }
+            // Note that this is not perfect: if the default menu was already open, it will still be open (and
+            //   empty) when the settings windows are closed.  Whatever.
+
+            // Clear the architect menu cache:
+            typeof(RimWorld.MainTabWindow_Architect).GetMethod("CacheDesPanels", System.Reflection.BindingFlags.NonPublic |
+                                                                     System.Reflection.BindingFlags.Instance)
+                .Invoke(((MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow), null);
+
+            // Oh, and actually change the setting that's stored:
+            architectMenuDesigCatDef=newDefName;
+
+/*            List<ArchitectCategoryTab> archMenu=(List<ArchitectCategoryTab>)Harmony.AccessTools
                 .Field(typeof(RimWorld.MainTabWindow_Architect), "desPanelsCached")
                 .GetValue((MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow);
             archMenu.RemoveAll(t=>t.def.defName==architectMenuDefaultDesigCatDef);
 
             archMenu.Add(new ArchitectCategoryTab(newDesignationCatDef));
             archMenu.Sort((a,b)=>a.def.order.CompareTo(b.def.order));
-            architectMenuDesigCatDef=newDefName;
+            archMenu.SortBy(a=>a.def.order, b=>b.def.order); // May need (type of var a)=>...
+
+            */
+
+
+
+
+
+            
+/*            Harmony.AccessTools.Method(typeof(RimWorld.MainTabWindow_Architect), "CacheDesPanels")
+                .Invoke(((MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow), null);*/
+
+
 /*
             
             if (architectMenuDesignationCatDefDefName=="LWM_DS_Storage") { // default
@@ -207,8 +269,8 @@ namespace LWM.DeepStorage
             prevDesignationCatDef?.ResolveReferences();
             architectCurrentDesignationCatDef.ResolveReferences();
             
-//            Harmony.AccessTools.Method(typeof(RimWorld.MainTabWindow_Architect), "CacheDesPanels")
-//                .Invoke((), null);
+            Harmony.AccessTools.Method(typeof(RimWorld.MainTabWindow_Architect), "CacheDesPanels")
+                .Invoke((), null);
 */
             Utils.Warn(Utils.DBF.Settings, "Settings changed architect menu");
             
@@ -219,6 +281,9 @@ namespace LWM.DeepStorage
         //     (testing shows this is VERY correct!!)
         //   There's probably some rimworld annotation that I could use, but this works:
         private static void Setup() {
+            if (architectMenuActualDef==null) {
+                architectMenuActualDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);
+            }
             if (allDeepStorageUnits.NullOrEmpty()) {
                 allDeepStorageUnits=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.HasComp(typeof(CompDeepStorage)));
                 Utils.Mess(Utils.DBF.Settings, "  allDeepStorageUnits initialized: "+allDeepStorageUnits.Count+" units");
