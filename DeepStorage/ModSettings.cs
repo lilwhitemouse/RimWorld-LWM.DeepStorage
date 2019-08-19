@@ -21,9 +21,11 @@ namespace LWM.DeepStorage
         private const string architectMenuDefaultDesigCatDef="LWM_DS_Storage";
         private static string architectMenuDesigCatDef=architectMenuDefaultDesigCatDef;
         private static bool architectMenuAlwaysShowCategory=false;
+        private static bool architectMenuMoveALLStorageItems=true;
         //   For later use if def is removed from menu...so we can put it back:
         private static DesignationCategoryDef architectMenuActualDef=null;
         private static bool architectMenuAlwaysShowTmp=false;
+        private static bool architectMenuMoveALLTmp=true;
 
 
 //        public static DesignationCategoryDef architectLWM_DS_Storage_DesignationCatDef=null; // keep track of this as it may be removed from DefDatabase
@@ -137,6 +139,22 @@ namespace LWM.DeepStorage
                 }
                 architectMenuAlwaysShowTmp=architectMenuAlwaysShowCategory;
             }
+            l.CheckboxLabeled((architectMenuDefaultDesigCatDef+"_ArchitectMenuMoveALL").Translate(),
+                              ref architectMenuMoveALLStorageItems,
+                              (architectMenuDefaultDesigCatDef+"_ArchitectMenuMoveALLDesc").Translate());
+            if (architectMenuMoveALLStorageItems != architectMenuMoveALLTmp) {
+                //  If turning off "all things in Storage", make sure to
+                //    dump all the items into Furniture, to make sure they
+                //    can at least be found somewhere.
+                string ctmp=architectMenuDesigCatDef;
+                if (architectMenuMoveALLStorageItems==false) {
+                    architectMenuMoveALLStorageItems=true;
+                    ArchitectMenu_ChangeLocation("Furniture");
+                    architectMenuMoveALLStorageItems=false;
+                }
+                ArchitectMenu_ChangeLocation(ctmp);
+                architectMenuMoveALLTmp=architectMenuMoveALLStorageItems;
+            }
             // finished drawing settings for Architect Menu
 
             l.End();
@@ -144,17 +162,13 @@ namespace LWM.DeepStorage
 
         public static void DefsLoaded() {
             // Todo? If settings are different from defaults, then:
-            
             Setup();
             // Architect Menu:
-            if (architectMenuDesigCatDef != architectMenuDefaultDesigCatDef) {
+            if (architectMenuDesigCatDef != architectMenuDefaultDesigCatDef ||
+                architectMenuMoveALLStorageItems) // in which case, we need to redo menu anyway
+            {
                 ArchitectMenu_ChangeLocation(architectMenuDesigCatDef, true);
             }
-        }
-
-        public static void SettingsChanged() {
-            Setup();
-
         }
 
         // Architect Menu:
@@ -174,7 +188,17 @@ namespace LWM.DeepStorage
             }
             // Architect Menu: Specify all your buildings/etc:
             //   var allMyBuildings=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.HasComp(etc)));
-            foreach (var d in allDeepStorageUnits) {
+            List<ThingDef> itemsToMove=allDeepStorageUnits;
+            // We can move ALL the storage buildings!  If the player wants.  I do.
+            if (architectMenuMoveALLStorageItems) {
+//                Log.Error("Trying to mvoe everythign:");
+                var desigProduction=DefDatabase<DesignationCategoryDef>.GetNamed("Production");
+                itemsToMove=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>((x.thingClass==typeof(Building_Storage) ||
+                                                                                     x.thingClass.IsSubclassOf(typeof(Building_Storage)))
+                                                                                    && x.designationCategory!=desigProduction
+                                                                                    ));
+            }
+            foreach (var d in itemsToMove) {
                 d.designationCategory=newDesignationCatDef;
             }
             // Flush designation category defs:
@@ -322,6 +346,7 @@ namespace LWM.DeepStorage
             // Architect Menu:
             Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
             Scribe_Values.Look(ref architectMenuAlwaysShowCategory, "architect_show", false);
+            Scribe_Values.Look(ref architectMenuMoveALLStorageItems, "architect_moveall", true);
         }
     }
 
