@@ -1,0 +1,32 @@
+﻿<Patch>
+   <!-- Compatibility for RimCuisine2. Allows processed foods (eg: dried meat) to be stored in food baskets. Allows new foods and drinks to be stored on the meal rack.-->
+   <!-- Credits to DrZhivago for this, the well-fed counterreveloutionary -->
+   <!--=====Rim Cuisine=====-->
+   <Operation Class="PatchOperationFindMod">
+      <mods>
+         <li>[1.0] RimCuisine 2 Core</li>
+      </mods>
+      <match Class="PatchOperationSequence">
+         <success>Always</success>
+         <operations>
+            <li Class="PatchOperationAdd">
+               <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/categories</xpath>
+               <value>
+                  <li>RC2_FoodProcessed</li>                  <!-- Let the user sort out exactly how they want to handle processed food-->
+               </value>
+            </li>
+            <li Class="PatchOperationAdd">
+               <xpath>/Defs/ThingDef[defName="LWM_MealRack"]/building/fixedStorageSettings/filter/categories</xpath>
+               <value>
+                  <li>RC2_FoodMealsJoy</li>
+                  <li>RC2_DrinkMealsJoy</li>
+                  <li>RC2_FoodProcessed</li>
+               </value>
+            </li>
+            <li Class="LWM.DeepStorage.PatchMessage">
+               <message>LWM Deep Storage: activated compatibility patch for RimCuisine2</message>
+            </li>
+         </operations>
+      </match>
+   </Operation>
+</Patch>
