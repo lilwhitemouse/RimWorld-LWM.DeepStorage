@@ -99,23 +99,28 @@ namespace LWM.DeepStorage
         }
 
         static bool OverCapacity(Map map, Thing thing, ref StoragePriority storagePriority) {
+            Utils.Warn(ShouldRemoveFromStorage, "LWM.DeepStorage: Over Capacity Called."
+                       +(map==null ? "  Map is NULL (this is bad)." : ("  Map: "+map))
+                       +(thing==null? "  Thing is NULL (this is bad).":("  Thing: "+thing.stackCount+thing)));
             if (!thing.Spawned) return false;
             if (storagePriority == StoragePriority.Unstored) return false;                
             CompDeepStorage cds = (thing.Position.GetSlotGroup(map)?.parent as ThingWithComps)?.GetComp<CompDeepStorage>();
             List<Thing> l;
             // What if it's a slotGroup put down after someone moved/destroyed a DSU?
             //   Because we CAN still end up with more than one thing on the ground.
+            //   (Also, TODO: Other mods can possibly cause this.  ...Hmmm...)
             if (cds == null) {
                 l=map.thingGrid.ThingsListAt(thing.Position);
                 for (int i=0; i<l.Count;i++) {
+                    Utils.Mess(ShouldRemoveFromStorage, "LWM.DeepStorage: Not in DSU: looking at item "+l[i]);
                     if (l[i].def.EverStorable(false)) {
-                        if (thing==l[i])
+                        if (thing==l[i]) // first thing is okay.
                             return false;
                         Utils.Warn(ShouldRemoveFromStorage,
                                    "LWM.DeepStorage: "+thing.stackCount+thing+
                                    " is not in a DSU and there is already a thing at "+thing.Position);
                         storagePriority=StoragePriority.Unstored;
-                        return true;
+                        return true; // anything else is over capactiy!
                     }
                 }
             }
@@ -130,7 +135,7 @@ namespace LWM.DeepStorage
             }
             float totalWeightStoredHere=0f;  //mass, or bulk, etc.
             var stacksStoredHere=0;
-
+            Utils.Mess(ShouldRemoveFromStorage, "  Checking ThingListAt now...");
             l=map.thingGrid.ThingsListAt(thing.Position);
             for (int i=0; i<l.Count;i++) {
                 Thing thingInStorage=l[i];
