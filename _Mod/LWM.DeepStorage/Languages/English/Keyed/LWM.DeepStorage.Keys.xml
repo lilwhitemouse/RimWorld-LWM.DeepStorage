@@ -24,6 +24,8 @@
   <LWMDSstoringTimeConsidersStackSize>Does storing time consider stack size?</LWMDSstoringTimeConsidersStackSize>
   <LWMDSstoringTimeConsidersStackSizeDesc>If selected (default), storing 75 of something may take longer than storing 3.  This mainly affects Skips.  You probably want to turn this off if you are using a mod that makes stack sizes really big.</LWMDSstoringTimeConsidersStackSizeDesc>
   <LWM_DS_Storage_ArchitectMenuSettings>Location on Architect Menu:</LWM_DS_Storage_ArchitectMenuSettings>
+  <LWM_DS_Storage_ArchitectMenuAlwaysShowCategory>Always show the Storage category?</LWM_DS_Storage_ArchitectMenuAlwaysShowCategory>
+  <LWM_DS_Storage_ArchitectMenuAlwaysShowDesc>The default place for all Deep Storage units is in the "Storage" category in the Architect Menu.  If you change it, by default, the Storage category goes away.  Check this if you want it to always be there, even if there are no Deep Storage units in it.</LWM_DS_Storage_ArchitectMenuAlwaysShowDesc>
   <!-- HugsLib Settings Keys: -->
   <LWM_DS_IntTitle>Intelligence Required to Haul to Deep Storage</LWM_DS_IntTitle>
   <LWM_DS_IntDesc>This option can let your animals/robots/whatever haul TO Deep Storage.\nMost alien races have "Humanlike" or better.  Most animals are "animal."  Vanilla Mechanoids are "tool users"  Robots for various mods?  Your guess is as good as mine.\nNote that ANYONE may take FROM Deep Storage.</LWM_DS_IntDesc>

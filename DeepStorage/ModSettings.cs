@@ -20,8 +20,10 @@ namespace LWM.DeepStorage
         // Change the list of new mod items in the final place "Architect Menu" tells you to
         private const string architectMenuDefaultDesigCatDef="LWM_DS_Storage";
         private static string architectMenuDesigCatDef=architectMenuDefaultDesigCatDef;
+        private static bool architectMenuAlwaysShowCategory=false;
         //   For later use if def is removed from menu...so we can put it back:
         private static DesignationCategoryDef architectMenuActualDef=null;
+        private static bool architectMenuAlwaysShowTmp=false;
 
 
 //        public static DesignationCategoryDef architectLWM_DS_Storage_DesignationCatDef=null; // keep track of this as it may be removed from DefDatabase
@@ -98,11 +100,10 @@ namespace LWM.DeepStorage
                 var arl=DefDatabase<DesignationCategoryDef>.AllDefsListForReading; //all reading list
                 //oops:
 //                alist.Add(new FloatMenuOption(DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef).LabelCap
-                alist.Add(new FloatMenuOption(architectMenuActualDef.LabelCap
-                                              +" ("+"default".Translate()+")",
+                alist.Add(new FloatMenuOption(architectMenuActualDef.LabelCap +" ("+"default".Translate()+")",
                                               delegate () {
                                                   Utils.Mess(Utils.DBF.Settings, "Architect Menu placement set to default Storage");
-                                                  ChangeArchitectMenuLocation(architectMenuDefaultDesigCatDef);
+                                                  ArchitectMenu_ChangeLocation(architectMenuDefaultDesigCatDef);
 //                                                  architectCurrentDesignationCatDef=architectLWM_DS_Storage_DesignationCatDef;
 //                                                  architectMenuDesignationCatDefDefName="LWM_DS_Storage";
 //
@@ -111,31 +112,33 @@ namespace LWM.DeepStorage
                 // Architect Menu:  You may remove the "Furniture" references here if you wish
                 alist.Add(new FloatMenuOption(DefDatabase<DesignationCategoryDef>.GetNamed("Furniture").LabelCap,
                                               delegate () {
-//                                                  architectCurrentDesignationCatDef=
-//                                                      DefDatabase<DesignationCategoryDef>.GetNamed("Furniture");
                                                   Utils.Mess(Utils.DBF.Settings, "Architect Menu placement set to Furniture.");
-                                                  ChangeArchitectMenuLocation("Furniture");
-//                                                  architectMenuDesignationCatDefDefName="Furniture";
-//
-//                                                  SettingsChanged();
+                                                  ArchitectMenu_ChangeLocation("Furniture");
                                               }, MenuOptionPriority.Default,null,null,0f,null,null));
                 foreach (var adcd in arl) { //architect designation cat def
                     if (adcd.defName!=architectMenuDefaultDesigCatDef && adcd.defName!="Furniture")
                         alist.Add(new FloatMenuOption(adcd.LabelCap,
                                                       delegate () {
-//                                                          architectCurrentDesignationCatDef=adcd;
-//                                                          architectMenuDesignationCatDefDefName=adcd.defName;
                                                           Utils.Mess(Utils.DBF.Settings, "Architect Menu placement set to "+adcd);
-                                                          ChangeArchitectMenuLocation(adcd.defName);
-//                                                          SettingsChanged();
+                                                          ArchitectMenu_ChangeLocation(adcd.defName);
                                                       }, MenuOptionPriority.Default,null,null,0f,null,null));
                 }
                 Find.WindowStack.Add(new FloatMenu(alist));
             }
+            l.CheckboxLabeled((architectMenuDefaultDesigCatDef+"_ArchitectMenuAlwaysShowCategory").Translate(),
+                              ref architectMenuAlwaysShowCategory,
+                              (architectMenuDefaultDesigCatDef+"_ArchitectMenuAlwaysShowDesc").Translate());
+            // Do we always display?  If so, display:
+            if (architectMenuAlwaysShowCategory != architectMenuAlwaysShowTmp) {
+                if (architectMenuAlwaysShowCategory) {
+                    ArchitectMenu_Show();
+                } else if (architectMenuDesigCatDef != architectMenuDefaultDesigCatDef) {
+                    ArchitectMenu_Hide();
+                }
+                architectMenuAlwaysShowTmp=architectMenuAlwaysShowCategory;
+            }
             // finished drawing settings for Architect Menu
 
-
-               
             l.End();
         }
 
@@ -145,9 +148,8 @@ namespace LWM.DeepStorage
             Setup();
             // Architect Menu:
             if (architectMenuDesigCatDef != architectMenuDefaultDesigCatDef) {
-                ChangeArchitectMenuLocation(architectMenuDesigCatDef, true);
+                ArchitectMenu_ChangeLocation(architectMenuDesigCatDef, true);
             }
-//            SettingsChanged();
         }
 
         public static void SettingsChanged() {
@@ -156,16 +158,14 @@ namespace LWM.DeepStorage
         }
 
         // Architect Menu:
-        public static void ChangeArchitectMenuLocation(string newDefName, bool loadingOnStartup=false) {
+        public static void ArchitectMenu_ChangeLocation(string newDefName, bool loadingOnStartup=false) {
 //            Utils.Warn(Utils.DBF.Settings, "SettingsChanged()");
             DesignationCategoryDef prevDesignationCatDef;
             if (loadingOnStartup) prevDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);
             else prevDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDesigCatDef, false);
             // If switching to default, put default into def database.
             if (newDefName == architectMenuDefaultDesigCatDef) {
-                if (DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef, false)==null) {
-                    DefDatabase<DesignationCategoryDef>.Add(architectMenuActualDef);
-                }
+                ArchitectMenu_Show();
             }
             DesignationCategoryDef newDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(newDefName);
             if (newDesignationCatDef == null) {
@@ -191,15 +191,11 @@ namespace LWM.DeepStorage
             //   can cause problems.  But nothing seems to use the .index for any
             //   DesignationCategoryDef except for the menu, so manually adjusting
             //   the DefsDatabase is safe enough:
-            if (newDefName != architectMenuDefaultDesigCatDef) {
-                DesignationCategoryDef tmp;
-                if ((tmp=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef, false))!=null) {
-                    if (tmp.AllResolvedDesignators.Count <= tmp.specialDesignatorClasses.Count)
-                        // DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Remove(tmp);
-                        typeof(DefDatabase<>).MakeGenericType(new Type[] {typeof(DesignationCategoryDef)})
-                            .GetMethod("Remove", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
-                            .Invoke (null, new object [] { tmp });
-/*                    bool isCategoryEmpty=true;
+            if (!architectMenuAlwaysShowCategory && newDefName != architectMenuDefaultDesigCatDef) {
+                ArchitectMenu_Hide();
+//                    if (tmp.AllResolvedDesignators.Count <= tmp.specialDesignatorClasses.Count)
+//                        isCategoryEmpty=false;
+/*                    
 //                    Log.Message("Removing old menu!");
                     // DefDatabase<DesignationCategoryDef>.Remove(tmp);
                     if (!tmp.AllResolvedDesignators.NullOrEmpty()) {
@@ -210,17 +206,12 @@ namespace LWM.DeepStorage
                             }
                         }
                     }
-                    if (isCategoryEmpty) */
-                    // No need to SetIndices() or anything: .index are not used for DesignationCategoryDef(s).  I hope.
-                }
+                    */
+//                    if (isCategoryEmpty)
             }
             // Note that this is not perfect: if the default menu was already open, it will still be open (and
             //   empty) when the settings windows are closed.  Whatever.
 
-            // Clear the architect menu cache:
-            typeof(RimWorld.MainTabWindow_Architect).GetMethod("CacheDesPanels", System.Reflection.BindingFlags.NonPublic |
-                                                                     System.Reflection.BindingFlags.Instance)
-                .Invoke(((MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow), null);
 
             // Oh, and actually change the setting that's stored:
             architectMenuDesigCatDef=newDefName;
@@ -274,7 +265,35 @@ namespace LWM.DeepStorage
             Utils.Warn(Utils.DBF.Settings, "Settings changed architect menu");
             
         }
+        public static void ArchitectMenu_Hide() {
+            DesignationCategoryDef tmp;
+            if ((tmp=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef, false))!=null
+                && !architectMenuAlwaysShowCategory) {
+                // DefDatabase<DesignationCategoryDef>.Remove(tmp);
+                typeof(DefDatabase<>).MakeGenericType(new Type[] {typeof(DesignationCategoryDef)})
+                    .GetMethod("Remove", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke (null, new object [] { tmp });
+                // No need to SetIndices() or anything: .index are not used for DesignationCategoryDef(s).  I hope.
+            }
+            ArchitectMenu_ClearCache();
+        }
 
+        public static void ArchitectMenu_Show() {
+            if (DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef, false)==null) {
+                DefDatabase<DesignationCategoryDef>.Add(architectMenuActualDef);
+            }
+            ArchitectMenu_ClearCache();
+        }
+
+        public static void ArchitectMenu_ClearCache() {
+            // Clear the architect menu cache:
+            //   Run the main Architect.TabWindow.CacheDesPanels()
+            typeof(RimWorld.MainTabWindow_Architect).GetMethod("CacheDesPanels", System.Reflection.BindingFlags.NonPublic |
+                                                                     System.Reflection.BindingFlags.Instance)
+                .Invoke(((MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow), null);
+        }
+
+        
         // Setup stuff that needs to be run before settings can be used.
         //   I don't risk using a static constructor because I must make sure defs have been finished loading.
         //     (testing shows this is VERY correct!!)
@@ -302,6 +321,7 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref intelligenceWasChanged, "int_was_changed", false);
             // Architect Menu:
             Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
+            Scribe_Values.Look(ref architectMenuAlwaysShowCategory, "architect_show", false);
         }
     }
 
