@@ -194,11 +194,13 @@ namespace LWM.DeepStorage
             if (newDefName != architectMenuDefaultDesigCatDef) {
                 DesignationCategoryDef tmp;
                 if ((tmp=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef, false))!=null) {
-                    bool isCategoryEmpty=true;
+                    if (tmp.AllResolvedDesignators.Count <= tmp.specialDesignatorClasses.Count)
+                        // DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Remove(tmp);
+                        typeof(DefDatabase<>).MakeGenericType(new Type[] {typeof(DesignationCategoryDef)})
+                            .GetMethod("Remove", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
+                            .Invoke (null, new object [] { tmp });
+/*                    bool isCategoryEmpty=true;
 //                    Log.Message("Removing old menu!");
-/*                    var b=typeof(DefDatabase<>).MakeGenericType(new Type[] {typeof(DesignationCategoryDef)});
-                    var c=Harmony.AccessTools.Method(b, "Remove");
-                    if (c==null) Log.Error("Whelp, c is null"); */
                     // DefDatabase<DesignationCategoryDef>.Remove(tmp);
                     if (!tmp.AllResolvedDesignators.NullOrEmpty()) {
                         foreach (var d in tmp.AllResolvedDesignators) {
@@ -208,10 +210,7 @@ namespace LWM.DeepStorage
                             }
                         }
                     }
-                    if (isCategoryEmpty) // DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Remove(tmp);
-                        typeof(DefDatabase<>).MakeGenericType(new Type[] {typeof(DesignationCategoryDef)})
-                            .GetMethod("Remove", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
-                            .Invoke (null, new object [] { tmp });
+                    if (isCategoryEmpty) */
                     // No need to SetIndices() or anything: .index are not used for DesignationCategoryDef(s).  I hope.
                 }
             }
