@@ -133,18 +133,17 @@ namespace LWM.DeepStorage
             Rect massRect = new Rect(width,y,60f,28f);
             RimWorld.Planet.CaravanThingsTabUtility.DrawMass(thing, massRect);
             /************************* How soon does it rot? *************************/
-            if (thing.def.IsNutritionGivingIngestible) {
-                CompRottable cr = thing.TryGetComp<CompRottable>();
-                if (cr != null) {
-                    int rotTicks=Math.Min(int.MaxValue, cr.TicksUntilRotAtCurrentTemp);
-                    if (rotTicks < 36000000) {
-                        width-=60f;  // Caravans use 75f?  TransferableOneWayWidget.cs
-                        Rect rotRect=new Rect(width,y,60f,28f);
-                        GUI.color = Color.yellow;
-                        Widgets.Label(rotRect, (rotTicks/60000f).ToString("0.#"));
-                        GUI.color = Color.white;
-                        TooltipHandler.TipRegion(rotRect, "DaysUntilRotTip".Translate());
-                    }
+            // Some mods add non-food items that rot, so we track those too:
+            CompRottable cr = thing.TryGetComp<CompRottable>();
+            if (cr != null) {
+                int rotTicks=Math.Min(int.MaxValue, cr.TicksUntilRotAtCurrentTemp);
+                if (rotTicks < 36000000) {
+                    width-=60f;  // Caravans use 75f?  TransferableOneWayWidget.cs
+                    Rect rotRect=new Rect(width,y,60f,28f);
+                    GUI.color = Color.yellow;
+                    Widgets.Label(rotRect, (rotTicks/60000f).ToString("0.#"));
+                    GUI.color = Color.white;
+                    TooltipHandler.TipRegion(rotRect, "DaysUntilRotTip".Translate());
                 }
             } // finish how long food will last
 
