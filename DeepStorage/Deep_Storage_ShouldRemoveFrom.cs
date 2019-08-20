@@ -112,7 +112,8 @@ namespace LWM.DeepStorage
             if (cds == null) {
                 l=map.thingGrid.ThingsListAt(thing.Position);
                 for (int i=0; i<l.Count;i++) {
-                    Utils.Mess(ShouldRemoveFromStorage, "LWM.DeepStorage: Not in DSU: looking at item "+l[i]);
+                    Utils.Mess(ShouldRemoveFromStorage, "LWM.DeepStorage: Not in DSU: looking at item "
+                               +((l[i]!=null)?l[i].ToString():"NULL ITEM"));
                     if (l[i].def.EverStorable(false)) {
                         if (thing==l[i]) // first thing is okay.
                             return false;
