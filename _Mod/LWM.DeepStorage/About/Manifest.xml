@@ -6,5 +6,5 @@
   <loadBefore>
     <li>PickUpAndHaul</li>
   </loadBefore>
-  <manifestUri>https://github.com/lilwhitemouse/RimWorld-LWM.DeepStorage/blob/master/_Mod/LWM.DeepStorage/About/Manifest.xml</manifestUri>
+  <manifestUri>https://raw.githubusercontent.com/lilwhitemouse/RimWorld-LWM.DeepStorage/master/_Mod/LWM.DeepStorage/About/Manifest.xml</manifestUri>
 </Manifest>
