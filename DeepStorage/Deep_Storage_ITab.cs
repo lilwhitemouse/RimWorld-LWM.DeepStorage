@@ -73,7 +73,7 @@ namespace LWM.DeepStorage
                 #endif
                 );
             curY += 5f;
-            // Show count of contents, mass, etc:
+            /****************** Header: Show count of contents, mass, etc: ****************/
             DisplayHeaderInfo(ref curY, position.width-16f,
                               storageBuilding, cabinetStorageCells.Count, listOfStoredItems);
 
@@ -105,6 +105,75 @@ namespace LWM.DeepStorage
             GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
         }
+
+        // LWM rewrote most of this method to meet their implementation of CompDeepStorage
+        private void DisplayHeaderInfo(ref float curY, float width, Building_Storage building, 
+                                       int numCells, List<Thing> itemsList) {
+            // Header information regardless of what the storage building is:
+            Rect rect = new Rect(0f, curY, width, 22f);
+            // TODO: Add hooks for other mods:
+            //   E.g., StockpileForDisaster has a nice little checkbox that shows whether 
+            //   pawns can freely take from the unit, or whether restrictions are in effect
+
+            CompDeepStorage cds = building.GetComp<CompDeepStorage>();
+            //if (cds == null) return; // what are we even doing here, mmm?  In a vanilla shelf, probably!
+            if (cds!=null) {
+                bool flagUseStackInsteadOfItem=false; // "3/4 Items" vs "3/4 Stacks"
+                float itemsTotalMass = 0; // or Bulk for CE ;p
+                for (int i=0; i<itemsList.Count; i++) {
+                    itemsTotalMass += itemsList[i].GetStatValue(cds.stat, true) * (float)itemsList[i].stackCount;
+                    if (itemsList[i].def.stackLimit > 1) flagUseStackInsteadOfItem=true;
+                }
+                if (cds.limitingTotalFactorForCell > 0f) {
+                    string tmpLabel="LWM.ContentsHeaderItemsMass";
+                    if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentsHeaderStacksMass";
+                    Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
+                                  cds.maxNumberStacks*numCells,
+                                  cds.stat.ToString().ToLower(), itemsTotalMass.ToString("0.##"),
+                                  (cds.limitingTotalFactorForCell * numCells).ToString("0.##")));
+                } else {
+                    string tmpLabel="LWM.ContentsHeaderItems";
+                    if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentsHeaderStacks";
+                    Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
+                                  cds.maxNumberStacks*numCells,
+                                  cds.stat.ToString().ToLower(), itemsTotalMass.ToString("0.##")));
+                }
+                curY += 22f;
+                /* Limiting factor for Item: what's too damn big */
+                if (cds.limitingFactorForItem > 0f) {
+                    rect = new Rect(0f, curY, width, 22f);
+                    Widgets.Label(rect, "LWM.ContentsHeaderMaxSize".Translate(
+                                      cds.stat.ToString().ToLower(),
+                                      cds.limitingFactorForItem.ToString("0.##")
+                                      ));
+                    curY+=22f;
+                }
+            }
+            /**** Pawn reservations.  Displaying who is using the storage building has cut   ****
+             *                        down on questions in the Steam thread. Can I get a wahoo? */
+            List<Pawn>pwns=building.Map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer);
+            if (pwns.Count > 0) {
+                listOfReservingPawns.Clear();
+                List<IntVec3> buildingCells=building.AllSlotCellsList();
+                for (int i=0; i<buildingCells.Count; i++) {
+                    Pawn p=building.Map.reservationManager.FirstRespectedReserver(buildingCells[i], pwns[0]);
+                    if (p!=null) {
+                        // (p can possibly be animals)
+                        listOfReservingPawns.Add(p.LabelShort);
+                    }
+                }
+                if (listOfReservingPawns.Count > 0) {
+                    rect = new Rect(0f, curY, width, 22f);   
+                    if (listOfReservingPawns.Count==1) {
+                        Widgets.Label(rect, "LWM.ContentsHeaderPawnUsing".Translate(listOfReservingPawns[0]));
+                    } else {
+                        Widgets.Label(rect, "LWM.ContentsHeaderPawnsUsing".Translate(
+                                          String.Join(", ", listOfReservingPawns.ToArray())));
+                    }
+                    curY+=22f;
+                }
+            } // end checking pawn reservations
+        } // end Header for ITab
 
         private void DrawThingRow(ref float y, float width, Thing thing) {
             // Sumghai started from the right, as several things in vanilla do, and that's fine with me:
@@ -184,73 +253,7 @@ namespace LWM.DeepStorage
             }
             TooltipHandler.TipRegion(itemRect, text2);
             y += 28f;
-        }
-
-        // LWM rewrote most of this method to meet their implementation of CompDeepStorage
-        private void DisplayHeaderInfo(ref float curY, float width, Building_Storage building, 
-                                       int numCells, List<Thing> itemsList) {
-            // Header information regardless of what the storage building is:
-            Rect rect = new Rect(0f, curY, width, 22f);
-            // TODO: Add hooks for other mods:
-            //   E.g., StockpileForDisaster has a nice little checkbox that shows whether 
-            //   pawns can freely take from the unit, or whether restrictions are in effect
-
-            CompDeepStorage cds = building.GetComp<CompDeepStorage>();
-            if (cds == null) return; // what are we even doing here, mmm?  In a vanilla shelf, probably!
-
-            bool flagUseStackInsteadOfItem=false; // "3/4 Items" vs "3/4 Stacks"
-            float itemsTotalMass = 0; // or Bulk for CE ;p
-            for (int i=0; i<itemsList.Count; i++) {
-                itemsTotalMass += itemsList[i].GetStatValue(cds.stat, true) * (float)itemsList[i].stackCount;
-                if (itemsList[i].def.stackLimit > 1) flagUseStackInsteadOfItem=true;
-            }
-            if (cds.limitingTotalFactorForCell > 0f) {
-                string tmpLabel="LWM.ContentsHeaderItemsMass";
-                if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentsHeaderStacksMass";
-                Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
-                              cds.maxNumberStacks*numCells,
-                              cds.stat.ToString().ToLower(), itemsTotalMass.ToString("0.##"),
-                              (cds.limitingTotalFactorForCell * numCells).ToString("0.##")));
-            } else {
-                string tmpLabel="LWM.ContentsHeaderItems";
-                if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentsHeaderStacks";
-                Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
-                              cds.maxNumberStacks*numCells,
-                              cds.stat.ToString().ToLower(), itemsTotalMass.ToString("0.##")));
-            }
-            curY += 22f;
-            /* Limiting factor for Item: what's too damn big */
-            if (cds.limitingFactorForItem > 0f) {
-                rect = new Rect(0f, curY, width, 22f);
-                Widgets.Label(rect, "LWM.ContentsHeaderMaxSize".Translate(
-                                  cds.stat.ToString().ToLower(),
-                                  cds.limitingFactorForItem.ToString("0.##")
-                                  ));
-                curY+=22f;
-            }
-            /* Pawn reservations.  I hope this cuts down on questions in the Steam thread */
-            List<Pawn>pwns=building.Map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer);
-            if (pwns.Count > 0) {
-                listOfReservingPawns.Clear();
-                List<IntVec3> buildingCells=building.AllSlotCellsList();
-                for (int i=0; i<buildingCells.Count; i++) {
-                    Pawn p=building.Map.reservationManager.FirstRespectedReserver(buildingCells[i], pwns[0]);
-                    if (p!=null) {
-                        listOfReservingPawns.Add(p.ToString());
-                    }
-                }
-                if (listOfReservingPawns.Count > 0) {
-                    rect = new Rect(0f, curY, width, 22f);   
-                    if (listOfReservingPawns.Count==1) {
-                        Widgets.Label(rect, "LWM.ContentsHeaderPawnUsing".Translate(listOfReservingPawns[0]));
-                    } else {
-                        Widgets.Label(rect, "LWM.ContentsHeaderPawnsUsing".Translate(
-                                          String.Join(", ", listOfReservingPawns.ToArray())));
-                    }
-                    curY+=22f;
-                }
-            } // end checking pawn reservations            
-        } // end Header for ITab
+        } // end draw thing row
     } /* End itab */
     /* Now make the itab open automatically! */
     /*   Thanks to Falconne for doing this in ImprovedWorkbenches, and showing how darn useful it is! */
