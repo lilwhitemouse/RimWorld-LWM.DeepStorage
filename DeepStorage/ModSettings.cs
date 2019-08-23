@@ -10,9 +10,11 @@ namespace LWM.DeepStorage
         public static bool storingTakesTime=true;
         public static float storingGlobalScale=1f;
         public static bool storingTimeConsidersStackSize=true;
+        public static StoragePriority defaultStoragePriority=StoragePriority.Important;
 
         // Architect Menu:
         // The defName for the DesignationCategoryDef the mod items are in by default:
+        //TODO: make this a tutorial, provide link.
         // To use this code in another mod, change this const string, and then add to the
         // file ModName/Languages/English(etc)/Keyed/settings(or whatever).xml:
         // <[const string]_ArchitectMenuSettings>Location on Architect Menu:</...>
@@ -68,6 +70,20 @@ namespace LWM.DeepStorage
                 storingTakesTime=true;
                 storingGlobalScale=1f;
                 storingTimeConsidersStackSize=true;
+            }
+            l.GapLine(); // default Storing Priority
+            if ( l.ButtonTextLabeled("LWM_DS_defaultStoragePriority".Translate(),
+                                     defaultStoragePriority.Label()) ) {
+                List<FloatMenuOption> mlist = new List<FloatMenuOption>();
+                foreach (StoragePriority p in Enum.GetValues(typeof(StoragePriority))) {
+                    mlist.Add(new FloatMenuOption(p.Label(), delegate() {
+                                defaultStoragePriority=p;
+                                foreach (ThingDef d in allDeepStorageUnits) {
+                                    d.building.defaultStorageSettings.Priority=p;
+                                }
+                            }));
+                }
+                Find.WindowStack.Add(new FloatMenu(mlist));
             }
 
 
@@ -163,12 +179,10 @@ namespace LWM.DeepStorage
         public static void DefsLoaded() {
             // Todo? If settings are different from defaults, then:
             Setup();
-Log.Error("DefsLoaded");
             // Architect Menu:
             if (architectMenuDesigCatDef != architectMenuDefaultDesigCatDef ||
                 architectMenuMoveALLStorageItems) // in which case, we need to redo menu anyway
             {
-Log.Message("Changing Location on startup for reasons:");
                 ArchitectMenu_ChangeLocation(architectMenuDesigCatDef, true);
             }
         }
@@ -176,7 +190,6 @@ Log.Message("Changing Location on startup for reasons:");
         // Architect Menu:
         public static void ArchitectMenu_ChangeLocation(string newDefName, bool loadingOnStartup=false) {
 //            Utils.Warn(Utils.DBF.Settings, "SettingsChanged()");
-Log.Warning("Arch meu changing location to "+newDefName+(loadingOnStartup?" (startup)":""));
             DesignationCategoryDef prevDesignationCatDef;
             if (loadingOnStartup) prevDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);
             else prevDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDesigCatDef, false);
@@ -200,16 +213,55 @@ Log.Warning("Arch meu changing location to "+newDefName+(loadingOnStartup?" (sta
                                                                                      x.thingClass.IsSubclassOf(typeof(Building_Storage)))
                                                                                     && x.designationCategory!=desigProduction
                                                                                     ));
+                // testing:
+//                itemsToMove.AddRange(DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.defName.Contains("MURWallLight")));
             }
+            var _resolvedDesignatorsField = typeof(DesignationCategoryDef)
+                .GetField("resolvedDesignators", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             foreach (var d in itemsToMove) {
- Log.Message("Moving Item: "+d.defName+" to "+newDefName);                
+                if (d.designationCategory==null) continue; // very very possible
+//                Log.Error("Moving item "+d.defName+" (category: "+(d.designationCategory!=null?d.designationCategory.ToString():"NONE"));
+                List<Designator> resolvedDesignators= (List<Designator>)_resolvedDesignatorsField.GetValue(d.designationCategory);
+                if (d.designatorDropdown == null) {
+//                    Log.Message("No dropdown");
+                    // easy case:
+//                    Log.Message("  Removed this many entries in "+d.designationCategory+": "+
+                    resolvedDesignators.RemoveAll(x=>((x is Designator_Build) &&
+                                                      ((Designator_Build)x).PlacingDef==d));
+//                        );
+                    // Now do new:
+                    resolvedDesignators=(List<Designator>)_resolvedDesignatorsField.GetValue(newDesignationCatDef);
+                    // To make sure there are no duplicates:
+                    resolvedDesignators.RemoveAll(x=>((x is Designator_Build) &&
+                                                      ((Designator_Build)x).PlacingDef==d));
+                    resolvedDesignators.Add(new Designator_Build(d));
+                } else {
+//                    Log.Warning("LWM.DeepStorage: ThingDef "+d.defName+" has a dropdown Designator.");
+                    // Hard case: Designator_Dropdowns!
+                    Designator_Dropdown dd=(Designator_Dropdown)resolvedDesignators.Find(x=>(x is Designator_Dropdown) &&
+                                                                    ((Designator_Dropdown)x).Elements
+                                                                    .Find(y=>(y is Designator_Build) &&
+                                                                          ((Designator_Build)y).PlacingDef==d)!=null);
+                    if (dd != null) {
+//                        Log.Message("Found dropdown designator for "+d.defName);
+                        resolvedDesignators.Remove(dd);
+                        // Switch to new category:
+                        resolvedDesignators=(List<Designator>)_resolvedDesignatorsField.GetValue(newDesignationCatDef);
+                        if (!resolvedDesignators.Contains(dd)) {
+                            Log.Message("  Adding to new category "+newDesignationCatDef);
+                            resolvedDesignators.Add(dd);
+                        }
+//                    } else { //debug
+//                        Log.Message("   ThingDef "+d.defName+" has designator_dropdown "+d.designatorDropdown.defName+
+//                            ", but cannot find it in "+d.designationCategory+" - this is okay if something else added it.");
+                    }
+                }
                 d.designationCategory=newDesignationCatDef;
             }
-Log.Warning("Things changed, hiding...");
-            // Flush designation category defs:
-            foreach (var x in DefDatabase<DesignationCategoryDef>.AllDefs) {
-                x.ResolveReferences();
-            }
+            // Flush designation category defs:.....dammit
+//            foreach (var x in DefDatabase<DesignationCategoryDef>.AllDefs) {
+//                x.ResolveReferences();
+//            }
 //            prevDesignationCatDef?.ResolveReferences();
 //            newDesignationCatDef.ResolveReferences();
             //ArchitectMenu_ClearCache(); // we do this later one way or another
@@ -226,7 +278,6 @@ Log.Warning("Things changed, hiding...");
             //   DesignationCategoryDef except for the menu, so manually adjusting
             //   the DefsDatabase is safe enough:
             if (!architectMenuAlwaysShowCategory && newDefName != architectMenuDefaultDesigCatDef) {
-Log.Warning("Things changed, hiding...");
                 ArchitectMenu_Hide();
                 // ArchitectMenu_ClearCache(); //hide flushes cache
 //                    if (tmp.AllResolvedDesignators.Count <= tmp.specialDesignatorClasses.Count)
@@ -246,8 +297,7 @@ Log.Warning("Things changed, hiding...");
 //                    if (isCategoryEmpty)
             } else {
                 // Simply flush cache:
-Log.Error("Flushing Categories, clearing cache:");
- ArchitectMenu_ClearCache();
+                ArchitectMenu_ClearCache();
 
             }
             // Note that this is not perfect: if the default menu was already open, it will still be open (and
@@ -303,12 +353,10 @@ Log.Error("Flushing Categories, clearing cache:");
             Harmony.AccessTools.Method(typeof(RimWorld.MainTabWindow_Architect), "CacheDesPanels")
                 .Invoke((), null);
 */
-            Log.Message("----: Shefl: "+DefDatabase<ThingDef>.GetNamed("Shelf").designationCategory.defName);
             Utils.Warn(Utils.DBF.Settings, "Settings changed architect menu");
             
         }
         public static void ArchitectMenu_Hide() {
-Log.Warning("Arch Menu Hide");
             DesignationCategoryDef tmp;
             if ((tmp=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef, false))!=null
                 && !architectMenuAlwaysShowCategory) {
@@ -322,7 +370,6 @@ Log.Warning("Arch Menu Hide");
         }
 
         public static void ArchitectMenu_Show() {
-Log.Warning("Arch Menu Show");
             if (DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef, false)==null) {
                 DefDatabase<DesignationCategoryDef>.Add(architectMenuActualDef);
             }
@@ -330,7 +377,6 @@ Log.Warning("Arch Menu Show");
         }
 
         public static void ArchitectMenu_ClearCache() {
-Log.Warning("    Arch Menu Clear");
             // Clear the architect menu cache:
             //   Run the main Architect.TabWindow.CacheDesPanels()
             typeof(RimWorld.MainTabWindow_Architect).GetMethod("CacheDesPanels", System.Reflection.BindingFlags.NonPublic |
@@ -344,7 +390,6 @@ Log.Warning("    Arch Menu Clear");
         //     (testing shows this is VERY correct!!)
         //   There's probably some rimworld annotation that I could use, but this works:
         private static void Setup() {
-Log.Warning("Arch Menu SETUP");
             if (architectMenuActualDef==null) {
                 architectMenuActualDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);
             }
@@ -365,6 +410,7 @@ Log.Warning("Arch Menu SETUP");
             Scribe_Values.Look(ref storingGlobalScale, "storing_global_scale", 1f);
             Scribe_Values.Look(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "int_to_use_DS", Intelligence.Humanlike);
             Scribe_Values.Look(ref intelligenceWasChanged, "int_was_changed", false);
+            Scribe_Values.Look(ref defaultStoragePriority, "default_s_priority", StoragePriority.Important);
             // Architect Menu:
             Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
             Scribe_Values.Look(ref architectMenuAlwaysShowCategory, "architect_show", false);
