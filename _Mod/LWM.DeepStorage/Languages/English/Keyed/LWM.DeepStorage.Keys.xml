@@ -23,6 +23,7 @@
   <LWMDSstoringGlobalScale>Global Storing Time:  {0}%\nIf you want to adjust how long it takes pawns to store items (maybe you think it takes too long), you can adjust this setting, and it will apply to all storage units.</LWMDSstoringGlobalScale>
   <LWMDSstoringTimeConsidersStackSize>Does storing time consider stack size?</LWMDSstoringTimeConsidersStackSize>
   <LWMDSstoringTimeConsidersStackSizeDesc>If selected (default), storing 75 of something may take longer than storing 3.  This mainly affects Skips.  You probably want to turn this off if you are using a mod that makes stack sizes really big.</LWMDSstoringTimeConsidersStackSizeDesc>
+  <LWM_DS_defaultStoragePriority>Deep Storage defaults to Storage Priority:</LWM_DS_defaultStoragePriority>
   <LWM_DS_Storage_ArchitectMenuSettings>Location on Architect Menu:</LWM_DS_Storage_ArchitectMenuSettings>
   <LWM_DS_Storage_ArchitectMenuAlwaysShowCategory>Always show the Storage category?</LWM_DS_Storage_ArchitectMenuAlwaysShowCategory>
   <LWM_DS_Storage_ArchitectMenuAlwaysShowDesc>The default place for all Deep Storage units is in the "Storage" category in the Architect Menu.  If you change it, by default, the Storage category goes away.  Check this if you want it to always be there, even if there are no Deep Storage units in it.</LWM_DS_Storage_ArchitectMenuAlwaysShowDesc>
