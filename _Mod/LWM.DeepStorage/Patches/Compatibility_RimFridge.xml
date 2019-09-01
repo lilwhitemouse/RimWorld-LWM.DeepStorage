@@ -78,7 +78,7 @@
 		<designationHotKey>Misc12</designationHotKey>
 		<staticSunShadowHeight>0.6</staticSunShadowHeight>
 		<surfaceType>Item</surfaceType>
-		<description>EXPERIMENTAL - probably does not work!  LWM is looking into this.\n\nA chest freezer taken to the next level: a series of shelves extend into the ground, allowing a large number of items to be stored with decent thermal insulation.  Getting to the lower stacks requires a series of ratchets and chains, but food stored here is safe from decay.\n\nMoving this structure is not really possible, given the work that went into digging a sufficiently large pit for the refrigeration system and deep storage.</description>
+		<description>A chest freezer taken to the next level: a series of shelves extend into the ground, allowing a large number of items to be stored with decent thermal insulation.  Getting to the lower stacks requires a series of ratchets and chains, but food stored here is safe from decay.\n\nMoving this structure is not really possible, given the work that went into digging a sufficiently large pit for the refrigeration system and deep storage.</description>
 		<tickerType>Rare</tickerType>
 		<designationCategory>Temperature</designationCategory>
 		<pathCost>40</pathCost>
