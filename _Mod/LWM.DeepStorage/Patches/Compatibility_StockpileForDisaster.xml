@@ -11,11 +11,11 @@
     <match Class="PatchOperationSequence">
       <operations>
         <li Class="PatchOperationAdd">
-          <xpath>/Defs/ThingDef[defName="LWM_DeepStorage"]/inspectorTabs</xpath>
+          <xpath>/Defs/ThingDef/inspectorTabs[li="LWM.DeepStorage.ITab_DeepStorage_Inventory"]</xpath>
           <value><li>StockpileForDisaster.ITab_Restrict</li></value>
         </li>
         <li Class="PatchOperationAdd">
-          <xpath>/Defs/ThingDef[defName="LWM_DeepStorage"]/comps</xpath>
+          <xpath>/Defs/ThingDef[inspectorTabs/li="LWM.DeepStorage.ITab_DeepStorage_Inventory"]/comps</xpath>
           <value>
             <li Class="StockpileForDisaster.EntityListCompDef">
               <compClass>StockpileForDisaster.EntityListComp</compClass>
