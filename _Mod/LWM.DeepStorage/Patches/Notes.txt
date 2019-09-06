@@ -13,7 +13,12 @@ I pt AddNewUnit_ instead of Compatibility_ so that hopefully alphabetical
 sorting means new units will pick up other compat changes...
 
 
+Adding a new feature (comp, etc) to every DSU:
+
+Look at Compatibility_StockpileForDisaster to see how to select everything (including
+other added DSUs).
+
+
 TODO?
-                  <!-- TODO: NOT using Deep Storage base: include StockpileForDisaster ITab, etc -->
                   <!-- TODO: Add inventory tab to all Building_Storage classes via C#....-->
 

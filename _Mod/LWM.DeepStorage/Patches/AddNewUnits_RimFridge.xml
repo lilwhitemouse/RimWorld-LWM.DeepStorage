@@ -71,9 +71,9 @@
  		</comps>
 		<inspectorTabs>
 		  <li>ITab_Storage</li>
-                  <li>LWM.DeepStorage.ITab_DeepStorage_Inventory</li>
-                  <!-- TODO: NOT using Deep Storage base: include StockpileForDisaster ITab, etc -->
-                  <!-- TODO: Add inventory tab to all Building_Storage classes....-->
+      <li>LWM.DeepStorage.ITab_DeepStorage_Inventory</li>
+      <!-- TODO: NOT using Deep Storage base: include StockpileForDisaster ITab, etc -->
+      <!-- TODO: Add inventory tab to all Building_Storage classes....-->
 		</inspectorTabs>
 		<designationHotKey>Misc12</designationHotKey>
 		<staticSunShadowHeight>0.6</staticSunShadowHeight>
