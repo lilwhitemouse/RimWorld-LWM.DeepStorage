@@ -209,7 +209,7 @@ namespace LWM.DeepStorage
             if (architectMenuMoveALLStorageItems) {
 //                Log.Error("Trying to mvoe everythign:");
                 var desigProduction=DefDatabase<DesignationCategoryDef>.GetNamed("Production");
-                itemsToMove=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>((x.thingClass==typeof(Building_Storage) ||
+                itemsToMove=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>(x!=null && (x.thingClass==typeof(Building_Storage) ||
                                                                                      x.thingClass.IsSubclassOf(typeof(Building_Storage)))
                                                                                     && x.designationCategory!=desigProduction
                                                                                     ));
@@ -248,7 +248,7 @@ namespace LWM.DeepStorage
                         // Switch to new category:
                         resolvedDesignators=(List<Designator>)_resolvedDesignatorsField.GetValue(newDesignationCatDef);
                         if (!resolvedDesignators.Contains(dd)) {
-                            Log.Message("  Adding to new category "+newDesignationCatDef);
+//                            Log.Message("  Adding to new category "+newDesignationCatDef);
                             resolvedDesignators.Add(dd);
                         }
 //                    } else { //debug
