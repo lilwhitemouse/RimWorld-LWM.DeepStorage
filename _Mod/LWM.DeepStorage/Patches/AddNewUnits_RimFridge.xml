@@ -14,8 +14,9 @@
 		<defName>LWM_DS_RimFridge_Refrigerator</defName>
 		<label>Deep Refrigerator</label>
 		<thingClass>RimFridge.Building_Refrigerator</thingClass>
-                <minifiedDef Inherit="false" /><!-- Sorry, you've dug a hole for it -->
-                <thingCategories Inherit="false" /><!-- so no minified deep rimfridge -->
+    <minifiedDef Inherit="false" /><!-- Sorry, you've dug a hole for it -->
+    <thingCategories Inherit="false" /><!-- so no minified deep rimfridge -->
+    <drawGUIOverlay>true</drawGUIOverlay><!-- Good to show count of food when there can be a lot, eh? -->
 		<graphicData>
 			<texPath>OtherMods/RimFridge/DeepDualFridge</texPath>
 			<graphicClass>Graphic_Multi</graphicClass>
@@ -59,21 +60,20 @@
 				</graphicData>
 				<altitudeLayer>MoteOverhead</altitudeLayer>
 			</li>
-                        <li Class='LWM.DeepStorage.Properties'>
-                          <minNumberStacks>2</minNumberStacks>
-                          <maxNumberStacks>4</maxNumberStacks>
-                          <maxMassOfStoredItem>100</maxMassOfStoredItem>
-                          <minTimeStoringTakes>25</minTimeStoringTakes>
-                          <additionalTimeEachStack>120</additionalTimeEachStack><!-- More things mean more time to lower them into position -->
-                          <additionalTimeEachDef>30</additionalTimeEachDef><!-- Got to sort things! -->
-                          <overlayType>CountOfStacksPerCell</overlayType>
-                        </li>
+      <li Class='LWM.DeepStorage.Properties'>
+        <minNumberStacks>2</minNumberStacks>
+        <maxNumberStacks>4</maxNumberStacks>
+        <maxMassOfStoredItem>100</maxMassOfStoredItem>
+        <minTimeStoringTakes>25</minTimeStoringTakes>
+        <additionalTimeEachStack>120</additionalTimeEachStack><!-- More things mean more time to lower them into position -->
+        <additionalTimeEachDef>30</additionalTimeEachDef><!-- Got to sort things! -->
+        <overlayType>SumOfAllItems</overlayType>
+      </li>
  		</comps>
 		<inspectorTabs>
 		  <li>ITab_Storage</li>
       <li>LWM.DeepStorage.ITab_DeepStorage_Inventory</li>
       <!-- TODO: NOT using Deep Storage base: include StockpileForDisaster ITab, etc -->
-      <!-- TODO: Add inventory tab to all Building_Storage classes....-->
 		</inspectorTabs>
 		<designationHotKey>Misc12</designationHotKey>
 		<staticSunShadowHeight>0.6</staticSunShadowHeight>
