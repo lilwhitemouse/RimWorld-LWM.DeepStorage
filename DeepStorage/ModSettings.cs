@@ -209,7 +209,8 @@ namespace LWM.DeepStorage
             if (architectMenuMoveALLStorageItems) {
 //                Log.Error("Trying to mvoe everythign:");
                 var desigProduction=DefDatabase<DesignationCategoryDef>.GetNamed("Production");
-                itemsToMove=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>(x!=null && (x.thingClass==typeof(Building_Storage) ||
+                // Interesting detail: apparently it IS possible to have thingDefs with null thingClass... weird.
+                itemsToMove=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>((x?.thingClass != null) && (x.thingClass==typeof(Building_Storage) ||
                                                                                      x.thingClass.IsSubclassOf(typeof(Building_Storage)))
                                                                                     && x.designationCategory!=desigProduction
                                                                                     ));
