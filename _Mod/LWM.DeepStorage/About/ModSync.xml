@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ModSyncNinjaData>
+  <ID>95d051f8-00e2-42f5-b127-463a9880e037</ID>
+  <ModName>LWM's Deep Storage</ModName>
+  <Version>1.0.0.0</Version>
+  <SaveBreaking>False</SaveBreaking>
+  <Host name="Github">
+    <Owner>lilwhitemouse</Owner>
+    <Project>RimWorld-LWM.DeepStorage</Project>
+    <AboutDir>_Mod/LWM.DeepStorage/About</AboutDir>
+    <DownloadFrom>ModSyncMainPage</DownloadFrom>
+    <Branch>master</Branch>
+  </Host>
+</ModSyncNinjaData>
