@@ -73,6 +73,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ModHugsLib.cs" />
     <Compile Include="ModSettings.cs" />
+    <Compile Include="ModSettings_Per_DSU.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="ModCompatibility.cs" />
     <Compile Include="Deep_Storage.cs" />

@@ -12,6 +12,8 @@ namespace LWM.DeepStorage
         public static bool storingTimeConsidersStackSize=true;
         public static StoragePriority defaultStoragePriority=StoragePriority.Important;
 
+        public static bool allowPerDSUSettings=false;
+
         // Architect Menu:
         // The defName for the DesignationCategoryDef the mod items are in by default:
         //TODO: make this a tutorial, provide link.
@@ -33,7 +35,7 @@ namespace LWM.DeepStorage
 //        public static DesignationCategoryDef architectLWM_DS_Storage_DesignationCatDef=null; // keep track of this as it may be removed from DefDatabase
 //        public static DesignationCategoryDef architectCurrentDesignationCatDef=null;
 
-        private static List<ThingDef> allDeepStorageUnits=null;
+        public static List<ThingDef> allDeepStorageUnits=null;
 
         public static bool intelligenceWasChanged=false; // for switching away from HugsLib settings
 
@@ -172,11 +174,15 @@ namespace LWM.DeepStorage
                 architectMenuMoveALLTmp=architectMenuMoveALLStorageItems;
             }
             // finished drawing settings for Architect Menu
-
+            if (l.ButtonText("EXPERIMENTAL: Change Storage Settings for each type of Unit"+": "+"Caution".Translate())) {//TODO
+                Find.WindowStack.Add(new Dialog_DS_Settings());
+            }
+            
             l.End();
         }
 
         public static void DefsLoaded() {
+//            Log.Warning("LWM.deepstorag - defs loaded");
             // Todo? If settings are different from defaults, then:
             Setup();
             // Architect Menu:
@@ -185,6 +191,17 @@ namespace LWM.DeepStorage
             {
                 ArchitectMenu_ChangeLocation(architectMenuDesigCatDef, true);
             }
+            // Other def-related changes:
+            if (defaultStoragePriority != StoragePriority.Important) {
+                foreach (ThingDef d in allDeepStorageUnits) {
+                    d.building.defaultStorageSettings.Priority=defaultStoragePriority;
+                }
+            }
+            // Re-read Mod Settings - some won't have been read because Defs weren't loaded:
+            //   (do this after above to allow user to override changes)
+            //   (LoadedModManager.GetMod(typeof(DeepStorageMod)).Content.Identifier and typeof(DeepStorageMod).Name by the way)
+//todo:
+            var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");            
         }
 
         // Architect Menu:
@@ -392,6 +409,7 @@ namespace LWM.DeepStorage
         //   There's probably some rimworld annotation that I could use, but this works:
         private static void Setup() {
             if (architectMenuActualDef==null) {
+//Log.Message("LWM.DeepStorage Settings Setup() called first time");
                 architectMenuActualDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);
             }
             if (allDeepStorageUnits.NullOrEmpty()) {
@@ -405,6 +423,7 @@ namespace LWM.DeepStorage
         }
 
         public override void ExposeData() {
+//            Log.Message("LWM.DeepStorage: Settings ExposeData() called");
             base.ExposeData();
 
             Scribe_Values.Look(ref storingTakesTime, "storing_takes_time", true);
@@ -416,7 +435,14 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
             Scribe_Values.Look(ref architectMenuAlwaysShowCategory, "architect_show", false);
             Scribe_Values.Look(ref architectMenuMoveALLStorageItems, "architect_moveall", true);
-        }
+            // Per DSU Building storage settings:
+            Scribe_Values.Look(ref allowPerDSUSettings, "allowPerDSUSettings", false);
+            if (!allDeepStorageUnits.NullOrEmpty()) {
+                Dialog_DS_Settings.ExposeDSUSettings(allDeepStorageUnits);
+            }
+        } // end ExposeData()
+
+
     }
 
     static class DisplayHelperFunctions {
