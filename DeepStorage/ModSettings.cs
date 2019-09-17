@@ -174,7 +174,7 @@ namespace LWM.DeepStorage
                 architectMenuMoveALLTmp=architectMenuMoveALLStorageItems;
             }
             // finished drawing settings for Architect Menu
-            if (l.ButtonText("EXPERIMENTAL: Change Storage Settings for each type of Unit"+": "+"Caution".Translate())) {//TODO
+            if (l.ButtonText("EXPERIMENTAL: Change Storage Settings for each type of Unit"+": Caution")) {//TODO
                 Find.WindowStack.Add(new Dialog_DS_Settings());
             }
             
@@ -437,7 +437,7 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref architectMenuMoveALLStorageItems, "architect_moveall", true);
             // Per DSU Building storage settings:
             Scribe_Values.Look(ref allowPerDSUSettings, "allowPerDSUSettings", false);
-            if (!allDeepStorageUnits.NullOrEmpty()) {
+            if (allowPerDSUSettings && !allDeepStorageUnits.NullOrEmpty()) {
                 Dialog_DS_Settings.ExposeDSUSettings(allDeepStorageUnits);
             }
         } // end ExposeData()

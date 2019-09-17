@@ -46,13 +46,16 @@ namespace LWM.DeepStorage
             Widgets.BeginScrollView(contentRect, ref scrollPosition, scrollViewTotal);
             float curY = 0f;
             Rect r=new Rect(0,curY,scrollViewTotal.width, LabelHeight);
-            
 
-            
 //            r=new Rect(0,curY,scrollViewTotal.width, LabelHeight);
-            Widgets.CheckboxLabeled(r, "TURN ON USER-MODIFIED BUILDING SETTINGS:", ref Settings.allowPerDSUSettings);
-            TooltipHandler.TipRegion(r, "This lets you edit the properties of each Deep Storage building!  Don't break anything, okay?");
+            Widgets.CheckboxLabeled(r, "TURN ON USER-MODIFIED BUILDING SETTINGS:", ref Settings.allowPerDSUSettings);//TODO
+            TooltipHandler.TipRegion(r, "This lets you edit the properties of each Deep Storage building!  Don't break anything, okay? TURNING THIS OFF WILL RESET ALL SETTINGS TO DEFAULT.");
             curY+=LabelHeight+1f;
+            if (!Settings.allowPerDSUSettings) {
+                r=new Rect(5f, curY, scrollViewTotal.width-10f, LabelHeight);
+                Widgets.Label(r, "Note: No settings will be saved!");
+                curY+=LabelHeight;
+            }
             Widgets.DrawLineHorizontal(0f, curY, scrollViewTotal.width);
             curY+=10f;
 
@@ -65,12 +68,8 @@ namespace LWM.DeepStorage
             var bgmouseover=ContentFinder<Texture2D>.Get("UI/Widgets/ButtonBGMouseover", true);
             var bgclick=ContentFinder<Texture2D>.Get("UI/Widgets/ButtonBGClick", true);
             foreach (ThingDef u in Settings.allDeepStorageUnits) {
-//                r=new Rect(5f,curY, scrollViewTotal.width/2-10f, LabelHeight);
-//                Widgets.Label(r, u.label);
-//                r=new Rect(scrollViewTotal.width/2+5f, curY, scrollViewTotal.width/2-10f, LabelHeight);
-//                if (Widgets.ButtonText(Rect rect, string label)
-                r=new Rect(5f, curY, scrollViewTotal.width-10f, LabelHeight);
-            
+
+                r=new Rect(5f, curY, (scrollViewTotal.width)*2/3-7f, LabelHeight);
                 // Draw button-ish background:
                 Texture2D atlas = bg;
 				if (Mouse.IsOver(r))
@@ -86,13 +85,12 @@ namespace LWM.DeepStorage
                 Widgets.Label(r, u.label+" (defName: "+u.defName+")");
                 // button clickiness:
                 if (Widgets.ButtonInvisible(r)) {
-                
-/*                float oneThird=(scrollViewTotal.width-10f)/3;
-                r=new Rect(5f, curY, 2*oneThird,LabelHeight);
-                Widgets.Label(r, u.label+" (defName: "+u.defName+")");
-                r=new Rect(5f+2*oneThird,curY, oneThird,LabelHeight);
-                if (Widgets.ButtonText(r, "AssignTabEdit".Translate())) {//todo? */
                     Find.WindowStack.Add(new Dialog_DSU_Settings(u));
+                }
+                // Reset button:
+                r=new Rect((scrollViewTotal.width)*2/3+2f,curY, (scrollViewTotal.width)/3-7f, LabelHeight);
+                if (IsDSUChanged(u) && Widgets.ButtonText(r, "ResetBinding".Translate())) {
+                    ResetDSUToDefaults(u.defName);
                 }
                 curY+=LabelHeight+2f;
             }
@@ -124,6 +122,7 @@ namespace LWM.DeepStorage
                 tmpMaxTotalMass=def.GetCompProperties<Properties>().maxTotalMass;
                 tmpMaxMassStoredItem=def.GetCompProperties<Properties>().maxMassOfStoredItem;
                 tmpShowContents=def.GetCompProperties<Properties>().showContents;
+                tmpStoragePriority=def.building.defaultStorageSettings.Priority;
                 tmpOverlayType=def.GetCompProperties<Properties>().overlayType;
             }
 
@@ -136,8 +135,21 @@ namespace LWM.DeepStorage
                 HelpSetTempVarToDefault<float>(ref tmpMaxTotalMass, "maxTotalMass");
                 HelpSetTempVarToDefault<float>(ref tmpMaxMassStoredItem, "maxMassStoredItem");
                 HelpSetTempVarToDefault<bool>(ref tmpShowContents, "showContents");
+                HelpSetTempVarToDefault<StoragePriority>(ref tmpStoragePriority, "storagePriority");
                 HelpSetTempVarToDefault<LWM.DeepStorage.GuiOverlayType>(ref tmpOverlayType, "overlayType");
                 //HelpSetTempVarToDefault<>(ref tmp, "");
+            }
+            private bool AreTempVarsDefaults() {
+                var cp=def.GetCompProperties<LWM.DeepStorage.Properties>();
+                if (tmpLabel!=def.label) return false;
+                if (tmpMaxMassStoredItem!=cp.maxMassOfStoredItem ||
+                    tmpMaxNumStacks!=cp.maxNumberStacks ||
+                    tmpMaxTotalMass!=cp.maxTotalMass ||
+                    tmpOverlayType!=cp.overlayType ||
+                    tmpShowContents!=cp.showContents
+                    ) return false;
+                if (tmpStoragePriority!=def.building.defaultStorageSettings.Priority) return false;
+                return true;
             }
             private void HelpSetTempVarToDefault<T>(ref T v, string keylet) { // MEH.
                 string key="DSU_"+def.defName+"_"+keylet;
@@ -158,7 +170,7 @@ namespace LWM.DeepStorage
                 var contentRect = new Rect(0, 0, inRect.width, inRect.height - (CloseButSize.y + 10f)).ContractedBy(10f);
                 var l = new Listing_Standard();
                 l.Begin(new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f));
-                l.Label("Testing "+def.label);
+                l.Label(def.label);
                 l.GapLine();
                 // Much TODO, so wow:
                 tmpLabel=l.TextEntryLabeled("Label", tmpLabel);
@@ -170,7 +182,12 @@ namespace LWM.DeepStorage
                 tmpstring=null;
                 l.TextFieldNumericLabeled<float>("Maximum Mass of any Stored Item", ref tmpMaxMassStoredItem, ref tmpstring,0f);
                 l.CheckboxLabeled("Show contents for this building", ref tmpShowContents);
+                l.GapLine();
                 l.EnumRadioButton(ref tmpOverlayType, "What kind of count overlay (little white numbers) to use:");
+                l.GapLine();
+                l.EnumRadioButton(ref tmpStoragePriority, "Storage Priority for this building");
+                l.GapLine();
+//                l.Label("What Items are Allowed?:");
                 l.End();
 
 //                Widgets.Label(contentRect, "Testing "+def.label+"...");
@@ -206,17 +223,20 @@ namespace LWM.DeepStorage
                     TestAndUpdate("maxMassStoredItem", tmpMaxMassStoredItem, ref def.GetCompProperties<Properties>().maxMassOfStoredItem);
                     TestAndUpdate("showContents", tmpShowContents, ref def.GetCompProperties<Properties>().showContents);
                     TestAndUpdate("overlayType", tmpOverlayType, ref def.GetCompProperties<Properties>().overlayType);
+                    StoragePriority tmpSP=def.building.defaultStorageSettings.Priority; // hard to access private field directly
+                    TestAndUpdate("storagePriority", tmpStoragePriority, ref tmpSP);
+                    def.building.defaultStorageSettings.Priority=tmpSP;
                     Close();
                 }
                 // Reset to Defaults
                 closeRect = new Rect(inRect.width-(4*CloseButSize.x+10f), inRect.height-CloseButSize.y,2*CloseButSize.x,CloseButSize.y);
-                if (Widgets.ButtonText(closeRect, "ResetBinding".Translate())) {
+                if (!AreTempVarsDefaults() && Widgets.ButtonText(closeRect, "ResetBinding".Translate())) {
                     SetTempVarsToDefaults();
                     //ResetDSUToDefaults(def.defName);
                     //SetTempVars();
                 }
             }
-            
+
             private void TestAndUpdate<T>(string keylet, T value, ref T origValue) where T : IComparable {
 //                if (value.CompareTo(origValue)==0) return;//TODO
                 string key="DSU_"+def.defName+"_"+keylet;
@@ -236,7 +256,7 @@ namespace LWM.DeepStorage
                     defaultDSUValues[key]=defaultValue;
                 }
             }
-            
+
             ThingDef def;
             bool shouldIClose=false;
             string tmpLabel;
@@ -245,6 +265,7 @@ namespace LWM.DeepStorage
             float tmpMaxMassStoredItem;
             bool tmpShowContents;
             LWM.DeepStorage.GuiOverlayType tmpOverlayType;
+            StoragePriority tmpStoragePriority;
         }
         private static void ResetDSUToDefaults(string defName) {
             var allKeys=new List<string>(defaultDSUValues.Keys);
@@ -271,6 +292,8 @@ namespace LWM.DeepStorage
                         def.GetCompProperties<Properties>().maxMassOfStoredItem=(float)(value);
                     } else if (prop=="showContents") {
                         def.GetCompProperties<Properties>().showContents=(bool)(value);
+                    } else if (prop=="storagePriority") {
+                        def.building.defaultStorageSettings.Priority=(StoragePriority)(value);
                     } else if (prop=="overlayType") {
                         def.GetCompProperties<Properties>().overlayType=(LWM.DeepStorage.GuiOverlayType)(value);
                     } else {
@@ -281,12 +304,21 @@ namespace LWM.DeepStorage
                 allKeys.RemoveLast();
             }
         }
+        private static bool IsDSUChanged(ThingDef d) {
+            foreach (string k in defaultDSUValues.Keys) {
+                string s=k.Remove(0,4); // strip off DSU_
+                var t=s.Split('_');
+                string keyDefName=string.Join("_", t.Take(t.Length-1).ToArray());
+                if (keyDefName==d.defName) return true;
+            }
+            return false;
+        }
         private static void ResetAllToDefaults() {
             ResetDSUToDefaults(null);
         }
 
         public static void ExposeDSUSettings(List<ThingDef> units) {
-            foreach (var u in units) {
+            foreach (ThingDef u in units) {
                 string k1=u.defName;
                 ExposeDSUSetting<string>(k1+"_label",ref u.label);
                 ExposeDSUSetting(k1+"_maxNumStacks", ref u.GetCompProperties<Properties>().maxNumberStacks);
@@ -294,6 +326,9 @@ namespace LWM.DeepStorage
                 ExposeDSUSetting(k1+"_maxMassStoredItem", ref u.GetCompProperties<Properties>().maxMassOfStoredItem);
                 ExposeDSUSetting(k1+"_showContents", ref u.GetCompProperties<Properties>().showContents);
                 ExposeDSUSetting(k1+"_overlayType", ref u.GetCompProperties<Properties>().overlayType);
+                StoragePriority tmpSP=u.building.defaultStorageSettings.Priority; // hard to access private field directly
+                ExposeDSUSetting<StoragePriority>(k1+"_storagePriority", ref tmpSP);
+                u.building.defaultStorageSettings.Priority=tmpSP;
                 
 /*                    string key="DSU_"+u.defName+"_label";
                       string value=u.label;
