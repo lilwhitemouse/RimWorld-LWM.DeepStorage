@@ -114,6 +114,10 @@ namespace LWM.DeepStorage
                 this.absorbInputAroundWindow = true;
                 this.def=def;
 
+                if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                    this.useCustomThingFilter=true;
+                }
+
                 SetTempVars();
             }
             private void SetTempVars() {
@@ -137,6 +141,8 @@ namespace LWM.DeepStorage
                 HelpSetTempVarToDefault<bool>(ref tmpShowContents, "showContents");
                 HelpSetTempVarToDefault<StoragePriority>(ref tmpStoragePriority, "storagePriority");
                 HelpSetTempVarToDefault<LWM.DeepStorage.GuiOverlayType>(ref tmpOverlayType, "overlayType");
+                useCustomThingFilter=false;
+                customThingFilter=null;
                 //HelpSetTempVarToDefault<>(ref tmp, "");
             }
             private bool AreTempVarsDefaults() {
@@ -149,6 +155,7 @@ namespace LWM.DeepStorage
                     tmpShowContents!=cp.showContents
                     ) return false;
                 if (tmpStoragePriority!=def.building.defaultStorageSettings.Priority) return false;
+                if (useCustomThingFilter) return false;
                 return true;
             }
             private void HelpSetTempVarToDefault<T>(ref T v, string keylet) { // MEH.
@@ -167,9 +174,16 @@ namespace LWM.DeepStorage
 
             public override void DoWindowContents(Rect inRect) // For a specific DSU
             {
-                var contentRect = new Rect(0, 0, inRect.width, inRect.height - (CloseButSize.y + 10f)).ContractedBy(10f);
+                var XXXcontentRect = new Rect(0, 0, inRect.width, inRect.height - (CloseButSize.y + 10f)).ContractedBy(10f);
+
                 var l = new Listing_Standard();
-                l.Begin(new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f));
+//                l.Begin(new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f));
+                Rect s=new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f);
+                Rect v=new Rect(inRect.x, inRect.y, inRect.width-20f, inRect.height-CloseButSize.y-5f);
+                if (useCustomThingFilter) v.height+=300f;
+                l.BeginScrollView(s, ref DSUScrollPosition, ref v);
+//                l.BeginScrollView(
+//                l.BeginScrollView(Rect rect, ref Vector2 scrollPosition, ref Rect viewRect)
                 l.Label(def.label);
                 l.GapLine();
                 // Much TODO, so wow:
@@ -187,26 +201,32 @@ namespace LWM.DeepStorage
                 l.GapLine();
                 l.EnumRadioButton(ref tmpStoragePriority, "Storage Priority for this building");
                 l.GapLine();
-//                l.Label("What Items are Allowed?:");
-                l.End();
-
-//                Widgets.Label(contentRect, "Testing "+def.label+"...");
-//                Widgets.DrawLineHorizontal(0, 22f, inRect.width-5f);
-//                curY=25f;
-//                tmpLabel=Widgets.TextArea(Rect rect, string text);
-                //...
-                
-                
-/*                var closeRect = new Rect(inRect.width-CloseButSize.x, inRect.height-CloseButSize.y,CloseButSize.x,CloseButSize.y);
-                if (shouldIClose) {
-                    shouldIClose=false;
-                    Close();
+                l.CheckboxLabeled("Change what Items are allowed in this building?", ref useCustomThingFilter,
+                                  "If you are not using a custom list here, please uncheck this.");
+                if (useCustomThingFilter) {
+                    if (customThingFilter==null) {
+                        customThingFilter=new ThingFilter();
+                        customThingFilter.CopyAllowancesFrom(def.building.fixedStorageSettings.filter);
+                        Utils.Mess(Utils.DBF.Settings,"Created new filter for "+def.defName+": "+customThingFilter);
+//                        Log.Error("Old filter has: "+def.building.fixedStorageSettings.filter.AllowedDefCount);
+//                        Log.Warning("New filter has: "+customThingFilter.AllowedDefCount);
+                    }
+                    Rect r=l.GetRect(300);
+                    r.width*=2f/3f;
+                    r.x+=10f;
+                    ThingFilterUI.DoThingFilterConfigWindow(r, ref thingFilterScrollPosition, customThingFilter);
+                } else { // not using custom thing filter:
+                    if (customThingFilter!=null || defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                        customThingFilter=null;
+                        if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                            def.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"];
+                            defaultDSUValues.Remove("DSU_"+def.defName+"_filter");
+                        }
+                    }
                 }
-                if (Widgets.ButtonText(closeRect, "Close")) { //todo
-                    GUI.FocusControl(null); // unfocus, so that a focused text field may commit its value
-                    shouldIClose=true;
-                }
-                */
+//                l.End();
+                l.EndScrollView(ref v);
+                
                 // Cancel button
                 var closeRect = new Rect(inRect.width-CloseButSize.x, inRect.height-CloseButSize.y,CloseButSize.x,CloseButSize.y);
                 if (Widgets.ButtonText(closeRect, "CancelButton".Translate())) {
@@ -226,6 +246,18 @@ namespace LWM.DeepStorage
                     StoragePriority tmpSP=def.building.defaultStorageSettings.Priority; // hard to access private field directly
                     TestAndUpdate("storagePriority", tmpStoragePriority, ref tmpSP);
                     def.building.defaultStorageSettings.Priority=tmpSP;
+                    if (useCustomThingFilter) {
+                        if (!defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                            defaultDSUValues["DSU_"+def.defName+"_filter"]=def.building.fixedStorageSettings.filter;
+                        }
+                        def.building.fixedStorageSettings.filter=customThingFilter;
+                    } else {
+                        if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                            // we need to remove it
+                            def.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"];
+                            defaultDSUValues.Remove("DSU_"+def.defName+"_filter");
+                        }
+                    }
                     Close();
                 }
                 // Reset to Defaults
@@ -258,7 +290,6 @@ namespace LWM.DeepStorage
             }
 
             ThingDef def;
-            bool shouldIClose=false;
             string tmpLabel;
             int tmpMaxNumStacks;
             float tmpMaxTotalMass;
@@ -266,6 +297,11 @@ namespace LWM.DeepStorage
             bool tmpShowContents;
             LWM.DeepStorage.GuiOverlayType tmpOverlayType;
             StoragePriority tmpStoragePriority;
+
+            bool useCustomThingFilter=false;
+            ThingFilter customThingFilter=null;
+            Vector2 thingFilterScrollPosition=new Vector2(0,0);
+            Vector2 DSUScrollPosition=new Vector2(0,0);
         }
         private static void ResetDSUToDefaults(string defName) {
             var allKeys=new List<string>(defaultDSUValues.Keys);
@@ -296,6 +332,8 @@ namespace LWM.DeepStorage
                         def.building.defaultStorageSettings.Priority=(StoragePriority)(value);
                     } else if (prop=="overlayType") {
                         def.GetCompProperties<Properties>().overlayType=(LWM.DeepStorage.GuiOverlayType)(value);
+                    } else if (prop=="filter") {
+                        def.building.fixedStorageSettings.filter=(ThingFilter)(value);
                     } else {
                         Log.Error("LWM.DeepStorage: FAILED TO RESET OPTION TO DEFAULT: "+key);
                     }
@@ -329,7 +367,20 @@ namespace LWM.DeepStorage
                 StoragePriority tmpSP=u.building.defaultStorageSettings.Priority; // hard to access private field directly
                 ExposeDSUSetting<StoragePriority>(k1+"_storagePriority", ref tmpSP);
                 u.building.defaultStorageSettings.Priority=tmpSP;
-                
+                if (defaultDSUValues.ContainsKey("DSU_"+u.defName+"_filter")) {
+                    Scribe_Deep.Look(ref u.building.fixedStorageSettings.filter, "DSU_"+u.defName+"_filter", null);
+                    if (u.building.fixedStorageSettings.filter==null) {
+                        u.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+u.defName+"_filter"];
+                        defaultDSUValues.Remove("DSU_"+u.defName+"_filter");
+                    }
+                } else {
+                    ThingFilter tmp=null;
+                    Scribe_Deep.Look(ref tmp, "DSU_"+u.defName+"_filter", null);
+                    if (tmp!=null) {
+                        defaultDSUValues["DSU_"+u.defName+"_filter"]=u.building.fixedStorageSettings.filter;
+                        u.building.fixedStorageSettings.filter=tmp;
+                    }
+                }
 /*                    string key="DSU_"+u.defName+"_label";
                       string value=u.label;
                       string defaultValue=(defaultDSUValues.ContainsKey(key)?(string)defaultDSUValues[key]:value);
