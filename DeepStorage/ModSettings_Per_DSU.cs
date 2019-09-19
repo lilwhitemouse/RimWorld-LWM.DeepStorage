@@ -161,6 +161,7 @@ namespace LWM.DeepStorage
             private void HelpSetTempVarToDefault<T>(ref T v, string keylet) { // MEH.
                 string key="DSU_"+def.defName+"_"+keylet;
                 if (defaultDSUValues.ContainsKey(key)) {
+                    Utils.Mess(Utils.DBF.Settings, "Resetting "+def.defName+"'s "+keylet+" to default "+defaultDSUValues[key]);
                     v=(T)defaultDSUValues[key];
                 }
             }
@@ -219,6 +220,7 @@ namespace LWM.DeepStorage
                     if (customThingFilter!=null || defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
                         customThingFilter=null;
                         if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                            Utils.Mess(Utils.DBF.Settings, "  Removing filter for "+def.defName);
                             def.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"];
                             defaultDSUValues.Remove("DSU_"+def.defName+"_filter");
                         }
@@ -230,6 +232,7 @@ namespace LWM.DeepStorage
                 // Cancel button
                 var closeRect = new Rect(inRect.width-CloseButSize.x, inRect.height-CloseButSize.y,CloseButSize.x,CloseButSize.y);
                 if (Widgets.ButtonText(closeRect, "CancelButton".Translate())) {
+                    Utils.Mess(Utils.DBF.Settings, "Cancel button selected - no changes made");
                     Close();
                 }
                 // Accept button - with accompanying logic
@@ -248,12 +251,14 @@ namespace LWM.DeepStorage
                     def.building.defaultStorageSettings.Priority=tmpSP;
                     if (useCustomThingFilter) {
                         if (!defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                            Utils.Mess(Utils.DBF.Settings, "Creating default filter record for item "+def.defName);
                             defaultDSUValues["DSU_"+def.defName+"_filter"]=def.building.fixedStorageSettings.filter;
                         }
                         def.building.fixedStorageSettings.filter=customThingFilter;
                     } else {
                         if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
                             // we need to remove it
+                            Utils.Mess(Utils.DBF.Settings, "Removing default filter record for item "+def.defName);
                             def.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"];
                             defaultDSUValues.Remove("DSU_"+def.defName+"_filter");
                         }
@@ -284,8 +289,10 @@ namespace LWM.DeepStorage
                 // if the user reset to originald defaul values, remove the default values key
                 if (defaultValue.CompareTo(origValue)==0 && defaultDSUValues.ContainsKey(key)) {
                     defaultDSUValues.Remove(key);
+                    Utils.Mess(Utils.DBF.Settings, "  removing default record for item "+keylet+" ("+def.defName+")");
                 } else if (!defaultDSUValues.ContainsKey(key)) {
                     defaultDSUValues[key]=defaultValue;
+                    Utils.Mess(Utils.DBF.Settings, "  creating default record for item "+keylet+" ("+def.defName+")");
                 }
             }
 
@@ -357,6 +364,7 @@ namespace LWM.DeepStorage
 
         public static void ExposeDSUSettings(List<ThingDef> units) {
             foreach (ThingDef u in units) {
+                Utils.Warn(Utils.DBF.Settings, "Expose DSU Settings: "+u.defName+" ("+Scribe.mode+")");
                 string k1=u.defName;
                 ExposeDSUSetting<string>(k1+"_label",ref u.label);
                 ExposeDSUSetting(k1+"_maxNumStacks", ref u.GetCompProperties<Properties>().maxNumberStacks);
@@ -368,8 +376,10 @@ namespace LWM.DeepStorage
                 ExposeDSUSetting<StoragePriority>(k1+"_storagePriority", ref tmpSP);
                 u.building.defaultStorageSettings.Priority=tmpSP;
                 if (defaultDSUValues.ContainsKey("DSU_"+u.defName+"_filter")) {
+                    Utils.Mess(Utils.DBF.Settings, "  default filter recorded, doing Scribe_Deep");
                     Scribe_Deep.Look(ref u.building.fixedStorageSettings.filter, "DSU_"+u.defName+"_filter", null);
-                    if (u.building.fixedStorageSettings.filter==null) {
+                    if (u.building.fixedStorageSettings.filter==null) { // we were loading/resetting, looks like
+                        Utils.Mess(Utils.DBF.Settings, "  ----> default filter is now null!");
                         u.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+u.defName+"_filter"];
                         defaultDSUValues.Remove("DSU_"+u.defName+"_filter");
                     }
@@ -377,6 +387,7 @@ namespace LWM.DeepStorage
                     ThingFilter tmp=null;
                     Scribe_Deep.Look(ref tmp, "DSU_"+u.defName+"_filter", null);
                     if (tmp!=null) {
+                        Utils.Mess(Utils.DBF.Settings, "  Found Filter, applying.");
                         defaultDSUValues["DSU_"+u.defName+"_filter"]=u.building.fixedStorageSettings.filter;
                         u.building.fixedStorageSettings.filter=tmp;
                     }
@@ -394,10 +405,14 @@ namespace LWM.DeepStorage
             
         }
         // Only ONE DSU Setting:
-        private static void ExposeDSUSetting<T>(string keylet, ref T value, object origValue=null) where T : IComparable {
+        private static void ExposeDSUSetting<T>(string keylet, ref T value) where T : IComparable {
             string key = "DSU_"+keylet;
             T defaultValue=(defaultDSUValues.ContainsKey(key)?(T)defaultDSUValues[key]:value);
+            Utils.Mess(Utils.DBF.Settings, "  Expose Setting: "+key+" (current value: "
+                       +value+"; default Value: "+defaultValue+")");
             Scribe_Values.Look(ref value, key, defaultValue);
+            Utils.Mess(Utils.DBF.Settings, "  after scribing: "+key+" (current value: "
+                       +value+"; default Value: "+defaultValue+")");
             if (defaultValue.CompareTo(value) != 0 && !defaultDSUValues.ContainsKey(key)) {
 //                Log.Message("-->"+key+" storing default value of "+defaultValue);//TODO
 //                Log.Warning("        Current value: "+value);
