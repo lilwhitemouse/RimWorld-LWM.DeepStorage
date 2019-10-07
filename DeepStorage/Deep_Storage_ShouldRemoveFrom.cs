@@ -124,6 +124,7 @@ namespace LWM.DeepStorage
                         return true; // anything else is over capactiy!
                     }
                 }
+                return false; // Should be impossible to get here?  But who knows.
             }
             
             if (cds.limitingFactorForItem > 0f) {
