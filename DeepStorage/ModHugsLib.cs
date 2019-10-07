@@ -20,6 +20,7 @@ namespace LWM.DeepStorage
                  "CHANGE ALL SETTINGS BY USING THE BUTTON ABOVE", Intelligence.Humanlike, null, "LWM_DS_Int_");
 
             #if DEBUG
+            Log.Message("LWM.DeepStorage:  DefsLoaded via HugsLib()");
             for (int i=1; i<Utils.showDebug.Length; i++) {
                 debugONorOFF[i]=Settings.GetHandle("turnDebugONorOFF"+(Utils.DBF)i, "Turn ON/OFF debugging: "+(Utils.DBF)i,
                                        "Turn ON/OFF all debugging - this is a lot of trace, and only available on debug builds",
@@ -39,6 +40,9 @@ namespace LWM.DeepStorage
 
             
             AssignSettings();
+            #if DEBUG
+            SettingsChanged();
+            #endif
             LWM.DeepStorage.Settings.DefsLoaded();
         }
 

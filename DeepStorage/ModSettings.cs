@@ -201,6 +201,7 @@ namespace LWM.DeepStorage
             //   (do this after above to allow user to override changes)
             //   (LoadedModManager.GetMod(typeof(DeepStorageMod)).Content.Identifier and typeof(DeepStorageMod).Name by the way)
 //todo:
+            Utils.Mess(Utils.DBF.Settings, "Defs Loaded.  About to re-load settings");
             var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");            
         }
 
@@ -423,6 +424,7 @@ namespace LWM.DeepStorage
         }
 
         public override void ExposeData() {
+            Utils.Warn(Utils.DBF.Settings, "Expose Data called: Mode: "+Scribe.mode);
 //            Log.Message("LWM.DeepStorage: Settings ExposeData() called");
             base.ExposeData();
 
