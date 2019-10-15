@@ -80,10 +80,12 @@ namespace LWM.DeepStorage
                 if (thing2.def.EverStorable(false)) { // an "item" as it were
                     if (cds.limitingTotalFactorForCell > 0f) {
                         totalAmountHereSoFar += (thing2.GetStatValue(cds.stat)*thing2.stackCount);
-                        Utils.Warn(NoStorageBlockerseIn, "  Checking 'mass' " + thing2.GetStatValue(cds.stat) +
-                                   " vs running total " + totalAmountHereSoFar);
+                        Utils.Warn(NoStorageBlockerseIn, "  added 'mass' " + thing2.GetStatValue(cds.stat) +
+                                   " to running total " + totalAmountHereSoFar + " / " +cds.limitingTotalFactorForCell
+                                   + "(" + (objInStack+1)+" v "+cds.minNumberStacks+")");
                         if (totalAmountHereSoFar > cds.limitingTotalFactorForCell &&
-                            objInStack + 1 > cds.minNumberStacks) { // Must accept minimum (haven't incremented objInStack yet)
+                            objInStack + 1 >= cds.minNumberStacks) { // Must accept minimum (haven't incremented objInStack yet)
+                                                                     // but if reached minimum and over capacity, cannot store here
                             Utils.Warn(NoStorageBlockerseIn, "  BLOCKS: Over mass limit ("
                                                + cds.limitingTotalFactorForCell + ")");
                             return false;
