@@ -11,6 +11,9 @@ namespace LWM.DeepStorage
         public static float storingGlobalScale=1f;
         public static bool storingTimeConsidersStackSize=true;
         public static StoragePriority defaultStoragePriority=StoragePriority.Important;
+        // Turning this off removes conflicts with some other storage mods (at least I hope so):
+        //   (RimFactory? I think?)
+        public static bool checkOverCapacity=true;
 
         public static bool allowPerDSUSettings=false;
 
@@ -37,14 +40,18 @@ namespace LWM.DeepStorage
 
         public static List<ThingDef> allDeepStorageUnits=null;
 
-        public static bool intelligenceWasChanged=false; // for switching away from HugsLib settings
-
-//        private static float scrollViewHeight=100f;
+        private static Vector2 scrollPosition=new Vector2(0f,0f);
+        //private static Rect viewRect=new Rect(0,0,100f,10000f); // I tried this.  The outer part of the scroll area changed size.
+        //  Why the fuck?  WHY?
         public static void DoSettingsWindowContents(Rect inRect) {
 //            Setup();
+            Rect viewRect=new Rect(0,0,inRect.width-40f,inRect.height+=100f);  // Increase this to make more space
+            Rect outerRect=inRect.ContractedBy(10f);
+            outerRect.height-=100f; // "close" button
+            Widgets.BeginScrollView(outerRect, ref scrollPosition, viewRect);
+            Widgets.DrawHighlight(viewRect);
             Listing_Standard l = new Listing_Standard(GameFont.Medium); // my tiny high-resolution monitor :p
-            l.Begin(inRect);
-
+            l.Begin(viewRect);
 
             l.GapLine();  // Intelligence to haul to
             string [] intLabels={
@@ -52,13 +59,10 @@ namespace LWM.DeepStorage
                 "LWM_DS_Int_ToolUser".Translate(),
                 "LWM_DS_Int_Humanlike".Translate(),
             };
-            // This setting was changed by HugsLib setting.  Am phasing out now:
-            if (l.EnumRadioButton<Intelligence>(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "LWM_DS_IntTitle".Translate(),
-                                                "LWM_DS_IntDesc".Translate(), false, intLabels)) {
-                intelligenceWasChanged=true;
-            }
+            // Setting to allow bionic racoons to haul to Deep Storage:
+            l.EnumRadioButton<Intelligence>(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "LWM_DS_IntTitle".Translate(),
+                                            "LWM_DS_IntDesc".Translate(), false, intLabels);
 
-            
             l.GapLine();  //Storing Delay Settings
             l.Label("LWMDSstoringDelaySettings".Translate());
             l.CheckboxLabeled("LWMDSstoringTakesTimeLabel".Translate(),
@@ -174,11 +178,16 @@ namespace LWM.DeepStorage
                 architectMenuMoveALLTmp=architectMenuMoveALLStorageItems;
             }
             // finished drawing settings for Architect Menu
+            l.GapLine();
+            l.CheckboxLabeled("Check for storage being Over Capacity", ref checkOverCapacity, //TODO
+                              "If more than one thing ends up in a stockpile, pawns need to know to clean it up.  Turning this off prevents that.\n\nTurn this OFF to allow some other storage mods to function:\n  RimFactory");
+            l.GapLine();
             if (l.ButtonText("EXPERIMENTAL: Change Storage Settings for each type of Unit"+": Caution")) {//TODO
                 Find.WindowStack.Add(new Dialog_DS_Settings());
             }
-            
+            //viewRect=new Rect(0,0, inRect.width-40f, l.CurHeight+10f); // ...why didn't this behave the same??
             l.End();
+            Widgets.EndScrollView();
         }
 
         public static void DefsLoaded() {
@@ -425,14 +434,14 @@ namespace LWM.DeepStorage
 
         public override void ExposeData() {
             Utils.Warn(Utils.DBF.Settings, "Expose Data called: Mode: "+Scribe.mode);
-//            Log.Message("LWM.DeepStorage: Settings ExposeData() called");
+            //Log.Error("LWM.DeepStorage: Settings ExposeData() called");
             base.ExposeData();
 
             Scribe_Values.Look(ref storingTakesTime, "storing_takes_time", true);
             Scribe_Values.Look(ref storingGlobalScale, "storing_global_scale", 1f);
             Scribe_Values.Look(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "int_to_use_DS", Intelligence.Humanlike);
-            Scribe_Values.Look(ref intelligenceWasChanged, "int_was_changed", false);
             Scribe_Values.Look(ref defaultStoragePriority, "default_s_priority", StoragePriority.Important);
+            Scribe_Values.Look(ref checkOverCapacity, "check_over_capacity", true);
             // Architect Menu:
             Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
             Scribe_Values.Look(ref architectMenuAlwaysShowCategory, "architect_show", false);

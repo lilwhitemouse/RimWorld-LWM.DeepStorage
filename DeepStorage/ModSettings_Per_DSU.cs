@@ -95,6 +95,7 @@ namespace LWM.DeepStorage
                 curY+=LabelHeight+2f;
             }
             GenUI.ResetLabelAlign();
+            // end buttons
             
             Widgets.EndScrollView();
             r=new Rect(10f, inRect.height-CloseButSize.y-5f, inRect.width/3, CloseButSize.y);
