@@ -46,6 +46,13 @@ namespace LWM.DeepStorage
  */
     [HarmonyPatch(typeof(StoreUtility), "TryFindBestBetterStoreCellFor")]
     static class Patch_TryFindBestBetterStoreCellFor {
+        static bool Prepare() {
+            Utils.Mess(Utils.DBF.Settings, "LWM: Prepare called: "+Settings.checkOverCapacity);
+            if (Settings.checkOverCapacity)
+                return true;
+            return false;
+        }
+        
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions,
                                                        ILGenerator generator) {
             List<CodeInstruction> code=instructions.ToList();
@@ -144,9 +151,12 @@ namespace LWM.DeepStorage
                 // TODO: Decide how to handle weight: if thing is stackable, do I want to take some out, if it goes over?
                 if (thing == thingInStorage) return false; // it's here, and not over capacity yet!
                 if (thingInStorage.def.EverStorable(false)) { // an "item" we care about
+                    Utils.Mess(ShouldRemoveFromStorage, "    Checking Item "+thingInStorage.stackCount+thingInStorage);
                     stacksStoredHere++;
                     if (cds.limitingTotalFactorForCell > 0f) {
                         totalWeightStoredHere+=thingInStorage.GetStatValue(cds.stat)*thingInStorage.stackCount;
+                        Utils.Mess(ShouldRemoveFromStorage, "      total mass so far: "+totalWeightStoredHere+" / "+
+                                   cds.limitingTotalFactorForCell);
                         if (totalWeightStoredHere > cds.limitingTotalFactorForCell &&
                             stacksStoredHere >= cds.minNumberStacks) {
                             Utils.Warn(ShouldRemoveFromStorage,
