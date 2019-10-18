@@ -131,7 +131,7 @@ namespace LWM.DeepStorage
                         return true; // anything else is over capactiy!
                     }
                 }
-                return false; // Should be impossible to get here?  But who knows.
+                return false; // Should be difficult to get here?  But apparently RoM - Arachnophobia does.
             }
             
             if (cds.limitingFactorForItem > 0f) {
