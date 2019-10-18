@@ -12,166 +12,6 @@ using static LWM.DeepStorage.Utils.DBF; // trace utils
 
 namespace LWM.DeepStorage
 {
-        /******************* the custom Comp class and XML LWM.DeepStorage.Properties *****/
-    public class Properties : CompProperties {
-        public Properties() {
-            this.compClass = typeof(LWM.DeepStorage.CompDeepStorage);
-        }
-
-        /************************* Stat window (information window) ***********************/
-        // This will hopefully reduce the number of annoying questions in the discussion thread
-        //   "What does this store?  Can I put X in there?"
-        private static StatCategoryDef DeepStorageCategory=null;
-        public override IEnumerable<StatDrawEntry> SpecialDisplayStats(StatRequest req) {
-            foreach (StatDrawEntry s in base.SpecialDisplayStats(req)) {
-                yield return s;
-            }
-            if (DeepStorageCategory==null) {
-                DeepStorageCategory=DefDatabase<StatCategoryDef>.GetNamed("LWM_DS_Stats");
-                if (DeepStorageCategory == null) {
-                    Log.Warning("LWM.DeepStorage: Stat Category FAILED to load.");
-                    yield break;
-                }
-            }
-            yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_maxNumStacks".Translate(),
-                                           size>1?
-                                           "LWM_DS_TotalAndPerCell".Translate(maxNumberStacks*size,maxNumberStacks)
-                                           :maxNumberStacks.ToString(),
-                                           10 /*display priority*/, "LWM_DS_maxNumStacksDesc".Translate());
-            if (maxTotalMass > 0f) yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_maxTotalMass".Translate(),
-                                       size>1?
-                                        "LWM_DS_TotalAndPerCell".Translate(kg(maxTotalMass*size),kg(maxTotalMass))
-                                       :kg(maxTotalMass),
-                                        9, "LWM_DS_maxTotalMassDesc".Translate());
-            if (maxMassOfStoredItem > 0f) yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_maxMassOfStoredItem".Translate(),
-                                                                         kg(maxMassOfStoredItem),
-                                                                         8, "LWM_DS_maxMassOfStoredItemDesc".Translate());
-            if (AllowedCategoriesString!="") yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_allowedCategories".Translate(),
-                                                                            AllowedCategoriesString,
-                                                                            7, "LWM_DS_allowedCategoriesDesc".Translate());
-            if (AllowedDefsString!="") yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_allowedDefs".Translate(),
-                                                                      AllowedDefsString,
-                                                                      6, "LWM_DS_allowedDefsDesc".Translate());
-            if (DisallowedString!="") yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_disallowedStuff".Translate(),
-                                                                     DisallowedString,
-                                                                     5, "LWM_DS_disallowedStuffDesc".Translate());
-//            if (parent?.building?.fixedStorageSettings?.filter
-            yield break;
-        }
-        private string kg(float s) {
-            if (altStat==null) {
-                return "LWM_DS_kg".Translate(s);
-            }
-            return "LWM_DS_BulkEtcOf".Translate(s, altStat.label);
-        }
-        /************************* Done with Stat window ***********************/
-
-        
-        public override void ResolveReferences(ThingDef parentDef) {
-            base.ResolveReferences(parentDef);
-            parent=parentDef; // no way to actually get this via def :p
-            size=parentDef.Size.Area;
-        }
-        
-        public string AllowedCategoriesString {
-            get {
-                if (categoriesString==null) {
-                    categoriesString="";
-                    ThingFilter tf=parent?.building?.fixedStorageSettings?.filter;
-                    if (tf==null) {
-                        Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
-                        return "";
-                    }
-                    var c=(List<string>)Harmony.AccessTools.Field(typeof(ThingFilter), "categories").GetValue(tf);
-                    if (c.NullOrEmpty()) return "";
-                    foreach (var x in c) {
-                        if (categoriesString!="") categoriesString+="\n";
-                        categoriesString+=DefDatabase<ThingCategoryDef>.GetNamed(x, true).LabelCap;
-                    }
-                }
-                return categoriesString;
-            }
-        }
-
-        public string AllowedDefsString {
-            get {
-                if (defsString==null) {
-                    defsString="";
-                    ThingFilter tf=parent?.building?.fixedStorageSettings?.filter;
-                    if (tf==null) {
-                        Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
-                        return "";
-                    }
-                    var d=(List<ThingDef>)Harmony.AccessTools.Field(typeof(ThingFilter), "thingDefs").GetValue(tf);
-                    if (d.NullOrEmpty()) return "";
-                    foreach (var x in d) {
-                        if (defsString!="") defsString+="\n";
-                        defsString+=x.LabelCap;
-                    }
-                }
-                return defsString;
-            }
-        }
-        public string DisallowedString{
-            get {
-                if (disallowedString==null) {
-                    disallowedString="";
-                    ThingFilter tf=parent?.building?.fixedStorageSettings?.filter; // look familiar yet?
-                    if (tf==null) {
-                        Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
-                        return "";
-                    }
-                    var c=(List<string>)Harmony.AccessTools.Field(typeof(ThingFilter), "disallowedCategories").GetValue(tf);
-                    if (!(c.NullOrEmpty())) {
-                        foreach (var x in c) {
-                            if (disallowedString!="") disallowedString+="\n";
-                            disallowedString+=DefDatabase<ThingCategoryDef>.GetNamed(x, true).LabelCap;
-                        }
-                    }
-                    var d=(List<ThingDef>)Harmony.AccessTools.Field(typeof(ThingFilter), "disallowedThingDefs").GetValue(tf);
-                    if (!(d.NullOrEmpty())) {
-                        foreach (var x in d) {
-                            if (defsString!="") defsString+="\n";
-                            defsString+=x.LabelCap;
-                        }
-                    }
-                }
-                return disallowedString;
-            }
-        }
-
-
-        public int minNumberStacks = 1;
-        public int maxNumberStacks = 2;
-        public int timeStoringTakes = 1000; // measured in ticks
-        public int minTimeStoringTakes =-1;
-        public int additionalTimeEachStack=0; // extra time to store for each stack already there
-        public int additionalTimeEachDef=0;   // extra time to store for each different type of object there
-        public float additionalTimeStackSize=0f; // item with stack size 75 may take longer to store
-        public List<ThingDef> quickStoringItems=null;
-        public float maxTotalMass = 0f;
-        public float maxMassOfStoredItem = 0f;
-        public StatDef altStat=null;
-        public bool showContents=true;
-        public GuiOverlayType overlayType=GuiOverlayType.Normal;
-                
-        public int size=0;
-        public ThingDef parent=null; // :p  Have to keep track of this myself
-
-        private string categoriesString=null; // for the Stats window (information window)
-        private string defsString=null;
-        private string disallowedString=null;
-    }
-    
-    public enum GuiOverlayType : byte {
-        Normal,
-        CountOfAllStacks,       // Centered on DSU
-        CountOfStacksPerCell,   // Standard overlay position for each cell
-        SumOfAllItems,          // Centered on DSU
-        SumOfItemsPerCell,      // For e.g., Big Shelf
-        None,                   // Some users may want this
-    }
-
     public class CompDeepStorage : ThingComp, IHoldMultipleThings.IHoldMultipleThings {
         //public float y=0f;
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
@@ -182,7 +22,6 @@ namespace LWM.DeepStorage
 			{
 				icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
 				defaultLabel = "CommandRenameZoneLabel".Translate(),
-//				defaultDesc = "CommandRenameZoneDesc".Translate(),
 				action = delegate()
 				{
 					Find.WindowStack.Add(new Dialog_RenameDSU(this));
@@ -236,6 +75,8 @@ namespace LWM.DeepStorage
             return buildingLabel;
         }
 
+        // If the player has renamed the item, show the old name (e.g., label)
+        //   in the window so player can see "Oh, it's a masterwork uranium shelf" etc
         public override string CompInspectStringExtra() {
             if (this.buildingLabel=="") {
                 return null;
@@ -330,7 +171,7 @@ namespace LWM.DeepStorage
                     factor);
             }
             return t;
-        }
+        } // end TimeStoringTakes
         public bool showContents {
             get {
                 return ((Properties)this.props).showContents;
@@ -383,12 +224,17 @@ namespace LWM.DeepStorage
         }
 
         public int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {
+            Utils.Warn(CheckCapacity, "Checking Capacity to store "+thing.stackCount+thing+" at "
+                       +(map?.ToString()??"NULL MAP")+" "+cell);
             int capacity = 0;
             /* First test, is it even light enough to go in this DS? */
             //      No rocket launchers in jewelry boxes?
             if (this.limitingFactorForItem > 0f) {
-                if (thing.GetStatValue(this.stat) > this.limitingFactorForItem)
+                if (thing.GetStatValue(this.stat) > this.limitingFactorForItem) {
+                    Utils.Warn(CheckCapacity, "  Cannot store because "+stat+" of "
+                               +thing.GetStatValue(stat)+" > limit of "+limitingFactorForItem);
                     return 0;
+                }
             }
             float totalWeightStoredHere=0f;  //mass, or bulk, etc.
 
@@ -398,31 +244,51 @@ namespace LWM.DeepStorage
                 Thing thingInStorage = list[i];
                 if (thingInStorage.def.EverStorable(false)) { // an "item" we care about
                     stacksStoredHere+=1;
+                    Utils.Mess(CheckCapacity, "  Checking against "+thingInStorage.stackCount+thingInStorage);
                     if (this.limitingTotalFactorForCell > 0f) {
                         totalWeightStoredHere +=thingInStorage.GetStatValue(this.stat)*thingInStorage.stackCount;
+                        Utils.Mess(CheckCapacity, "    "+stat+" increased to "+totalWeightStoredHere+ " / "+
+                                   limitingTotalFactorForCell);
                         if (totalWeightStoredHere > this.limitingTotalFactorForCell &&
                             stacksStoredHere >= this.minNumberStacks) {
+                            Utils.Warn(CheckCapacity, "  "+thingInStorage.stackCount+thingInStorage+" already over mass!");
                             return 0;
                         }
                     }
+                    if (thingInStorage==thing) {
+                        Utils.Mess(CheckCapacity, "Found Item!");
+                        if (stacksStoredHere > maxNumberStacks) {
+                            // It's over capacity :(
+                            Utils.Warn(CheckCapacity, "  But all stacks already taken: "+(stacksStoredHere-1)+" / "+maxNumberStacks);
+                            return 0;
+                        }
+                        return thing.stackCount;
+                    }
                     if (thingInStorage.CanStackWith(thing)) {
                         if (thingInStorage.stackCount < thingInStorage.def.stackLimit) {
+                            Utils.Warn(CheckCapacity, "  has stackCount of only "+thingInStorage.stackCount+
+                                       " so it can hold more");
                             capacity += thingInStorage.def.stackLimit - thingInStorage.stackCount;
                         }
                     }
+                    //if (stacksStoredHere >= maxNumberStacks) break; // may be more stacks with empty space?
                 } // item
             } // end of cell's contents...
             // Count empty spaces:
             if (this.maxNumberStacks > stacksStoredHere) {
+                Utils.Mess(CheckCapacity, ""+(maxNumberStacks-stacksStoredHere)+" free stacks: adding to available capacity");
                 capacity+=(this.maxNumberStacks-stacksStoredHere)*thing.def.stackLimit;
             }
             if (this.limitingTotalFactorForCell > 0f) {
-                totalWeightStoredHere = this.limitingTotalFactorForCell - totalWeightStoredHere; // now storable here :p
+                totalWeightStoredHere = this.limitingTotalFactorForCell - totalWeightStoredHere; // is now totalWeightStorableHere
                 if (totalWeightStoredHere <= 0f) {
+                    Utils.Mess(CheckCapacity, "No storage available: above total allowed mass by "+totalWeightStoredHere);
                     return 0;
                 }
+                Utils.Mess(CheckCapacity, "Total mass this unit can store here: "+totalWeightStoredHere);
                 capacity = Math.Min(capacity, (int)(totalWeightStoredHere/thing.GetStatValue(this.stat)));
             }
+            Utils.Mess(CheckCapacity, "Available capacity: "+capacity);
             return capacity;
         }
         /************************** IHoldMultipleThings interface ************************/
@@ -435,7 +301,7 @@ namespace LWM.DeepStorage
         public bool StackableAt(Thing thing, IntVec3 cell, Map map) {
             return this.CapacityToStoreThingAt(thing,map,cell) > 0;
         }
-
+        /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
             Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
         }
