@@ -39,26 +39,26 @@ namespace LWM.DeepStorage
     [HarmonyPatch(typeof(Verse.AI.HaulAIUtility), "HaulToCellStorageJob")]
     class Patch_HaulToCellStorageJob {
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
-            #if false //// Transpiler Debugging, just in case I ever need to use it again.
-            var l=XTranspiler(instructions ,generator).ToList();
-            string s="Code:";
-            int i=0;
-            foreach (var c in l) {
-                if (c.opcode==OpCodes.Stloc_2 ||
-                    c.opcode==OpCodes.Stloc_S) {
-                    Log.Warning(""+i+": "+c);
-                } else {
-                    Log.Message(""+i+": "+c);
-                }
-                s+="\n"+i+": "+c;
-                i++;
-                yield return c;
-            }
-            Log.Error(s);
-        }
-        
+            #if false        /////////////////////////////////////
+            var l=XTranspiler(instructions ,generator).ToList();//
+            string s="Code:";                                   //
+            int i=0;                                            //
+            foreach (var c in l) {                              //
+                if (c.opcode==OpCodes.Stloc_2 ||                //
+                    c.opcode==OpCodes.Stloc_S) {//     ^        //
+                    Log.Warning(""+i+": "+c);   //     |        //
+                } else {                        // Transpiler   //
+                    Log.Message(""+i+": "+c);   //  Debugging   //
+                }                               //     |        //
+                s+="\n"+i+": "+c;               //     v        //
+                i++;                   // (left here just in    //
+                yield return c;        //  case I ever need     //
+            }                          //  to use it again)     //
+            Log.Error(s);                                       //
+        }                                                       //
+                                                                //
         public static IEnumerable<CodeInstruction> XTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
-            #endif // Can I even do this?
+            #endif // Can I even do this? YES!  //////////////////
             List<CodeInstruction> code=instructions.ToList();
             // a function call we need to check against a few times:
             var callThingAt=AccessTools.Method(typeof(ThingGrid), "ThingAt", new Type[] {typeof(IntVec3),typeof(ThingDef)});
