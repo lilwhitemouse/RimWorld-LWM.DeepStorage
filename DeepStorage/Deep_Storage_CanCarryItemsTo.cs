@@ -52,9 +52,12 @@ namespace LWM.DeepStorage
                 //                Log.Warning("  ...letting vanilla handle it.");
                 return true; // normal spot, NoStorageBlockersIn() will handle it
             }
-            __result = false; // NoStorageBlockersIn returns false if there's a blocker
+            //TODO: Make this IHoldMultipleThings
+//            __result = false; // NoStorageBlockersIn returns false if there's a blocker
                               // Default to having a blocker unless EVERYTHING is okay
                               //  (We return false from this Patch function to skip original method)
+            __result=cds.StackableAt(thing, c, map);
+            return false;
             // If there is a maximum size of items that will fit in the unit, quit:
             if (cds.limitingFactorForItem > 0f) {
                 if (thing.GetStatValue(cds.stat) > cds.limitingFactorForItem) {
