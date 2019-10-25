@@ -52,7 +52,7 @@ namespace LWM.DeepStorage
     {
         public static void Postfix(Toil __result, TargetIndex cellInd)
         {
-            Utils.Err(PlaceHauledThingInCell, "Starting new haul job, toils created");
+            Utils.Warn(PlaceHauledThingInCell, "Starting new haul job, toils created");
 
             //TODO?  Make a wrapper around old initAction that doesn't put 
             //  stuff down if failure happens?
@@ -66,7 +66,8 @@ namespace LWM.DeepStorage
                 Pawn actor = __result.actor;
                 Job curJob = actor.jobs.curJob;
                 IntVec3 cell = curJob.GetTarget(cellInd).Cell;
-                Utils.Err(PlaceHauledThingInCell, "PreInitAction called for " + actor+"'s haul job "+curJob.def.driverClass+" to "+cell);
+                Utils.Warn(PlaceHauledThingInCell, "PreInitAction called for " + actor+"'s haul job "
+                           +curJob.def.driverClass+" to "+cell+" (toil "+actor.jobs.curDriver.CurToilIndex+")");
                 //                Log.Error("Place Hauled Thing in Cell:  Toil preInit!  Putting in "+cell.ToString());
                 //                actor.jobs.debugLog = true;
                 if (actor.carryTracker.CarriedThing == null)
@@ -128,11 +129,15 @@ namespace LWM.DeepStorage
             __result.tickAction = delegate ()
             {
                 Pawn pawn = __result.actor;
-                Utils.Warn(PlaceHauledThingInCell, 
-                           "  "+pawn+"'s ticks left: " + __result.actor.jobs.curDriver.ticksLeftThisToil);
+                //Utils.Mess(PlaceHauledThingInCell, 
+                //           "  "+pawn+"'s ticks left: " + __result.actor.jobs.curDriver.ticksLeftThisToil);
                 if (pawn.jobs.curDriver.ticksLeftThisToil <= 1) // last tick is 1, not 0
                 {
-                    Utils.Err(PlaceHauledThingInCell, "Hit 0 ticks");
+                    Utils.Warn(PlaceHauledThingInCell, "  "+pawn+" hit "+pawn.jobs.curDriver.ticksLeftThisToil+
+                               " ticks; about to put down "+(pawn.carryTracker.CarriedThing!=null?
+                                                             (""+pawn.carryTracker.CarriedThing.stackCount+
+                                                              pawn.carryTracker.CarriedThing):
+                                                             "NULL ITEM"));
                     placeStuff();
                 }
             };
