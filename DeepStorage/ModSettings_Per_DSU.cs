@@ -409,11 +409,15 @@ namespace LWM.DeepStorage
         private static void ExposeDSUSetting<T>(string keylet, ref T value) where T : IComparable {
             string key = "DSU_"+keylet;
             T defaultValue=(defaultDSUValues.ContainsKey(key)?(T)defaultDSUValues[key]:value);
-            Utils.Mess(Utils.DBF.Settings, "  Expose Setting: "+key+" (current value: "
-                       +value+"; default Value: "+defaultValue+")");
+            if (defaultValue.CompareTo(value)!=0) {
+                Utils.Mess(Utils.DBF.Settings, "  Expose Setting: "+key+" (current value: "
+                           +value+"; default Value: "+defaultValue+")");
+            }
             Scribe_Values.Look(ref value, key, defaultValue);
-            Utils.Mess(Utils.DBF.Settings, "  after scribing: "+key+" (current value: "
-                       +value+"; default Value: "+defaultValue+")");
+            if (defaultValue.CompareTo(value)!=0) {
+                Utils.Mess(Utils.DBF.Settings, "  after scribing: "+key+" (current value: "
+                           +value+"; default Value: "+defaultValue+")");
+            }
             if (defaultValue.CompareTo(value) != 0 && !defaultDSUValues.ContainsKey(key)) {
 //                Log.Message("-->"+key+" storing default value of "+defaultValue);//TODO
 //                Log.Warning("        Current value: "+value);
