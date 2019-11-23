@@ -102,7 +102,7 @@ namespace LWM.DeepStorage
 /*        public int timeStoringTakes() {
             return ((Properties)this.props).timeStoringTakes;
         }        */
-        public int TimeStoringTakes(Map map, IntVec3 cell, Pawn pawn) {
+        public virtual int TimeStoringTakes(Map map, IntVec3 cell, Pawn pawn) {
             if (cdsProps.minTimeStoringTakes <0) {
                 // Basic version
                 return ((Properties)this.props).timeStoringTakes;
@@ -172,7 +172,7 @@ namespace LWM.DeepStorage
             }
             return t;
         } // end TimeStoringTakes
-        public bool showContents {
+        public virtual bool showContents {
             get {
                 return ((Properties)this.props).showContents;
             }
@@ -223,7 +223,7 @@ namespace LWM.DeepStorage
             */
         }
 
-        public int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {
+        public virtual int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {
             Utils.Warn(CheckCapacity, "Checking Capacity to store "+thing.stackCount+thing+" at "
                        +(map?.ToString()??"NULL MAP")+" "+cell);
             int capacity = 0;
