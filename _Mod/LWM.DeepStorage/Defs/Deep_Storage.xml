@@ -218,6 +218,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <statBases>
       <MaxHitPoints>80</MaxHitPoints>
       <!--Fewer hp b/c more precarious-->
+      <Beauty>1</Beauty>
       <Mass>16</Mass>
       <WorkToBuild>1200</WorkToBuild>
       <Flammability>1.0</Flammability>
@@ -314,6 +315,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     </stuffCategories>
     <costStuffCount>60</costStuffCount>
     <statBases>
+      <Beauty>1</Beauty>
       <MaxHitPoints>25</MaxHitPoints>
       <Mass>8</Mass>
       <WorkToBuild>500</WorkToBuild>
@@ -624,7 +626,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
       <MaxHitPoints>100</MaxHitPoints>
       <WorkToBuild>600</WorkToBuild>
       <Flammability>0.01</Flammability>
-      <Beauty>-2</Beauty>
+      <Beauty>-2</Beauty><!--Creeeepy-->
       <Mass>10</Mass>
     </statBases>
     <stuffCategories>
@@ -694,6 +696,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
     </costList>
     <statBases>
       <MaxHitPoints>95</MaxHitPoints>
+      <Beauty>1.1</Beauty>
       <!--Fewer hp b/c more precarious-->
       <Mass>30</Mass>
       <WorkToBuild>1500</WorkToBuild>
@@ -724,7 +727,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
   <ThingDef Name="LWM_HayLoft" ParentName="LWM_DeepStorage">
     <defName>LWM_Hayloft</defName>
     <label>Hayloft</label>
-    <description>A hayloft is a space above a barn, stable or cow-shed, traditionally used for storage of hay or other fodder for the animals below. Haylofts were used mainly before the widespread use of industrial sized farm machinery allowed creating very large haybales that cannot be easily lifted for storing...  --Encyclopedia Galactica\n\nLet's be honest here.  Unless you're using some farming mods I don't know about, your colonists are probably making piles of hay by hand, which is slow, backbreaking labor.  You know?  Most farming is slow, backbreaking labor, and your colonists can't even hire migrant workers from other colonies.  Treat farmers and farm workers with respect: they work a lot harder than YOU do; amazing people.\n\nThis structure can be used to store hay, silage, and various other plant materials off of damp floors.  You probably want to build it a (very tall) roof.</description>
+    <description>"A hayloft is a space above a barn, stable or cow-shed, traditionally used for storage of hay or other fodder for the animals below. Haylofts were used mainly before the widespread use of industrial sized farm machinery allowed creating very large haybales that cannot be easily lifted for storing..."  --Encyclopedia Galactica\n\nLet's be honest here.  Unless you're using some farming mods I don't know about, your colonists are probably making piles of hay by hand, which is slow, backbreaking labor.  You know what?  Most farming is slow, backbreaking labor, and your colonists can't even hire migrant workers from other colonies.  Treat farmers and farm workers with respect: they work a lot harder than YOU do ;) Amazing people, good food.\n\nThis structure can be used to store hay, silage, and various other plant materials off of damp floors.  You probably want to build it under a (very tall) roof.</description>
     <graphicData>
       <graphicClass>Graphic_Multi</graphicClass>
       <texPath>Hayloft</texPath>
@@ -735,7 +738,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
     <statBases>
       <MaxHitPoints>140</MaxHitPoints><!--Sturdy well built, one hopes-->
       <Flammability>0.9</Flammability><!--...wish there were an easy way to make metal things less flammable...-->
-      <Beauty>0</Beauty>
+      <Beauty>-4</Beauty><!--Take all the beauty hit from the hay, one time--><!--Also, isn't hay idyllic?  Why so low beauty?-->
       <Mass>40</Mass>
     </statBases>
     <pathCost>100</pathCost><!--structure off the ground, just have to get around posts?-->

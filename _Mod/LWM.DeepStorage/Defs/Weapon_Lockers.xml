@@ -5,7 +5,7 @@
   <ThingDef ParentName="LWM_DeepStorage" >
     <defName>LWM_WeaponsCabinet</defName>
     <label>Weapons Cabinet</label>
-    <description>A cabinet for storing multiple weapons. Items stored in this will not deteriorate, even if outside.</description>
+    <description>A sturdy cabinet for storing multiple weapons. Items stored in this will not deteriorate, even if outside.</description>
     <graphicData>
       <texPath>sumghai/weaponsCabinet</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
@@ -17,6 +17,7 @@
     <castEdgeShadows>true</castEdgeShadows>
     <size>(1,1)</size>
     <statBases>
+      <Beauty>3.5</Beauty><!--Some pretty gun cabinets out there in the US's South--><!--TODO: allow art?-->
       <MaxHitPoints>200</MaxHitPoints>
       <WorkToBuild>600</WorkToBuild>
       <Flammability>1.0</Flammability>
@@ -63,7 +64,7 @@
 
   <!-- Metallic Weapons Locker for industrial, modern and spacer playthroughs -->
   <!--   or for anyone who builds some good careful metal-working tools -->	
-  <ThingDef ParentName="LWM_DeepStorage" >
+  <ThingDef ParentName="LWM_DeepStorage" ><!--TODO: make this non-quality based?-->
     <defName>LWM_WeaponsLocker</defName>
     <label>Weapons Locker</label>
     <description>A high-capacity metal locker for securely storing many weapons. Items stored in this will not deteriorate, even if outside.</description>
@@ -78,6 +79,7 @@
     <castEdgeShadows>true</castEdgeShadows>
     <size>(1,1)</size>
     <statBases>
+      <Beauty>0.7</Beauty>
       <MaxHitPoints>150</MaxHitPoints><!--thin metal sheets-->
       <WorkToBuild>600</WorkToBuild>
       <Flammability>0.1</Flammability>
