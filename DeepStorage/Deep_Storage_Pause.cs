@@ -24,27 +24,29 @@ namespace LWM.DeepStorage
      *   instantly, no ticks happen in waiting, and the entire
      *   placement happens at once.
      *
-     * We always take the old initAction - which does the actual
-     *   placing and set it to happen on ticksRemaining==1
-     *   We do this regardless of the test in PreInitAction.
-     *   Why?  Saved games.  PreInitAction doesn't get called if
+     * We always take the old initAction (placeStuff below), which 
+     *   does the actual placing, and set it to always happen on 
+     *   ticksRemaining==1.
+     *   We do this regardless of the test in InitActon for whether
+     *   we are going into DeepStorage
+     *   Why?  Saved games.  InitAction may not get called if
      *   we are already in the middle of the toil when the game
-     *   was saved.  But the ticks still happen, so we need
-     *   an end condition.    
+     *   was saved.  But we still need to put down the stuff.
      * 
-     * If the PreInitAction sees it IS going to DeepStorage, 
-     *   it sets up the waiting.
+     * We change the initAction to do a test for DeepStorage.
+     *   If is IS, it sets up the waiting.
      *  -remove the original initAction (still going to happen on tick 1)
+     *       (placeStuff)
      *  -add progress bar (doesn't happen on load, btw)
      *   (could change if it's ever important)
      *  -counts ticks, etc.
-     *     
+     *   If it ISN'T, it just calls the original placeAction.
      * Also done, setting up fail conditions.    
      *   (still some TODO)
      * 
-     * NOTE: Better approach would be to patch the toil creation  \
-     *       in the JobDriver_HaulToCell, but that would involve   --- Probably not - not all mods use the same job
-     *       Transpiler editing of an IEnumerable jump table.     /
+     * NOTE: Better approach might be to patch the toil creation  \
+     * (not  in the JobDriver_HaulToCell, but that would involve   --- Probably not - not all mods use the same job
+     * true) Transpiler editing of an IEnumerable jump table.     /
      * 
      */
     [HarmonyPatch(typeof(Toils_Haul), "PlaceHauledThingInCell")]
@@ -61,12 +63,13 @@ namespace LWM.DeepStorage
             // NOTE: none of this PreInitAtion happens if the game is being loaded while storing is going on:
             //   This means, among other things, that pawns don't get progress bars on reload
             //   I could make it happen if it ever gets to be important...
-            __result.AddPreInitAction(delegate ()
+            __result.initAction=delegate ()
             {
+//                __result.defaultCompleteMode = ToilCompleteMode.Instant;
                 Pawn actor = __result.actor;
                 Job curJob = actor.jobs.curJob;
                 IntVec3 cell = curJob.GetTarget(cellInd).Cell;
-                Utils.Warn(PlaceHauledThingInCell, "PreInitAction called for " + actor+"'s haul job "
+                Utils.Warn(PlaceHauledThingInCell, "initAction called for " + actor+"'s haul job "
                            +curJob.def.driverClass+" to "+cell+" (toil "+actor.jobs.curDriver.CurToilIndex+")");
                 //                Log.Error("Place Hauled Thing in Cell:  Toil preInit!  Putting in "+cell.ToString());
                 //                actor.jobs.debugLog = true;
@@ -81,38 +84,41 @@ namespace LWM.DeepStorage
                     (cds = (((ThingWithComps)slotGroup?.parent)?.GetComp<CompDeepStorage>()))==null)
                 {
                     Utils.Warn(PlaceHauledThingInCell, "not going into Deep Storage");
-                    // Pick Up & Haul reuses Toils, maybe I broke this one in an earlier run:
-                    if (__result.initAction==null) {
-                        Utils.Warn(PlaceHauledThingInCell, "  (restoring initAction)");
-                        __result.initAction=placeStuff;
-                        return;
-                    }
-                    return; // initAction still around, will handle
+                    // Pick Up & Haul reuses Toils; I realized this meant I need to keep original placeStuff() around:
+                    placeStuff();
+                    return;
                 }
                 int timeStoringTakes = cds.TimeStoringTakes(actor.Map,cell, actor);
-                if (timeStoringTakes <= 0
+                timeStoringTakes =(int)(timeStoringTakes*Settings.storingGlobalScale);
+                if (timeStoringTakes <= 1
                     || !Settings.storingTakesTime ) //boo, hiss, but some ppl use it
                 { // just like vanilla
                     Utils.Warn(PlaceHauledThingInCell, "Instantaneous storing time");
+                    placeStuff();
                     return;
                 }
-                timeStoringTakes =(int)(timeStoringTakes*Settings.storingGlobalScale);
-                // Remove the initAction so it doesn't happen before waiting starts:
-                __result.initAction = null;
+//                __result.defaultCompleteMode = ToilCompleteMode.Delay;
                 if (actor.jobs.curDriver.ticksLeftThisToil < 1) // test is probably superfluous
                 {
                     actor.jobs.curDriver.ticksLeftThisToil = timeStoringTakes;
                 }
+                Utils.Mess(PlaceHauledThingInCell, "  Storing time set to: "+actor.jobs.curDriver.ticksLeftThisToil);
                 // It'd be nice to have a progress bar for deep storage
                 __result.WithProgressBar(TargetIndex.B, () => 1f -
                           (float)__result.actor.jobs.curDriver.ticksLeftThisToil / timeStoringTakes, true);
 
                 /***** Add some end conditions: *****/
-
-                Thing t = actor.CurJob.GetTarget(TargetIndex.A).Thing;
+                //TODO: .....is this even a good idea?  if the pawn is moving a lot of things at once
+                //   (I'm looking at you Mehni's Pick Up and Haul), this could break the entire chain.
+                // TODO: Replace this with a check MUCH earlier.  And one right before actual placement
+                //    takes place.
+/*                Thing t = actor.CurJob.GetTarget(TargetIndex.A).Thing;
                 if (t != null)
                     __result.FailOn(() => !slotGroup.parent.Accepts(t));
-
+                    */
+                //TODO: Find a way to track the end condition? Remove it?
+                //  Or just make it complicated :p
+//                __result.FailOn(delegate() {});
                 // TODO: any other end conditions?  Fail conditions?
                 // TODO: Any reservations?
 
@@ -121,8 +127,8 @@ namespace LWM.DeepStorage
 
 
 
-            }); // added pre-init action!
-
+            }; // changed initAction!
+            __result.defaultCompleteMode = ToilCompleteMode.Delay;
             // The tickAction is only called if we are going into Deep Storage,
             //   otherwise the toil is over after initAction and no ticks happen.
             // This will still get called even on load/save, because ticks count down.
@@ -139,12 +145,21 @@ namespace LWM.DeepStorage
                                                               pawn.carryTracker.CarriedThing):
                                                              "NULL ITEM"));
                     placeStuff();
+                    return;
                 }
+                /*
+                if (pawn.jobs.curDriver.ticksLeftThisToil%50==0) {
+                    // TODO: fail conditions
+                    ...etc...
+                    pawn.jobs.curDriver.EndJobWith(JobCondition.Incompletable);
+                }
+                */
             };
 
             // ToilCompleteMode.Delay is acceptable in vanilla case, as duration is 0:
-            __result.defaultCompleteMode = ToilCompleteMode.Delay;
-            __result.defaultDuration = 0; // changed by PreInitAction, if needed
+
+//            __result.defaultDuration = 0; // changed by PreInitAction, if needed
+            // This is okay: it checks the current TargetIndex.B
             __result.FailOnBurningImmobile(TargetIndex.B);
 
             // todo reservations (possibly?)
