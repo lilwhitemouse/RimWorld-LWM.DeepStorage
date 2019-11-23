@@ -115,7 +115,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
       <additionalTimeEachDef>200</additionalTimeEachDef> - each different type of thing
           Technically, each item that cannot stack with other items.
           So if you are putting catfood in a bowl, but it already has 2 dogfood and 1 fishfood,
-          this will get added twice.
+          this will get added twice.  If you were adding fishfood, it would get added once.
       Mass restrictions:    
       <maxTotalMass></maxTotalMass> - per cell
       <maxMassOfStoredItem></maxMassOfStoredItem> - per item.  Items bigger than this just cannot fit
@@ -198,8 +198,8 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
   <!-- As a nice easy first Deep Storage Unit -->
   <ThingDef Name="LWM_Big_Shelf" ParentName="LWM_DeepStorage">
     <defName>LWM_BigShelf</defName><!-- name change to reduce chance of mod conflict.  See Updates.cs -->
-    <label>Big Shelf</label>
-    <description>A shelf for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nItems stored in this will not deteriorate, even if outside.</description>
+    <label>Double Shelf</label>
+    <description>A shelf for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nItems stored in this will not deteriorate, even if outside.\n\nThis shelf holds twice as much.</description>
     <thingClass>Building_Storage</thingClass>
     <graphicData>
       <texPath>Things/Building/Furniture/Shelf</texPath>
@@ -515,7 +515,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
       <MaxHitPoints>90</MaxHitPoints>
       <WorkToBuild>580</WorkToBuild>
       <Flammability>1.0</Flammability>
-      <Beauty>5</Beauty>
+      <Beauty>1.5</Beauty><!-- If I ever change texture to armoir, I'm bumping this up to 3 -->
       <Mass>10</Mass>
     </statBases>
     <stuffCategories>
@@ -537,7 +537,9 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
     </building>
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
-        <maxNumberStacks>5</maxNumberStacks>
+        <maxNumberStacks>10</maxNumberStacks>
+        <minNumberStacks>5</minNumberStacks><!-- always allow at least 5 parkas per slot -->
+        <maxTotalMass>2.5</maxTotalMass><!-- allow 10 t-shirts per slot -->
         <minTimeStoringTakes>90</minTimeStoringTakes>
         <additionalTimeEachStack>15</additionalTimeEachStack>
         <overlayType>CountOfStacksPerCell</overlayType>
@@ -561,7 +563,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
       <MaxHitPoints>100</MaxHitPoints>
       <WorkToBuild>800</WorkToBuild><!-- fiddly bits? -->
       <Flammability>1.0</Flammability>
-      <Beauty>2</Beauty>
+      <Beauty>0.7</Beauty>
       <Mass>20</Mass>
     </statBases>
     <stuffCategories>
@@ -715,6 +717,58 @@ Note that you can only fit so many giant corpses into one space, even if you sta
         <maxMassOfStoredItem>90</maxMassOfStoredItem>
         <maxTotalMass>320</maxTotalMass><!-- about 4 standard humans.  Don't ask, remember?  Don't ask... -->
         <overlayType>SumOfItemsPerCell</overlayType>
+      </li>
+    </comps>
+  </ThingDef>
+  <ThingDef Name="LWM_HayLoft" ParentName="LWM_DeepStorage">
+    <defName>LWM_Hayloft</defName>
+    <label>Hayloft</label>
+    <description>A hayloft is a space above a barn, stable or cow-shed, traditionally used for storage of hay or other fodder for the animals below. Haylofts were used mainly before the widespread use of industrial sized farm machinery allowed creating very large haybales that cannot be easily lifted for storing...  --Encyclopedia Galactica\n\nLet's be honest here.  Unless you're using some farming mods I don't know about, your colonists are probably making piles of hay by hand, which is slow, backbreaking labor.  You know?  Most farming is slow, backbreaking labor, and your colonists can't even hire migrant workers from other colonies.  Treat farmers and farm workers with respect: they work a lot harder than YOU do; amazing people.\n\nThis structure can be used to store hay, silage, and various other plant materials off of damp floors.  You probably want to build it a (very tall) roof.</description>
+    <graphicData>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <texPath>Hayloft</texPath>
+      <drawSize>(3,2)</drawSize>
+    </graphicData>
+    <staticSunShadowHeight>1</staticSunShadowHeight><!--these things are tall, eh?-->
+    <size>(2,1)</size>
+    <statBases>
+      <MaxHitPoints>140</MaxHitPoints><!--Sturdy well built, one hopes-->
+      <Flammability>0.9</Flammability><!--...wish there were an easy way to make metal things less flammable...-->
+      <Beauty>0</Beauty>
+      <Mass>40</Mass>
+    </statBases>
+    <pathCost>100</pathCost><!--structure off the ground, just have to get around posts?-->
+    <stuffCategories>
+      <li>Woody</li>
+      <li>Metallic</li><!-- solid gold haylofts?  If you can afford this, you can afford to pretend you used some steel ;p -->
+    </stuffCategories>
+    <costStuffCount>85</costStuffCount>
+    <building>
+      <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
+      <fixedStorageSettings>
+        <filter>
+          <categories>
+            <li>PlantMatter</li>
+          </categories>
+          <thingDefs>
+            <li>Hay</li>
+          </thingDefs>
+        </filter>
+      </fixedStorageSettings>
+      <defaultStorageSettings>
+        <filter>
+          <thingDefs>
+            <li>Hay</li>
+          </thingDefs>
+        </filter>
+      </defaultStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <maxNumberStacks>4</maxNumberStacks>
+        <minTimeStoringTakes>100</minTimeStoringTakes>
+        <additionalTimeEachDef>8</additionalTimeEachDef><!--So 75 (max vanilla carrying capacity)->700 -->
+        <overlayType>SumOfAllItems</overlayType>
       </li>
     </comps>
   </ThingDef>
