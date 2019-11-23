@@ -77,7 +77,8 @@ namespace LWM.DeepStorage
                     categoriesString="";
                     ThingFilter tf=parent?.building?.fixedStorageSettings?.filter;
                     if (tf==null) {
-                        Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
+                        // filters can be null, e.g., shelves
+                        //Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
                         return "";
                     }
                     var c=(List<string>)Harmony.AccessTools.Field(typeof(ThingFilter), "categories").GetValue(tf);
@@ -97,7 +98,7 @@ namespace LWM.DeepStorage
                     defsString="";
                     ThingFilter tf=parent?.building?.fixedStorageSettings?.filter;
                     if (tf==null) {
-                        Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
+                        //Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
                         return "";
                     }
                     var d=(List<ThingDef>)Harmony.AccessTools.Field(typeof(ThingFilter), "thingDefs").GetValue(tf);
@@ -116,7 +117,7 @@ namespace LWM.DeepStorage
                     disallowedString="";
                     ThingFilter tf=parent?.building?.fixedStorageSettings?.filter; // look familiar yet?
                     if (tf==null) {
-                        Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
+                        //Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
                         return "";
                     }
                     var c=(List<string>)Harmony.AccessTools.Field(typeof(ThingFilter), "disallowedCategories").GetValue(tf);
