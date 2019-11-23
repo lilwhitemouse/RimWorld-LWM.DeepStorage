@@ -371,6 +371,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
     </stuffCategories>
     <costStuffCount>90</costStuffCount>
     <building>
+      <ignoreStoredThingsBeauty>false</ignoreStoredThingsBeauty>
       <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
       <fixedStorageSettings>
         <filter>
@@ -444,8 +445,8 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
       <li Class="LWM.DeepStorage.Properties" >
         <maxNumberStacks>4</maxNumberStacks>
         <minTimeStoringTakes>300</minTimeStoringTakes>
-        <additionalTimeEachStack>120</additionalTimeEachStack>
-        <additionalTimeEachDef>60</additionalTimeEachDef>
+        <additionalTimeEachStack>110</additionalTimeEachStack>
+        <additionalTimeEachDef>20</additionalTimeEachDef>
 <!--        <timeStoringTakes>800</timeStoringTakes>-->
         <overlayType>SumOfAllItems</overlayType>
       </li>
@@ -492,9 +493,9 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
         <maxNumberStacks>4</maxNumberStacks>
-        <minTimeStoringTakes>425</minTimeStoringTakes>
-        <additionalTimeEachStack>120</additionalTimeEachStack>
-        <additionalTimeEachDef>60</additionalTimeEachDef>
+        <minTimeStoringTakes>450</minTimeStoringTakes>
+        <additionalTimeEachStack>70</additionalTimeEachStack>
+        <additionalTimeEachDef>5</additionalTimeEachDef>
 <!--        <timeStoringTakes>1000</timeStoringTakes>-->
         <overlayType>SumOfAllItems</overlayType>
       </li>
