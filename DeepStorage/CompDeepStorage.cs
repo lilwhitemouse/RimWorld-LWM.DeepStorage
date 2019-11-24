@@ -275,18 +275,35 @@ namespace LWM.DeepStorage
                 } // item
             } // end of cell's contents...
             // Count empty spaces:
+            if (this.limitingTotalFactorForCell > 0f) {
+                if (stacksStoredHere <= minNumberStacks) {
+                    capacity+=(minNumberStacks-stacksStoredHere)*thing.def.stackLimit;
+                    Utils.Mess(CheckCapacity, "Adding capacity for minNumberStacks: "+stacksStoredHere+"/"+
+                               minNumberStacks+" - capacity now: "+capacity);
+                    totalWeightStoredHere+=(minNumberStacks-stacksStoredHere)*thing.GetStatValue(this.stat)*thing.def.stackLimit;
+                    stacksStoredHere=minNumberStacks;
+                }
+                // reuse variable totalWeightStoredHere as totalWeightStorableHere
+                totalWeightStoredHere = this.limitingTotalFactorForCell - totalWeightStoredHere;
+                if (totalWeightStoredHere <= 0f) {
+                    Utils.Mess(CheckCapacity, "No storage available by mass: above total by "+totalWeightStoredHere);
+                    if (stacksStoredHere > this.minNumberStacks) return 0;
+                    Utils.Mess(CheckCapacity, "  but minNumberStacks not passed, so available capacity is "+capacity);
+                    return capacity;
+                }
+                if (stacksStoredHere < maxNumberStacks) {
+                    capacity+=Math.Min(
+                        ((maxNumberStacks-stacksStoredHere)*thing.def.stackLimit),   // capacity available by count
+                        ((int)(totalWeightStoredHere/thing.GetStatValue(this.stat))) // capacity available by weight
+                        );
+                }
+                Utils.Mess(CheckCapacity, "Total available mass for additional storage: "
+                           +totalWeightStoredHere+"; final capacity: "+capacity);
+                return capacity;
+            }
             if (this.maxNumberStacks > stacksStoredHere) {
                 Utils.Mess(CheckCapacity, ""+(maxNumberStacks-stacksStoredHere)+" free stacks: adding to available capacity");
                 capacity+=(this.maxNumberStacks-stacksStoredHere)*thing.def.stackLimit;
-            }
-            if (this.limitingTotalFactorForCell > 0f) {
-                totalWeightStoredHere = this.limitingTotalFactorForCell - totalWeightStoredHere; // is now totalWeightStorableHere
-                if (totalWeightStoredHere <= 0f) {
-                    Utils.Mess(CheckCapacity, "No storage available: above total allowed mass by "+totalWeightStoredHere);
-                    return 0;
-                }
-                Utils.Mess(CheckCapacity, "Total mass this unit can store here: "+totalWeightStoredHere);
-                capacity = Math.Min(capacity, (int)(totalWeightStoredHere/thing.GetStatValue(this.stat)));
             }
             Utils.Mess(CheckCapacity, "Available capacity: "+capacity);
             return capacity;
