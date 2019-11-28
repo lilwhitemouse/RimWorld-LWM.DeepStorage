@@ -67,13 +67,15 @@ namespace LWM.DeepStorage
             false, // Place Hauled Thing In Cell (wait functionaliy)
             false, // ShouldRemoveFromStorage
             false, // CheckCapacity
+            false, // RightClickMenu // Patch_FloatMenuMakerMap_RightClick
             true, // Settings
         };
 
         public enum DBF // DeBugFlag
         {
             Testing, NoStorageBlockerseIn, HaulToCellStorageJob, TryPlaceDirect, Spawn, TidyStacksOf,
-            Deep_Storage_Job, PlaceHauledThingInCell, ShouldRemoveFromStorage, CheckCapacity, Settings
+            Deep_Storage_Job, PlaceHauledThingInCell, ShouldRemoveFromStorage, CheckCapacity,
+            RightClickMenu, Settings
         }
 
         // Nifty! Won't even be compiled into assembly if not DEBUG

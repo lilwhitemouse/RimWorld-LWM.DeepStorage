@@ -89,6 +89,7 @@
     <Compile Include="Deep_Storage_Display.cs" />
     <Compile Include="Deep_Storage_ShouldRemoveFrom.cs" />
     <Compile Include="Patch_BeautyUtility.cs" />
+    <Compile Include="Patch_FloatMenuMakerMap_RightClick.cs" />
     <Compile Include="CompDeepStorage.cs" />
     <Compile Include="CompProperties.cs" />
     <Compile Include="Dialog_RenameDSU.cs" />
