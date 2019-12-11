@@ -44,14 +44,14 @@ namespace LWM.DeepStorage
         }
         [HarmonyPriority(Priority.First)]
         public static bool Prefix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts) {
-            return Patch_FloatMenuMakerMap.Prefix(clickPos,pawn,opts,false,false);
+            return Patch_FloatMenuMakerMap.Prefix(clickPos,IntVec3.Invalid,pawn,opts,false,false);
         }
         [HarmonyPriority(Priority.Last)]
         public static void Postfix(List<FloatMenuOption> opts) {
             Patch_FloatMenuMakerMap.Postfix(opts);
         }
     }
-    [HarmonyPatch(typeof(FloatMenuMakerMap), "AddJobGiverWorkOrders")]
+//    [HarmonyPatch(typeof(FloatMenuMakerMap), "AddJobGiverWorkOrders")]
     static class Patch_AddJobGiverWorkOrders {
         static bool Prepare(HarmonyInstance instance) {
             Utils.Warn(RightClickMenu, "Loading AddJobGiverWorkOrders menu code: "
@@ -59,33 +59,65 @@ namespace LWM.DeepStorage
             return Settings.useDeepStorageRightClickLogic;
         }
         [HarmonyPriority(Priority.First)]
-        public static bool Prefix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts, bool drafted) {
-            return Patch_FloatMenuMakerMap.Prefix(clickPos,pawn,opts,true,drafted);
+        public static bool Prefix(IntVec3 clickCell, Pawn pawn, List<FloatMenuOption> opts, bool drafted) {
+            try {
+                Log.Message("About to try....");
+//                Patch_FloatMenuMakerMap.AJGWO.Invoke(null, new object[] {clickCell, pawn, opts, drafted});
+            }
+            catch (Exception e) {
+                Log.Error("well, THAT failed: "+e);
+                return true;
+            }
+
+            return true;          
+            return false;
+            return Patch_FloatMenuMakerMap.Prefix(Vector3.zero,clickCell,pawn,opts,true,drafted);
         }
         [HarmonyPriority(Priority.Last)]
         public static void Postfix(List<FloatMenuOption> opts) {
+            Log.Message("Skipping...");
+            return;
             Patch_FloatMenuMakerMap.Postfix(opts);
         }
     }
-    
+    [StaticConstructorOnStartup]    
     static class Patch_FloatMenuMakerMap {
+        static Patch_FloatMenuMakerMap() {
+            if (AJGWO==null) {
+                Log.Error("AJGWO is null :(");
+                return;
+            } else Log.Error("-----__About to test!");
+            try {
+                AJGWO.Invoke(null, new object[] {IntVec3.Invalid,null, new List<FloatMenuOption>(),false});
+            } catch (Exception e) {
+                Log.Error("Oops. Exception: "+e);
+            }
+
+            
+        }
+        
         static bool runningPatchLogic=false;
         static List<FloatMenuOption> realList=new List<FloatMenuOption>();
         static int failsafe=0;
+        static Vector3 clickPos;
         
         // We have to run as Prefix, because we need to intercept the incoming List.
-        public static bool Prefix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts,
+        public static bool Prefix(Vector3 clickPosition, IntVec3 c, Pawn pawn, List<FloatMenuOption> opts,
                                   bool runningAJGWO, bool drafted /*only if runningAJGWO*/) {
             Utils.Mess(RightClickMenu,""+(runningAJGWO?"AddJobGiverWorkOrders":"AddHumanlikeOrders")+
                        " called.  Currently "
                        +(runningPatchLogic?"":" not ")+"running special Patch Logic");
+            if (runningAJGWO) return true;
             if (failsafe++>500) runningPatchLogic=false;
             if (runningPatchLogic) return true;
             // Only give nice tidy menu if items are actually in Deep Storage: otherwise, they
             //   are a jumbled mess on the floor, and pawns can only interact with what's on
             //   top until they've cleaned up the mess.
             // I *could* do better and throw away all items below, but whatev's this is good enuf.
-            IntVec3 c = IntVec3.FromVector3(clickPos);
+            if (!runningAJGWO) {
+                clickPos=clickPosition;
+                c = IntVec3.FromVector3(clickPos);
+            }
             if (((c.GetSlotGroup(pawn.Map)?.parent)as ThingWithComps)?.AllComps
                 .FirstOrDefault(x=>x is IHoldMultipleThings.IHoldMultipleThings)==null) {
                 Utils.Warn(RightClickMenu, "Location "+c+" is not in any DSU; continuing.");
@@ -125,7 +157,7 @@ namespace LWM.DeepStorage
             /*****************  Do magic ****************/
             object[] origParams;
             if (runningAJGWO) {
-                origParams=new object[] { clickPos, pawn, opts, drafted };
+                origParams=new object[] { c, pawn, opts, drafted };
             } else {
                 origParams=new object[] { clickPos, pawn, opts };
             }
@@ -162,7 +194,6 @@ namespace LWM.DeepStorage
             }
             return false;
         } // end Prefix
-//        public static void Postfix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts) {
         public static void Postfix(List<FloatMenuOption> opts) {
             if (runningPatchLogic) return;
             if (realList.Count == 0) return; // incidentally breaks out of logic here in case not in a DSU
@@ -194,7 +225,7 @@ namespace LWM.DeepStorage
         static MethodInfo AHlO = typeof(FloatMenuMakerMap).GetMethod("AddHumanlikeOrders",
                                                BindingFlags.Static | BindingFlags.NonPublic);
         // Allow calling AddJobGiverWorkOrders
-        static MethodInfo AJGWO = typeof(FloatMenuMakerMap).GetMethod("AddJobGiverWorkOrders",
+        static public MethodInfo AJGWO = typeof(FloatMenuMakerMap).GetMethod("AddJobGiverWorkOrders",
                                                BindingFlags.Static | BindingFlags.NonPublic);
 
         // Allow directly setting Position of things.  And setting it back.
