@@ -53,7 +53,7 @@ namespace LWM.DeepStorage
             curY+=LabelHeight+1f;
             if (!Settings.allowPerDSUSettings) {
                 r=new Rect(5f, curY, scrollViewTotal.width-10f, LabelHeight);
-                Widgets.Label(r, "Note: No settings will be saved!");
+                Widgets.Label(r, "Note: No settings will be saved unless you turn on this feature above!");
                 curY+=LabelHeight;
             }
             Widgets.DrawLineHorizontal(0f, curY, scrollViewTotal.width);
