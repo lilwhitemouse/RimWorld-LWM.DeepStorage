@@ -771,7 +771,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
       <li Class="LWM.DeepStorage.Properties" >
         <maxNumberStacks>4</maxNumberStacks>
         <minTimeStoringTakes>100</minTimeStoringTakes>
-        <additionalTimeEachDef>8</additionalTimeEachDef><!--So 75 (max vanilla carrying capacity)->700 -->
+        <additionalTimeStackSize>8</additionalTimeStackSize><!--So 75 (max vanilla carrying capacity)->700 -->
         <overlayType>SumOfAllItems</overlayType>
       </li>
     </comps>
