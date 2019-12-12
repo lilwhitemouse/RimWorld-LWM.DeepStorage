@@ -239,6 +239,9 @@ namespace LWM.DeepStorage
 namespace RT_Shelves {
     [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
     class Patch_AddHumanlikeOrders {
+        static bool Prepare(HarmonyInstance instance) {
+            return !LWM.DeepStorage.Settings.useDeepStorageRightClickLogic;
+        }
         static void Postfix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts) {
             var cell = clickPos.ToIntVec3();
             if (pawn.equipment != null) {

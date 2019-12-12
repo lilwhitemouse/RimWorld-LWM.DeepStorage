@@ -11,6 +11,7 @@ namespace LWM.DeepStorage
         public static float storingGlobalScale=1f;
         public static bool storingTimeConsidersStackSize=true;
         public static StoragePriority defaultStoragePriority=StoragePriority.Important;
+        public static bool useDeepStorageRightClickLogic=false;
         // Turning this off removes conflicts with some other storage mods (at least I hope so):
         //   (RimFactory? I think?)
         public static bool checkOverCapacity=true;
@@ -45,7 +46,7 @@ namespace LWM.DeepStorage
         //  Why the fuck?  WHY?
         public static void DoSettingsWindowContents(Rect inRect) {
 //            Setup();
-            Rect viewRect=new Rect(0,0,inRect.width-40f,inRect.height+=100f);  // Increase this to make more space
+            Rect viewRect=new Rect(0,0,inRect.width-40f,inRect.height+=150f);  // Increase this to make more space
             Rect outerRect=inRect.ContractedBy(10f);
             outerRect.height-=100f; // "close" button
             Widgets.BeginScrollView(outerRect, ref scrollPosition, viewRect);
@@ -91,7 +92,10 @@ namespace LWM.DeepStorage
                 }
                 Find.WindowStack.Add(new FloatMenu(mlist));
             }
-
+            l.GapLine();
+            l.Label("User Interface");//TODO
+            l.CheckboxLabeled("Use Custom Right-Click", ref useDeepStorageRightClickLogic,//TODO:
+                              "The custom right-click interface SHOULD work, and should make things easier to use - especially in weapons lockers with mods such as Dual Wielding.  Disable this to use Vanilla's logic, which may make some tasks more difficult (e.g., loading caravans)");
 
             // Architect Menu:
             l.GapLine();  //Architect Menu location
@@ -442,6 +446,7 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "int_to_use_DS", Intelligence.Humanlike);
             Scribe_Values.Look(ref defaultStoragePriority, "default_s_priority", StoragePriority.Important);
             Scribe_Values.Look(ref checkOverCapacity, "check_over_capacity", true);
+            Scribe_Values.Look(ref useDeepStorageRightClickLogic, "DS_AHlO", false);
             // Architect Menu:
             Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
             Scribe_Values.Look(ref architectMenuAlwaysShowCategory, "architect_show", false);

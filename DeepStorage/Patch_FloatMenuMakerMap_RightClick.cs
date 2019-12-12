@@ -18,7 +18,8 @@ namespace LWM.DeepStorage
       Desired sequence of events:
       User right-clicks with pawn selected
       When AddHumanlikeOrders is run,
-      and when AddUndraftedOrders->AddJobGiverWorkOrders is run,
+      // and when AddUndraftedOrders->AddJobGiverWorkOrders is run, // not doing this now
+      //    It tended to cause crashing etc and didn't gain much?
         Prefix runs
         Prefix sets flag
       
@@ -26,7 +27,7 @@ namespace LWM.DeepStorage
         (Get basic default orders?)
         For Each Thing
           Move Thing Back
-          Call AHlO/AJGWO
+          Call AHlO/AJGWO - only calling AddHumanlikeOrders right now?
           flag is set so runs normally
           Move Thing Away
         Move Things Back
@@ -51,6 +52,7 @@ namespace LWM.DeepStorage
             Patch_FloatMenuMakerMap.Postfix(opts);
         }
     }
+    #if false
 //    [HarmonyPatch(typeof(FloatMenuMakerMap), "AddJobGiverWorkOrders")]
     static class Patch_AddJobGiverWorkOrders {
         static bool Prepare(HarmonyInstance instance) {
@@ -80,22 +82,8 @@ namespace LWM.DeepStorage
             Patch_FloatMenuMakerMap.Postfix(opts);
         }
     }
-    [StaticConstructorOnStartup]    
+    #endif
     static class Patch_FloatMenuMakerMap {
-        static Patch_FloatMenuMakerMap() {
-            if (AJGWO==null) {
-                Log.Error("AJGWO is null :(");
-                return;
-            } else Log.Error("-----__About to test!");
-            try {
-                AJGWO.Invoke(null, new object[] {IntVec3.Invalid,null, new List<FloatMenuOption>(),false});
-            } catch (Exception e) {
-                Log.Error("Oops. Exception: "+e);
-            }
-
-            
-        }
-        
         static bool runningPatchLogic=false;
         static List<FloatMenuOption> realList=new List<FloatMenuOption>();
         static int failsafe=0;
