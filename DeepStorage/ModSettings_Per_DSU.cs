@@ -6,7 +6,8 @@ using Verse;
 using UnityEngine;
 
 /// <summary>
-///   Two Dialog windows to allow whiny RimWorld players to change settings for the Deep Storage units.
+///   Two Dialog windows to allow whiny RimWorld players to change settings for the Deep Storage units
+///     and the logic to make that happen.
 ///   Basic idea:
 ///     on load, check if modifying units is turned on.  If so, once defs are loaded, do second
 ///     pass through the Setting's ExposeData() and this time, parse "DSU_LWM_defName_fieldName",
@@ -19,6 +20,7 @@ using UnityEngine;
 
 namespace LWM.DeepStorage
 {
+    // The window that lists all the DSUs available:
     public class Dialog_DS_Settings : Window {
         public Dialog_DS_Settings() {
 			this.forcePause = true;
@@ -48,12 +50,12 @@ namespace LWM.DeepStorage
             Rect r=new Rect(0,curY,scrollViewTotal.width, LabelHeight);
 
 //            r=new Rect(0,curY,scrollViewTotal.width, LabelHeight);
-            Widgets.CheckboxLabeled(r, "TURN ON USER-MODIFIED BUILDING SETTINGS:", ref Settings.allowPerDSUSettings);//TODO
-            TooltipHandler.TipRegion(r, "This lets you edit the properties of each Deep Storage building!  Don't break anything, okay? TURNING THIS OFF WILL RESET ALL SETTINGS TO DEFAULT.");
+            Widgets.CheckboxLabeled(r, "LWMDSperDSUturnOn".Translate(), ref Settings.allowPerDSUSettings);//TODO
+            TooltipHandler.TipRegion(r, "LWMDSperDSUturnOnDesc".Translate());
             curY+=LabelHeight+1f;
             if (!Settings.allowPerDSUSettings) {
                 r=new Rect(5f, curY, scrollViewTotal.width-10f, LabelHeight);
-                Widgets.Label(r, "Note: No settings will be saved unless you turn on this feature above!");
+                Widgets.Label(r, "LWMDSperDSUWarning".Translate());
                 curY+=LabelHeight;
             }
             Widgets.DrawLineHorizontal(0f, curY, scrollViewTotal.width);
@@ -96,7 +98,7 @@ namespace LWM.DeepStorage
             }
             GenUI.ResetLabelAlign();
             // end buttons
-            
+
             Widgets.EndScrollView();
             r=new Rect(10f, inRect.height-CloseButSize.y-5f, inRect.width/3, CloseButSize.y);
             if (defaultDSUValues.Count>0 && Widgets.ButtonText(r, "LWM.ResetAllToDefault".Translate())) {
@@ -189,22 +191,31 @@ namespace LWM.DeepStorage
                 l.Label(def.label);
                 l.GapLine();
                 // Much TODO, so wow:
-                tmpLabel=l.TextEntryLabeled("Label", tmpLabel);
+                tmpLabel=l.TextEntryLabeled("LWMDSpDSUlabel".Translate(), tmpLabel);
                 string tmpstring=null;
                 //TODO: redo, include defaults:
-                l.TextFieldNumericLabeled("Maximum Number of Stacks per Cell", ref tmpMaxNumStacks, ref tmpstring,0);
+                l.TextFieldNumericLabeled("LWM_DS_maxNumStacks".Translate().CapitalizeFirst()+" "
+                                          +"LWM_DS_Default".Translate(tmpMaxNumStacks),
+                                          ref tmpMaxNumStacks, ref tmpstring,0);
+//                l.TextFieldNumericLabeled("Maximum Number of Stacks per Cell", ref tmpMaxNumStacks, ref tmpstring,0);
                 tmpstring=null;
-                l.TextFieldNumericLabeled<float>("Maximum Total Mass per Cell", ref tmpMaxTotalMass, ref tmpstring,0f);
+//                l.TextFieldNumericLabeled<float>("Maximum Total Mass per Cell", ref tmpMaxTotalMass, ref tmpstring,0f);
+                l.TextFieldNumericLabeled<float>("LWM_DS_maxTotalMass".Translate().CapitalizeFirst()+" "+
+                                                 "LWM_DS_Default".Translate(tmpMaxTotalMass),
+                                                 ref tmpMaxTotalMass, ref tmpstring,0f);
                 tmpstring=null;
-                l.TextFieldNumericLabeled<float>("Maximum Mass of any Stored Item", ref tmpMaxMassStoredItem, ref tmpstring,0f);
-                l.CheckboxLabeled("Show contents for this building", ref tmpShowContents);
+//                l.TextFieldNumericLabeled<float>("Maximum Mass of any Stored Item", ref tmpMaxMassStoredItem, ref tmpstring,0f);
+                l.TextFieldNumericLabeled<float>("LWM_DS_maxMassOfStoredItem".Translate().CapitalizeFirst()+" "+
+                                                 "LWM_DS_Default".Translate(tmpMaxMassStoredItem),
+                                                 ref tmpMaxMassStoredItem, ref tmpstring,0f);
+                l.CheckboxLabeled("LWMDSpDSUshowContents".Translate(), ref tmpShowContents);
                 l.GapLine();
-                l.EnumRadioButton(ref tmpOverlayType, "What kind of count overlay (little white numbers) to use:");
+                l.EnumRadioButton(ref tmpOverlayType, "LWMDSpDSUoverlay".Translate());
                 l.GapLine();
-                l.EnumRadioButton(ref tmpStoragePriority, "Storage Priority for this building");
+                l.EnumRadioButton(ref tmpStoragePriority, "LWMDSpDSUstoragePriority".Translate());
                 l.GapLine();
-                l.CheckboxLabeled("Change what Items are allowed in this building?", ref useCustomThingFilter,
-                                  "If you are not using a custom list here, please uncheck this.");
+                l.CheckboxLabeled("LWMDSpDSUchangeFilterQ".Translate(), ref useCustomThingFilter,
+                                  "LWMDSpDSUchangeFilterQDesc".Translate());
                 if (useCustomThingFilter) {
                     if (customThingFilter==null) {
                         customThingFilter=new ThingFilter();
@@ -229,7 +240,7 @@ namespace LWM.DeepStorage
                 }
 //                l.End();
                 l.EndScrollView(ref v);
-                
+
                 // Cancel button
                 var closeRect = new Rect(inRect.width-CloseButSize.x, inRect.height-CloseButSize.y,CloseButSize.x,CloseButSize.y);
                 if (Widgets.ButtonText(closeRect, "CancelButton".Translate())) {
@@ -276,7 +287,6 @@ namespace LWM.DeepStorage
             }
 
             private void TestAndUpdate<T>(string keylet, T value, ref T origValue) where T : IComparable {
-//                if (value.CompareTo(origValue)==0) return;//TODO
                 string key="DSU_"+def.defName+"_"+keylet;
                 if (value.CompareTo(origValue)==0) {
                     Utils.Mess(Utils.DBF.Settings,"  No change: "+key);
@@ -400,10 +410,10 @@ namespace LWM.DeepStorage
                       if (defaultValue != value && !defaultDSUValues.ContainsKey(key)) {
                       defaultDSUValues[key]=defaultValue;
                       }
-*/                   
+*/
             }
-            
-            
+
+
         }
         // Only ONE DSU Setting:
         private static void ExposeDSUSetting<T>(string keylet, ref T value) where T : IComparable {
@@ -425,10 +435,10 @@ namespace LWM.DeepStorage
             }
         }
 
-        
+
         private float totalContentHeight=1000f;
         private static Vector2 scrollPosition;
-        
+
 		private const float TopAreaHeight = 40f;
 		private const float TopButtonHeight = 35f;
 		private const float TopButtonWidth = 150f;
@@ -441,5 +451,4 @@ namespace LWM.DeepStorage
         public static Dictionary<string, object> defaultDSUValues=new Dictionary<string, object>();
     }
 
-        
 }

@@ -93,9 +93,9 @@ namespace LWM.DeepStorage
                 Find.WindowStack.Add(new FloatMenu(mlist));
             }
             l.GapLine();
-            l.Label("User Interface");//TODO
-            l.CheckboxLabeled("Use Custom Right-Click", ref useDeepStorageRightClickLogic,//TODO:
-                              "The custom right-click interface SHOULD work, and should make things easier to use - especially in weapons lockers with mods such as Dual Wielding.  Disable this to use Vanilla's logic, which may make some tasks more difficult (e.g., loading caravans)");
+            l.Label("LWM_DS_userInterface".Translate());
+            l.CheckboxLabeled("LWM_DS_useDSRightClick".Translate(), ref useDeepStorageRightClickLogic,
+                              "LWM_DS_useDSRightClickDesc".Translate());
 
             // Architect Menu:
             l.GapLine();  //Architect Menu location
@@ -183,10 +183,10 @@ namespace LWM.DeepStorage
             }
             // finished drawing settings for Architect Menu
             l.GapLine();
-            l.CheckboxLabeled("Check for storage being Over Capacity", ref checkOverCapacity, //TODO
-                              "If more than one thing ends up in a stockpile, pawns need to know to clean it up.  Turning this off prevents that.\n\nTurn this OFF to allow some other storage mods to function:\n  RimFactory");
+            l.CheckboxLabeled("LWMDSoverCapacityCheck".Translate(), ref checkOverCapacity,
+                              "LWMDSoverCapacityCheckDesc".Translate());
             l.GapLine();
-            if (l.ButtonText("EXPERIMENTAL: Change Storage Settings for each type of Unit"+": Caution")) {//TODO
+            if (l.ButtonText("LWMDSperDSUSettings".Translate())) {
                 Find.WindowStack.Add(new Dialog_DS_Settings());
             }
             //viewRect=new Rect(0,0, inRect.width-40f, l.CurHeight+10f); // ...why didn't this behave the same??
@@ -215,7 +215,7 @@ namespace LWM.DeepStorage
             //   (LoadedModManager.GetMod(typeof(DeepStorageMod)).Content.Identifier and typeof(DeepStorageMod).Name by the way)
 //todo:
             Utils.Mess(Utils.DBF.Settings, "Defs Loaded.  About to re-load settings");
-            var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");            
+            var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");
         }
 
         // Architect Menu:

@@ -18,7 +18,7 @@
   <LWM.ContentsHeaderPawnsUsing>  This is being used by: {0}.</LWM.ContentsHeaderPawnsUsing><!-- "Red, John, Abigail" etc -->
   <LWM_DS_Empty>empty</LWM_DS_Empty>
   <!-- Stat text (information window)-->
-  <LWM_DS_maxNumStacks>maximum number of stacks</LWM_DS_maxNumStacks>
+  <LWM_DS_maxNumStacks>maximum number of stacks per cell</LWM_DS_maxNumStacks>
   <LWM_DS_maxNumStacksDesc>The maximum number of stacks that can go in a single space.  Buildings two-cells large will have twice as much storage capacity.\n\nNote that other factors may reduce storage capacity.</LWM_DS_maxNumStacksDesc>
   <LWM_DS_maxTotalMass>maximum total mass</LWM_DS_maxTotalMass>
   <LWM_DS_maxTotalMassDesc>The maximum mass that the storage unit can hold.  Once the unit is full, no more items can be added (altho most units can always store a minimum of at least two items.)  Note that if the building is more than one cell large, this limit is divided evenly among all the cells.</LWM_DS_maxTotalMassDesc>
