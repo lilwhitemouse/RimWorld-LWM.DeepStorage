@@ -130,12 +130,14 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
       <overlayType>SumOfAllItemsPerCell</overlayType> - etc.
       <overlayType>None</overlayType> - if you want this for some reason?
     </li>
+    <li><compClass>CompQuality</compClass></li> - if you want the item to have quality, which affects beauty
   </comps>
 </ThingDef>
   -->
 
   <!-- Mostly copied from shelf -->
-  <ThingDef Name="LWM_DeepStorage" ParentName="FurnitureWithQualityBase" Abstract="true"><!--  Class="LWM.DeepStorage.DeepStorageDef">-->
+  <ThingDef Name="LWM_DeepStorage" ParentName="FurnitureBase" Abstract="true">
+    <!--  Old approach:  Class="LWM.DeepStorage.DeepStorageDef"; using a comp is better>-->
     <defName>LWM_DeepStorage</defName><!-- this defname doesn't actually exist in-game, does it? -->
     <thingClass>Building_Storage</thingClass>
 
@@ -182,7 +184,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop><!-- Might be overridden -->
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty><!-- Might be overridden -->
       <defaultStorageSettings>
-        <priority>Important</priority><!--It's what *I* use, so it's what you get ^.^-->
+        <priority>Important</priority><!--It's what *I* use, so it's what you get ^.^  Can be changed in settings-->
         <filter>
         </filter>
       </defaultStorageSettings>
@@ -199,7 +201,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
   <ThingDef Name="LWM_Big_Shelf" ParentName="LWM_DeepStorage">
     <defName>LWM_BigShelf</defName><!-- name change to reduce chance of mod conflict.  See Updates.cs -->
     <label>Double Shelf</label>
-    <description>A shelf for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nItems stored in this will not deteriorate, even if outside.\n\nThis shelf holds twice as much.</description>
+    <description>A shelf for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nItems stored in this will not deteriorate, even if outside.\n\nThis shelf holds twice as much as the regular one.</description>
     <thingClass>Building_Storage</thingClass>
     <graphicData>
       <texPath>Things/Building/Furniture/Shelf</texPath>
@@ -291,6 +293,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
         <timeStoringTakes>300</timeStoringTakes>
         <overlayType>SumOfAllItems</overlayType>
       </li>
+      <!--<li><compClass>CompQuality</compClass></li> ah?  TODO: add "pretty" version, takes more to build, has quality-->
     </comps>
     <researchPrerequisites Inherit="false"></researchPrerequisites><!-- Why not allow; granieries have been around forEVER -->
   </ThingDef>
@@ -345,6 +348,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
         <overlayType>SumOfAllItems</overlayType>
         <!--TODO: SumOfItemsPerCell?-->
       </li>
+      <li><compClass>CompQuality</compClass></li><!--So you can make your hospitals more beautiful-->
     </comps>
   </ThingDef>
 
@@ -548,6 +552,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
         <overlayType>CountOfStacksPerCell</overlayType>
         <!-- TODO: maybe an overlay that displays quality somehow? -->
       </li>
+      <li><compClass>CompQuality</compClass></li><!--Ideal todo: some sort of armoir with this quality base and prettiness-->
     </comps>
   </ThingDef>
 
@@ -595,6 +600,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
         <additionalTimeEachDef>2</additionalTimeEachDef>
         <overlayType>SumOfAllItems</overlayType>
       </li>
+      <li><compClass>CompQuality</compClass></li><!--Hey, you CAN make it pretty?-->
     </comps>
   </ThingDef>
 
@@ -668,6 +674,8 @@ Note that you can only fit so many giant corpses into one space, even if you sta
                                         <!--We only recently realized what these weird caves were.-->
         <overlayType>CountOfStacksPerCell</overlayType>
       </li>
+      <li><compClass>CompQuality</compClass></li>
+      <!--TOOD: <li><compClass>CompQuality</compClass></li> make this add storage capacity-->
     </comps>
     <researchPrerequisites Inherit="false">
       <li>Smithing</li><!-- Forging strong chains - we're lifting bloody muffalos here -->

@@ -56,6 +56,7 @@
 	<showContents>false</showContents>
 	<overlayType>CountOfStacksPerCell</overlayType>
       </li>
+      <li><compClass>CompQuality</compClass></li>
     </comps>
     <researchPrerequisites>
       <li>ComplexFurniture</li>
