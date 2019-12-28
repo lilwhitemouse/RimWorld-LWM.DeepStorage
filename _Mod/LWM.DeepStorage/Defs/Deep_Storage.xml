@@ -116,18 +116,19 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
           Technically, each item that cannot stack with other items.
           So if you are putting catfood in a bowl, but it already has 2 dogfood and 1 fishfood,
           this will get added twice.  If you were adding fishfood, it would get added once.
+      <additionalTimeStackSize>10</additionalTimeStackSize> - if you have 75 in the stack, takes an extra 750 ticks.
       Mass restrictions:    
       <maxTotalMass></maxTotalMass> - per cell
       <maxMassOfStoredItem></maxMassOfStoredItem> - per item.  Items bigger than this just cannot fit
       <altStat></altStat> - to use something besides vanilla mass.  E.g., CombatExtended's Bulk.
       Display:
-      <showContents>true</showContents>
+      <showContents>true</showContents> - default
       Pick an overlay:
       <overlayType>Normal</overlayType> - topmost item shows its usual overlay
       <overlayType>CountOfAllStacks</overlayType> - centered on the DSU - for non-stackable items?
       <overlayType>CountOfStacksPerCell</overlayType> - standard overlay position for each cell
       <overlayType>SumOfAllItems</overlayType> - centered on DSU, for stackable items
-      <overlayType>SumOfAllItemsPerCell</overlayType> - etc.
+      <overlayType>SumOfItemsPerCell</overlayType> - etc.
       <overlayType>None</overlayType> - if you want this for some reason?
     </li>
     <li><compClass>CompQuality</compClass></li> - if you want the item to have quality, which affects beauty
@@ -345,6 +346,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
         <minTimeStoringTakes>250</minTimeStoringTakes>
         <additionalTimeEachStack>25</additionalTimeEachStack>
         <additionalTimeEachDef>25</additionalTimeEachDef>
+        <additionalTimeStackSize>5</additionalTimeStackSize>
         <overlayType>SumOfAllItems</overlayType>
         <!--TODO: SumOfItemsPerCell?-->
       </li>
@@ -603,10 +605,61 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
       <li><compClass>CompQuality</compClass></li><!--Hey, you CAN make it pretty?-->
     </comps>
   </ThingDef>
-
-  <!-- TODO: Hat Rack? -->
-
-
+  <ThingDef ParentName="LWM_DeepStorage">
+    <defName>LWM_FabricHamper</defName>
+    <label>Fabric Hampers</label>
+    <description>This is a set of hampers made out of fabric.  The various pockets allow storing large amounts of diverse small items with ease.</description>
+    <graphicData>
+      <texPath>skullywag/FabricHamper/FabricHamper</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(4,3)</drawSize>
+    </graphicData>
+    <castEdgeShadows>true</castEdgeShadows>
+    <statBases>
+      <MaxHitPoints>40</MaxHitPoints>
+      <WorkToBuild>300</WorkToBuild>
+      <Flammability>3.0</Flammability><!-- Burn baby burn -->
+      <Beauty>0</Beauty>
+      <Mass>12</Mass>
+    </statBases>
+    <stuffCategories>
+      <li>Fabric</li>
+    </stuffCategories>
+    <costStuffCount>90</costStuffCount>
+    <costList><Steel>25</Steel></costList><!--Wish I could do steel OR wood-->
+    <building>
+      <fixedStorageSettings>
+        <filter>
+          <categories>
+            <li>PlantFoodRaw</li><!-- Do use sense, eh? -->
+            <li>EggsUnfertilized</li>
+            <li>EggsFertilized</li>
+            <li>Medicine</li>
+            <li>Drugs</li>
+            <li>MortarShells</li>
+            <li>PlantMatter</li>
+            <!--Ammo, etc-->
+            <!--Fleeces, raw cotton, etc-->
+          </categories>
+          <thingDefs>
+            <li>Gold</li>
+            <li>Silver</li>
+          </thingDefs>
+        </filter>
+      </fixedStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <maxNumberStacks>5</maxNumberStacks>
+        <minNumberStacks>2</minNumberStacks>
+        <minTimeStoringTakes>150</minTimeStoringTakes><!-- Just toss it in! -->
+        <additionalTimeEachStack>75</additionalTimeEachStack>
+        <maxTotalMass>50</maxTotalMass><!--Up for negotiation-->
+        <maxMassOfStoredItem>10</maxMassOfStoredItem>
+        <overlayType>SumOfItemsPerCell</overlayType>
+      </li>
+    </comps>
+  </ThingDef>
 
   <!-- =========== purely LWM creations ========== -->
   <ThingDef Name="LWM_MeatHook" ParentName="LWM_DeepStorage">
