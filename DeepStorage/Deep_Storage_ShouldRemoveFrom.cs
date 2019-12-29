@@ -24,6 +24,9 @@ namespace LWM.DeepStorage
  *  3. Maybe weight of an item changes somehow
  *  4. Maybe I made a mistake in the code and too many things 
  *       were put into a DSU.  It happens.
+ *  5. Maybe the user changed what's allowed in a DSU
+ *
+ * Two places to patch: TryFindBestBetterStoreCellFor and ListerHaulablesTick
  *
  * Patch RimWorld's StoreUtility's TryFindBestBetterStoreCellFor
  *   Add a check to see if the item fits (maybe it's in a DSU but over capacity!).  
@@ -176,4 +179,39 @@ namespace LWM.DeepStorage
             return false;
         }
     } // end patching TryFindBestBetterStoreCellFor
+    /********************
+     * ListerHaulables' ListerHaulablesTick():
+     *   ListerHaulablesTick goes thru some fancy mechanics to check every
+     *   cell and catch anything that's in the wrong place.  If an item
+     *   is in DS, only the first item gets checked, because the code
+     *   looks like this:
+     * for (int j = 0; j < thingList.Count; j++) {
+     *   if (thingList[j].def.EverHaulable) {
+     *     this.Check(thingList[j]);
+     *     break;   // <---skips any of the rest of the EverHaulable items!
+     *   }
+     * }
+     * So, we remove the break statement.
+     * The IL code is fairly straightfowrad, with a jump out of the loop right
+     *   after the Check(...) call.  So, we look for a "br" command that's
+     *   right after that Check, and we don't return it.
+     */
+    [HarmonyPatch(typeof(RimWorld.ListerHaulables), "ListerHaulablesTick")]
+    static class Patch_ListerHaulableTick {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+            List<CodeInstruction> code=instructions.ToList();
+            var check=typeof(ListerHaulables).GetMethod("Check", BindingFlags.NonPublic|BindingFlags.Instance);
+            for (int i=0; i<code.Count; i++) {
+                if (code[i].opcode!=OpCodes.Br ||
+                    code[i-1].opcode!=OpCodes.Call ||
+                    code[i-1].operand!=check) {
+                    yield return code[i];
+                //} else {
+                //    Log.Warning("Found the 'break;' code! Skipping...");
+                }
+            }
+            yield break;
+        }
+    }
+
 }
