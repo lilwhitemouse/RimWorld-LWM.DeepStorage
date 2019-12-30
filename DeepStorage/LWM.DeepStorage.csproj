@@ -87,7 +87,8 @@
     <Compile Include="Deep_Storage_RemoveFrom.cs" />
     <Compile Include="Deep_Storage_PutInto.cs" />
     <Compile Include="Deep_Storage_Display.cs" />
-    <Compile Include="Deep_Storage_ShouldRemoveFrom.cs" />
+    <Compile Include="Patch_TryFindBestBetterStoreCellFor_ShouldRemoveFrom.cs" />
+    <Compile Include="Patch_ListerHaulablesTick_ShouldRemoveFrom.cs" />
     <Compile Include="Patch_BeautyUtility.cs" />
     <Compile Include="Patch_FloatMenuMakerMap_RightClick.cs" />
     <Compile Include="CompDeepStorage.cs" />

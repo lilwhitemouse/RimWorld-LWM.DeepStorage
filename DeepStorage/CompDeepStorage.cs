@@ -223,6 +223,9 @@ namespace LWM.DeepStorage
             */
         }
 
+        // IMPORTANT NOTE: some of the following logic is in the patch for TryFindBestBetterStoreCellFor
+        //   (ShouldRemoveFrom logic).  TODO: it should probably be here
+
         public virtual int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {
             Utils.Warn(CheckCapacity, "Checking Capacity to store "+thing.stackCount+thing+" at "
                        +(map?.ToString()??"NULL MAP")+" "+cell);
