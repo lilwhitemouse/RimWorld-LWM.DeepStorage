@@ -37,7 +37,7 @@ namespace LWM.DeepStorage
      * Note that it is safe for this patch to be applied more than once.
      */
     [HarmonyPatch(typeof(RimWorld.ListerHaulables), "ListerHaulablesTick")]
-    static class Patch_ListerHaulableTick {
+    static class Patch_ListerHaulablesTick {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
             List<CodeInstruction> code=instructions.ToList();
             var check=typeof(ListerHaulables).GetMethod("Check", BindingFlags.NonPublic|BindingFlags.Instance);
