@@ -607,7 +607,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
   </ThingDef>
   <ThingDef ParentName="LWM_DeepStorage">
     <defName>LWM_FabricHamper</defName>
-    <label>Fabric Hampers</label>
+    <label>Hampers</label>
     <description>This is a set of hampers made out of fabric.  The various pockets allow storing large amounts of diverse small items with ease.</description>
     <graphicData>
       <texPath>skullywag/FabricHamper/FabricHamper</texPath>
