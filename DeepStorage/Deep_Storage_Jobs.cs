@@ -66,9 +66,11 @@ namespace LWM.DeepStorage
 
             bool checkedInDeepStorage=false;
             for (int i=0;i<code.Count;i++) {
+                // Logic to test if we are in Deep Storage:
+                // Add this code to the beginning of the funtion (right after slotgroup is figured out)
                 if (code[i].opcode==OpCodes.Stloc_1 &&
                     checkedInDeepStorage==false) { // slotGroup
-                    yield return code[i++]; //Stloc.1
+                    yield return code[i++]; // the Stloc.1 we just found
                     if ( Harmony.AccessTools.Method("LWM.DeepStorage.Utils:CanStoreMoreThanOneThingIn")==null) {
                         Log.Error("Failure, cannot find CSMTOTI");
                     }

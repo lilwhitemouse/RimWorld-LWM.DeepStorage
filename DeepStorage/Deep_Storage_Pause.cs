@@ -60,7 +60,7 @@ namespace LWM.DeepStorage
             //  stuff down if failure happens?
 
             Action placeStuff = __result.initAction;
-            // NOTE: none of this PreInitAtion happens if the game is being loaded while storing is going on:
+            // NOTE: none of this initAtion happens if the game is being loaded while storing is going on:
             //   This means, among other things, that pawns don't get progress bars on reload
             //   I could make it happen if it ever gets to be important...
             __result.initAction=delegate ()
@@ -85,7 +85,9 @@ namespace LWM.DeepStorage
                 {
                     Utils.Warn(PlaceHauledThingInCell, "not going into Deep Storage");
                     // Pick Up & Haul reuses Toils; I realized this meant I need to keep original placeStuff() around:
-                    placeStuff();
+                    // Also, is it possible another mod does something weird with placeStuff?
+                    //   this is a cheap "just to be on the safe side" check:
+                    if (placeStuff!=null) placeStuff();
                     return;
                 }
                 int timeStoringTakes = cds.TimeStoringTakes(actor.Map,cell, actor);
@@ -94,7 +96,7 @@ namespace LWM.DeepStorage
                     || !Settings.storingTakesTime ) //boo, hiss, but some ppl use it
                 { // just like vanilla
                     Utils.Warn(PlaceHauledThingInCell, "Instantaneous storing time");
-                    placeStuff();
+                    if (placeStuff!=null) placeStuff();
                     return;
                 }
 //                __result.defaultCompleteMode = ToilCompleteMode.Delay;
@@ -144,7 +146,7 @@ namespace LWM.DeepStorage
                                                              (""+pawn.carryTracker.CarriedThing.stackCount+
                                                               pawn.carryTracker.CarriedThing):
                                                              "NULL ITEM"));
-                    placeStuff();
+                    if (placeStuff!=null) placeStuff();
                     return;
                 }
                 /*
