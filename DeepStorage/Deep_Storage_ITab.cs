@@ -13,7 +13,8 @@ namespace LWM.DeepStorage
     /********* UI ITab *****************************
      * Original ITab from sumghai - thanks!        *
      *   That saved a lot of work.                 *
-     * Other requests from various ppl on steam    *
+     * Now mostly rewritten, with many requests    *
+     *   from various ppl on steam                 *
      *                                             */
     public class ITab_DeepStorage_Inventory : ITab {
         private Vector2 scrollPosition = Vector2.zero;
@@ -27,7 +28,6 @@ namespace LWM.DeepStorage
         private const float StandardLineHeight = 22f;
         private static List<Thing> listOfStoredItems = new List<Thing>();
         private static List<string> listOfReservingPawns= new List<string>();
-//        public float cabinetMaxCapacity = 123; // Placeholder variable for cabinet max capacity; replace with XML-driven value
 
         public ITab_DeepStorage_Inventory() {
             this.size = new Vector2(460f, 450f);
@@ -107,12 +107,12 @@ namespace LWM.DeepStorage
         }
 
         // LWM rewrote most of this method to meet their implementation of CompDeepStorage
-        private void DisplayHeaderInfo(ref float curY, float width, Building_Storage building, 
+        private void DisplayHeaderInfo(ref float curY, float width, Building_Storage building,
                                        int numCells, List<Thing> itemsList) {
             // Header information regardless of what the storage building is:
             Rect rect = new Rect(0f, curY, width, 22f);
             // TODO: Add hooks for other mods:
-            //   E.g., StockpileForDisaster has a nice little checkbox that shows whether 
+            //   E.g., StockpileForDisaster has a nice little checkbox that shows whether
             //   pawns can freely take from the unit, or whether restrictions are in effect
 
             CompDeepStorage cds = building.GetComp<CompDeepStorage>();
@@ -163,7 +163,7 @@ namespace LWM.DeepStorage
                     }
                 }
                 if (listOfReservingPawns.Count > 0) {
-                    rect = new Rect(0f, curY, width, 22f);   
+                    rect = new Rect(0f, curY, width, 22f);
                     if (listOfReservingPawns.Count==1) {
                         Widgets.Label(rect, "LWM.ContentsHeaderPawnUsing".Translate(listOfReservingPawns[0]));
                     } else {
@@ -177,7 +177,7 @@ namespace LWM.DeepStorage
 
         private void DrawThingRow(ref float y, float width, Thing thing) {
             // Sumghai started from the right, as several things in vanilla do, and that's fine with me:
-            
+
             /************************* InfoCardButton *************************/
             //       (it's the little "i" that pulls up full info on the item.)
             //   It's 24f by 24f in size
@@ -189,14 +189,16 @@ namespace LWM.DeepStorage
             width-=24f;
             Rect forbidRect = new Rect(width, y, 24f, 24f); // is creating this rect actually necessary?
             bool allowFlag = !thing.IsForbidden(Faction.OfPlayer);
+            bool tmpFlag=allowFlag;
             if (allowFlag)
                 TooltipHandler.TipRegion(forbidRect, "CommandNotForbiddenDesc".Translate());
             else
                 TooltipHandler.TipRegion(forbidRect, "CommandForbiddenDesc".Translate());
 //            TooltipHandler.TipRegion(forbidRect, "Allow/Forbid"); // TODO: Replace "Allow/Forbid" with a translated entry in a Keyed Language XML file
             Widgets.Checkbox(forbidRect.x, forbidRect.y, ref allowFlag, 24f, false, true, null, null);
-            ForbidUtility.SetForbidden(thing, !allowFlag,false);
-            
+            if (allowFlag!=tmpFlag) // spamming SetForbidden is bad when playing multi-player - it spams Sync requests
+                ForbidUtility.SetForbidden(thing, !allowFlag,false);
+
             /************************* Mass *************************/
             width-=60f; // Caravans use 100f
             Rect massRect = new Rect(width,y,60f,28f);
