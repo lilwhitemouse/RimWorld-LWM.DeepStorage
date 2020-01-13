@@ -178,7 +178,7 @@ namespace LWM.DeepStorage
 
             public override void DoWindowContents(Rect inRect) // For a specific DSU
             {
-                var XXXcontentRect = new Rect(0, 0, inRect.width, inRect.height - (CloseButSize.y + 10f)).ContractedBy(10f);
+//                var XXXcontentRect = new Rect(0, 0, inRect.width, inRect.height - (CloseButSize.y + 10f)).ContractedBy(10f);
 
                 var l = new Listing_Standard();
 //                l.Begin(new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f));
