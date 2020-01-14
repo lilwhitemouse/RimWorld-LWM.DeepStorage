@@ -21,7 +21,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <drawSize>(X,Y) - how big the texture pictures are.  If you have a half-square border around (2,1), it's (3,2)</drawSize>
        If you have a full square border, it's (4,3), etc.
     <shaderType>Optional.  CutoutComplex - if you use it, I have no idea what it does</shaderType>
-    // Shadows   
+    // Shadows
     <shadowData>This is one option for shadows.  If you use this, don't use anything else
       <volume>(X,Y,Z) where Y is heigh of shadow above ground.  A short (2,1) object might want (1.8,.1,.8)</volume>
       <offset>(X,0,Z) if you want the shadow offset for whatever reason</offset>
@@ -117,7 +117,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
           So if you are putting catfood in a bowl, but it already has 2 dogfood and 1 fishfood,
           this will get added twice.  If you were adding fishfood, it would get added once.
       <additionalTimeStackSize>10</additionalTimeStackSize> - if you have 75 in the stack, takes an extra 750 ticks.
-      Mass restrictions:    
+      Mass restrictions:
       <maxTotalMass></maxTotalMass> - per cell
       <maxMassOfStoredItem></maxMassOfStoredItem> - per item.  Items bigger than this just cannot fit
       <altStat></altStat> - to use something besides vanilla mass.  E.g., CombatExtended's Bulk.
@@ -149,7 +149,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <costStuffCount>30</costStuffCount><!-- overwritten -->
 
     <surfaceType>Item</surfaceType><!-- ?????  -->
-    <fillPercent>0.4</fillPercent><!-- -TODO...wtf? -->
+    <fillPercent>0.4</fillPercent><!-- -TODO: This effects COVER!  TODO: Rethink this value for units -->
     <drawGUIOverlay>true</drawGUIOverlay>
 
     <statBases><!-- overwritten -->
