@@ -297,7 +297,7 @@ namespace LWM.DeepStorage
 //            prevDesignationCatDef?.ResolveReferences();
 //            newDesignationCatDef.ResolveReferences();
             //ArchitectMenu_ClearCache(); // we do this later one way or another
-            
+
             // To remove the mod's DesignationCategoryDef from Architect menu:
             //   remove it from RimWorld.MainTabWindow_Architect's desPanelsCached.
             // To do that, we remove it from the DefDatabase and then rebuild the cache.
@@ -314,7 +314,7 @@ namespace LWM.DeepStorage
                 // ArchitectMenu_ClearCache(); //hide flushes cache
 //                    if (tmp.AllResolvedDesignators.Count <= tmp.specialDesignatorClasses.Count)
 //                        isCategoryEmpty=false;
-/*                    
+/*
 //                    Log.Message("Removing old menu!");
                     // DefDatabase<DesignationCategoryDef>.Remove(tmp);
                     if (!tmp.AllResolvedDesignators.NullOrEmpty()) {
@@ -354,13 +354,13 @@ namespace LWM.DeepStorage
 
 
 
-            
+
 /*            Harmony.AccessTools.Method(typeof(RimWorld.MainTabWindow_Architect), "CacheDesPanels")
                 .Invoke(((MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow), null);*/
 
 
 /*
-            
+
             if (architectMenuDesignationCatDefDefName=="LWM_DS_Storage") { // default
                 if (DefDatabase<DesignationCategoryDef>.GetNamedSilentFail("LWM_DS_Storage") == null) {
                     Utils.Mess(Utils.DBF.Settings,"Adding 'Storage' to the architect menu.");
@@ -381,12 +381,12 @@ namespace LWM.DeepStorage
             }
             prevDesignationCatDef?.ResolveReferences();
             architectCurrentDesignationCatDef.ResolveReferences();
-            
+
             Harmony.AccessTools.Method(typeof(RimWorld.MainTabWindow_Architect), "CacheDesPanels")
                 .Invoke((), null);
 */
             Utils.Warn(Utils.DBF.Settings, "Settings changed architect menu");
-            
+
         }
         public static void ArchitectMenu_Hide() {
             DesignationCategoryDef tmp;
@@ -416,7 +416,7 @@ namespace LWM.DeepStorage
                 .Invoke(((MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow), null);
         }
 
-        
+
         // Setup stuff that needs to be run before settings can be used.
         //   I don't risk using a static constructor because I must make sure defs have been finished loading.
         //     (testing shows this is VERY correct!!)
@@ -443,6 +443,7 @@ namespace LWM.DeepStorage
 
             Scribe_Values.Look(ref storingTakesTime, "storing_takes_time", true);
             Scribe_Values.Look(ref storingGlobalScale, "storing_global_scale", 1f);
+            Scribe_Values.Look(ref storingTimeConsidersStackSize, "storing_time_CSS", true);
             Scribe_Values.Look(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "int_to_use_DS", Intelligence.Humanlike);
             Scribe_Values.Look(ref defaultStoragePriority, "default_s_priority", StoragePriority.Important);
             Scribe_Values.Look(ref checkOverCapacity, "check_over_capacity", true);
