@@ -43,19 +43,14 @@ namespace LWM.DeepStorage
         public static List<ThingDef> allDeepStorageUnits=null;
 
         private static Vector2 scrollPosition=new Vector2(0f,0f);
-        //private static Rect viewRect=new Rect(0,0,100f,10000f); // I tried this.  The outer part of the scroll area changed size.
-        //  Why the fuck?  WHY?
+        private static Rect viewRect=new Rect(0,0,100f,10000f); // OMG OMG OMG I got scrollView in Listing_Standard to work!
         public static void DoSettingsWindowContents(Rect inRect) {
-//            Setup();
-            Rect viewRect=new Rect(0,0,inRect.width-40f,inRect.height+290f);  // Increase this to make more space
             Rect outerRect=inRect.ContractedBy(10f);
-            outerRect.height-=40f; // "close" button
-            Widgets.BeginScrollView(outerRect, ref scrollPosition, viewRect);
-            Widgets.DrawHighlight(viewRect);
+            Widgets.DrawHighlight(outerRect);
             Listing_Standard l = new Listing_Standard(GameFont.Medium); // my tiny high-resolution monitor :p
-            l.Begin(viewRect);
+            l.BeginScrollView(outerRect, ref scrollPosition, ref viewRect);
 
-            l.GapLine();  // Who can haul to Deep Storage (robots, animals, etc)
+            //l.GapLine();  // Who can haul to Deep Storage (robots, animals, etc)
             l.CheckboxLabeled("LWMDSrobotsCanUse".Translate(), ref robotsCanUse, "LWMDSrobotsCanUseDesc".Translate());
             string [] intLabels={
                 "LWM_DS_Int_Animal".Translate(),
@@ -196,9 +191,8 @@ namespace LWM.DeepStorage
                 l.CheckboxLabeled("LWMDSperDSUturnOn".Translate(), ref allowPerDSUSettings,
                                   "LWMDSperDSUturnOnDesc".Translate());
             }
-            //viewRect=new Rect(0,0, inRect.width-40f, l.CurHeight+10f); // ...why didn't this behave the same??
-            l.End();
-            Widgets.EndScrollView();
+            l.GapLine(); // End. Finis. Looks pretty having a line at the end.
+            l.EndScrollView(ref viewRect);
         }
 
         public static void DefsLoaded() {
