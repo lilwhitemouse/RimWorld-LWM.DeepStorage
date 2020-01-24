@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;  // for delegate(), Type, Func<>() stuff
+using System.Collections.Generic;
 using RimWorld;
 using Verse;
 using Harmony;
@@ -9,8 +10,8 @@ using static LWM.DeepStorage.Utils.DBF; // debug trace
 /******************************************
  * A set of patches to see whether items
  * can be carried to Deep Storage
- * 
- * Allowing multiple items to be carried to 
+ *
+ * Allowing multiple items to be carried to
  * the same square (via the all important
  * NoStorageBlockersIn), and then restricting
  * who can carry there (also IsGoodStoreCell)
@@ -22,7 +23,7 @@ using static LWM.DeepStorage.Utils.DBF; // debug trace
 
 namespace LWM.DeepStorage
 {
-    /****** See also Deep_Storage_Jobs.cs, which patches the 
+    /****** See also Deep_Storage_Jobs.cs, which patches the
      * HaulToCellStorage Job to get the correct count of how
      * man to carry to Deep Storage
      */
@@ -30,10 +31,10 @@ namespace LWM.DeepStorage
     /**********************************************************************
      * RimWorld/StoreUtility.cs:  NoStorageBlockersIn(...)
      * This allows the hauling AI to see a partly-filled deep storage area as open/empty
-     * 
+     *
      * We patch via prefix by first checking if the slotGroup in question is part of a
      * Deep Storage unit.  If it is, then we take over (and duplicate a little bit of code)
-     * 
+     *
      * Possible ways to make this better:
      *   Use Transpiler to inject a variable maxStacks=1 into the original
      *   Update maxStacks if it's a DeepStorage object
@@ -131,9 +132,9 @@ namespace LWM.DeepStorage
     /******************************************************
      * Pets cannot manage Deep Storage
      *   (rationale: organizing is too advanced for them)
-     * 
+     *
      * StoreUtility.cs's IsGoodStoreCell
-     * Add a simple Postfix to check if a nonhuman is 
+     * Add a simple Postfix to check if a nonhuman is
      * hoping to carry to Deep Storage, and if so, don't
      * allow it.
      */
@@ -146,8 +147,36 @@ namespace LWM.DeepStorage
     [HarmonyPatch(typeof(StoreUtility), "IsGoodStoreCell")]
     class Patch_IsGoodStoreCell {
         public static Intelligence NecessaryIntelligenceToUseDeepStorage=Intelligence.Humanlike;
+        // A way to specify some pawns can use Storage no matter what:
+        static System.Func<Pawn,bool> specialTest=null;
+        static bool Prepare(HarmonyInstance instance) {
+            // Prepare: See if there are any mods that should be able to haul to storage even
+            //   tho they don't meet normal criteria:
+            if (!Settings.robotsCanUse) return true;
+            if (ModLister.HasActiveModWithName("Misc. Robots")) {
+                // From Haplo:  From my point of view they are normal drones with a kind of
+                //    robot arm (for hauling) somewhere and a simple (job-specific) AI
+                // Good enough for me!  A robot arm can manipulate things, an any AI that can
+                // handle lifting random objects can probably handle latches.
+                Type robotClass=Type.GetType("AIRobot.X2_AIRobot, AIRobot");
+                if (robotClass==null) {
+                    Log.Error("LWM's Deep Storage tried to find the Type 'AIRobot.X2_AIRobot, AIRobot', but failed even tho Misc. Robots is loaded.\n"+
+                              "Please let LWM know.");
+                } else {
+                    Log.Message("LWM: activating compatibility logic for Misc. Robots");
+                    //specialTest=p=>p?.def.thingClass==robotClass;
+                    specialTest=delegate(Pawn p) {
+                        if (p?.def.thingClass==robotClass) return true;
+                        return false;
+                    };
+                }
+            }
+
+            return true; // I have too much to do to look up whether Prepare(...) can be a void, so return true
+        }
         static void Postfix(ref bool __result, IntVec3 c, Map map, Pawn carrier) {
             if (__result == false) return;
+            if (specialTest !=null && specialTest(carrier)) return; // passes specialTest?
             if (carrier?.RaceProps == null) return;
             if (carrier.RaceProps.intelligence >= NecessaryIntelligenceToUseDeepStorage)
                 return; // smart enough to use whatever.

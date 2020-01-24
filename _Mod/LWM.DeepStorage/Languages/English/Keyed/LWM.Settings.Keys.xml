@@ -35,6 +35,8 @@
   <LWM.ResetAllToDefault>Reset ALL to default</LWM.ResetAllToDefault>
 
   <!-- HugsLib Settings Keys: -->
+  <LWMDSrobotsCanUse>Robots can always haul to Deep Storage?</LWMDSrobotsCanUse>
+  <LWMDSrobotsCanUseDesc>Allow Robots to haul to Deep Storage.  Robots from "Misc. Robots" are supported.  Note that ANYONE may take FROM Deep Storage</LWMDSrobotsCanUseDesc>
   <LWM_DS_IntTitle>Intelligence Required to Haul to Deep Storage</LWM_DS_IntTitle>
   <LWM_DS_IntDesc>This option can let your animals/robots/whatever haul TO Deep Storage.\nMost alien races have "Humanlike" or better.  Most animals are "animal."  Vanilla Mechanoids are "tool users"  Robots for various mods?  Your guess is as good as mine.\nNote that ANYONE may take FROM Deep Storage.</LWM_DS_IntDesc>
   <LWM_DS_Int_Animal>Animal (Animals and some robots)</LWM_DS_Int_Animal>

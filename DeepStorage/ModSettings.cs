@@ -7,6 +7,7 @@ using UnityEngine;
 namespace LWM.DeepStorage
 {
     public class Settings : ModSettings {
+        public static bool robotsCanUse=false;
         public static bool storingTakesTime=true;
         public static float storingGlobalScale=1f;
         public static bool storingTimeConsidersStackSize=true;
@@ -46,15 +47,16 @@ namespace LWM.DeepStorage
         //  Why the fuck?  WHY?
         public static void DoSettingsWindowContents(Rect inRect) {
 //            Setup();
-            Rect viewRect=new Rect(0,0,inRect.width-40f,inRect.height+=150f);  // Increase this to make more space
+            Rect viewRect=new Rect(0,0,inRect.width-40f,inRect.height+290f);  // Increase this to make more space
             Rect outerRect=inRect.ContractedBy(10f);
-            outerRect.height-=100f; // "close" button
+            outerRect.height-=40f; // "close" button
             Widgets.BeginScrollView(outerRect, ref scrollPosition, viewRect);
             Widgets.DrawHighlight(viewRect);
             Listing_Standard l = new Listing_Standard(GameFont.Medium); // my tiny high-resolution monitor :p
             l.Begin(viewRect);
 
-            l.GapLine();  // Intelligence to haul to
+            l.GapLine();  // Who can haul to Deep Storage (robots, animals, etc)
+            l.CheckboxLabeled("LWMDSrobotsCanUse".Translate(), ref robotsCanUse, "LWMDSrobotsCanUseDesc".Translate());
             string [] intLabels={
                 "LWM_DS_Int_Animal".Translate(),
                 "LWM_DS_Int_ToolUser".Translate(),
@@ -63,7 +65,6 @@ namespace LWM.DeepStorage
             // Setting to allow bionic racoons to haul to Deep Storage:
             l.EnumRadioButton<Intelligence>(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "LWM_DS_IntTitle".Translate(),
                                             "LWM_DS_IntDesc".Translate(), false, intLabels);
-
             l.GapLine();  //Storing Delay Settings
             l.Label("LWMDSstoringDelaySettings".Translate());
             l.CheckboxLabeled("LWMDSstoringTakesTimeLabel".Translate(),
@@ -185,9 +186,15 @@ namespace LWM.DeepStorage
             l.GapLine();
             l.CheckboxLabeled("LWMDSoverCapacityCheck".Translate(), ref checkOverCapacity,
                               "LWMDSoverCapacityCheckDesc".Translate());
+            // Per DSU settings - let players change them around...
             l.GapLine();
-            if (l.ButtonText("LWMDSperDSUSettings".Translate())) {
-                Find.WindowStack.Add(new Dialog_DS_Settings());
+            if (allowPerDSUSettings) {
+                if (l.ButtonText("LWMDSperDSUSettings".Translate())) {
+                    Find.WindowStack.Add(new Dialog_DS_Settings());
+                }
+            } else {
+                l.CheckboxLabeled("LWMDSperDSUturnOn".Translate(), ref allowPerDSUSettings,
+                                  "LWMDSperDSUturnOnDesc".Translate());
             }
             //viewRect=new Rect(0,0, inRect.width-40f, l.CurHeight+10f); // ...why didn't this behave the same??
             l.End();
@@ -444,6 +451,7 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref storingTakesTime, "storing_takes_time", true);
             Scribe_Values.Look(ref storingGlobalScale, "storing_global_scale", 1f);
             Scribe_Values.Look(ref storingTimeConsidersStackSize, "storing_time_CSS", true);
+            Scribe_Values.Look(ref robotsCanUse, "robotsCanUse", true);
             Scribe_Values.Look(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "int_to_use_DS", Intelligence.Humanlike);
             Scribe_Values.Look(ref defaultStoragePriority, "default_s_priority", StoragePriority.Important);
             Scribe_Values.Look(ref checkOverCapacity, "check_over_capacity", true);
