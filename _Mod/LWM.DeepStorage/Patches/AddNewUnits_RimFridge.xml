@@ -80,4 +80,13 @@
       </value>
     </match>
     </Operation>
+    <!--The version of RimFridge currently on Steam has a CompPowerTrader already.
+        We remove ours in this case, until KV can push out an update -->
+    <Operation Class="PatchOperationConditional">
+      <xpath>/Defs/ThingDef[@Name="FridgeBase"]/comps/li[compClass='CompPowerTrader']</xpath>
+      <match Class="PatchOperationRemove">
+        <xpath>/Defs/ThingDef[defName="LWM_DS_RimFridge_Refrigerator"]/comps/li[compClass='CompPowerTrader']</xpath>
+      </match>
+      <success>Always</success>
+    </Operation>
 </Patch>
