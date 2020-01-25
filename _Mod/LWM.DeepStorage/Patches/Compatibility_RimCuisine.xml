@@ -7,7 +7,6 @@
             <li>RimCuisine 1.0</li>
         </mods>
         <match Class="PatchOperationSequence">
-            <success>Always</success>
             <operations>
                 <li Class="PatchOperationAdd">
                     <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/categories</xpath>

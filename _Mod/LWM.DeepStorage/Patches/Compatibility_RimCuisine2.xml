@@ -8,7 +8,6 @@
          <li>[1.0] RimCuisine 2 Core</li>
       </mods>
       <match Class="PatchOperationSequence">
-         <success>Always</success>
          <operations>
             <li Class="PatchOperationAdd">
                <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/categories</xpath>
@@ -45,7 +44,6 @@
          <li>[1.0] RimCuisine 2: Bottling and Booze Expansion</li>
       </mods>
       <match Class="PatchOperationSequence">
-         <success>Always</success>
          <operations>
             <li Class="PatchOperationAdd">
                <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/categories</xpath>
@@ -59,14 +57,13 @@
          </operations>
       </match>
    </Operation>
-   
+
    <!--=====Meals and Munchies=====-->
    <Operation Class="PatchOperationFindMod">
       <mods>
          <li>[1.0] RimCuisine 2 Meals and Munchies Expansion</li>
       </mods>
       <match Class="PatchOperationSequence">
-         <success>Always</success>
          <operations>
             <li Class="PatchOperationAdd">
                <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>
@@ -80,5 +77,4 @@
          </operations>
       </match>
    </Operation>
-
 </Patch>

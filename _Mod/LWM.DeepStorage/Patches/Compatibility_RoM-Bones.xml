@@ -6,7 +6,6 @@
             <li>Rim of Madness - Bones</li>
         </mods>
         <match Class="PatchOperationSequence">
-            <success>Always</success>
             <operations>
                 <li Class="PatchOperationAdd">
                     <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>

@@ -1,5 +1,6 @@
 <Patch>
   <!-- Compatibility for CrunchyDuck's Slightly More Realistic Wool Production -->
+  <!--TODO: add these to fabric hampers-->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>Slightly More Realistic Wool Production</li>

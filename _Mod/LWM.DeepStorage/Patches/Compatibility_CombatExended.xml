@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!-- Compatibility for CombatExtended, specifications from sumghai,
      who actually plays it, and has a vision for how it should work.
-     No one else has made any requests, so he gets pretty much 
+     No one else has made any requests, so he gets pretty much
      exactly what he wants ^.^
      First, Cabinets, then Lockers -->
 <Patch>
@@ -27,7 +27,7 @@
 	    </li>
 	  </value>
 	</li>
-        <li Class="PatchOperationAdd">
+        <li Class="PatchOperationAdd"><!-- TODO -->
           <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet"]/building/defaultStorageSettings/filter</xpath>
           <value>
             <categories>
@@ -51,7 +51,7 @@
             </li>
           </value>
         </li>
-        <li Class="PatchOperationAdd">
+        <li Class="PatchOperationAdd"><!--TODO-->
           <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker"]/building/defaultStorageSettings/filter</xpath>
           <value>
             <categories>

@@ -6,7 +6,6 @@
       <li>Reich Armory [1.0]</li>
     </mods>
     <match Class="PatchOperationSequence">
-      <success>Always</success>
       <operations>
         <li Class="PatchOperationAdd">
           <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
