@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!-- Weird name explanation: make sure it runs first, before
+     anything else that might affect what's in the locker filters -->
 <!-- Compatibility for CombatExtended, specifications from sumghai,
      who actually plays it, and has a vision for how it should work.
      No one else has made any requests, so he gets pretty much
