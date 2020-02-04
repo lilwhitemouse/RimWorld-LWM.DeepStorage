@@ -28,6 +28,18 @@ namespace LWM.DeepStorage
 				},
 				hotKey = KeyBindingDefOf.Misc1
 			};
+            #if DEBUG
+            yield return new Command_Action {
+                defaultLabel="Items in Region",
+                action=delegate() {
+                    Log.Warning("ListerThings for "+parent+" (at region at position "+parent.Position+")");
+                    foreach (var t in parent.Position.GetRegion(parent.Map).ListerThings
+                             .ThingsMatching(ThingRequest.ForGroup(ThingRequestGroup.HaulableEver))) {
+                        Log.Message("  "+t);
+                    }
+                }
+            };
+            #endif
 
             #if false
             yield return new Command_Action {
@@ -45,7 +57,7 @@ namespace LWM.DeepStorage
                 }
             };
             #endif
-                
+
             // I left this lovely testing code in - oops.
             //yield return new Command_Action
             //{
@@ -183,7 +195,7 @@ namespace LWM.DeepStorage
                 return ((Properties)this.props);
             }
         }
-        
+
 
 
 
@@ -202,7 +214,7 @@ namespace LWM.DeepStorage
                 var l2=this.parent.def.comps.Where(cp => ((cp as Properties)!=null)).ToArray();
                 for (var i=0; i< l2.Length -1; i++) {
                     this.parent.def.comps.Remove(l2[i]);
-                }                
+                }
             }
 
             /*******  For only one limiting stat: (mass, or bulk for CombatExtended)  *******/
