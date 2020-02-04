@@ -153,25 +153,46 @@ namespace LWM.DeepStorage
             // Prepare: See if there are any mods that should be able to haul to storage even
             //   tho they don't meet normal criteria:
             if (!Settings.robotsCanUse) return true;
+            Type classMiscRobots=null;
+            Type classBaseRobots=null;
             if (ModLister.HasActiveModWithName("Misc. Robots")) {
                 // From Haplo:  From my point of view they are normal drones with a kind of
                 //    robot arm (for hauling) somewhere and a simple (job-specific) AI
                 // Good enough for me!  A robot arm can manipulate things, an any AI that can
                 // handle lifting random objects can probably handle latches.
-                Type robotClass=Type.GetType("AIRobot.X2_AIRobot, AIRobot");
-                if (robotClass==null) {
+                classMiscRobots=Type.GetType("AIRobot.X2_AIRobot, AIRobot");
+                if (classMiscRobots==null) {
                     Log.Error("LWM's Deep Storage tried to find the Type 'AIRobot.X2_AIRobot, AIRobot', but failed even tho Misc. Robots is loaded.\n"+
                               "Please let LWM know.");
                 } else {
                     Log.Message("LWM: activating compatibility logic for Misc. Robots");
-                    //specialTest=p=>p?.def.thingClass==robotClass;
-                    specialTest=delegate(Pawn p) {
-                        if (p?.def.thingClass==robotClass) return true;
-                        return false;
-                    };
                 }
             }
-
+            if (ModLister.HasActiveModWithName("Base Robots")) {
+                classBaseRobots=Type.GetType("BaseRobot.ArcBaseRobot, BaseRobot");
+                if (classBaseRobots==null) {
+                    Log.Error("LWM's Deep Storage tried to find the Type 'BaseRobot.ArcBaseRobot, BaseRobot', but failed even tho Base Robots is loaded.\n"+
+                              "Please let LWM know.");
+                } else {
+                    Log.Message("LWM: activating compatibility logic for Base Robots");
+                }
+            }
+            if (classMiscRobots != null) {
+                if (classBaseRobots != null) { // Are these even compatible?  Someone will try
+                    specialTest=delegate(Pawn p) {
+                        if (classMiscRobots.IsAssignableFrom(p?.def.thingClass)) return true;
+                        return classBaseRobots.IsAssignableFrom(p?.def.thingClass);
+                    };
+                } else { // only MiscRobots
+                    specialTest=delegate(Pawn p) {
+                        return classMiscRobots.IsAssignableFrom(p?.def.thingClass);
+                    };
+                }
+            } else if (classBaseRobots != null) {
+                    specialTest=delegate(Pawn p) {
+                        return classBaseRobots.IsAssignableFrom(p?.def.thingClass);
+                    };
+            }
             return true; // I have too much to do to look up whether Prepare(...) can be a void, so return true
         }
         static void Postfix(ref bool __result, IntVec3 c, Map map, Pawn carrier) {
