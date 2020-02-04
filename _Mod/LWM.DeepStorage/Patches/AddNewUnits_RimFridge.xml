@@ -10,7 +10,7 @@
     </mods>
     <match Class="PatchOperationAdd">
       <xpath>/Defs</xpath>
-      <value><ThingDef ParentName="FridgeBase">
+      <value><ThingDef ParentName="FridgeBase" Name="LWM_DeepRimFridge">
 	<defName>LWM_DS_RimFridge_Refrigerator</defName>
 	<label>Deep Refrigerator</label>
         <minifiedDef Inherit="false" /><!-- Sorry, you've dug a hole for it -->
