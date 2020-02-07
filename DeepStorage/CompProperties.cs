@@ -35,7 +35,12 @@ namespace LWM.DeepStorage
                                            size>1?
                                            "LWM_DS_TotalAndPerCell".Translate(maxNumberStacks*size,maxNumberStacks)
                                            :maxNumberStacks.ToString(),
-                                           10 /*display priority*/, "LWM_DS_maxNumStacksDesc".Translate());
+                                           11 /*display priority*/, "LWM_DS_maxNumStacksDesc".Translate());
+            if (minNumberStacks > 2) yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_minNumStacks".Translate(),
+                                           size>1?
+                                           "LWM_DS_TotalAndPerCell".Translate(minNumberStacks*size,minNumberStacks)
+                                           :minNumberStacks.ToString(),
+                                           10 /*display priority*/, "LWM_DS_minNumStacksDesc".Translate(minNumberStacks*size));
             if (maxTotalMass > 0f) yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_maxTotalMass".Translate(),
                                        size>1?
                                         "LWM_DS_TotalAndPerCell".Translate(kg(maxTotalMass*size),kg(maxTotalMass))
@@ -64,13 +69,13 @@ namespace LWM.DeepStorage
         }
         /************************* Done with Stat window ***********************/
 
-        
+
         public override void ResolveReferences(ThingDef parentDef) {
             base.ResolveReferences(parentDef);
             parent=parentDef; // no way to actually get this via def :p
             size=parentDef.Size.Area;
         }
-        
+
         public string AllowedCategoriesString {
             get {
                 if (categoriesString==null) {
@@ -153,7 +158,7 @@ namespace LWM.DeepStorage
         public StatDef altStat=null;
         public bool showContents=true;
         public GuiOverlayType overlayType=GuiOverlayType.Normal;
-                
+
         public int size=0;
         public ThingDef parent=null; // :p  Have to keep track of this myself
 
@@ -161,7 +166,7 @@ namespace LWM.DeepStorage
         private string defsString=null;
         private string disallowedString=null;
     }
-    
+
     public enum GuiOverlayType : byte {
         Normal,
         CountOfAllStacks,       // Centered on DSU
