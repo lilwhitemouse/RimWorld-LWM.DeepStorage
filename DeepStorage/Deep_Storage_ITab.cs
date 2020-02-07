@@ -10,12 +10,12 @@ using Verse;
 
 namespace LWM.DeepStorage
 {
-    /********* UI ITab *****************************
-     * Original ITab from sumghai - thanks!        *
-     *   That saved a lot of work.                 *
-     * Now mostly rewritten, with many requests    *
-     *   from various ppl on steam                 *
-     *                                             */
+    /********* UI ITab ******************************
+     * Original ITab from sumghai - thanks!         *
+     *   That saved a lot of work.                  *
+     * Now almost all rewritten, with many requests *
+     *   from various ppl on steam                  *
+     *                                              */
     public class ITab_DeepStorage_Inventory : ITab {
         private Vector2 scrollPosition = Vector2.zero;
         private float scrollViewHeight=1000f;
@@ -26,8 +26,6 @@ namespace LWM.DeepStorage
         private const float ThingRowHeight = 28f;
         private const float ThingLeftX = 36f;
         private const float StandardLineHeight = 22f;
-//        private static List<Thing> listOfStoredItems = new List<Thing>();
-//        private static List<string> listOfReservingPawns= new List<string>();
 
         public ITab_DeepStorage_Inventory() {
             this.size = new Vector2(460f, 450f);
@@ -39,17 +37,13 @@ namespace LWM.DeepStorage
             List<Thing> storedItems;
 //TODO: set fonts ize, etc.
             Text.Font = GameFont.Small;
-  //            Rect rect = new Rect(0f, 20f, this.size.x, this.size.y - 20f);
-//            Rect rect = new Rect(0f, 0f, this.size.x, this.size.y);
-  //            Rect rect2 = rect.ContractedBy(10f);
-  //            Rect position = new Rect(rect2.x, rect2.y, rect2.width, rect2.height);
-//            Rect position = rect.ContractedBy(10f);
+            // 10f border:
             Rect frame=new Rect(10f,10f, this.size.x-10, this.size.y-10);
-//            GUI.BeginGroup(position);
             GUI.BeginGroup(frame);
             Text.Font = GameFont.Small;
             GUI.color = Color.white;
 
+            /*******  Title *******/
             float curY = 0f;
             Widgets.ListSeparator(ref curY, frame.width, labelKey.Translate()
                 #if DEBUG
@@ -59,7 +53,6 @@ namespace LWM.DeepStorage
             curY += 5f;
             /****************** Header: Show count of contents, mass, etc: ****************/
             //TODO: handle each cell separately?
-//            listOfStoredItems.Clear();
             string header, headerTooltip;
             CompDeepStorage cds=storageBuilding.GetComp<CompDeepStorage>();
             if (cds!=null) {
@@ -67,22 +60,13 @@ namespace LWM.DeepStorage
             } else {
                 storedItems=CompDeepStorage.genericContentsHeader(storageBuilding, out header, out headerTooltip);
             }
-
             Rect tmpRect=new Rect(8f, curY, frame.width-16, Text.CalcHeight(header, frame.width-16));
-Log.Message("DEBUG: Height calculated is "+tmpRect.height);
-//            Rect tmpRect=new Rect(8f, curY, frame.width-16, Text.CalcHeight(header, position.width-16));
             Widgets.Label(tmpRect, header);
             // TODO: tooltip.  Not that it's anything but null now
             curY+=(tmpRect.height); //todo?
-//            = DisplayHeaderInfo(ref float curY, float width, Building_Storage building, int numCells, List<Thing> itemsList)
-/*            List<IntVec3> cabinetStorageCells = storageBuilding.AllSlotCellsList();
-            foreach (IntVec3 storageCell in cabinetStorageCells) {
-                // Possible TODO: keep track of any items that go overCapacity?
-                foreach (Thing t in storageBuilding.Map.thingGrid.ThingsListAt(storageCell)) {
-                    if (t.Spawned && t.def.EverStorable(false)) listOfStoredItems.Add(t);
-                }
-            }
-            */
+
+            /*************          ScrollView              ************/
+            /*************          (contents)              ************/
             storedItems = storedItems.OrderBy((Thing x) => x.def.defName).
                 ThenByDescending((Thing x) => {
                     QualityCategory c;
@@ -90,19 +74,13 @@ Log.Message("DEBUG: Height calculated is "+tmpRect.height);
                     return (int)c;
                 }).
                 ThenByDescending((Thing x) => (x.HitPoints / x.MaxHitPoints)).ToList();
-
-//            DisplayHeaderInfo(ref curY, position.width-16f,
-//                              storageBuilding, cabinetStorageCells.Count, listOfStoredItems);
-
-
-            /*************          ScrollView              ************/
+            // outRect is the is the rectangle that is visible on the screen:
             Rect outRect = new Rect(0f, 10f + curY, frame.width, frame.height-curY);
             // viewRect is inside the ScrollView, so it starts at y=0f
             Rect viewRect = new Rect(0f, 0f, frame.width - 16f, this.scrollViewHeight);
             // 16f ensures plenty of room for scrollbars.
             // scrollViewHeight is set at the end of this call (via layout?); it is the proper
             //   size the next time through, so it all works out.
-
             Widgets.BeginScrollView(outRect, ref this.scrollPosition, viewRect, true);
 
             curY = 0f; // now inside ScrollView
@@ -114,7 +92,6 @@ Log.Message("DEBUG: Height calculated is "+tmpRect.height);
             for (int i = 0; i < storedItems.Count; i++) {
                 this.DrawThingRow(ref curY, viewRect.width, storedItems[i]);
             }
-//            storedItems.Clear();
 
             if (Event.current.type == EventType.Layout) {
                 this.scrollViewHeight = curY + 25f; //25f buffer   -- ??
@@ -128,77 +105,7 @@ Log.Message("DEBUG: Height calculated is "+tmpRect.height);
             // it should get set to whatever draw-row uses at top
             Text.Anchor = TextAnchor.UpperLeft;
         }
-#if false
-//        private List<Thing>
-        // LWM rewrote most of this method to meet their implementation of CompDeepStorage
-        private void DisplayHeaderInfoX(ref float curY, float width, Building_Storage building,
-                                       int numCells, List<Thing> itemsList) {
-            // Header information regardless of what the storage building is:
-            Rect rect = new Rect(0f, curY, width, 22f);
-            // TODO: Add hooks for other mods:
-            //   E.g., StockpileForDisaster has a nice little checkbox that shows whether
-            //   pawns can freely take from the unit, or whether restrictions are in effect
 
-            CompDeepStorage cds = building.GetComp<CompDeepStorage>();
-            //if (cds == null) return; // what are we even doing here, mmm?  In a vanilla shelf, probably!
-            if (cds!=null) {
-                bool flagUseStackInsteadOfItem=false; // "3/4 Items" vs "3/4 Stacks"
-                float itemsTotalMass = 0; // or Bulk for CE ;p
-                for (int i=0; i<itemsList.Count; i++) {
-                    itemsTotalMass += itemsList[i].GetStatValue(cds.stat, true) * (float)itemsList[i].stackCount;
-                    if (itemsList[i].def.stackLimit > 1) flagUseStackInsteadOfItem=true;
-                }
-                if (cds.limitingTotalFactorForCell > 0f) {
-                    string tmpLabel="LWM.ContentsHeaderItemsMass";
-                    if (flagUseStackInsteadOfItem) tmpLabel="LWM.ContentsHeaderStacksMass";
-                    Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
-                                  cds.maxNumberStacks*numCells,
-                                  cds.stat.ToString().ToLower(), itemsTotalMass.ToString("0.##"),
-                                  (cds.limitingTotalFactorForCell * numCells).ToString("0.##")));
-                } else {
-                    string tmpLabel=
-                    if (flagUseStackInsteadOfItem) tmpLabel=
-                    Widgets.Label(rect, tmpLabel.Translate(itemsList.Count,
-                                  cds.maxNumberStacks*numCells,
-                                  cds.stat.ToString().ToLower(), itemsTotalMass.ToString("0.##")));
-                }
-                curY += 22f;
-                /* Limiting factor for Item: what's too damn big */
-                if (cds.limitingFactorForItem > 0f) {
-                    rect = new Rect(0f, curY, width, 22f);
-                    Widgets.Label(rect, "LWM.ContentsHeaderMaxSize".Translate(
-                                      cds.stat.ToString().ToLower(),
-                                      cds.limitingFactorForItem.ToString("0.##")
-                                      ));
-                    curY+=22f;
-                }
-            }
-            /**** Pawn reservations.  Displaying who is using the storage building has cut   ****
-             *                        down on questions in the Steam thread. Can I get a wahoo? */
-            List<Pawn>pwns=building.Map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer);
-            if (pwns.Count > 0) {
-                listOfReservingPawns.Clear();
-                List<IntVec3> buildingCells=building.AllSlotCellsList();
-                for (int i=0; i<buildingCells.Count; i++) {
-                    Pawn p=building.Map.reservationManager.FirstRespectedReserver(buildingCells[i], pwns[0]);
-                    if (p!=null) {
-                        // (p can possibly be animals)
-                        listOfReservingPawns.Add(p.LabelShort);
-                    }
-                }
-                if (listOfReservingPawns.Count > 0) {
-                    rect = new Rect(0f, curY, width, 22f);
-                    if (listOfReservingPawns.Count==1) {
-                        Widgets.Label(rect, "LWM.ContentsHeaderPawnUsing".Translate(listOfReservingPawns[0]));
-                    } else {
-                        Widgets.Label(rect, "LWM.ContentsHeaderPawnsUsing".Translate(
-                                          String.Join(", ", listOfReservingPawns.ToArray())));
-                    }
-                    curY+=22f;
-                }
-            } // end checking pawn reservations
-        } // end Header for ITab
-#endif
         private void DrawThingRow(ref float y, float width, Thing thing) {
             // Sumghai started from the right, as several things in vanilla do, and that's fine with me:
 
@@ -252,7 +159,7 @@ Log.Message("DEBUG: Height calculated is "+tmpRect.height);
             if (thing.def.DrawMatSingle != null && thing.def.DrawMatSingle.mainTexture != null) {
                 Widgets.ThingIcon(new Rect(4f, y, 28f, 28f), thing, 1f);
             }
-//TODO: set allthis once:
+//TODO: set all this once:
             Text.Anchor = TextAnchor.MiddleLeft;
             GUI.color = ITab_Pawn_Gear.ThingLabelColor; // TODO: Aaaaah, sure?
             Rect textRect = new Rect(36f, y, itemRect.width - 36f, itemRect.height);
