@@ -249,11 +249,11 @@ namespace LWM.DeepStorage
                 headerStringB.Append("LWM.ContentsHeaderMax".Translate(listOfStoredItems.Count,
                              // 3 stacks or 3 items:
                              (flagUseStackInsteadOfItem?"LWM.XStacks":"LWM.XItems").Translate(maxNumberStacks*numCells),
-                             itemsTotalMass.ToString("0.##")));
+                             stat.ToString().ToLower(), itemsTotalMass.ToString("0.##")));
             }
             ///////////////////////////// Max mass per item?
             if (limitingFactorForItem>0f) { // (Cannot store items above mass of X kg)
-                headerStringB.AppendLine("LWM.ContentsHeaderMaxSize".Translate(
+                headerStringB.Append('\n').Append("LWM.ContentsHeaderMaxSize".Translate(
                                       stat.ToString().ToLower(),
                                       limitingFactorForItem.ToString("0.##")));
             }
@@ -283,7 +283,7 @@ namespace LWM.DeepStorage
                      .Translate(listOfStoredItems.Count,
                                 // 3 stacks or 3 items:
                                 (flagUseStackInsteadOfItem?"LWM.XStacks":"LWM.XItems").Translate(numCells),
-                                itemsTotalMass.ToString("0.##")));
+                                StatDefOf.Mass, itemsTotalMass.ToString("0.##")));
             AddPawnReservationsHeader(storage);
             header=headerStringB.ToString();
             return listOfStoredItems;
@@ -305,10 +305,11 @@ namespace LWM.DeepStorage
                     }
                 }
                 if (listOfReservingPawns.Count > 0) {
+                    headerStringB.Append('\n');
                     if (listOfReservingPawns.Count==1) {
-                        headerStringB.AppendLine("LWM.ContentsHeaderPawnUsing".Translate(listOfReservingPawns[0]));
+                        headerStringB.Append("LWM.ContentsHeaderPawnUsing".Translate(listOfReservingPawns[0]));
                     } else {
-                        headerStringB.AppendLine("LWM.ContentsHeaderPawnsUsing".Translate(
+                        headerStringB.Append("LWM.ContentsHeaderPawnsUsing".Translate(
                                           String.Join(", ", listOfReservingPawns.ToArray())));
                     }
                 }
