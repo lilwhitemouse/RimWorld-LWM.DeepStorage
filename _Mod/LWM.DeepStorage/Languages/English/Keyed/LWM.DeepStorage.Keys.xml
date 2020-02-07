@@ -9,11 +9,17 @@
   <LWM_DS_BulkEtcOf>{0} {1}</LWM_DS_BulkEtcOf><!-- for CE:  "15 bulk", etc -->
   <LWM_DSU_GainsName>The {0} is now called {1}.</LWM_DSU_GainsName><!-- rename building -->
   <!-- Content tab -->
-  <LWM.ContentsHeaderStacksMass>{0} / {1} stacks with total {2} of {3} / {4} kg</LWM.ContentsHeaderStacksMass>
-  <LWM.ContentsHeaderItemsMass>{0} / {1} items with total {2} of {3} / {4} kg</LWM.ContentsHeaderItemsMass>
-  <LWM.ContentsHeaderStacks>{0} / {1} stacks with total {2} of {3} kg</LWM.ContentsHeaderStacks>
-  <LWM.ContentsHeaderItems>{0} / {1} items with total {2} of {3} kg</LWM.ContentsHeaderItems>
-  <LWM.ContentsHeaderMaxSize>    (Cannot store items above a {0} of {1} kg)</LWM.ContentsHeaderMaxSize>
+  <!--     3 / 10 stacks with total mass of 4.5 / 10 kg -->
+  <!--   or if using CE: -->
+  <!--     0 / 10 items with total bulk of 0 / 10 kg -->
+  <LWM.ContentsHeaderMaxMass>{0} / {1} with total {2} of {3} / {4} kg</LWM.ContentsHeaderMaxMass>
+  <LWM.ContentsHeaderMax>{0} / {1} with total {2} of {3} kg</LWM.ContentsHeaderMax>
+  <LWM.ContentsHeaderMinMax>{0} / {1}, max {2}, with total {3} of {4} kg</LWM.ContentsHeaderMinMax>
+  <LWM.ContentsHeaderStacksMax>{0} stacks, max {1}, limited with total {2} of {3} kg</LWM.ContentsHeaderStacksMax>
+  <LWM.ContentsHeaderItemsMax>{0} items, max {1}, limited with total {2} of {3} kg</LWM.ContentsHeaderItemsMax>
+  <LWM.XStacks>{0} stacks</LWM.XStacks><!-- Will be used above as 3 / 4 stacks with...-->
+  <LWM.XItems>{0} items</LWM.XItems><!-- 3 / 4 items ...-->
+  <LWM.ContentsHeaderMaxSize>    (Cannot store items above a {0} of {1} kg)</LWM.ContentsHeaderMaxSize><!--mass of 3 kg, bulk of 2kg--> 
   <LWM.ContentsHeaderPawnUsing>  {0} is using this.</LWM.ContentsHeaderPawnUsing>
   <LWM.ContentsHeaderPawnsUsing>  This is being used by: {0}.</LWM.ContentsHeaderPawnsUsing><!-- "Red, John, Abigail" etc -->
   <LWM_DS_Empty>empty</LWM_DS_Empty>
