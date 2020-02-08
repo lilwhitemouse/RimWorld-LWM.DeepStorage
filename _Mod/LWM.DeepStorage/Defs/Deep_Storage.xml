@@ -354,7 +354,6 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     </comps>
   </ThingDef>
 
-
   <ThingDef Name="LWM_Skip"  ParentName="LWM_DeepStorage" >
     <defName>LWM_DeepStorage_Skip</defName>
     <label>Skip</label>
@@ -558,7 +557,6 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
     </comps>
   </ThingDef>
 
-
   <ThingDef Name="LWM_MealRack" ParentName="LWM_DeepStorage" >
     <defName>LWM_MealRack</defName>
     <label>Meal Tray Rack</label>
@@ -605,7 +603,8 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
       <li><compClass>CompQuality</compClass></li><!--Hey, you CAN make it pretty?-->
     </comps>
   </ThingDef>
-  <ThingDef ParentName="LWM_DeepStorage">
+  
+  <ThingDef Name="LWM_FabricHamper" ParentName="LWM_DeepStorage">
     <defName>LWM_FabricHamper</defName>
     <label>Hampers</label>
     <description>This is a set of hampers made out of fabric.  The various pockets allow storing large amounts of diverse small items with ease.</description>
@@ -734,6 +733,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
       <li>Smithing</li><!-- Forging strong chains - we're lifting bloody muffalos here -->
     </researchPrerequisites>
   </ThingDef>
+  
   <ThingDef Name="LWM_VeryBigShelf" ParentName="LWM_DeepStorage">
     <defName>LWM_VeryBigShelf</defName>
     <label>Tall Shelves</label>
