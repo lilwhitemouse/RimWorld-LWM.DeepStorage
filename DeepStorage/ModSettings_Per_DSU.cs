@@ -8,10 +8,13 @@ using UnityEngine;
 /// <summary>
 ///   Two Dialog windows to allow whiny RimWorld players to change settings for the Deep Storage units
 ///     and the logic to make that happen.
-///   Basic idea:
+///   Basic (old) idea:
 ///     on load, check if modifying units is turned on.  If so, once defs are loaded, do second
 ///     pass through the Setting's ExposeData() and this time, parse "DSU_LWM_defName_fieldName",
 ///     populate a dictionary with the default values, and change the defs on the fly.
+///   New idea:
+///     Only do the above if running non-steam verion of mod.  If running steam version of mod,
+///     grab list of categories and defs for user to select (what's allowable, etc)
 ///
 ///   This file contains the two dialog windows, keeps the default settings, and handles making the def changes.
 ///   The call to re-read the storage settings is done in ModSettings.cs, and the call to ExposeDSUSettings is
@@ -20,8 +23,12 @@ using UnityEngine;
 
 namespace LWM.DeepStorage
 {
-    // The window that lists all the DSUs available:
+    /****************************** The window that lists all the DSUs available: *******************/
+//    [StaticConstructorOnStartup]
     public class Dialog_DS_Settings : Window {
+        static Dialog_DS_Settings() {
+//            Log.Message("LWM Settings: preparing Defs");
+        }
         public Dialog_DS_Settings() {
 			this.forcePause = true;
 			this.doCloseX = true;
@@ -107,7 +114,7 @@ namespace LWM.DeepStorage
             }
             totalContentHeight = curY;
         }
-
+        /************************  Per DSU window ****************************/
         private class Dialog_DSU_Settings : Window {
             public Dialog_DSU_Settings(ThingDef def) {
                 this.forcePause = true;
@@ -116,27 +123,39 @@ namespace LWM.DeepStorage
                 this.closeOnClickedOutside = true;
                 this.absorbInputAroundWindow = true;
                 this.def=def;
-
-                if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
-                    this.useCustomThingFilter=true;
-                }
+                if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter"))
+                    this.origFilter=(ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"];
+                else
+                    this.origFilter=def.building.defaultStorageSettings.filter;
 
                 SetTempVars();
+                possibleCategories=DefDatabase<ThingCategoryDef>.AllDefsListForReading;
             }
-            private void SetTempVars() {
+            List<ThingCategoryDef> possibleCategories;
+            private void SetTempVars() { // from whatever the comp property has
                 tmpLabel=def.label;
                 tmpMaxNumStacks=def.GetCompProperties<Properties>().maxNumberStacks;
+                //TODO: minNumberStacks!!!!!
                 tmpMaxTotalMass=def.GetCompProperties<Properties>().maxTotalMass;
                 tmpMaxMassStoredItem=def.GetCompProperties<Properties>().maxMassOfStoredItem;
                 tmpShowContents=def.GetCompProperties<Properties>().showContents;
                 tmpStoragePriority=def.building.defaultStorageSettings.Priority;
                 tmpOverlayType=def.GetCompProperties<Properties>().overlayType;
+                if (additionalCategories!=null &&
+                    additionalCategories.ContainsKey(def.defName)) {
+                    tmpAdditionalCategories=new List<string>(additionalCategories[def.defName]);
+                } else {
+                    tmpAdditionalCategories=null;
+                }
+                if (defsUsingCustomFilter!=null && defsUsingCustomFilter.Contains(def.defName)) {
+                    this.useCustomThingFilter=true; // meh
+                }
             }
 
             private void SetTempVarsToDefaults() {
                 SetTempVars();
                 string k="DSU_"+def.defName;
-//                if (defaultDSUValues.ContainsKey(k+"_label")) tmpLabel=(string)defaultDSUValues[k+"label"];
+                //  if (defaultDSUValues.ContainsKey(k+"_label")) tmpLabel=(string)defaultDSUValues[k+"label"];
                 HelpSetTempVarToDefault<string>(ref tmpLabel, "label");
                 HelpSetTempVarToDefault<int>(ref tmpMaxNumStacks, "maxNumStacks");
                 HelpSetTempVarToDefault<float>(ref tmpMaxTotalMass, "maxTotalMass");
@@ -146,19 +165,23 @@ namespace LWM.DeepStorage
                 HelpSetTempVarToDefault<LWM.DeepStorage.GuiOverlayType>(ref tmpOverlayType, "overlayType");
                 useCustomThingFilter=false;
                 customThingFilter=null;
+                tmpAdditionalCategories=null;
                 //HelpSetTempVarToDefault<>(ref tmp, "");
             }
-            private bool AreTempVarsDefaults() {
+            private bool AreTempVarsDefaults() { //TODO: WTF?  Is this right?  "Defaults"???  This is NOT right
                 var cp=def.GetCompProperties<LWM.DeepStorage.Properties>();
-                if (tmpLabel!=def.label) return false;
-                if (tmpMaxMassStoredItem!=cp.maxMassOfStoredItem ||
-                    tmpMaxNumStacks!=cp.maxNumberStacks ||
-                    tmpMaxTotalMass!=cp.maxTotalMass ||
-                    tmpOverlayType!=cp.overlayType ||
-                    tmpShowContents!=cp.showContents
+                string k="DSU_"+def.defName;
+                object tmpO;
+                if (tmpLabel != (defaultDSUValues.TryGetValue(k+"_label", out tmpO)?(string)tmpO:def.label)||
+                    tmpMaxNumStacks != (defaultDSUValues.TryGetValue(k+"_maxNumStacks", out tmpO)?(int)tmpO:cp.maxNumberStacks)||
+                    tmpMaxTotalMass != (defaultDSUValues.TryGetValue(k+"_maxTotalMass", out tmpO)?(float)tmpO:cp.maxTotalMass)||
+                    tmpMaxMassStoredItem != (defaultDSUValues.TryGetValue(k+"_maxMassStoredItem", out tmpO)?(float)tmpO:cp.maxMassOfStoredItem)||
+                    tmpShowContents != (defaultDSUValues.TryGetValue(k+"_showContents", out tmpO)?(bool)tmpO:cp.showContents)||
+                    tmpStoragePriority != (defaultDSUValues.TryGetValue(k+"_storagePriority", out tmpO)?(StoragePriority)tmpO:def.building.defaultStorageSettings.Priority)||
+                    tmpOverlayType != (defaultDSUValues.TryGetValue(k+"_overlayType", out tmpO)?(DeepStorage.GuiOverlayType)tmpO:cp.overlayType)
                     ) return false;
-                if (tmpStoragePriority!=def.building.defaultStorageSettings.Priority) return false;
                 if (useCustomThingFilter) return false;
+                if (!tmpAdditionalCategories.NullOrEmpty()) return false;
                 return true;
             }
             private void HelpSetTempVarToDefault<T>(ref T v, string keylet) { // MEH.
@@ -214,6 +237,28 @@ namespace LWM.DeepStorage
                 l.GapLine();
                 l.EnumRadioButton(ref tmpStoragePriority, "LWMDSpDSUstoragePriority".Translate());
                 l.GapLine();
+                // New attempt at per-storage-unit buildings.
+                ////////////////// additional categories ///////////////////
+                l.Label("Select any ADDITIONAL categories you wish to store here", -1, null);
+                // todo: put this behind if usecustomthingfilter
+                foreach (ThingCategoryDef d in DefDatabase<ThingCategoryDef>.AllDefs) {
+                    bool tmpBool=false;
+                    if (tmpAdditionalCategories != null
+                        && tmpAdditionalCategories.Contains(d.defName)) {
+                        tmpBool=true;
+                    }
+                    l.CheckboxLabeled("   "+d.LabelCap, ref tmpBool);
+                    // TODO: check if filter already has it....
+                    if (tmpBool) {
+                        if (tmpAdditionalCategories==null) tmpAdditionalCategories=new List<string>();
+                        if (!tmpAdditionalCategories.Contains(d.defName)) tmpAdditionalCategories.Add(d.defName);
+                    } else {
+                        if (tmpAdditionalCategories!=null && tmpAdditionalCategories.Contains(d.defName))
+                            tmpAdditionalCategories.Remove(d.defName);
+                    }
+                }
+                //////////////// entire new filter ////////////////
+                l.GapLine();
                 l.CheckboxLabeled("LWMDSpDSUchangeFilterQ".Translate(), ref useCustomThingFilter,
                                   "LWMDSpDSUchangeFilterQDesc".Translate());
                 if (useCustomThingFilter) {
@@ -224,14 +269,15 @@ namespace LWM.DeepStorage
 //                        Log.Error("Old filter has: "+def.building.fixedStorageSettings.filter.AllowedDefCount);
 //                        Log.Warning("New filter has: "+customThingFilter.AllowedDefCount);
                     }
+                    // Make new filter UI:
                     Rect r=l.GetRect(300);
                     r.width*=2f/3f;
-                    r.x+=10f;
+                    r.x+=10f; //indent a little, etc.
                     ThingFilterUI.DoThingFilterConfigWindow(r, ref thingFilterScrollPosition, customThingFilter);
                 } else { // not using custom thing filter:
                     if (customThingFilter!=null || defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
                         customThingFilter=null;
-                        if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                        if (!tmpAdditionalCategories.NullOrEmpty() && defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
                             Utils.Mess(Utils.DBF.Settings, "  Removing filter for "+def.defName);
                             def.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"];
                             defaultDSUValues.Remove("DSU_"+def.defName+"_filter");
@@ -261,19 +307,39 @@ namespace LWM.DeepStorage
                     StoragePriority tmpSP=def.building.defaultStorageSettings.Priority; // hard to access private field directly
                     TestAndUpdate("storagePriority", tmpStoragePriority, ref tmpSP);
                     def.building.defaultStorageSettings.Priority=tmpSP;
-                    if (useCustomThingFilter) {
+                    if (useCustomThingFilter || !tmpAdditionalCategories.NullOrEmpty()) {
                         if (!defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
                             Utils.Mess(Utils.DBF.Settings, "Creating default filter record for item "+def.defName);
                             defaultDSUValues["DSU_"+def.defName+"_filter"]=def.building.fixedStorageSettings.filter;
                         }
-                        def.building.fixedStorageSettings.filter=customThingFilter;
-                    } else {
+                    } else { // nothing adding to filter:
                         if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
                             // we need to remove it
                             Utils.Mess(Utils.DBF.Settings, "Removing default filter record for item "+def.defName);
                             def.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"];
                             defaultDSUValues.Remove("DSU_"+def.defName+"_filter");
                         }
+                    }
+                    if (useCustomThingFilter) {
+                        def.building.fixedStorageSettings.filter=customThingFilter;
+                        if (defsUsingCustomFilter==null) defsUsingCustomFilter=new List<string>();
+                        if (!defsUsingCustomFilter.Contains(def.defName)) defsUsingCustomFilter.Add(def.defName);
+                    } else {
+                        if (defsUsingCustomFilter!=null) defsUsingCustomFilter.Remove(def.defName);
+                    }
+                    if (!tmpAdditionalCategories.NullOrEmpty()) {
+                        if (!useCustomThingFilter) {
+                            def.building.fixedStorageSettings.filter=new ThingFilter();
+                            def.building.fixedStorageSettings.filter
+                                .CopyAllowancesFrom((ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"]);
+                        }
+                        //todo: logic to remove categories?
+                        foreach (string catDefName in tmpAdditionalCategories) {
+                            def.building.fixedStorageSettings.filter
+                                .SetAllow(DefDatabase<ThingCategoryDef>.GetNamed(catDefName), true);
+                        }
+                        if (additionalCategories==null) additionalCategories=new Dictionary<string,List<string>>();
+                        additionalCategories[def.defName]=new List<string>(tmpAdditionalCategories);
                     }
                     Close();
                 }
@@ -286,6 +352,7 @@ namespace LWM.DeepStorage
                 }
             }
 
+            /* Set ref origValue to value, making sure defaultDSUValues[keylet] is updated correctly */
             private void TestAndUpdate<T>(string keylet, T value, ref T origValue) where T : IComparable {
                 string key="DSU_"+def.defName+"_"+keylet;
                 if (value.CompareTo(origValue)==0) {
@@ -297,7 +364,7 @@ namespace LWM.DeepStorage
                 //    (this IS assignment by value, right?)
                 T defaultValue=(defaultDSUValues.ContainsKey(key)?(T)defaultDSUValues[key]:origValue);
                 origValue=value;
-                // if the user reset to originald defaul values, remove the default values key
+                // if the user reset to original default values, remove the default values key
                 if (defaultValue.CompareTo(origValue)==0 && defaultDSUValues.ContainsKey(key)) {
                     defaultDSUValues.Remove(key);
                     Utils.Mess(Utils.DBF.Settings, "  removing default record for item "+keylet+" ("+def.defName+")");
@@ -308,6 +375,7 @@ namespace LWM.DeepStorage
             }
 
             ThingDef def;
+            ThingFilter origFilter;
             string tmpLabel;
             int tmpMaxNumStacks;
             float tmpMaxTotalMass;
@@ -315,22 +383,33 @@ namespace LWM.DeepStorage
             bool tmpShowContents;
             LWM.DeepStorage.GuiOverlayType tmpOverlayType;
             StoragePriority tmpStoragePriority;
+            List<string> tmpAdditionalCategories=null;
 
             bool useCustomThingFilter=false;
             ThingFilter customThingFilter=null;
             Vector2 thingFilterScrollPosition=new Vector2(0,0);
             Vector2 DSUScrollPosition=new Vector2(0,0);
         }
+        // defName can be null to mean everything.
         private static void ResetDSUToDefaults(string defName) {
             var allKeys=new List<string>(defaultDSUValues.Keys);
             Utils.Warn(Utils.DBF.Settings, "Resetting DSU to default: "+(defName==null?"ALL":defName)
                        +" ("+allKeys.Count+" defaults to search)");
+            if (additionalCategories!=null) {
+                if (defName!=null) additionalCategories.Remove(defName);
+                //else additionalCategories.Clear(); // todo: defaults?
+                else additionalCategories=null;
+            }
+            if (defsUsingCustomFilter!=null) {
+                if (defName!=null) defsUsingCustomFilter.Remove(defName);
+                else defsUsingCustomFilter=null;
+            }
             while (allKeys.Count > 0) {
                 var key=allKeys.Last();
                 var value = defaultDSUValues[key];
                 string s=key.Remove(0,4); // string off first DSU_
                 var t=s.Split('_');
-                string prop=t[t.Length-1]; // LWM_Big_Shelf_label ->  grab label
+                string prop=t[t.Length-1]; // "LWM_Big_Shelf_label" ->  grab "label"
                 string keyDefName=string.Join("_", t.Take(t.Length-1).ToArray()); // put defName back together
                 Utils.Mess(Utils.DBF.Settings, "Checking key "+key+" (defName of "+keyDefName+")");
                 if (defName==null || defName=="" || defName==keyDefName) {
@@ -361,6 +440,8 @@ namespace LWM.DeepStorage
             }
         }
         private static bool IsDSUChanged(ThingDef d) {
+            if (additionalCategories!=null && additionalCategories.ContainsKey(d.defName) && //todo: Do I really need this?
+                !additionalCategories[d.defName].NullOrEmpty()) return true;
             foreach (string k in defaultDSUValues.Keys) {
                 string s=k.Remove(0,4); // strip off DSU_
                 var t=s.Split('_');
@@ -374,6 +455,9 @@ namespace LWM.DeepStorage
         }
 
         public static void ExposeDSUSettings(List<ThingDef> units) {
+            if (additionalCategories!=null && additionalCategories.Count==0) additionalCategories=null;
+            Scribe_Deep.Look(ref additionalCategories, "additionalCategories", null); //huzzah, don't have to do it all myself
+            Scribe_Deep.Look(ref defsUsingCustomFilter, "defsUsingCustomFilter", null);
             foreach (ThingDef u in units) {
                 Utils.Warn(Utils.DBF.Settings, "Expose DSU Settings: "+u.defName+" ("+Scribe.mode+")");
                 string k1=u.defName;
@@ -449,6 +533,9 @@ namespace LWM.DeepStorage
         //   Default values for DSU objects, so that when saving mod settings, we know what the defaults are.
         //   Only filled in as user changes the values.
         public static Dictionary<string, object> defaultDSUValues=new Dictionary<string, object>();
+        static Dictionary<string,List<string>> additionalCategories=null;//new Dictionary<string,List<string>>();
+        static List<string> defsUsingCustomFilter;
+
     }
 
 }
