@@ -215,8 +215,10 @@ namespace LWM.DeepStorage
             //   (do this after above to allow user to override changes)
             //   (LoadedModManager.GetMod(typeof(DeepStorageMod)).Content.Identifier and typeof(DeepStorageMod).Name by the way)
 //todo:
-            Utils.Mess(Utils.DBF.Settings, "Defs Loaded.  About to re-load settings");
-            var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");
+            if (false && !Dialog_DS_Settings.defsUsingCustomFilter.NullOrEmpty()) {
+                Utils.Mess(Utils.DBF.Settings, "Defs Loaded.  About to re-load settings");
+                var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");
+            }
         }
 
         // Architect Menu:
