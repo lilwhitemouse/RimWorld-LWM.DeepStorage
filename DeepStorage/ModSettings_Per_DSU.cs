@@ -201,14 +201,12 @@ namespace LWM.DeepStorage
 
             public override void DoWindowContents(Rect inRect) // For a specific DSU
             {
-//                var XXXcontentRect = new Rect(0, 0, inRect.width, inRect.height - (CloseButSize.y + 10f)).ContractedBy(10f);
-
                 var l = new Listing_Standard();
 //                l.Begin(new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f));
-                Rect s=new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f);
-                Rect v=new Rect(inRect.x, inRect.y, inRect.width-20f, inRect.height-CloseButSize.y-5f);
-                if (useCustomThingFilter) v.height+=300f;
-                l.BeginScrollView(s, ref DSUScrollPosition, ref v);
+                Rect screenRect=new Rect(inRect.x+5f, inRect.y+5f, inRect.width-10f, inRect.height-CloseButSize.y-15f);
+  //              Rect v=new Rect(inRect.x, inRect.y, inRect.width-20f, inRect.height-CloseButSize.y-5f);
+  //              if (useCustomThingFilter) v.height+=300f;
+                l.BeginScrollView(screenRect, ref DSUScrollPosition, ref DSUViewRect);
 //                l.BeginScrollView(
 //                l.BeginScrollView(Rect rect, ref Vector2 scrollPosition, ref Rect viewRect)
                 l.Label(def.label);
@@ -285,7 +283,7 @@ namespace LWM.DeepStorage
                     }
                 }
 //                l.End();
-                l.EndScrollView(ref v);
+                l.EndScrollView(ref DSUViewRect);
 
                 // Cancel button
                 var closeRect = new Rect(inRect.width-CloseButSize.x, inRect.height-CloseButSize.y,CloseButSize.x,CloseButSize.y);
@@ -388,6 +386,7 @@ namespace LWM.DeepStorage
             bool useCustomThingFilter=false;
             ThingFilter customThingFilter=null;
             Vector2 thingFilterScrollPosition=new Vector2(0,0);
+            Rect DSUViewRect=new Rect(0,0,100f,1000f);
             Vector2 DSUScrollPosition=new Vector2(0,0);
         }
         // defName can be null to mean everything.
@@ -455,11 +454,13 @@ namespace LWM.DeepStorage
         }
 
         public static void ExposeDSUSettings(List<ThingDef> units) {
+            Utils.Err(Utils.DBF.Settings, "ExposeDSUSettings: Looking at additionalCategories.");
             if (additionalCategories!=null && additionalCategories.Count==0) additionalCategories=null;
-            Scribe_Deep.Look(ref additionalCategories, "additionalCategories", null); //huzzah, don't have to do it all myself
-            Scribe_Deep.Look(ref defsUsingCustomFilter, "defsUsingCustomFilter", null);
+            Scribe_Collections.Look<string,List<string>>(ref additionalCategories, "additionalCategories",LookMode.Value, LookMode.Value);
+            Utils.Warn(Utils.DBF.Settings, "ExposeDSUSettings: Looking at defsUsingCustomFilter.");
+            Scribe_Collections.Look<string>(ref defsUsingCustomFilter, "defsUsingCustomFilter", LookMode.Value, new object[0]);
             foreach (ThingDef u in units) {
-                Utils.Warn(Utils.DBF.Settings, "Expose DSU Settings: "+u.defName+" ("+Scribe.mode+")");
+                Utils.Mess(Utils.DBF.Settings, "Expose DSU Settings: "+u.defName+" ("+Scribe.mode+")");
                 string k1=u.defName;
                 ExposeDSUSetting<string>(k1+"_label",ref u.label);
                 ExposeDSUSetting(k1+"_maxNumStacks", ref u.GetCompProperties<Properties>().maxNumberStacks);
@@ -534,7 +535,7 @@ namespace LWM.DeepStorage
         //   Only filled in as user changes the values.
         public static Dictionary<string, object> defaultDSUValues=new Dictionary<string, object>();
         static Dictionary<string,List<string>> additionalCategories=null;//new Dictionary<string,List<string>>();
-        static List<string> defsUsingCustomFilter;
+        public static List<string> defsUsingCustomFilter;
 
     }
 
