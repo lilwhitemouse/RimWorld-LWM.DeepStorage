@@ -143,8 +143,10 @@ namespace LWM.DeepStorage
                 tmpOverlayType=def.GetCompProperties<Properties>().overlayType;
                 if (additionalCategories!=null &&
                     additionalCategories.ContainsKey(def.defName)) {
+                    Utils.Mess(Utils.DBF.Settings, "  additionalCategories contains def "+def.defName+", creating new list");
                     tmpAdditionalCategories=new List<string>(additionalCategories[def.defName]);
                 } else {
+                    Utils.Mess(Utils.DBF.Settings, "  additionalCategories does not contain def "+def.defName+", will be null");
                     tmpAdditionalCategories=null;
                 }
                 if (defsUsingCustomFilter!=null && defsUsingCustomFilter.Contains(def.defName)) {
@@ -275,9 +277,10 @@ namespace LWM.DeepStorage
                 } else { // not using custom thing filter:
                     if (customThingFilter!=null || defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
                         customThingFilter=null;
-                        if (!tmpAdditionalCategories.NullOrEmpty() && defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                        //todo: This is all wrong.
+                        def.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"];
+                        if (tmpAdditionalCategories.NullOrEmpty() && defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
                             Utils.Mess(Utils.DBF.Settings, "  Removing filter for "+def.defName);
-                            def.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"];
                             defaultDSUValues.Remove("DSU_"+def.defName+"_filter");
                         }
                     }
@@ -454,12 +457,69 @@ namespace LWM.DeepStorage
         }
 
         public static void ExposeDSUSettings(List<ThingDef> units) {
-            Utils.Err(Utils.DBF.Settings, "ExposeDSUSettings: Looking at additionalCategories.");
-            if (additionalCategories!=null && additionalCategories.Count==0) additionalCategories=null;
-            Scribe_Collections.Look<string,List<string>>(ref additionalCategories, "additionalCategories",LookMode.Value, LookMode.Value);
-            Utils.Warn(Utils.DBF.Settings, "ExposeDSUSettings: Looking at defsUsingCustomFilter.");
-            Scribe_Collections.Look<string>(ref defsUsingCustomFilter, "defsUsingCustomFilter", LookMode.Value, new object[0]);
-            foreach (ThingDef u in units) {
+            // additionalCategories - use custom Dictionary<string,List<string>> saver:
+            ExposeDefDict("additionalCats", ref additionalCategories);
+            ExposeDefDict("additionalDefs", ref additionalDefs);
+
+
+            if (Scribe.mode!=LoadSaveMode.LoadingVars) { // saving
+                // Convert everything to changedProperties, and then save that:
+                // Everything will have a format of DSU_defName_propertyName
+                // e.g., DSU_LWM_Skip_maxNumStacks
+                changedProperties=new Dictionary<string, object>();
+                foreach (string key in defaultDSUValues.Keys) {
+                    // defaultDSUValues's keys are already the correct format, but we have to take it apart anyway.
+                    string s=key.Remove(0,4); // string off first DSU_
+                    var t=s.Split('_');
+                    string prop=t[t.Length-1]; // "LWM_Big_Shelf_label" ->  grab "label"
+                    string defName=string.Join("_", t.Take(t.Length-1).ToArray()); // put defName back together
+                    //Utils.Mess(Utils.DBF.Settings, "Checking key "+key+" (defName of "+keyDefName+")");
+                    if (prop == "filter") continue; // handled differently
+                    DeepStorage.Properties cp=DefDatabase<ThingDef>.GetNamed(defName, false)?.GetCompProperties<Properties>();
+                    if (cp==null) {
+                        Log.Error("LWM.DeepStorage: tried to save modified property "+key+", but could not find comp!");
+                        continue;
+                    }
+                    // For the record, I think switch statements are usually stupid.
+                    if (prop=="label") {
+                        changedProperties[key]=DefDatabase<ThingDef>.GetNamed(defName).label;
+                    } else if (prop=="maxNumStacks") {
+                        changedProperties[key]=cp.maxNumberStacks;
+                    } else if (prop=="maxTotalMass") {
+                        changedProperties[key]=cp.maxTotalMass;
+                    } else if (prop=="maxMassStoredItem") {
+                        changedProperties[key]=cp.maxMassOfStoredItem;
+                    } else if (prop=="showContents") {
+                        changedProperties[key]=cp.showContents;
+                    } else if (prop=="storagePriority") {
+                        changedProperties[key]=DefDatabase<ThingDef>.GetNamed(defName).building.defaultStorageSettings.Priority;
+                    } else if (prop=="overlayType") {
+                        changedProperties[key]=cp.overlayType;
+                    } else {
+                        Log.Error("LWM.DeepStorage: Trying to save "+key+" but have no idea what "+prop+" is.");
+                    }
+                } // looped through all things with a default value stored
+                if (changedProperties.Count > 0) {
+                    // I really hope this works.  But everything should be saveable in LookMode.Value?
+                    Utils.Mess(Utils.DBF.Settings, "Expose DSU Settings: writing "+changedProperties.Count+" user-modified properties");
+                    Scribe_Collections.Look(ref changedProperties, "changedProps", LookMode.Value, LookMode.Value);
+                }
+                changedProperties=null; // don't need it anymore
+            } else {                                     // loading
+                changedProperties=null;
+                Utils.Mess(Utils.DBF.Settings, "Expose DSU Settings: loading user-modified properties:");
+                Scribe_Collections.Look(ref changedProperties, "changedProps", LookMode.Value, LookMode.Value);
+                Utils.Mess(Utils.DBF.Settings, (changedProperties==null || changedProperties.Count==0)?
+                           "  No user-modified properties":
+                           ("  Found "+changedProperties.Count+":\n    "
+                            +string.Join("\n    ", changedProperties.Select(kv=>kv.Key+"="+kv.Value).ToArray())));
+                // Actually applying these changes is done when the Defs are Loaded.  (OnDefsLoaded)//todo: what is it called?
+            }
+            return; // todo - clean this up:
+//            Utils.Warn(Utils.DBF.Settings, "ExposeDSUSettings: Looking at defsUsingCustomFilter.");
+//            Scribe_Collections.Look<string>(ref defsUsingCustomFilter, "defsUsingCustomFilter", LookMode.Value, new object[0]);
+//            foreach (ThingDef u in units) {
+            foreach (ThingDef u in new List<ThingDef>()) {
                 Utils.Mess(Utils.DBF.Settings, "Expose DSU Settings: "+u.defName+" ("+Scribe.mode+")");
                 string k1=u.defName;
                 ExposeDSUSetting<string>(k1+"_label",ref u.label);
@@ -471,7 +531,7 @@ namespace LWM.DeepStorage
                 StoragePriority tmpSP=u.building.defaultStorageSettings.Priority; // hard to access private field directly
                 ExposeDSUSetting<StoragePriority>(k1+"_storagePriority", ref tmpSP);
                 u.building.defaultStorageSettings.Priority=tmpSP;
-                if (defaultDSUValues.ContainsKey("DSU_"+u.defName+"_filter")) {
+                /*              if (defaultDSUValues.ContainsKey("DSU_"+u.defName+"_filter")) {
                     Utils.Mess(Utils.DBF.Settings, "  default filter recorded, doing Scribe_Deep");
                     Scribe_Deep.Look(ref u.building.fixedStorageSettings.filter, "DSU_"+u.defName+"_filter", null);
                     if (u.building.fixedStorageSettings.filter==null) { // we were loading/resetting, looks like
@@ -487,7 +547,7 @@ namespace LWM.DeepStorage
                         defaultDSUValues["DSU_"+u.defName+"_filter"]=u.building.fixedStorageSettings.filter;
                         u.building.fixedStorageSettings.filter=tmp;
                     }
-                }
+                } */
 /*                    string key="DSU_"+u.defName+"_label";
                       string value=u.label;
                       string defaultValue=(defaultDSUValues.ContainsKey(key)?(string)defaultDSUValues[key]:value);
@@ -497,6 +557,40 @@ namespace LWM.DeepStorage
                       }
 */
             }
+        }
+        // Scribe_Collections is great, but it does not handle nested collections
+        //   (at least, the 1.0 version doesn't)  So, we save the keys separately
+        //   from the values.  It's okay.
+        static void ExposeDefDict(string label, ref Dictionary<string, List<string>> dict) {
+            if (Scribe.mode!=LoadSaveMode.LoadingVars) {
+                // for saving:
+                Utils.Err(Utils.DBF.Settings, "ExposeDSUSettings: Saving dict with label "+label);
+                if (dict!=null && dict.Count>0) {
+                    // store as defName1|defName2|...
+                    string s=String.Join("|", dict.Keys.ToArray());
+                    Scribe_Values.Look(ref s, "defsWith"+label.CapitalizeFirst());
+                    // save each list under its own name
+                    foreach (var kvp in dict) {
+                        string key=label+"_"+kvp.Key; // e.g.,  additionalCategories_LWM_Skip
+                        List<string> list=kvp.Value;
+                        Scribe_Collections.Look<string>(ref list, key, LookMode.Value, new object[0]);
+                    }
+                }
+            } else {
+                // for loading:
+                Utils.Err(Utils.DBF.Settings, "ExposeDSUSettings: Loading dict with label "+label);
+                string s=null;
+                Scribe_Values.Look(ref s, "defsWith"+label.CapitalizeFirst());
+                if (s!=null) {
+                    dict=new Dictionary<string,List<string>>();
+                    foreach (string defName in s.Split('|')) {
+                        List<string> tmpList=null;
+                        Scribe_Collections.Look<string>(ref tmpList, label+"_"+defName, LookMode.Value, new object[0]);
+                        dict[defName]=tmpList;
+                    }
+                } else { dict=null; }
+            }
+
 
 
         }
@@ -534,7 +628,10 @@ namespace LWM.DeepStorage
         //   Default values for DSU objects, so that when saving mod settings, we know what the defaults are.
         //   Only filled in as user changes the values.
         public static Dictionary<string, object> defaultDSUValues=new Dictionary<string, object>();
-        static Dictionary<string,List<string>> additionalCategories=null;//new Dictionary<string,List<string>>();
+        public static Dictionary<string,List<string>> additionalCategories=null;//new Dictionary<string,List<string>>();
+        public static Dictionary<string,List<string>> additionalDefs=null;
+        public static Dictionary<string,object> changedProperties=null;
+//        public static List<string> modifiedDefs=null;
         public static List<string> defsUsingCustomFilter;
 
     }

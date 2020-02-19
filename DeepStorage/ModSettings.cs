@@ -458,9 +458,9 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref architectMenuMoveALLStorageItems, "architect_moveall", true);
             // Per DSU Building storage settings:
             Scribe_Values.Look(ref allowPerDSUSettings, "allowPerDSUSettings", false);
-            if (allowPerDSUSettings && !allDeepStorageUnits.NullOrEmpty()) {
+//xyz            if (allowPerDSUSettings && !allDeepStorageUnits.NullOrEmpty()) {
                 Dialog_DS_Settings.ExposeDSUSettings(allDeepStorageUnits);
-            }
+//            }
         } // end ExposeData()
 
 
