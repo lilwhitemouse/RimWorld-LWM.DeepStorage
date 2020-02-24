@@ -19,6 +19,8 @@ namespace LWM.DeepStorage
 
         public static bool allowPerDSUSettings=false;
 
+        public static SettingsPerDSUSaver settingsPerDSUSaver=null;
+
         // Architect Menu:
         // The defName for the DesignationCategoryDef the mod items are in by default:
         //TODO: make this a tutorial, provide link.
@@ -185,7 +187,8 @@ namespace LWM.DeepStorage
             l.GapLine();
             if (allowPerDSUSettings) {
                 if (l.ButtonText("LWMDSperDSUSettings".Translate())) {
-                    Find.WindowStack.Add(new Dialog_DS_Settings());
+                    if (settingsPerDSUSaver==null) settingsPerDSUSaver=new SettingsPerDSUSaver();
+                    Find.WindowStack.Add(new Dialog_DS_Settings(settingsPerDSUSaver));
                 }
             } else {
                 l.CheckboxLabeled("LWMDSperDSUturnOn".Translate(), ref allowPerDSUSettings,
@@ -211,14 +214,17 @@ namespace LWM.DeepStorage
                     d.building.defaultStorageSettings.Priority=defaultStoragePriority;
                 }
             }
+            if (settingsPerDSUSaver!=null) settingsPerDSUSaver.OnDefsLoaded();
             // Re-read Mod Settings - some won't have been read because Defs weren't loaded:
             //   (do this after above to allow user to override changes)
             //   (LoadedModManager.GetMod(typeof(DeepStorageMod)).Content.Identifier and typeof(DeepStorageMod).Name by the way)
 //todo:
+            // TODO: put this in an auxilery utils file?
+/*            Dialog_DS_Settings.OnDefsLoaded();
             if (false && !Dialog_DS_Settings.defsUsingCustomFilter.NullOrEmpty()) {
                 Utils.Mess(Utils.DBF.Settings, "Defs Loaded.  About to re-load settings");
                 var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");
-            }
+            }*/
         }
 
         // Architect Menu:
@@ -458,9 +464,11 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref architectMenuMoveALLStorageItems, "architect_moveall", true);
             // Per DSU Building storage settings:
             Scribe_Values.Look(ref allowPerDSUSettings, "allowPerDSUSettings", false);
-//xyz            if (allowPerDSUSettings && !allDeepStorageUnits.NullOrEmpty()) {
-                Dialog_DS_Settings.ExposeDSUSettings(allDeepStorageUnits);
-//            }
+            if (allowPerDSUSettings) {
+                if (settingsPerDSUSaver==null) settingsPerDSUSaver=new SettingsPerDSUSaver();
+                settingsPerDSUSaver.ExposeData();
+            }
+//                Dialog_DS_Settings.ExposeDSUSettings(allDeepStorageUnits);
         } // end ExposeData()
 
 
