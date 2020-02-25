@@ -42,7 +42,12 @@ namespace LWM.DeepStorage
 //        public static DesignationCategoryDef architectLWM_DS_Storage_DesignationCatDef=null; // keep track of this as it may be removed from DefDatabase
 //        public static DesignationCategoryDef architectCurrentDesignationCatDef=null;
 
-        public static List<ThingDef> allDeepStorageUnits=null;
+        static List<ThingDef> allDeepStorageUnits=null;//todo:  get rid of this, calc every time.
+        public static List<ThingDef> AllDeepStorageUnits {
+            get {
+                return allDeepStorageUnits;
+            }
+        }
 
         private static Vector2 scrollPosition=new Vector2(0f,0f);
         private static Rect viewRect=new Rect(0,0,100f,10000f); // OMG OMG OMG I got scrollView in Listing_Standard to work!
@@ -83,7 +88,7 @@ namespace LWM.DeepStorage
                 foreach (StoragePriority p in Enum.GetValues(typeof(StoragePriority))) {
                     mlist.Add(new FloatMenuOption(p.Label(), delegate() {
                                 defaultStoragePriority=p;
-                                foreach (ThingDef d in allDeepStorageUnits) {
+                                foreach (ThingDef d in AllDeepStorageUnits) {
                                     d.building.defaultStorageSettings.Priority=p;
                                 }
                             }));
@@ -210,7 +215,7 @@ namespace LWM.DeepStorage
             }
             // Other def-related changes:
             if (defaultStoragePriority != StoragePriority.Important) {
-                foreach (ThingDef d in allDeepStorageUnits) {
+                foreach (ThingDef d in AllDeepStorageUnits) {
                     d.building.defaultStorageSettings.Priority=defaultStoragePriority;
                 }
             }
@@ -244,7 +249,7 @@ namespace LWM.DeepStorage
             }
             // Architect Menu: Specify all your buildings/etc:
             //   var allMyBuildings=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.HasComp(etc)));
-            List<ThingDef> itemsToMove=allDeepStorageUnits;
+            List<ThingDef> itemsToMove=AllDeepStorageUnits;
             // We can move ALL the storage buildings!  If the player wants.  I do.
             if (architectMenuMoveALLStorageItems) {
 //                Log.Error("Trying to mvoe everythign:");
@@ -435,7 +440,7 @@ namespace LWM.DeepStorage
 //Log.Message("LWM.DeepStorage Settings Setup() called first time");
                 architectMenuActualDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);
             }
-            if (allDeepStorageUnits.NullOrEmpty()) {
+            if (allDeepStorageUnits.NullOrEmpty()) {//todo
                 allDeepStorageUnits=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.HasComp(typeof(CompDeepStorage)));
                 Utils.Mess(Utils.DBF.Settings, "  allDeepStorageUnits initialized: "+allDeepStorageUnits.Count+" units");
             }

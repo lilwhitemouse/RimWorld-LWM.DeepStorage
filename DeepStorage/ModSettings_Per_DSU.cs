@@ -80,8 +80,7 @@ namespace LWM.DeepStorage
             var bg=ContentFinder<Texture2D>.Get("UI/Widgets/ButtonBG", true);
             var bgmouseover=ContentFinder<Texture2D>.Get("UI/Widgets/ButtonBGMouseover", true);
             var bgclick=ContentFinder<Texture2D>.Get("UI/Widgets/ButtonBGClick", true);
-            foreach (ThingDef u in Settings.allDeepStorageUnits) { // Todo: just recalculate the damn thing here
-
+            foreach (ThingDef u in Settings.AllDeepStorageUnits) {
                 r=new Rect(5f, curY, (scrollViewTotal.width)*2/3-7f, LabelHeight);
                 // Draw button-ish background:
                 Texture2D atlas = bg;
@@ -345,11 +344,24 @@ namespace LWM.DeepStorage
             } // RebuildFilter
 
             void UpdateSettings() {
-                settingsSaver.Update(def, tmpLabel, tmpMaxNumStacks, tmpMaxTotalMass,
+                // If I were fancy, I'd make all this work off of a list of struct-ish objects that
+                // had Type, label, reflection access to the field in question.
+                settingsSaver.Update(def, tmpLabel, "label");
+                settingsSaver.Update(def, tmpMaxNumStacks, "maxNumStacks");
+                settingsSaver.Update(def, tmpMaxTotalMass, "maxTotalMass");
+                settingsSaver.Update(def, tmpMaxMassStoredItem, "maxMassStoredItem");
+                settingsSaver.Update(def, tmpShowContents, "showContents");
+                settingsSaver.Update(def, tmpOverlayType, "overlayType");
+                settingsSaver.Update(def, tmpStoragePriority, "storagePriority");
+                //settingsSaver.Update(def, tmp, "");
+                settingsSaver.UpdateFilter(def, tmpAdditionalCategories,
+                                           useCustomThingFilter?customThingFilter:null, null);
+
+/*                settingsSaver.Update(def, tmpLabel, tmpMaxNumStacks, tmpMaxTotalMass,
                                      tmpMaxMassStoredItem, tmpShowContents, tmpOverlayType,
                                      tmpStoragePriority,
                                      tmpAdditionalCategories,
-                                     useCustomThingFilter?customThingFilter:null);
+                                     useCustomThingFilter?customThingFilter:null);*/
 
                 /*
                     TestAndUpdate(def, "label", tmpLabel, ref def.label);
