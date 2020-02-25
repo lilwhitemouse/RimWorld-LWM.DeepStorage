@@ -218,6 +218,7 @@ namespace LWM.DeepStorage
                 // What do we say?  It's over the total mass limit....but each cell can get more things!
                 if (this.minNumberStacks > 2) {
                     // Easy case: if each cell has at least minimum number of stacks:
+                    // TODO: if min is 5 and there are 4 with below mass limit, also go here:
                     if (cellsAtAboveMin == numCells) { //////////////// NO cells below minimum
                         // Simple header that includes mass:  12/20 stacks with total mass of 2.3/5 - as below
                         headerStringB.Append("LWM.ContentsHeaderMaxMass".Translate(listOfStoredItems.Count,
