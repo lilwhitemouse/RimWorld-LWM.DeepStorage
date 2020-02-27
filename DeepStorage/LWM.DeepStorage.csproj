@@ -7,66 +7,43 @@
     <OutputType>Library</OutputType>
     <RootNamespace>DeepStorage</RootNamespace>
     <AssemblyName>LWM.DeepStorage</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <UseMSBuildEngine>false</UseMSBuildEngine>
-    <ReleaseVersion>1.0.0.7</ReleaseVersion>
+    <ReleaseVersion>1.1.0</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\_Mod\LWM.DeepStorage\1.1\Assemblies</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <CustomCommands>
-      <CustomCommands>
-        <Command>
-          <type>AfterBuild</type>
-          <command>/bin/cp ${TargetFile} ${ProjectDir}/../_Mod/LWM.DeepStorage/Assemblies/</command>
-        </Command>
-      </CustomCommands>
-    </CustomCommands>
-    <!-- For msbuild on command line.  Seriously, they cannot use the same xml structure? :p -->
-    <PostBuildEvent>/bin/cp "$(MSBuildProjectDirectory)/$(OutputPath)/$(AssemblyName).dll" "$(MSBuildProjectDirectory)/../_Mod/LWM.DeepStorage/Assemblies/"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>..\_Mod\LWM.DeepStorage\1.1\Assemblies</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <!-- For msbuild on command line.  Seriously, they cannot use the same xml structure? :p -->
-    <PostBuildEvent>/bin/cp "$(MSBuildProjectDirectory)/$(OutputPath)/$(AssemblyName).dll" "$(MSBuildProjectDirectory)/../_Mod/LWM.DeepStorage/Assemblies/"</PostBuildEvent>
-    <CustomCommands>
-      <CustomCommands>
-        <Command>
-          <type>AfterBuild</type>
-          <command>/bin/cp ${TargetFile} ${ProjectDir}/../_Mod/LWM.DeepStorage/Assemblies/</command>
-        </Command>
-      </CustomCommands>
-    </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\RimWorld\RimWorldLinux_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\RimWorld\RimWorldLinux_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="0Harmony">
-      <HintPath>..\packages\UnlimitedHugs.Rimworld.HugsLib.6.1.1\lib\net35\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="HugsLib">
-      <HintPath>..\packages\UnlimitedHugs.Rimworld.HugsLib.6.1.1\lib\net35\HugsLib.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml" />
     <Reference Include="IHoldMultipleThings"><!-- Mehni's PickUpAndHold Compatibility -->
       <HintPath>..\packages\IHoldMultipleThings.dll</HintPath>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>..\packages\Lib.Harmony.2.0.0.6\lib\net472\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
+    <Reference Include="HugsLib">
+      <HintPath>..\packages\UnlimitedHugs.Rimworld.HugsLib.6.2.1\lib\net472\HugsLib.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
