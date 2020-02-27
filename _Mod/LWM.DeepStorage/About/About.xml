@@ -2,13 +2,22 @@
 <ModMetaData>
 <name>LWM's Deep Storage</name>
 <author>Little White Mouse</author>
+<packageID>LWM.DeepStorage</packageID>
 <supportedVersions>
   <li>1.0</li>
+  <li>1.1</li>
 </supportedVersions>
+<!-- TODO: ModDependencies!!! -->
 <description>
-&lt;size=24&gt;Deep Storage Units, yet another storage solution (that will likely be [WIP] for some time).&lt;/size&gt;
-
 LWM presents yet another way to deal with your storage needs:  Deep Storage units!
+
+Updating to 1.1 has taken a bit of work, and a beta is finally here!  (The change to 1.1 was a super inconvenient time for me)  As usual, let me know of any bugs or incompatibilities - and there may be some until I have more time to go over all the Harmony patches....there are a lot.
+
+If you want to show appreciation and have artistic abilities and free time, I would love little drawings of little white mouse.  I would love an icon I could use for some of my stuff online or just cute pictuers on my computer :)
+
+If you want to supply the author with something tasty to drink: https://ko-fi.com/littlewhitemouse
+
+Everything below here is possibly out of date:  (But you want to play, not read summaries; so do I)
 
 Currently available are multiple buildings that can store more than one object at a time.  Inspired by Skullywag's Extended Storage, this mod takes a different approach - storage buildings that pawns can simply carry multiple items to.  An approach that got a lot harder with 1.0, BTW, but I like the results so far.
 
