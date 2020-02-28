@@ -40,10 +40,12 @@
     </Reference>
     <Reference Include="0Harmony">
       <HintPath>..\packages\Lib.Harmony.2.0.0.7\lib\net472\0Harmony.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
     <Reference Include="HugsLib">
       <HintPath>..\packages\UnlimitedHugs.Rimworld.HugsLib.7.0.0\lib\net472\HugsLib.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\RimWorld\RimWorldLinux_Data\Managed\UnityEngine.dll</HintPath>
