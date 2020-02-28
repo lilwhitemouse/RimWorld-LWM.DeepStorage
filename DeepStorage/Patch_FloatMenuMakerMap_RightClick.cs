@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
-using Harmony;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -38,7 +38,7 @@ namespace LWM.DeepStorage
     */
     [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
     static class Patch_AddHumanlikeOrders {
-        static bool Prepare(HarmonyInstance instance) {
+        static bool Prepare(Harmony instance) {
             Utils.Warn(RightClickMenu, "Loading AddHumanlikeOrders menu code: "
                        +Settings.useDeepStorageRightClickLogic);
             return Settings.useDeepStorageRightClickLogic;

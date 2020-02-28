@@ -4,7 +4,7 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 using System.Linq;
-using Harmony;
+using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
@@ -71,12 +71,12 @@ namespace LWM.DeepStorage
                 if (code[i].opcode==OpCodes.Stloc_1 &&
                     checkedInDeepStorage==false) { // slotGroup
                     yield return code[i++]; // the Stloc.1 we just found
-                    if ( Harmony.AccessTools.Method("LWM.DeepStorage.Utils:CanStoreMoreThanOneThingIn")==null) {
+                    if ( HarmonyLib.AccessTools.Method("LWM.DeepStorage.Utils:CanStoreMoreThanOneThingIn")==null) {
                         Log.Error("Failure, cannot find CSMTOTI");
                     }
                     yield return new CodeInstruction(OpCodes.Ldloc_1); // slotGroup
                     yield return new CodeInstruction(OpCodes.Call,
-                                                     Harmony.AccessTools.Method("LWM.DeepStorage.Utils:CanStoreMoreThanOneThingIn"));
+                                                     HarmonyLib.AccessTools.Method("LWM.DeepStorage.Utils:CanStoreMoreThanOneThingIn"));
                     yield return new CodeInstruction(OpCodes.Stloc, inDeepStorage);
                     checkedInDeepStorage=true;
                 }
@@ -99,9 +99,9 @@ namespace LWM.DeepStorage
                     // Next codeinstruction we want: callvirt Verse.Map get_Map()
                     code[i+1].opcode==OpCodes.Callvirt &&
                     // not   .operand==Harmony.AccessTools.Method(typeof(Pawn), "get_Map") :p
-                    code[i+1].operand==Harmony.AccessTools.Method(typeof(Thing), "get_Map") && // p.Map
+                    (MethodInfo)code[i+1].operand==HarmonyLib.AccessTools.Method(typeof(Thing), "get_Map") && // p.Map
                     code[i+2].opcode==OpCodes.Ldfld &&
-                    code[i+2].operand==Harmony.AccessTools.Field(typeof(Map), "thingGrid")) { // p.Map.thingGrid...
+                    (FieldInfo)code[i+2].operand==HarmonyLib.AccessTools.Field(typeof(Map), "thingGrid")) { // p.Map.thingGrid...
                     ////////////// Put our branch here ////////////////
                     // Steal any labels lying around:
                     var c= new CodeInstruction(OpCodes.Ldloc, inDeepStorage);
@@ -123,7 +123,7 @@ namespace LWM.DeepStorage
                     int j=i+3;
                     for (; j<code.Count;j++) { // this loads the cell and the def
                         if (code[j].opcode==OpCodes.Callvirt &&
-                            code[j].operand==callThingAt) {
+                            (MethodInfo)code[j].operand==callThingAt) {
                             // skip ThingAt()
                             break;
                         }
@@ -230,8 +230,8 @@ namespace LWM.DeepStorage
             }
             // Create our own job for hauling to Deep_Storage units...
             // Another opportunity to put our own JobDef here:
-            //   new Job(DefDatabase<JobDef>.GetNamed("LWM_HaulToDeepStorage"), t, storeCell, map);, etc
-            Job job = new Job(JobDefOf.HaulToCell, t, storeCell);
+            //   new XJob(DefDatabase<JobDef>.GetNamed("LWM_HaulToDeepStorage"), t, storeCell, map);, etc
+            Job job = new XJob(JobDefOf.HaulToCell, t, storeCell);
             job.haulOpportunisticDuplicates = true;
             job.haulMode = HaulMode.ToCellStorage;
 

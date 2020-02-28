@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
-using Harmony;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -85,7 +85,7 @@ namespace LWM.DeepStorage
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
             // First marker we are looking for is
             //   ldftn int32 Verse.GenUI::CompareThingsByDrawAltitude(class Verse.Thing, class Verse.Thing)
-            var wrongComparison = Harmony.AccessTools.Method("Verse.GenUI:CompareThingsByDrawAltitude");
+            var wrongComparison = HarmonyLib.AccessTools.Method("Verse.GenUI:CompareThingsByDrawAltitude");
             if (wrongComparison == null) {
                 Log.Error("LWM: Deep Storage: harmony transpiler fail: no CompareThingsByDrawAltitude");
             }
@@ -100,13 +100,13 @@ namespace LWM.DeepStorage
             bool foundMarkerOne=false;
             for (; i < code.Count; i++) {
                 yield return code[i];
-                if (code[i].opcode == OpCodes.Ldftn && code[i].operand == wrongComparison) {
+                if (code[i].opcode == OpCodes.Ldftn && (MethodInfo)code[i].operand == wrongComparison) {
                     foundMarkerOne=true;
                 }
-                if (foundMarkerOne && code[i].opcode == OpCodes.Callvirt && code[i].operand == sortFunction) {
+                if (foundMarkerOne && code[i].opcode == OpCodes.Callvirt && (MethodInfo)code[i].operand == sortFunction) {
                     // We insert our own sorting function here, to put DSUs on top of click order:
                     yield return new CodeInstruction(OpCodes.Ldloc_S,6); // the temporary list
-                    yield return new CodeInstruction(OpCodes.Call, Harmony.AccessTools.
+                    yield return new CodeInstruction(OpCodes.Call, HarmonyLib.AccessTools.
                                                      Method("LWM.DeepStorage.Patch_GenUI_ThingsUnderMouse:SortForDeepStorage"));
                     i++; // VERY VERY important -.^
                     break; // our work is done here
@@ -234,12 +234,13 @@ namespace LWM.DeepStorage
 }
 
 // Used under GPL 3 from Ratysz.  Also with permission.  Thanks, RT!
+// Updated for 1.1 by LWM....enough to compile.  All bets are off if it works.
 // https://github.com/Ratysz/RT_Shelves/blob/master/Source/Patches_FloatMenuMakerMap.cs
 // Note that this is not every possible humanlike order - things involving caravans, trips, etc?
 namespace RT_Shelves {
     [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
     class Patch_AddHumanlikeOrders {
-        static bool Prepare(HarmonyInstance instance) {
+        static bool Prepare(Harmony instance) {
             return !LWM.DeepStorage.Settings.useDeepStorageRightClickLogic;
         }
         static void Postfix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts) {
@@ -248,7 +249,7 @@ namespace RT_Shelves {
                 foreach (var equipment in cell.GetThingList(pawn.Map).OfType<ThingWithComps>().Where(t => t.TryGetComp<CompEquippable>() != null).Skip(1)) {
                     string labelShort = equipment.LabelShort;
                     FloatMenuOption option;
-                    if (equipment.def.IsWeapon && pawn.story.WorkTagIsDisabled(WorkTags.Violent)) {
+                    if (equipment.def.IsWeapon && pawn.WorkTagIsDisabled(WorkTags.Violent)) {
                         option = new FloatMenuOption("CannotEquip".Translate(labelShort) + " (" + "IsIncapableOfViolenceLower".Translate(pawn.LabelShort, pawn) + ")", null, MenuOptionPriority.Default, null, null, 0f, null, null);
                     } else if (!pawn.CanReach(equipment, PathEndMode.ClosestTouch, Danger.Deadly, false, TraverseMode.ByPawn)) {
                         option = new FloatMenuOption("CannotEquip".Translate(labelShort) + " (" + "NoPath".Translate() + ")", null, MenuOptionPriority.Default, null, null, 0f, null, null);
@@ -264,7 +265,7 @@ namespace RT_Shelves {
                         option = FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(text5, delegate
                         {
                             equipment.SetForbidden(false, true);
-                            pawn.jobs.TryTakeOrderedJob(new Job(JobDefOf.Equip, equipment), JobTag.Misc);
+                            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Equip, equipment), JobTag.Misc);
                             MoteMaker.MakeStaticMote(equipment.DrawPos, equipment.Map, ThingDefOf.Mote_FeedbackEquip, 1f);
                             PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.EquippingWeapons, KnowledgeAmount.Total);
                         }, MenuOptionPriority.High, null, null, 0f, null, null), pawn, equipment, "ReservedBy");
@@ -285,7 +286,7 @@ namespace RT_Shelves {
                         option = FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("ForceWear".Translate(apparel.LabelShort, apparel), delegate
                         {
                             apparel.SetForbidden(false, true);
-                            Job job = new Job(JobDefOf.Wear, apparel);
+                            Job job = JobMaker.MakeJob(JobDefOf.Wear, apparel);
                             pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
                         }, MenuOptionPriority.High, null, null, 0f, null, null), pawn, apparel, "ReservedBy");
                     }

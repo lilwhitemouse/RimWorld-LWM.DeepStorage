@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using RimWorld;
 using Verse;
-using Harmony;
+using HarmonyLib;
 
 using static LWM.DeepStorage.Utils.DBF; // debug trace
 
@@ -59,6 +59,7 @@ namespace LWM.DeepStorage
                               //  (We return false from this Patch function to skip original method)
             __result=cds.StackableAt(thing, c, map);
             return false;
+#if false
             // If there is a maximum size of items that will fit in the unit, quit:
             if (cds.limitingFactorForItem > 0f) {
                 if (thing.GetStatValue(cds.stat) > cds.limitingFactorForItem) {
@@ -122,6 +123,7 @@ namespace LWM.DeepStorage
             __result = true; // no blockers after all!
             Utils.Warn(NoStorageBlockerseIn, thing.ToString() + " at " + c.ToString() + ": " + __result);
             return false;
+#endif
         }
     }
 
@@ -149,7 +151,7 @@ namespace LWM.DeepStorage
         public static Intelligence NecessaryIntelligenceToUseDeepStorage=Intelligence.Humanlike;
         // A way to specify some pawns can use Storage no matter what:
         static System.Func<Pawn,bool> specialTest=null;
-        static bool Prepare(HarmonyInstance instance) {
+        static bool Prepare(Harmony instance) {
             // Prepare: See if there are any mods that should be able to haul to storage even
             //   tho they don't meet normal criteria:
             if (!Settings.robotsCanUse) return true;

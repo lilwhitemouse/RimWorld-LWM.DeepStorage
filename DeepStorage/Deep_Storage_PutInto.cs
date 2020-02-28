@@ -4,7 +4,7 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 using System.Linq;
-using Harmony;
+using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
@@ -254,11 +254,11 @@ namespace LWM.DeepStorage
                 yield return code[i];
                 if (code[i].opcode == OpCodes.Ldarg_0) { // thing
                     if (code[i + 1]?.opcode == OpCodes.Ldfld && // thing.def
-                        code[i + 1]?.operand == typeof(Verse.Thing).GetField("def")) {
+                        (FieldInfo)code[i + 1]?.operand == typeof(Verse.Thing).GetField("def")) {
                         i++;
                         yield return code[i];
                         if (code[i + 1]?.opcode == OpCodes.Ldfld && //thing.def.category!
-                            code[i + 1]?.operand == typeof(Verse.ThingDef).GetField("category")) {
+                            (FieldInfo)code[i + 1]?.operand == typeof(Verse.ThingDef).GetField("category")) {
                             i++;
                             // 
                             yield return code[i++]; // the category
@@ -278,7 +278,7 @@ namespace LWM.DeepStorage
                             yield return c;
                             c = new CodeInstruction(OpCodes.Ldarg_1); // loc
                             yield return c;
-                            c = new CodeInstruction(OpCodes.Call, Harmony.AccessTools.Method(
+                            c = new CodeInstruction(OpCodes.Call, HarmonyLib.AccessTools.Method(
                                 "LWM.DeepStorage.Utils:CanStoreMoreThanOneThingAt"));
                             yield return c; // Utils.CanStoreMoreThanOneThingAt(map, loc);
                             c = new CodeInstruction(OpCodes.Brtrue, branchLabel);

@@ -2,7 +2,7 @@ using System;
 using RimWorld;
 using Verse;
 using Verse.AI;
-using Harmony;
+using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using System.Collections.Generic;
@@ -65,7 +65,7 @@ namespace LWM.DeepStorage
                     yield return new CodeInstruction(OpCodes.Ldarg_0); // thing
                     yield return new CodeInstruction(OpCodes.Ldloca_S,1); // ref to storagePriority
                     yield return new CodeInstruction(OpCodes.Call,
-                                                     Harmony.AccessTools.Method(typeof(Patch_TryFindBestBetterStoreCellFor),"OverCapacity"));
+                                                     HarmonyLib.AccessTools.Method(typeof(Patch_TryFindBestBetterStoreCellFor),"OverCapacity"));
                     yield return new CodeInstruction(OpCodes.Stloc_S, overCapacity);//overCapacty=OverCapacity(map,thing,ref storagePriority)
                     i++; // move past Stloc_1; we aleady returned that
                     break;

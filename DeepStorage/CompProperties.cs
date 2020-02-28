@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using RimWorld;
 using Verse;
 using System.Linq;
-using Harmony;
+//using Harmony;
 using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
@@ -31,33 +31,35 @@ namespace LWM.DeepStorage
                     yield break;
                 }
             }
-            yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_maxNumStacks".Translate(),
-                                           size>1?
-                                           "LWM_DS_TotalAndPerCell".Translate(maxNumberStacks*size,maxNumberStacks)
-                                           :maxNumberStacks.ToString(),
-                                           11 /*display priority*/, "LWM_DS_maxNumStacksDesc".Translate());
+            yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_maxNumStacks".Translate().ToString(),
+                                           (size>1?
+                                           "LWM_DS_TotalAndPerCell".Translate(maxNumberStacks*size,maxNumberStacks).ToString()
+                                           :maxNumberStacks.ToString()),
+                                           "LWM_DS_maxNumStacksDesc".Translate(),
+                                           11 /*display priority*/);
             if (minNumberStacks > 2) yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_minNumStacks".Translate(),
                                            size>1?
-                                           "LWM_DS_TotalAndPerCell".Translate(minNumberStacks*size,minNumberStacks)
+                                           "LWM_DS_TotalAndPerCell".Translate(minNumberStacks*size,minNumberStacks).ToString()
                                            :minNumberStacks.ToString(),
-                                           10 /*display priority*/, "LWM_DS_minNumStacksDesc".Translate(minNumberStacks*size));
+                                           "LWM_DS_minNumStacksDesc".Translate(minNumberStacks*size),
+                                           10 /*display priority*/);//todo: more info here would be good!
             if (maxTotalMass > 0f) yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_maxTotalMass".Translate(),
                                        size>1?
-                                        "LWM_DS_TotalAndPerCell".Translate(kg(maxTotalMass*size),kg(maxTotalMass))
+                                        "LWM_DS_TotalAndPerCell".Translate(kg(maxTotalMass*size),kg(maxTotalMass)).ToString()
                                        :kg(maxTotalMass),
-                                        9, "LWM_DS_maxTotalMassDesc".Translate());
+                                       "LWM_DS_maxTotalMassDesc".Translate(), 9);
             if (maxMassOfStoredItem > 0f) yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_maxMassOfStoredItem".Translate(),
                                                                          kg(maxMassOfStoredItem),
-                                                                         8, "LWM_DS_maxMassOfStoredItemDesc".Translate());
+                                                                         "LWM_DS_maxMassOfStoredItemDesc".Translate(), 8);
             if (AllowedCategoriesString!="") yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_allowedCategories".Translate(),
                                                                             AllowedCategoriesString,
-                                                                            7, "LWM_DS_allowedCategoriesDesc".Translate());
+                                                                            "LWM_DS_allowedCategoriesDesc".Translate(), 7);
             if (AllowedDefsString!="") yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_allowedDefs".Translate(),
                                                                       AllowedDefsString,
-                                                                      6, "LWM_DS_allowedDefsDesc".Translate());
+                                                                      "LWM_DS_allowedDefsDesc".Translate(), 6);
             if (DisallowedString!="") yield return new StatDrawEntry(DeepStorageCategory, "LWM_DS_disallowedStuff".Translate(),
                                                                      DisallowedString,
-                                                                     5, "LWM_DS_disallowedStuffDesc".Translate());
+                                                                     "LWM_DS_disallowedStuffDesc".Translate(), 5);
 //            if (parent?.building?.fixedStorageSettings?.filter
             yield break;
         }
@@ -86,7 +88,7 @@ namespace LWM.DeepStorage
                         //Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
                         return "";
                     }
-                    var c=(List<string>)Harmony.AccessTools.Field(typeof(ThingFilter), "categories").GetValue(tf);
+                    var c=(List<string>)HarmonyLib.AccessTools.Field(typeof(ThingFilter), "categories").GetValue(tf);
                     if (c.NullOrEmpty()) return "";
                     foreach (var x in c) {
                         if (categoriesString!="") categoriesString+="\n";
@@ -106,7 +108,7 @@ namespace LWM.DeepStorage
                         //Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
                         return "";
                     }
-                    var d=(List<ThingDef>)Harmony.AccessTools.Field(typeof(ThingFilter), "thingDefs").GetValue(tf);
+                    var d=(List<ThingDef>)HarmonyLib.AccessTools.Field(typeof(ThingFilter), "thingDefs").GetValue(tf);
                     if (d.NullOrEmpty()) return "";
                     foreach (var x in d) {
                         if (defsString!="") defsString+="\n";
@@ -125,14 +127,14 @@ namespace LWM.DeepStorage
                         //Log.Warning("LWM.DeepStorage:could not find filter for "+parent.defName);
                         return "";
                     }
-                    var c=(List<string>)Harmony.AccessTools.Field(typeof(ThingFilter), "disallowedCategories").GetValue(tf);
+                    var c=(List<string>)HarmonyLib.AccessTools.Field(typeof(ThingFilter), "disallowedCategories").GetValue(tf);
                     if (!(c.NullOrEmpty())) {
                         foreach (var x in c) {
                             if (disallowedString!="") disallowedString+="\n";
                             disallowedString+=DefDatabase<ThingCategoryDef>.GetNamed(x, true).LabelCap;
                         }
                     }
-                    var d=(List<ThingDef>)Harmony.AccessTools.Field(typeof(ThingFilter), "disallowedThingDefs").GetValue(tf);
+                    var d=(List<ThingDef>)HarmonyLib.AccessTools.Field(typeof(ThingFilter), "disallowedThingDefs").GetValue(tf);
                     if (!(d.NullOrEmpty())) {
                         foreach (var x in d) {
                             if (defsString!="") defsString+="\n";
@@ -175,8 +177,5 @@ namespace LWM.DeepStorage
         SumOfItemsPerCell,      // For e.g., Big Shelf
         None,                   // Some users may want this
     }
-
-
-
 
 }

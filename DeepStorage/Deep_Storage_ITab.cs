@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
-using Harmony;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
