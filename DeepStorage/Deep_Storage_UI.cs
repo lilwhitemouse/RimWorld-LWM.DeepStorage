@@ -105,7 +105,8 @@ namespace LWM.DeepStorage
                 }
                 if (foundMarkerOne && code[i].opcode == OpCodes.Callvirt && (MethodInfo)code[i].operand == sortFunction) {
                     // We insert our own sorting function here, to put DSUs on top of click order:
-                    yield return new CodeInstruction(OpCodes.Ldloc_S,6); // the temporary list
+                    //yield return new CodeInstruction(OpCodes.Ldloc_S,6); // the temporary list
+                    yield return new CodeInstruction(OpCodes.Ldloc_2); // the temporary list for 1.1
                     yield return new CodeInstruction(OpCodes.Call, HarmonyLib.AccessTools.
                                                      Method("LWM.DeepStorage.Patch_GenUI_ThingsUnderMouse:SortForDeepStorage"));
                     i++; // VERY VERY important -.^
@@ -224,7 +225,7 @@ namespace LWM.DeepStorage
 
     // If there are 10 artifacts in a weapons locker, it's nice to be able to tell which one you are about to activate:
     // Add "  (Label for Artifact)" to the right-click label.
-    [HarmonyPatch(typeof(RimWorld.CompUsable), "get_FloatMenuOptionLabel")]
+    [HarmonyPatch(typeof(RimWorld.CompUsable), "FloatMenuOptionLabel")]
     static public class MakeArtifactsActivateLabelNameArtifact {
         static void Postfix(ref string __result, CompUsable __instance) {
             __result=__result+" ("+__instance.parent.LabelCap+")";
