@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using RimWorld;
 using Verse;
 using System.Linq;
-using Harmony;
-using System.Reflection;
-using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
+//using HarmonyLib;
+//using System.Reflection;
+//using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
 
