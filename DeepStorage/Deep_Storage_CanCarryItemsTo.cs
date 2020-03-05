@@ -42,7 +42,7 @@ namespace LWM.DeepStorage
      * This was easier.
      **************************************/
     [HarmonyPatch(typeof(RimWorld.StoreUtility), "NoStorageBlockersIn")]
-    class PatchNoStorageBlockersIn {
+    class Patch_NoStorageBlockersIn {
         protected static bool Prefix(IntVec3 c, Map map, Thing thing, ref bool __result) {
             Utils.Err(NoStorageBlockerseIn, "Looking for blockers for " + thing + " at " + c);
             // Check if storage location is in an uber-storage building:

@@ -7,7 +7,14 @@
   <li>1.0</li>
   <li>1.1</li>
 </supportedVersions>
-<!-- TODO: ModDependencies!!! -->
+<modDependencies>
+  <li>
+    <packageId></packageId>
+    <displayName>HugsLib</displayName>
+    <downloadUrl>https://github.com/UnlimitedHugs/RimworldHugsLib/releases</downloadUrl>
+    <steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=818773962</steamWorkshopUrl>
+  </li>
+</modDependencies>
 <description>
 LWM presents yet another way to deal with your storage needs:  Deep Storage units!
 
