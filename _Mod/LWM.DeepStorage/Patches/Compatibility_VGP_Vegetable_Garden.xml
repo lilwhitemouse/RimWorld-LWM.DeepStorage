@@ -5,6 +5,7 @@
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>VGP Vegetable Garden</li>
+      <li>VGP Vegetable Garden 1.0</li>
     </mods>
     <match Class="PatchOperationSequence">
       <operations>

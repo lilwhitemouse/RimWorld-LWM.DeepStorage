@@ -9,10 +9,10 @@
 </supportedVersions>
 <modDependencies>
   <li>
-    <packageId></packageId>
+    <packageId>UnlimitedHugs.HugsLib</packageId>
     <displayName>HugsLib</displayName>
-    <downloadUrl>https://github.com/UnlimitedHugs/RimworldHugsLib/releases</downloadUrl>
-    <steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=818773962</steamWorkshopUrl>
+    <downloadUrl>https://github.com/UnlimitedHugs/RimworldHugsLib/releases/latest</downloadUrl>
+    <steamWorkshopUrl>steam://url/CommunityFilePage/818773962</steamWorkshopUrl>
   </li>
 </modDependencies>
 <description>
