@@ -15,6 +15,10 @@
     <steamWorkshopUrl>steam://url/CommunityFilePage/818773962</steamWorkshopUrl>
   </li>
 </modDependencies>
+<loadAfter>
+  <li>UnlimitedHugs.HugsLib</li>
+  <li>rimfridge.kv.rw</li>
+</loadAfter>
 <description>
 LWM presents yet another way to deal with your storage needs:  Deep Storage units!
 
