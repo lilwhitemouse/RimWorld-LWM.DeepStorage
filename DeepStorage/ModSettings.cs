@@ -216,7 +216,9 @@ namespace LWM.DeepStorage
             //   (LoadedModManager.GetMod(typeof(DeepStorageMod)).Content.Identifier and typeof(DeepStorageMod).Name by the way)
 //todo:
             Utils.Mess(Utils.DBF.Settings, "Defs Loaded.  About to re-load settings");
-            var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");
+            //var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");
+            var mod=LoadedModManager.GetMod(typeof(LWM.DeepStorage.DeepStorageMod));
+            var s = LoadedModManager.ReadModSettings<Settings>(mod.Content.FolderName, "DeepStorageMod");
         }
 
         // Architect Menu:
