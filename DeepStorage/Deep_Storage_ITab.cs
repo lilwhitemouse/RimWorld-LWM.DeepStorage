@@ -77,7 +77,7 @@ namespace LWM.DeepStorage
             // outRect is the is the rectangle that is visible on the screen:
             Rect outRect = new Rect(0f, 10f + curY, frame.width, frame.height-curY);
             // viewRect is inside the ScrollView, so it starts at y=0f
-            Rect viewRect = new Rect(0f, 0f, frame.width - 16f, this.scrollViewHeight);
+            Rect viewRect = new Rect(0f, 0f, frame.width - 16f, this.scrollViewHeight);//TODO: scrollbars are slightly too far to the right
             // 16f ensures plenty of room for scrollbars.
             // scrollViewHeight is set at the end of this call (via layout?); it is the proper
             //   size the next time through, so it all works out.
