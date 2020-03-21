@@ -2,7 +2,7 @@
 using RimWorld;
 using Verse;
 using Verse.AI;
-using Harmony;
+using HarmonyLib;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
 
 // NOTE: PlaceCarriedThingInCellFacing not actually used?  So no need to patch it?

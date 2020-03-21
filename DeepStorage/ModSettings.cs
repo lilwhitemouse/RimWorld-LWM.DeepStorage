@@ -124,7 +124,8 @@ namespace LWM.DeepStorage
                 var arl=DefDatabase<DesignationCategoryDef>.AllDefsListForReading; //all reading list
                 //oops:
 //                alist.Add(new FloatMenuOption(DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef).LabelCap
-                alist.Add(new FloatMenuOption(architectMenuActualDef.LabelCap +" ("+"default".Translate()+")",
+                alist.Add(new FloatMenuOption(architectMenuActualDef.LabelCap +
+                                              " ("+"default".Translate()+" - "+architectMenuActualDef.defName+")",
                                               delegate () {
                                                   Utils.Mess(Utils.DBF.Settings, "Architect Menu placement set to default Storage");
                                                   ArchitectMenu_ChangeLocation(architectMenuDefaultDesigCatDef);
@@ -134,14 +135,15 @@ namespace LWM.DeepStorage
 //                                                  SettingsChanged();
                                               }, MenuOptionPriority.Default, null, null, 0f, null, null));
                 // Architect Menu:  You may remove the "Furniture" references here if you wish
-                alist.Add(new FloatMenuOption(DefDatabase<DesignationCategoryDef>.GetNamed("Furniture").LabelCap,
+                alist.Add(new FloatMenuOption(DefDatabase<DesignationCategoryDef>.GetNamed("Furniture").LabelCap+
+                                              " (Furniture)", // I know what this one's defName is!
                                               delegate () {
                                                   Utils.Mess(Utils.DBF.Settings, "Architect Menu placement set to Furniture.");
                                                   ArchitectMenu_ChangeLocation("Furniture");
                                               }, MenuOptionPriority.Default,null,null,0f,null,null));
                 foreach (var adcd in arl) { //architect designation cat def
                     if (adcd.defName!=architectMenuDefaultDesigCatDef && adcd.defName!="Furniture")
-                        alist.Add(new FloatMenuOption(adcd.LabelCap,
+                        alist.Add(new FloatMenuOption(adcd.LabelCap+" ("+adcd.defName+")",
                                                       delegate () {
                                                           Utils.Mess(Utils.DBF.Settings, "Architect Menu placement set to "+adcd);
                                                           ArchitectMenu_ChangeLocation(adcd.defName);
@@ -216,7 +218,9 @@ namespace LWM.DeepStorage
             //   (LoadedModManager.GetMod(typeof(DeepStorageMod)).Content.Identifier and typeof(DeepStorageMod).Name by the way)
 //todo:
             Utils.Mess(Utils.DBF.Settings, "Defs Loaded.  About to re-load settings");
-            var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");
+            //var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");
+            var mod=LoadedModManager.GetMod(typeof(LWM.DeepStorage.DeepStorageMod));
+            var s = LoadedModManager.ReadModSettings<Settings>(mod.Content.FolderName, "DeepStorageMod");
         }
 
         // Architect Menu:
@@ -237,6 +241,7 @@ namespace LWM.DeepStorage
             // Architect Menu: Specify all your buildings/etc:
             //   var allMyBuildings=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.HasComp(etc)));
             List<ThingDef> itemsToMove=allDeepStorageUnits;
+            Utils.Mess(Utils.DBF.Settings, "Moving these units to 'Storage' menu: "+string.Join(", ", itemsToMove));
             // We can move ALL the storage buildings!  If the player wants.  I do.
             if (architectMenuMoveALLStorageItems) {
 //                Log.Error("Trying to mvoe everythign:");

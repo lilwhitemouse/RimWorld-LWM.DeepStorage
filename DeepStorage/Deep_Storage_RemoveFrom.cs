@@ -2,7 +2,7 @@
 using RimWorld; // haha, needs all these "using" but RimWorld
 using Verse;
 using Verse.AI;
-using Harmony;
+using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using System.Collections.Generic;
@@ -42,19 +42,20 @@ namespace LWM.DeepStorage
         {
             //c__AnonStorey0 is the hidden IL class that is created for the delegate() function
             // created by StartCarryThing.  We need this class later on.
-
-            predicateClass = typeof(Verse.AI.Toils_Haul).GetNestedTypes(Harmony.AccessTools.all)
-               .FirstOrDefault(t => t.FullName.Contains("c__AnonStorey0"));
+            //In version 1.1, it's c__DisplayClass1_0
+            predicateClass = typeof(Verse.AI.Toils_Haul).GetNestedTypes(HarmonyLib.AccessTools.all)
+               .FirstOrDefault(t => t.FullName.Contains("c__DisplayClass1_0"));
             if (predicateClass == null) {
                 Log.Error("LWM.Deep_Storage: Could not find Verse.AI.Toils_Haul:c__AnonStorey0");
                 return null;
             }
-            // This fails, by the way:  predicateClass.GetMethod(alreadyFoundMethod.Name).
+            // This had failed, by the way:  predicateClass.GetMethod(alreadyFoundMethod.Name).
             //   No idea why.
             // Is this matching <>m__0?  Or is it returning the first one, which is what
             //   we want anyway?  Who knows!  But this works.  #DeepMagic
+            // Note: v1.0 uses m__; v1.1 uses b__, so b__0
             var m = predicateClass.GetMethods(AccessTools.all)
-                                 .FirstOrDefault(t => t.Name.Contains("m__"));
+                                 .FirstOrDefault(t => t.Name.Contains("b__0"));
             if (m == null) {
                 Log.Error("LWM.Deep_Storage: Could not find Verse.AI.Toils_Haul:c__AnonStorey0<>m__0");
             }
@@ -74,16 +75,22 @@ namespace LWM.DeepStorage
         //      "StartCarryThing got availableStackSpace "
         //   So we look for that string, and then once we've found it, the next
         //     "throw" OpCode marks the end of the test.  That's where we insert our code:
+        //
+        //TODO:
+        //  Better would be to find where AvailableStackSpace is stored, grab that ldloc and then
+        //  the following branch has the logic needed!
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
             var code = new List<CodeInstruction>(instructions);
             // have we passed "StartCarryThing got availableStackSpace "?
             bool foundCorrectException = false;
             // We keep track of where every BrTrue jump goes:
             //    One of them will be where we insert our code:
-            System.Reflection.Emit.Label branchLabel;
+            System.Reflection.Emit.Label branchLabel = new Label(); // Ugh.  This just gets thrown away
+                                                                    // but I get uninitialized var errors otherwise
             int i = 0; // we do 2 for loops on the same i
             for (; i < code.Count - 1; i++) {
-                if (code[i].opcode == OpCodes.Brtrue) { // keep track of where Branch on True are going
+                // version 1.1 uses brtrue_S instead of brtrue.  How rude.
+                if (code[i].opcode == OpCodes.Brtrue||code[i].opcode==OpCodes.Brtrue_S) { // keep track of where Branch on True are going
                     branchLabel = (Label)code[i].operand;
                 } else if (!foundCorrectException && code[i].opcode == OpCodes.Ldstr &&
                       (string)code[i].operand == "StartCarryThing got availableStackSpace ") {
@@ -105,11 +112,12 @@ namespace LWM.DeepStorage
                     yield return tmp;
                     // pop the delegate() function off the stack to load its "toil" field:
                     yield return new CodeInstruction(OpCodes.Ldfld,
-                          Harmony.AccessTools.Field(predicateClass, "toil"));
+                          HarmonyLib.AccessTools.Field(predicateClass, "toil"));
                     yield return new CodeInstruction(OpCodes.Ldloc_2); // This SHOULD be Thing thing.
-                    yield return new CodeInstruction(OpCodes.Ldloc_S, 4); // This SHOULD be num.
+                    // yield return new CodeInstruction(OpCodes.Ldloc_S, 4); // This SHOULD be num.
+                    yield return new CodeInstruction(OpCodes.Ldloc_3); // this should be the v1.1 num
                     // Now call FillThisStackIfAble(toil, thing, num):
-                    yield return new CodeInstruction(OpCodes.Call, Harmony.AccessTools
+                    yield return new CodeInstruction(OpCodes.Call, HarmonyLib.AccessTools
                            .Method("LWM.DeepStorage.Patch_StartCarryThing_Delegate:FillThisStackIfAble"));
                     break; // exit this complicated for loop
                 }
@@ -121,7 +129,7 @@ namespace LWM.DeepStorage
             for (; i < code.Count - 1; i++) {
                 yield return code[i];
             }
-            var cleanUp = new CodeInstruction(OpCodes.Call, Harmony.AccessTools
+            var cleanUp = new CodeInstruction(OpCodes.Call, HarmonyLib.AccessTools
                   .Method("LWM.DeepStorage.Patch_StartCarryThing_Delegate:CleanUpStacks"))
             {
                 // save the last instruction to swipe any labels/etc from the Return call

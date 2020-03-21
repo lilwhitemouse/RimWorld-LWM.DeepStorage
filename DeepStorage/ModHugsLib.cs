@@ -1,6 +1,6 @@
 ﻿using System;
 using Verse;
-using Harmony;
+using HarmonyLib;
 using HugsLib;
 using HugsLib.Settings;
 

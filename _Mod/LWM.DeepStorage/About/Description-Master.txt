@@ -59,6 +59,9 @@ Using Deep Storage - bonus tip:  If you have selected an item in DeepStorage, if
  [*] I f***ed with the Selector and some mesh Drawing.  It's possible, altho unlikely, this may cause an incompatibility
 [/list]
 
+Translations:
+Deutsch - Erdnussbrot
+
 The code can be found online at: https://github.com/lilwhitemouse/RimWorld-LWM.DeepStorage
 On Steam: https://steamcommunity.com/id/littlewhitemouse/myworkshopfiles/?appid=294100
 In the Ludeon Forum: https://ludeon.com/forums/index.php?topic=47707.0

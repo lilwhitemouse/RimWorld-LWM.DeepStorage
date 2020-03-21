@@ -2,6 +2,7 @@
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>[RF] Fertile Fields [1.0]</li>
+      <li>Fertile Fields [1.1]</li>
     </mods>
     <match Class="PatchOperationSequence">
       <operations>

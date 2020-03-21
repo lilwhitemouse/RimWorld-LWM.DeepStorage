@@ -1,5 +1,5 @@
 ﻿using System;
-using Harmony;
+using HarmonyLib;
 using RimWorld;
 using Verse;
 using System.Collections.Generic;
@@ -85,9 +85,10 @@ namespace LWM.DeepStorage
             var flag=false;
             var code = new List<CodeInstruction>(instructions);
             int i = 0;
-            var lookingForThisFieldCall = Harmony.AccessTools.Field(typeof(Verse.Map), "thingGrid");
+            var lookingForThisFieldCall = HarmonyLib.AccessTools.Field(typeof(Verse.Map), "thingGrid");
             for (;i<code.Count;i++) {
-                if (code[i].opcode != OpCodes.Ldfld || code[i].operand != lookingForThisFieldCall) {
+                if (code[i].opcode != OpCodes.Ldfld || 
+                    (System.Reflection.FieldInfo)code[i].operand != lookingForThisFieldCall) {
                     yield return code[i];
                     continue;
                 }
@@ -101,7 +102,7 @@ namespace LWM.DeepStorage
                 i++; // now past c
                 // Next code instruction is to call ThingsListAt.
                 i++; // We want our own list
-                yield return new CodeInstruction(OpCodes.Call, Harmony.AccessTools.Method(
+                yield return new CodeInstruction(OpCodes.Call, HarmonyLib.AccessTools.Method(
                                                      "LWM.DeepStorage.PatchDisplay_SectionLayer_Things_Regenerate:ThingListToDisplay"));
                 break; // that's all we need to change!
             }

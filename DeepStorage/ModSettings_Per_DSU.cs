@@ -65,6 +65,7 @@ namespace LWM.DeepStorage
             //List<ThingDef> l=DefDatabase<ThingDef>.AllDefsListForReading.Where(ThingDef d => d.Has
 
             // Roll my own buttons, because dammit, I want left-justified buttons:
+            //   (mirroring Widgets.ButtonTextWorker)
             GenUI.SetLabelAlign(TextAnchor.MiddleLeft);
             var bg=ContentFinder<Texture2D>.Get("UI/Widgets/ButtonBG", true);
             var bgmouseover=ContentFinder<Texture2D>.Get("UI/Widgets/ButtonBGMouseover", true);

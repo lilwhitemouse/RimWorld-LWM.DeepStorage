@@ -7,6 +7,7 @@
     <Operation Class="PatchOperationFindMod">
     <mods>
       <li>[KV] RimFridge - 1.0</li>
+      <li>[KV] RimFridge - 1.1</li>
     </mods>
     <match Class="PatchOperationAdd">
       <xpath>/Defs</xpath>
@@ -82,6 +83,7 @@
     </Operation>
     <!--The version of RimFridge currently on Steam has a CompPowerTrader already.
         We remove ours in this case, until KV can push out an update -->
+    <!-- Update it out, and has been for some months.  So, we remove this:
     <Operation Class="PatchOperationConditional">
       <xpath>/Defs/ThingDef[@Name="FridgeBase"]/comps/li[compClass='CompPowerTrader']</xpath>
       <match Class="PatchOperationRemove">
@@ -89,4 +91,5 @@
       </match>
       <success>Always</success>
     </Operation>
+    -->
 </Patch>

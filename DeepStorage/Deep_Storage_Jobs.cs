@@ -4,7 +4,7 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 using System.Linq;
-using Harmony;
+using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine;
@@ -12,7 +12,8 @@ using UnityEngine;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
 
 //BUG/TODO: number to haul will not work correctly for stackable things if a unit has a maximum weight limit.
-
+// TODO: I should really just skip the whole count logic and grab the number for the job from
+//       CompDeepStorage's CapacityAt()
 //  You know...I could have just written my own job definition and inserted it via
 //     HaulToCellStorageJob?  Why not do it?  Because if anyone else's mod adds
 //     HaulToCellStorageJobs, I'd miss them.  Maybe xpath?
@@ -40,6 +41,7 @@ namespace LWM.DeepStorage
     class Patch_HaulToCellStorageJob {
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
             #if false        /////////////////////////////////////
+            Log.Error("Debug information for HaulToCellStorageJob transpiler:");
             var l=XTranspiler(instructions ,generator).ToList();//
             string s="Code:";                                   //
             int i=0;                                            //
@@ -70,13 +72,14 @@ namespace LWM.DeepStorage
                 // Add this code to the beginning of the funtion (right after slotgroup is figured out)
                 if (code[i].opcode==OpCodes.Stloc_1 &&
                     checkedInDeepStorage==false) { // slotGroup
+                    //Log.Warning("About to return Stloc_1: i is " + i);
                     yield return code[i++]; // the Stloc.1 we just found
-                    if ( Harmony.AccessTools.Method("LWM.DeepStorage.Utils:CanStoreMoreThanOneThingIn")==null) {
+                    if ( HarmonyLib.AccessTools.Method("LWM.DeepStorage.Utils:CanStoreMoreThanOneThingIn")==null) {
                         Log.Error("Failure, cannot find CSMTOTI");
                     }
                     yield return new CodeInstruction(OpCodes.Ldloc_1); // slotGroup
                     yield return new CodeInstruction(OpCodes.Call,
-                                                     Harmony.AccessTools.Method("LWM.DeepStorage.Utils:CanStoreMoreThanOneThingIn"));
+                                                     HarmonyLib.AccessTools.Method("LWM.DeepStorage.Utils:CanStoreMoreThanOneThingIn"));
                     yield return new CodeInstruction(OpCodes.Stloc, inDeepStorage);
                     checkedInDeepStorage=true;
                 }
@@ -95,13 +98,15 @@ namespace LWM.DeepStorage
                  *   So it's easy to find.
                  * Note I could do more slick optimazations here, but I'm going to stick with what I have.
                  */
+                //Log.Error("About to return +" + code[i] + ", i is " + i);
                 if (code[i].opcode==OpCodes.Ldarg_0 && // Pawn p
                     // Next codeinstruction we want: callvirt Verse.Map get_Map()
                     code[i+1].opcode==OpCodes.Callvirt &&
                     // not   .operand==Harmony.AccessTools.Method(typeof(Pawn), "get_Map") :p
-                    code[i+1].operand==Harmony.AccessTools.Method(typeof(Thing), "get_Map") && // p.Map
+                    (MethodInfo)code[i+1].operand==HarmonyLib.AccessTools.Method(typeof(Thing), "get_Map") && // p.Map
                     code[i+2].opcode==OpCodes.Ldfld &&
-                    code[i+2].operand==Harmony.AccessTools.Field(typeof(Map), "thingGrid")) { // p.Map.thingGrid...
+                    (FieldInfo)code[i+2].operand==HarmonyLib.AccessTools.Field(typeof(Map), "thingGrid")) { // p.Map.thingGrid...
+                    //Log.Error("--------------found thingGrid call");
                     ////////////// Put our branch here ////////////////
                     // Steal any labels lying around:
                     var c= new CodeInstruction(OpCodes.Ldloc, inDeepStorage);
@@ -123,8 +128,9 @@ namespace LWM.DeepStorage
                     int j=i+3;
                     for (; j<code.Count;j++) { // this loads the cell and the def
                         if (code[j].opcode==OpCodes.Callvirt &&
-                            code[j].operand==callThingAt) {
+                            (MethodInfo)code[j].operand==callThingAt) {
                             // skip ThingAt()
+                            //Log.Error("-------------------skipping back to do the ThingAt mirror");
                             break;
                         }
                         yield return new CodeInstruction(code[j]);
@@ -134,7 +140,9 @@ namespace LWM.DeepStorage
                            AccessTools.Method("LWM.DeepStorage.Patch_HaulToCellStorageJob:NullOrLastThingAt"));
                     for (j++;j<code.Count;j++) { // skip the ThingAt call, keep going to branch on false:
                         yield return new CodeInstruction(code[j]); // this also stores the result in the proper place
-                        if (code[j].opcode==OpCodes.Brfalse) break;
+                        //Log.Warning("Just going ahead after ThingAt: " + code[j] + ".  j is " + j);
+                        // Fun fact: version 1.1 changed Brfalse to Brfalse_S  :p
+                        if (code[j].opcode==OpCodes.Brfalse || code[j].opcode==OpCodes.Brfalse_S) break;
                     }
                     // Okay, so it's true.  Now we skip over the original test:
                     Label backToNormal=generator.DefineLabel();
@@ -144,9 +152,11 @@ namespace LWM.DeepStorage
                     // now fast foward thru until we hit that Brfalse command - we need to pick up after that!
                     for (; i<code.Count;i++) {
                         yield return code[i];
-                        if (code[i].opcode==OpCodes.Brfalse) break;
+                        if (code[i].opcode==OpCodes.Brfalse || code[i].opcode==OpCodes.Brfalse_S) break;
                     }
                     i++; // move on past that Brfalse
+                    //Log.Error("Just jumped past brFalse, i is " + i);
+                    //Log.Error(" Code is " + code[i]);
                     code[i].labels.Add(backToNormal);
                 } // end test for p.Map.thingGrid etc.
                 yield return code[i];
@@ -230,8 +240,8 @@ namespace LWM.DeepStorage
             }
             // Create our own job for hauling to Deep_Storage units...
             // Another opportunity to put our own JobDef here:
-            //   new Job(DefDatabase<JobDef>.GetNamed("LWM_HaulToDeepStorage"), t, storeCell, map);, etc
-            Job job = new Job(JobDefOf.HaulToCell, t, storeCell);
+            //   new XJob(DefDatabase<JobDef>.GetNamed("LWM_HaulToDeepStorage"), t, storeCell, map);, etc
+            Job job = new XJob(JobDefOf.HaulToCell, t, storeCell);
             job.haulOpportunisticDuplicates = true;
             job.haulMode = HaulMode.ToCellStorage;
 

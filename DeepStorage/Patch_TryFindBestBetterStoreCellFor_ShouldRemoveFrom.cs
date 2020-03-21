@@ -2,7 +2,7 @@ using System;
 using RimWorld;
 using Verse;
 using Verse.AI;
-using Harmony;
+using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using System.Collections.Generic;
@@ -30,9 +30,9 @@ namespace LWM.DeepStorage
  *   place for it!  So in the code, the test for storage priority must fail...
  *
  * In the code, right after
- *   StoragePriority storagePriority = currentPriority;
+ *   StoragePriority foundPriority = currentPriority;
  * Add a test:
- *   bool overCapacity = Patch_Etc.OverCapacity(map, thing, ref storagePriority);
+ *   bool overCapacity = Patch_Etc.OverCapacity(map, thing, ref foundPriority);
  *
  * If it IS overCapacity, then storagePriority is set to UnStored, so any valid
  *   storage is better.
@@ -46,7 +46,7 @@ namespace LWM.DeepStorage
     [HarmonyPatch(typeof(StoreUtility), "TryFindBestBetterStoreCellFor")]
     static class Patch_TryFindBestBetterStoreCellFor {
         static bool Prepare() {
-            Utils.Mess(Utils.DBF.Settings, "LWM: Prepare called: "+Settings.checkOverCapacity);
+            Utils.Mess(Utils.DBF.Settings, "Patch to check if overCapacity? "+Settings.checkOverCapacity);
             if (Settings.checkOverCapacity)
                 return true;
             return false;
@@ -65,7 +65,7 @@ namespace LWM.DeepStorage
                     yield return new CodeInstruction(OpCodes.Ldarg_0); // thing
                     yield return new CodeInstruction(OpCodes.Ldloca_S,1); // ref to storagePriority
                     yield return new CodeInstruction(OpCodes.Call,
-                                                     Harmony.AccessTools.Method(typeof(Patch_TryFindBestBetterStoreCellFor),"OverCapacity"));
+                                                     HarmonyLib.AccessTools.Method(typeof(Patch_TryFindBestBetterStoreCellFor),"OverCapacity"));
                     yield return new CodeInstruction(OpCodes.Stloc_S, overCapacity);//overCapacty=OverCapacity(map,thing,ref storagePriority)
                     i++; // move past Stloc_1; we aleady returned that
                     break;
@@ -73,12 +73,12 @@ namespace LWM.DeepStorage
             }
             if (i==code.Count) Log.Error("LWM.DeepStorage: TryFindBestBetterStoreCellFor transpile failed(0)");
             /* Replace:
-              if (priority < storagePriority || priority <= currentPriority)
+              if (priority < foundPriority || priority <= currentPriority)
               {
                 break;
               }
             * with
-              if (priority < storagePriority || (!overCapacity && priority <= currentPriority))
+              if (priority < foundPriority || (!overCapacity && priority <= currentPriority))
             */
             for (;i<code.Count;i++) { // Go until find the storage priority for slotGroup (priority) and StLoc it:
                 if (code[i].opcode==OpCodes.Stloc_S && ((LocalBuilder)code[i].operand).LocalIndex==7) {
@@ -89,11 +89,15 @@ namespace LWM.DeepStorage
             if (i==code.Count) Log.Error("LWM.DeepStorage: TryFindBestBetterStoreCellFor transpile failed(1)");
             // skip only a few lines, but I want to make sure I catch
             //     priority <= currentPriority, and this is easier than counting.xs
+            // we will add a check for overCapacity and then if we are, will not break:
+            Label doNotBreak = generator.DefineLabel();
             for (;i<code.Count;i++) {
                 if (code[i].opcode==OpCodes.Ldloc_S && ((LocalBuilder)code[i].operand).LocalIndex==7 &&
-                    code[i+1].opcode==OpCodes.Ldarg_3 && code[i+2].opcode==OpCodes.Bgt) {
+                    code[i+1].opcode==OpCodes.Ldarg_3 && code[i+2].opcode==OpCodes.Ble_S) {
+
                     yield return new CodeInstruction(OpCodes.Ldloc_S,overCapacity);
-                    yield return new CodeInstruction(OpCodes.Brtrue,code[i+2].operand);
+                    yield return new CodeInstruction(OpCodes.Brtrue_S,doNotBreak);//insert new label
+                    code[i + 3].labels.Add(doNotBreak); // the code after if (... <= currentPriority) break;
                     break;
                 }
                 yield return code[i];

@@ -2,7 +2,7 @@ using System;
 using RimWorld;
 using Verse;
 using Verse.AI;
-using Harmony;
+using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using System.Collections.Generic;
@@ -44,7 +44,7 @@ namespace LWM.DeepStorage
             for (int i=0; i<code.Count; i++) {
                 if (code[i].opcode!=OpCodes.Br ||
                     code[i-1].opcode!=OpCodes.Call ||
-                    code[i-1].operand!=check) {
+                    (MethodInfo)code[i-1].operand!=check) {
                     yield return code[i];
                 //} else {
                 //    Log.Warning("Found the 'break;' code! Skipping...");

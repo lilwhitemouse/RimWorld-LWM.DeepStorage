@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using RimWorld;
 using Verse;
 using System.Linq;
-using Harmony;
-using System.Reflection;
-using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
+//using HarmonyLib;
+//using System.Reflection;
+//using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
 
@@ -470,7 +470,7 @@ namespace LWM.DeepStorage
             Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
         }
 
-                public StatDef stat = StatDefOf.Mass;
+        public StatDef stat = StatDefOf.Mass;
         /*******  For only one limiting stat: (mass, or bulk for CombatExtended)  *******/
         public float limitingFactorForItem=0f;
         public float limitingTotalFactorForCell=0f;

@@ -4,7 +4,7 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 using System.Linq;
-using Harmony;
+using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 

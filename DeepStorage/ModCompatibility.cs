@@ -1,5 +1,5 @@
 ﻿using System;
-using Harmony;
+using HarmonyLib;
 using RimWorld;
 using System.Linq;
 using Verse;
@@ -32,7 +32,7 @@ namespace LWM.DeepStorage
      [HarmonyPatch(typeof(StoreUtility), "NoStorageBlockersIn")]
      static class Fix_RSA_Incompatibilit_NoStorageBlockersIn {
         public static MethodInfo oldPatch;
-        static bool Prepare(HarmonyInstance instance) {
+        static bool Prepare(Harmony instance) {
             // can we find the RSA mod?
             var rsaAssembly = AppDomain.CurrentDomain.GetAssemblies().ToList()
               .Find(x => x.FullName.Split(',').First() == "RSA");
@@ -87,9 +87,9 @@ namespace LWM.DeepStorage
                 i++;
                 if (code.Count-i>5 && // We may not find this if someone else has patched WorkGiver_Merge
                     code[i].opcode == OpCodes.Ldfld &&
-                    code[i].operand == typeof(Verse.Thing).GetField("def") &&
+                    (FieldInfo)code[i].operand == typeof(Verse.Thing).GetField("def") &&
                     code[i + 2]?.opcode == OpCodes.Ldfld &&
-                    code[i + 2].operand == typeof(Verse.Thing).GetField("def") &&
+                    (FieldInfo)code[i + 2].operand == typeof(Verse.Thing).GetField("def") &&
                     code[i + 3].opcode == OpCodes.Beq) {
                     // Found it!
                     // Instead of loading the two defs and checking if they are equal,
