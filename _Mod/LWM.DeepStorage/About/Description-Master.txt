@@ -60,6 +60,7 @@ Using Deep Storage - bonus tip:  If you have selected an item in DeepStorage, if
 [/list]
 
 Translations:
+Русский - Тхакиро
 Deutsch - Erdnussbrot
 
 The code can be found online at: https://github.com/lilwhitemouse/RimWorld-LWM.DeepStorage
