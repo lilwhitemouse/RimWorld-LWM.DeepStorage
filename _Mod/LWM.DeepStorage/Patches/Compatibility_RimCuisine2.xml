@@ -6,6 +6,7 @@
    <Operation Class="PatchOperationFindMod">
       <mods>
          <li>[1.0] RimCuisine 2 Core</li>
+         <li>[1.0, 1.1] RimCuisine 2 Core</li>
       </mods>
       <match Class="PatchOperationSequence">
          <operations>
