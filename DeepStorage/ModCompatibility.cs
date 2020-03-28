@@ -18,15 +18,15 @@ namespace LWM.DeepStorage
 
     /*****************  RimWorld Search Agency  **********/
     /*
-     * RSA contains Hauling Hysteresis, which also messes 
+     * RSA contains Hauling Hysteresis, which also messes
      * with NoStorageBlockersIn.  If the hysteresis critera
-     * are not met (e.g., 55 sheep in a stack, when it is 
+     * are not met (e.g., 55 sheep in a stack, when it is
      * set to 50), NoStorageBlockersIn is forced to return
-     * false...  Which is good, except for Deep Storage 
+     * false...  Which is good, except for Deep Storage
      * (or other storage mods)
-     * 
+     *
      * If RSA is active, we unpatch NoStorageBlockersIn and
-     * apply our own patch for the RSA effect.    
+     * apply our own patch for the RSA effect.
      */
 
      [HarmonyPatch(typeof(StoreUtility), "NoStorageBlockersIn")]
@@ -73,24 +73,30 @@ namespace LWM.DeepStorage
      */
     /* I originally created this patch for Common Sense, and Avil adopted the patch there.  However, on
      * further reflection....I should have it here, too...perhaps even more than there.  Rather than remove
-     * it there, I'll add it here and make sure it doesn't double-patch */
-    [HarmonyPatch(typeof(WorkGiver_Merge), "JobOnThing")]
+     * it there, I'll add it here and make sure it doesn't double-patch.
+     * Note: yes, this should be here: any time there are objects that have the same def, but are not
+     * stackable b/c of whatever reason, this will be a potential issue - especially if someone plays
+     * with one of the stack-adjusting mods */
+    // Note: Ludeon is aware of this bug and may even fix it.
+    [HarmonyPatch(typeof(RimWorld.WorkGiver_Merge), "JobOnThing")]
     static class Fix_Vanilla_WorkGiver_Merge {
-        // Replace WorkGiver_Merge's JobOnThing's test of "if (thing.def==t.def) ..." with
-        //                                                "if (thing.CanStackWith(t)) ..."
+        // Replace WorkGiver_Merge's JobOnThing's test of "if ... (thing.def==t.def) ..." with
+        //                                                "if ... (thing.CanStackWith(t)) ..."
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var code = new List<CodeInstruction>(instructions);
             var i = 0; // using two for loops
             while (i < code.Count) {
+                FieldInfo defFI=typeof(Verse.Thing).GetField("def");
                 yield return code[i];
                 i++;
                 if (code.Count-i>5 && // We may not find this if someone else has patched WorkGiver_Merge
                     code[i].opcode == OpCodes.Ldfld &&
-                    (FieldInfo)code[i].operand == typeof(Verse.Thing).GetField("def") &&
+                    (FieldInfo)code[i].operand == defFI &&
                     code[i + 2]?.opcode == OpCodes.Ldfld &&
-                    (FieldInfo)code[i + 2].operand == typeof(Verse.Thing).GetField("def") &&
-                    code[i + 3].opcode == OpCodes.Beq) {
+                    (FieldInfo)code[i + 2].operand == defFI &&
+                    code[i + 3].opcode == OpCodes.Bne_Un ) {//OpCodes.Beq) {
+                    Log.Message("LWM.DeepStorage: fixing vanilla merge bug/compatibility with CommonSense.");
                     // Found it!
                     // Instead of loading the two defs and checking if they are equal,
                     i++;  // advance past the .def call
@@ -98,12 +104,12 @@ namespace LWM.DeepStorage
                     i = i + 2; // advance past the 2nd thing(we just added it) and its .def call
                     // Call thing.CanStackWith(t);
                     yield return new CodeInstruction(OpCodes.Callvirt, typeof(Thing).GetMethod("CanStackWith"));
-                    
-                    // i now points to "branch if equal"
-                    CodeInstruction c = new CodeInstruction(OpCodes.Brtrue);
+
+                    // i now points to branch not equal (unsigned) //1.0 was "branch if equal"
+                    CodeInstruction c = new CodeInstruction(OpCodes.Brfalse);// CodeInstruction(OpCodes.Brtrue);
                     c.operand = code[i].operand; // grab its target
                     yield return c;
-                    i++; // advance past beq
+                    i++; // advance past bne
                     // continue returning everything:
                     break;
                 }
@@ -114,7 +120,7 @@ namespace LWM.DeepStorage
             }
         } // end Transpler
     } // end fix for WorkGiver_Merge's JobOnThing
-    
+
     /* A cheap cute way to post a Message, for when an xml patch operation is done :p */
     public class PatchMessage : PatchOperation {
         protected override bool ApplyWorker(System.Xml.XmlDocument xml) {
