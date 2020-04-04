@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <!-- Settings -->
+  <LWMDSignoredDueTo>This setting is ignored due to mod {0}</LWMDSignoredDueTo>
   <LWMDSstoringDelaySettings>Storing Delay Settings</LWMDSstoringDelaySettings>
   <LWMDSstoringTakesTimeLabel>If you really want to turn off the delay while storing, uncheck this.</LWMDSstoringTakesTimeLabel>
   <LWMDSstoringTakesTimeDesc>Turning this off is not how LWM plays.  But hey, it's your game!  You do you!</LWMDSstoringTakesTimeDesc>

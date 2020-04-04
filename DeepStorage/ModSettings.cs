@@ -180,9 +180,25 @@ namespace LWM.DeepStorage
                 architectMenuMoveALLTmp=architectMenuMoveALLStorageItems;
             }
             // finished drawing settings for Architect Menu
+            // -------------------
+            // Allow player to turn of Over-Capacity check.
+            //   Turn it off automatically for Project RimFactory and Extended Storage
+            //   Note: should turn it off automatically for any other storage mods, too
             l.GapLine();
+            Color origColor=GUI.color; // make option gray if ignored
+            var tmpMod=ModLister.GetModWithIdentifier("spdskatr.projectrimfactory");
+            if (tmpMod!=null) {
+                GUI.color=Color.gray;
+                // This setting is disabled due to mod Extended Storage
+                l.Label("LWMDSignoredDueTo".Translate(tmpMod.Name));
+            }
+            if ((tmpMod=ModLister.GetModWithIdentifier("Skullywag.ExtendedStorage"))!=null) {
+                GUI.color=Color.gray;
+                l.Label("LWMDSignoredDueTo".Translate(tmpMod.Name));
+            }
             l.CheckboxLabeled("LWMDSoverCapacityCheck".Translate(), ref checkOverCapacity,
                               "LWMDSoverCapacityCheckDesc".Translate());
+            GUI.color=origColor;
             // Per DSU settings - let players change them around...
             l.GapLine();
             if (allowPerDSUSettings) {

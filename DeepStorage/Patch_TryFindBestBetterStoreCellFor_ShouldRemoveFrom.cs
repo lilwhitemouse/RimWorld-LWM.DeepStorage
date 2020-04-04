@@ -21,12 +21,12 @@ namespace LWM.DeepStorage
  *  2. DSU gets destroyed and leaves several things lying about,
  *       maybe some on top of one another.
  *  3. Maybe weight of an item changes somehow
- *  4. Maybe I made a mistake in the code and too many things 
+ *  4. Maybe I made a mistake in the code and too many things
  *       were put into a DSU.  It happens.
  *
  * Patch RimWorld's StoreUtility's TryFindBestBetterStoreCellFor
- *   Add a check to see if the item fits (maybe it's in a DSU but over capacity!).  
- *   If it doesn't (the DSU is overCapacity, then we need to look for a better 
+ *   Add a check to see if the item fits (maybe it's in a DSU but over capacity!).
+ *   If it doesn't (the DSU is overCapacity, then we need to look for a better
  *   place for it!  So in the code, the test for storage priority must fail...
  *
  * In the code, right after
@@ -38,7 +38,7 @@ namespace LWM.DeepStorage
  *   storage is better.
  *
  * Then when vanilla checks if (...||  priority <= currentPriority), we change that
- * to if (...|| (!overCapacity && priority <= currentPriority)), so that if we are 
+ * to if (...|| (!overCapacity && priority <= currentPriority)), so that if we are
  * overCapacity, we continue to search for a better place to put it.
  *
  * I use Transpiler because it's right in the middle of code.  :p
@@ -47,11 +47,15 @@ namespace LWM.DeepStorage
     static class Patch_TryFindBestBetterStoreCellFor {
         static bool Prepare() {
             Utils.Mess(Utils.DBF.Settings, "Patch to check if overCapacity? "+Settings.checkOverCapacity);
-            if (Settings.checkOverCapacity)
-                return true;
-            return false;
+            if (!Settings.checkOverCapacity)
+                return false;
+            // Turn this off (hard) for Project Rim Factory - otherwise pawns may get stuck in loop
+            if (ModLister.GetModWithIdentifier("spdskatr.projectrimfactory")!=null) return false;
+            // Turn this off (hard) for Extended Storage (if players want to be crazy and try both)
+            if (ModLister.GetModWithIdentifier("Skullywag.ExtendedStorage")!=null) return false;
+            return true;
         }
-        
+
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions,
                                                        ILGenerator generator) {
             List<CodeInstruction> code=instructions.ToList();
@@ -113,7 +117,7 @@ namespace LWM.DeepStorage
                        +(map==null ? "  Map is NULL (this is bad)." : ("  Map: "+map))
                        +(thing==null? "  Thing is NULL (this is bad).":("  Thing: "+thing.stackCount+thing)));
             if (!thing.Spawned) return false;
-            if (storagePriority == StoragePriority.Unstored) return false;                
+            if (storagePriority == StoragePriority.Unstored) return false;
             CompDeepStorage cds = (thing.Position.GetSlotGroup(map)?.parent as ThingWithComps)?.GetComp<CompDeepStorage>();
             List<Thing> l;
             // What if it's a slotGroup put down after someone moved/destroyed a DSU?
@@ -137,7 +141,7 @@ namespace LWM.DeepStorage
                 return false; // Should be difficult to get here?  But apparently RoM - Arachnophobia does.
             }
             // TODO: This should really all be in CompDeepStorage:
-            
+
             if (cds.limitingFactorForItem > 0f) {
                 if (thing.GetStatValue(cds.stat) > cds.limitingFactorForItem) {
                     Utils.Warn(ShouldRemoveFromStorage,
