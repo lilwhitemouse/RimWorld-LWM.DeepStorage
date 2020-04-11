@@ -7,4 +7,5 @@
     <li>PickUpAndHaul</li>
   </loadBefore>
   <manifestUri>https://raw.githubusercontent.com/lilwhitemouse/RimWorld-LWM.DeepStorage/master/_Mod/LWM.DeepStorage/About/Manifest.xml</manifestUri>
+  <downloadUri>https://github.com/lilwhitemouse/RimWorld-LWM.DeepStorage/releases/latest</downloadUri>
 </Manifest>
