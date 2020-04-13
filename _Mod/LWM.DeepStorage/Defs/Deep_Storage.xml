@@ -603,7 +603,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
       <li><compClass>CompQuality</compClass></li><!--Hey, you CAN make it pretty?-->
     </comps>
   </ThingDef>
-  
+
   <ThingDef Name="LWM_FabricHamper" ParentName="LWM_DeepStorage">
     <defName>LWM_FabricHamper</defName>
     <label>Hampers</label>
@@ -629,6 +629,8 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
     <building>
       <fixedStorageSettings>
         <filter>
+          <!-- No "Fabric" here - I think hampers are a terrible say to store
+               fabric, and if players want to, they can add via Mod Settings -->
           <categories>
             <li>PlantFoodRaw</li><!-- Do use sense, eh? -->
             <li>EggsUnfertilized</li>
@@ -733,7 +735,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
       <li>Smithing</li><!-- Forging strong chains - we're lifting bloody muffalos here -->
     </researchPrerequisites>
   </ThingDef>
-  
+
   <ThingDef Name="LWM_VeryBigShelf" ParentName="LWM_DeepStorage">
     <defName>LWM_VeryBigShelf</defName>
     <label>Tall Shelves</label>

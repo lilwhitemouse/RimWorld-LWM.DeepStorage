@@ -2,8 +2,11 @@
 
 LWM presents a way to organize your supplies, loot, clothes, and even your garbage, to allow you a tidy base where your colonists aren't simply dumping stuff on the floor.  Deep Storage units include medicine cabinets, meat hooks, clothing racks, weapon lockers, etc, and all can store diverse items - just like regular shelves, but they allow more than one thing!
 
-FAQ:
+FAQ / "I have a problem":
  * Meat Hooks require the Smithing research!
+ * These Hampers are made of fabric, they don't hold fabric
+ * Does it work with Vanilla shelves?
+ * You can always add more stored things in Mod Settings
 
 Want to say Thanks?
  * Have ** in Art?  Draw me a picture of a little white mouse!  I'm reachable on the Ludeon forum.
