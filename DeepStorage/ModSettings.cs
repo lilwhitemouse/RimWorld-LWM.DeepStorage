@@ -183,13 +183,13 @@ namespace LWM.DeepStorage
             //   Note: should turn it off automatically for any other storage mods, too
             l.GapLine();
             Color origColor=GUI.color; // make option gray if ignored
-            var tmpMod=ModLister.GetModWithIdentifier("spdskatr.projectrimfactory");
+            var tmpMod=ModLister.GetActiveModWithIdentifier("spdskatr.projectrimfactory");
             if (tmpMod!=null) {
                 GUI.color=Color.gray;
                 // This setting is disabled due to mod Extended Storage
                 l.Label("LWMDSignoredDueTo".Translate(tmpMod.Name));
             }
-            if ((tmpMod=ModLister.GetModWithIdentifier("Skullywag.ExtendedStorage"))!=null) {
+            if ((tmpMod=ModLister.GetActiveModWithIdentifier("Skullywag.ExtendedStorage"))!=null) {
                 GUI.color=Color.gray;
                 l.Label("LWMDSignoredDueTo".Translate(tmpMod.Name));
             }

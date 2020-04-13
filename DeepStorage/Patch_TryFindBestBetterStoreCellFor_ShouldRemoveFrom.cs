@@ -50,9 +50,9 @@ namespace LWM.DeepStorage
             if (!Settings.checkOverCapacity)
                 return false;
             // Turn this off (hard) for Project Rim Factory - otherwise pawns may get stuck in loop
-            if (ModLister.GetModWithIdentifier("spdskatr.projectrimfactory")!=null) return false;
+            if (ModLister.GetActiveModWithIdentifier("spdskatr.projectrimfactory")!=null) return false;
             // Turn this off (hard) for Extended Storage (if players want to be crazy and try both)
-            if (ModLister.GetModWithIdentifier("Skullywag.ExtendedStorage")!=null) return false;
+            if (ModLister.GetActiveModWithIdentifier("Skullywag.ExtendedStorage")!=null) return false;
             return true;
         }
 
