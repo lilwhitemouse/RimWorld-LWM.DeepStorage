@@ -37,9 +37,6 @@ namespace LWM.DeepStorage
         private static bool architectMenuMoveALLTmp=true;
 
 
-//        public static DesignationCategoryDef architectLWM_DS_Storage_DesignationCatDef=null; // keep track of this as it may be removed from DefDatabase
-//        public static DesignationCategoryDef architectCurrentDesignationCatDef=null;
-
         public static List<ThingDef> allDeepStorageUnits=null;
 
         private static Vector2 scrollPosition=new Vector2(0f,0f);
@@ -249,10 +246,22 @@ namespace LWM.DeepStorage
             if (newDefName == architectMenuDefaultDesigCatDef) {
                 ArchitectMenu_Show();
             }
+            // Compatibility Logic:
+            //   If certain mods are loaded and all storage units are to go in one menu,
+            //   maybe we want to remove the other menu?  Or maybe we want to use that
+            //   one by default:
+            // For Deep Storage, if the player also has Quantum Storage, use their menu insead:
+            if (architectMenuMoveALLStorageItems && !architectMenuAlwaysShowCategory &&
+                newDefName==architectMenuDefaultDesigCatDef &&
+                ModLister.GetActiveModWithIdentifier("Cheetah.QuantumStorageRedux")!=null) {
+                newDefName="QSRStorage";
+            }
             DesignationCategoryDef newDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(newDefName);
             if (newDesignationCatDef == null) {
-                Log.Error("Failed to change Architect Menu settings!");
-                return;
+                Log.Warning("LWM.DeepStorage: Failed to find menu category "+newDefName+" - reverting to default");
+                newDefName=architectMenuDefaultDesigCatDef;
+                ArchitectMenu_Show();
+                newDesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed(newDefName);
             }
             // Architect Menu: Specify all your buildings/etc:
             //   var allMyBuildings=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.HasComp(etc)));
