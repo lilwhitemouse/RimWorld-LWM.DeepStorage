@@ -48,8 +48,9 @@ namespace LWM.DeepStorage
      *     re-register items to be drawn, turn back on their GUI,
      *     or any of that.
      *     Why?
-     *     The game *unspawns the old item* and then *creates an
-     *     identical one* in the pawn's inventory.
+     *     The game *unspawns the old item* and then moves it to
+     *     the pawn's inventory.  When the pawn puts it down?
+     *     The item re-registers to be drawn on spawn.
      * Note2: When an item is added to DS, we put the DSU at the
      *     end of the thingsListAt.
      *     Vanilla behavior, pre-save:
