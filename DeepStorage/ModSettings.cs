@@ -48,6 +48,7 @@ namespace LWM.DeepStorage
             l.BeginScrollView(outerRect, ref scrollPosition, ref viewRect);
 
             //l.GapLine();  // Who can haul to Deep Storage (robots, animals, etc)
+            l.Label("LWMDShaulToStorageExplanation".Translate());
             l.CheckboxLabeled("LWMDSrobotsCanUse".Translate(), ref robotsCanUse, "LWMDSrobotsCanUseDesc".Translate());
             string [] intLabels={
                 "LWM_DS_Int_Animal".Translate(),
@@ -57,8 +58,10 @@ namespace LWM.DeepStorage
             // Setting to allow bionic racoons to haul to Deep Storage:
             l.EnumRadioButton<Intelligence>(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "LWM_DS_IntTitle".Translate(),
                                             "LWM_DS_IntDesc".Translate(), false, intLabels);
+
             l.GapLine();  //Storing Delay Settings
             l.Label("LWMDSstoringDelaySettings".Translate());
+            l.Label("LWMDSstoringDelayExplanation".Translate());
             l.CheckboxLabeled("LWMDSstoringTakesTimeLabel".Translate(),
                                              ref storingTakesTime, "LWMDSstoringTakesTimeDesc".Translate());
             l.Label("LWMDSstoringGlobalScale".Translate((storingGlobalScale*100f).ToString("0.")));
@@ -276,6 +279,17 @@ namespace LWM.DeepStorage
                                                                                      x.thingClass.IsSubclassOf(typeof(Building_Storage)))
                                                                                     && x.designationCategory!=desigProduction
                                                                                     ));
+                // ProjectRimFactory has several subclasses of Building_Storage that are in the Industrial category.
+                //   This is basically the "Production" category on steroids and 220 volts.
+                //   So we remove those storage buildings from our list too:
+                if (ModLister.GetActiveModWithIdentifier("spdskatr.projectrimfactory")!=null) {
+                    var industrialCategory=DefDatabase<DesignationCategoryDef>.GetNamed("Industrial", false);
+                    if (industrialCategory==null) {
+                        Log.Warning("LWM.DeepStorage: menu compatibility with Project RimFactory failed: could not find Industrial cat");
+                    } else {
+                        itemsToMove.RemoveAll(x=>x.designationCategory!=industrialCategory);
+                    }
+                }
                 // testing:
 //                itemsToMove.AddRange(DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.defName.Contains("MURWallLight")));
             }
