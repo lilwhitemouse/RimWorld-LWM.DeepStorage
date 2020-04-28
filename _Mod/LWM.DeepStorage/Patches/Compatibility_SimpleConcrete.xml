@@ -21,7 +21,7 @@
           </match>
         </li>
         <li Class="PatchOperationAdd">
-          <xpath>/Defs/ThingDef[defName="LWM_Skip"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <xpath>/Defs/ThingDef[@Name="LWM_Skip"]/building/fixedStorageSettings/filter/thingDefs</xpath>
           <value><li>D9Cement</li><li>D9Concrete</li></value>
         </li>
         <li Class="LWM.DeepStorage.PatchMessage">
