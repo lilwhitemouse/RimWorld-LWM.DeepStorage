@@ -13,7 +13,7 @@
 
   <!-- or for anyone who builds some good careful metal-working tools -->
 
-  <LWM_WeaponsLocker.label>Verstärkter Waffenschrank</LWM_WeaponsLocker.label>
+   <LWM_WeaponsLocker.label>Verstärkter Waffenschrank</LWM_WeaponsLocker.label>
   <LWM_WeaponsLocker.description>Ein Metallschrank mit hoher Kapazität zur sicheren Aufbewahrung vieler Waffen. Die darin gelagerten Gegenstände werden auch im Freien nicht beschädigt.</LWM_WeaponsLocker.description>
   <LWM_WeaponsLocker_Entwurf.label>Verstärkter Waffenschrank (Entwurf)</LWM_WeaponsLocker_Entwurf.label>
   <LWM_WeaponsLocker_Entwurf_Install.label>Verstärkter Waffenschrank (Entwurf)</LWM_WeaponsLocker_Entwurf_Install.label>
