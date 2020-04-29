@@ -682,7 +682,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
     </comps>
   </ThingDef>
 
-  <ThingDef Name="LWM_Skip"  ParentName="LWM_DeepStorage" >
+  <ThingDef Name="LWM_Skip"  ParentName="LWM_DeepStorage" ><!--Note: Name does NOT match defName: oops-->
     <defName>LWM_DeepStorage_Skip</defName>
     <label>Skip</label>
     <description>A large metal bin for tossing heavy things in.  These skips are not covered; they are open to the weather.
