@@ -58,6 +58,7 @@ namespace LWM.DeepStorage
                               // Default to having a blocker unless EVERYTHING is okay
                               //  (We return false from this Patch function to skip original method)
             __result=cds.StackableAt(thing, c, map);
+            Utils.Warn(NoStorageBlockerseIn, "Final result for "+thing+" at "+c+": "+__result);
             return false;
 #if false
             // If there is a maximum size of items that will fit in the unit, quit:

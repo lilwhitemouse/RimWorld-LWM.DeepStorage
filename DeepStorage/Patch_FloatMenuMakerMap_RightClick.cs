@@ -22,7 +22,7 @@ namespace LWM.DeepStorage
       //    It tended to cause crashing etc and didn't gain much?
         Prefix runs
         Prefix sets flag
-      
+
         Move All Items Away
         (Get basic default orders?)
         For Each Thing
@@ -36,7 +36,7 @@ namespace LWM.DeepStorage
       Postfix runs and catches logic, puts together complete, correct menu option list
       So...look, we do the same thing twice!  Function calls!
     */
-    [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
+    [HarmonyPatch(typeof(RimWorld.FloatMenuMakerMap), "AddHumanlikeOrders")]
     static class Patch_AddHumanlikeOrders {
         static bool Prepare(Harmony instance) {
             Utils.Warn(RightClickMenu, "Loading AddHumanlikeOrders menu code: "
@@ -71,7 +71,7 @@ namespace LWM.DeepStorage
                 return true;
             }
 
-            return true;          
+            return true;
             return false;
             return Patch_FloatMenuMakerMap.Prefix(Vector3.zero,clickCell,pawn,opts,true,drafted);
         }
@@ -88,7 +88,7 @@ namespace LWM.DeepStorage
         static List<FloatMenuOption> realList=new List<FloatMenuOption>();
         static int failsafe=0;
         static Vector3 clickPos;
-        
+
         // We have to run as Prefix, because we need to intercept the incoming List.
         public static bool Prefix(Vector3 clickPosition, IntVec3 c, Pawn pawn, List<FloatMenuOption> opts,
                                   bool runningAJGWO, bool drafted /*only if runningAJGWO*/) {
@@ -222,5 +222,5 @@ namespace LWM.DeepStorage
                                                               BindingFlags.GetField |
                                                               BindingFlags.SetField |
                                                               BindingFlags.NonPublic);
-    } // end patch class    
+    } // end patch class
 }

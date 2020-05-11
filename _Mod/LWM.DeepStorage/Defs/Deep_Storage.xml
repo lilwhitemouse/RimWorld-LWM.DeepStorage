@@ -171,6 +171,9 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     </researchPrerequisites>
     <minifiedDef>MinifiedThing</minifiedDef><!--If user doesn't like it, user doesn't have to use it-->
     <!-- thingCategories are covered by FurnitureBase
+         TODO: thingCategories define where these things go under Buildings in thingFilters
+         ...it's probably worth making this have a "Storage" thingCategory, as ES does, and linking
+         to theirs if ES is also running.
          <thingCategories>
          <li>BuildingsFurniture</li>
          </thingCategories>
