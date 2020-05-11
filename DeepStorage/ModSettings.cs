@@ -315,8 +315,8 @@ namespace LWM.DeepStorage
 //                    Log.Message("No dropdown");
                     // easy case:
 //                    Log.Message("  Removed this many entries in "+d.designationCategory+": "+
-/*                    resolvedDesignators.RemoveAll(x=>((x is Designator_Build) &&
-                                                      ((Designator_Build)x).PlacingDef==d));*/
+                    resolvedDesignators.RemoveAll(x=>((x is Designator_Build) &&
+                                                      ((Designator_Build)x).PlacingDef==d));
 //                        );
                     // Now do new:
                     resolvedDesignators=(List<Designator>)_resolvedDesignatorsField.GetValue(newDesignationCatDef);
