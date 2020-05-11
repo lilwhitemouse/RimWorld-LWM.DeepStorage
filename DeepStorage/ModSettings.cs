@@ -271,10 +271,10 @@ namespace LWM.DeepStorage
             List<ThingDef> itemsToMove=allDeepStorageUnits;
             Utils.Mess(Utils.DBF.Settings, "Moving these units to 'Storage' menu: "+string.Join(", ", itemsToMove));
             // We can move ALL the storage buildings!  If the player wants.  I do.
+            List<DesignationCategoryDef> desigsToNotMove=new List<DesignationCategoryDef>();
+            List<DesignationCategoryDef> desigsToOnlyCopy=new List<DesignationCategoryDef>();
             if (architectMenuMoveALLStorageItems) {
 //                Log.Error("Trying to mvoe everythign:");
-                List<DesignationCategoryDef> desigsToNotMove=new List<DesignationCategoryDef>();
-                //List<DesignationCategoryDef> toCopy=new List<DesignationCategoryDef>();
                 // Don't move hoppers, etc:
                 desigsToNotMove.Add(DefDatabase<DesignationCategoryDef>.GetNamed("Production"));
                 // Don't move Replimat either:
@@ -284,10 +284,12 @@ namespace LWM.DeepStorage
                 DesignationCategoryDef tmp=DefDatabase<DesignationCategoryDef>.GetNamed("Replimat_Replimat", false);
                 if (tmp!=null) desigsToNotMove.Add(tmp);
                 // ProjectRimFactory has several subclasses of Building_Storage that are in the Industrial category.
-                //   This is basically the "Production" category on steroids and 220 volts.
-                //   So we remove those storage buildings from our list too:
+                //   Several users of PRF have gotten confused when they couldn't find the storage things.
                 DesignationCategoryDef industrialCategory=DefDatabase<DesignationCategoryDef>.GetNamed("Industrial", false);
-                if (industrialCategory!=null) desigsToNotMove.Add(industrialCategory);
+                //   So we COULD remove those storage buildings from our list too:
+                //     if (industrialCategory!=null) desigsToNotMove.Add(industrialCategory);
+                //   But, let's just copy them:
+                if (industrialCategory!=null) desigsToOnlyCopy.Add(industrialCategory);
                 // Interesting detail: apparently it IS possible to have thingDefs with null thingClass... weird.
                 itemsToMove=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>((x?.thingClass != null) && (x.thingClass==typeof(Building_Storage) ||
                                                                                      x.thingClass.IsSubclassOf(typeof(Building_Storage)))
@@ -305,6 +307,7 @@ namespace LWM.DeepStorage
                 // testing:
 //                itemsToMove.AddRange(DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.defName.Contains("MURWallLight")));
             }
+            // get access to a DesignationCategoryDef's resolvedDesignators:
             var _resolvedDesignatorsField = typeof(DesignationCategoryDef)
                 .GetField("resolvedDesignators", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             foreach (var d in itemsToMove) {
@@ -314,9 +317,11 @@ namespace LWM.DeepStorage
                 if (d.designatorDropdown == null) {
 //                    Log.Message("No dropdown");
                     // easy case:
+                    // Old menu location:
+                    if (!desigsToOnlyCopy.Contains(d.designationCategory))
 //                    Log.Message("  Removed this many entries in "+d.designationCategory+": "+
-                    resolvedDesignators.RemoveAll(x=>((x is Designator_Build) &&
-                                                      ((Designator_Build)x).PlacingDef==d));
+                        resolvedDesignators.RemoveAll(x=>((x is Designator_Build) &&
+                                                          ((Designator_Build)x).PlacingDef==d));
 //                        );
                     // Now do new:
                     resolvedDesignators=(List<Designator>)_resolvedDesignatorsField.GetValue(newDesignationCatDef);
@@ -333,7 +338,8 @@ namespace LWM.DeepStorage
                                                                           ((Designator_Build)y).PlacingDef==d)!=null);
                     if (dd != null) {
 //                        Log.Message("Found dropdown designator for "+d.defName);
-                        resolvedDesignators.Remove(dd);
+                        if (!desigsToOnlyCopy.Contains(d.designationCategory))
+                            resolvedDesignators.Remove(dd);
                         // Switch to new category:
                         resolvedDesignators=(List<Designator>)_resolvedDesignatorsField.GetValue(newDesignationCatDef);
                         if (!resolvedDesignators.Contains(dd)) {
