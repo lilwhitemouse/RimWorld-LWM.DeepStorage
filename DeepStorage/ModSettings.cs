@@ -273,23 +273,35 @@ namespace LWM.DeepStorage
             // We can move ALL the storage buildings!  If the player wants.  I do.
             if (architectMenuMoveALLStorageItems) {
 //                Log.Error("Trying to mvoe everythign:");
-                var desigProduction=DefDatabase<DesignationCategoryDef>.GetNamed("Production");
-                // Interesting detail: apparently it IS possible to have thingDefs with null thingClass... weird.
-                itemsToMove=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>((x?.thingClass != null) && (x.thingClass==typeof(Building_Storage) ||
-                                                                                     x.thingClass.IsSubclassOf(typeof(Building_Storage)))
-                                                                                    && x.designationCategory!=desigProduction
-                                                                                    ));
+                List<DesignationCategoryDef> desigsToNotMove=new List<DesignationCategoryDef>();
+                //List<DesignationCategoryDef> toCopy=new List<DesignationCategoryDef>();
+                // Don't move hoppers, etc:
+                desigsToNotMove.Add(DefDatabase<DesignationCategoryDef>.GetNamed("Production"));
+                // Don't move Replimat either:
+                //   (hoppers, etc.)
+                //   Note that it's possible the ReplimatFeedTank should be copied to Storage,
+                //   but I think it's okay to leave it in Replimat.
+                DesignationCategoryDef tmp=DefDatabase<DesignationCategoryDef>.GetNamed("Replimat_Replimat", false);
+                if (tmp!=null) desigsToNotMove.Add(tmp);
                 // ProjectRimFactory has several subclasses of Building_Storage that are in the Industrial category.
                 //   This is basically the "Production" category on steroids and 220 volts.
                 //   So we remove those storage buildings from our list too:
-                if (ModLister.GetActiveModWithIdentifier("spdskatr.projectrimfactory")!=null) {
-                    var industrialCategory=DefDatabase<DesignationCategoryDef>.GetNamed("Industrial", false);
+                DesignationCategoryDef industrialCategory=DefDatabase<DesignationCategoryDef>.GetNamed("Industrial", false);
+                if (industrialCategory!=null) desigsToNotMove.Add(industrialCategory);
+                // Interesting detail: apparently it IS possible to have thingDefs with null thingClass... weird.
+                itemsToMove=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>((x?.thingClass != null) && (x.thingClass==typeof(Building_Storage) ||
+                                                                                     x.thingClass.IsSubclassOf(typeof(Building_Storage)))
+                                                                                    && x.designationCategory!=null &&
+                                                                                    !desigsToNotMove.Contains(x.designationCategory)
+                                                                                    //&& !toCopy.Contains(x.designationCategory)
+                                                                                    ));
+                /*if (ModLister.GetActiveModWithIdentifier("spdskatr.projectrimfactory")!=null) {
                     if (industrialCategory==null) {
                         Log.Warning("LWM.DeepStorage: menu compatibility with Project RimFactory failed: could not find Industrial cat");
                     } else {
-                        itemsToMove.RemoveAll(x=>x.designationCategory!=industrialCategory);
+
                     }
-                }
+                }*/
                 // testing:
 //                itemsToMove.AddRange(DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.defName.Contains("MURWallLight")));
             }
@@ -303,8 +315,8 @@ namespace LWM.DeepStorage
 //                    Log.Message("No dropdown");
                     // easy case:
 //                    Log.Message("  Removed this many entries in "+d.designationCategory+": "+
-                    resolvedDesignators.RemoveAll(x=>((x is Designator_Build) &&
-                                                      ((Designator_Build)x).PlacingDef==d));
+/*                    resolvedDesignators.RemoveAll(x=>((x is Designator_Build) &&
+                                                      ((Designator_Build)x).PlacingDef==d));*/
 //                        );
                     // Now do new:
                     resolvedDesignators=(List<Designator>)_resolvedDesignatorsField.GetValue(newDesignationCatDef);
@@ -384,6 +396,20 @@ namespace LWM.DeepStorage
             // Oh, and actually change the setting that's stored:
             architectMenuDesigCatDef=newDefName;
 
+            // Finally, if Extended Storage(!) is loaded, and we took all their
+            //   storage items, remove their menu as well:
+            DesignationCategoryDef tmpD;
+            if (ModLister.HasActiveModWithName("Extended Storage")
+                &&((tmpD=DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false))!=null)
+                &&!architectMenuAlwaysShowCategory
+                &&architectMenuDesigCatDef != "FurnitureStorage") {
+                // DefDatabase<DesignationCategoryDef>.Remove(tmpD);
+                typeof(DefDatabase<>).MakeGenericType(new Type[] {typeof(DesignationCategoryDef)})
+                    .GetMethod("Remove", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke (null, new object [] { tmpD });
+            }
+
+
 /*            List<ArchitectCategoryTab> archMenu=(List<ArchitectCategoryTab>)Harmony.AccessTools
                 .Field(typeof(RimWorld.MainTabWindow_Architect), "desPanelsCached")
                 .GetValue((MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow);
@@ -450,6 +476,7 @@ namespace LWM.DeepStorage
             if (DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef, false)==null) {
                 DefDatabase<DesignationCategoryDef>.Add(architectMenuActualDef);
             }
+            // No adding back Extended Storage menu if it's gone...
             ArchitectMenu_ClearCache();
         }
 
