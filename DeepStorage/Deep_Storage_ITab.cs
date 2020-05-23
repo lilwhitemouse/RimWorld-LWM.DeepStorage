@@ -16,7 +16,12 @@ namespace LWM.DeepStorage
      * Now almost all rewritten, with many requests *
      *   from various ppl on steam                  *
      *                                              */
+    [StaticConstructorOnStartup]
     public class ITab_DeepStorage_Inventory : ITab {
+        static ITab_DeepStorage_Inventory () {
+            Drop=(Texture2D)HarmonyLib.AccessTools.Field(HarmonyLib.AccessTools.TypeByName("Verse.TexButton"), "Drop").GetValue(null);
+        }
+        private static Texture2D Drop;
         private Vector2 scrollPosition = Vector2.zero;
         private float scrollViewHeight=1000f;
         private const float TopPadding = 20f;
@@ -108,6 +113,7 @@ namespace LWM.DeepStorage
 
         private void DrawThingRow(ref float y, float width, Thing thing) {
             // Sumghai started from the right, as several things in vanilla do, and that's fine with me:
+            Rect yetAnotherRect;
 
             /************************* InfoCardButton *************************/
             //       (it's the little "i" that pulls up full info on the item.)
@@ -129,7 +135,20 @@ namespace LWM.DeepStorage
             Widgets.Checkbox(forbidRect.x, forbidRect.y, ref allowFlag, 24f, false, true, null, null);
             if (allowFlag!=tmpFlag) // spamming SetForbidden is bad when playing multi-player - it spams Sync requests
                 ForbidUtility.SetForbidden(thing, !allowFlag,false);
-
+            /************************* Eject button *************************/
+            width-=24f;
+            yetAnotherRect=new Rect(width, y, 24f, 24f);
+            TooltipHandler.TipRegion(yetAnotherRect, "LWM_DS_Drop_Desc".Translate());
+            if (Widgets.ButtonImage(yetAnotherRect, Drop, Color.gray, Color.white, false)) {
+                IntVec3 loc=thing.Position;
+                Map map=thing.Map;
+                thing.DeSpawn();
+                if (!GenPlace.TryPlaceThing(thing, loc, map, ThingPlaceMode.Near)) {
+                    //thing.Destroy(DestroyMode.Vanish);
+                    GenSpawn.Spawn(thing, loc, map); // it WILL go back into Deep Storage!  Or if non-DS using this, who knows/cares?
+                    Messages.Message("LWM_DS_CouldNotEject".Translate(thing), new LookTargets(loc, map), MessageTypeDefOf.NegativeEvent);
+                }
+            }
             /************************* Mass *************************/
             width-=60f; // Caravans use 100f
             Rect massRect = new Rect(width,y,60f,28f);
