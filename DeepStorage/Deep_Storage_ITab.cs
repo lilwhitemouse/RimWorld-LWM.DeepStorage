@@ -21,9 +21,11 @@ namespace LWM.DeepStorage
         static ITab_DeepStorage_Inventory () {
             Drop=(Texture2D)HarmonyLib.AccessTools.Field(HarmonyLib.AccessTools.TypeByName("Verse.TexButton"), "Drop").GetValue(null);
         }
-        private static Texture2D Drop;
+        private static Texture2D Drop; // == TexButton.Drop
         private Vector2 scrollPosition = Vector2.zero;
         private float scrollViewHeight=1000f;
+        private Building_Storage buildingStorage;
+
         private const float TopPadding = 20f;
         public static readonly Color ThingLabelColor = new Color(0.9f, 0.9f, 0.9f, 1f);
         public static readonly Color HighlightColor = new Color(0.5f, 0.5f, 0.5f, 1f);
@@ -38,7 +40,7 @@ namespace LWM.DeepStorage
         }
 
         protected override void FillTab() {
-            Building_Storage storageBuilding = this.SelThing as Building_Storage; // don't attach this to other things, 'k?
+            buildingStorage = this.SelThing as Building_Storage; // don't attach this to other things, 'k?
             List<Thing> storedItems;
 //TODO: set fonts ize, etc.
             Text.Font = GameFont.Small;
@@ -52,18 +54,18 @@ namespace LWM.DeepStorage
             float curY = 0f;
             Widgets.ListSeparator(ref curY, frame.width, labelKey.Translate()
                 #if DEBUG
-                +"    ("+storageBuilding.ToString()+")" // extra info for debugging
+                +"    ("+buildingStorage.ToString()+")" // extra info for debugging
                 #endif
                 );
             curY += 5f;
             /****************** Header: Show count of contents, mass, etc: ****************/
             //TODO: handle each cell separately?
             string header, headerTooltip;
-            CompDeepStorage cds=storageBuilding.GetComp<CompDeepStorage>();
+            CompDeepStorage cds=buildingStorage.GetComp<CompDeepStorage>();
             if (cds!=null) {
                 storedItems=cds.getContentsHeader(out header, out headerTooltip);
             } else {
-                storedItems=CompDeepStorage.genericContentsHeader(storageBuilding, out header, out headerTooltip);
+                storedItems=CompDeepStorage.genericContentsHeader(buildingStorage, out header, out headerTooltip);
             }
             Rect tmpRect=new Rect(8f, curY, frame.width-16, Text.CalcHeight(header, frame.width-16));
             Widgets.Label(tmpRect, header);
@@ -136,17 +138,29 @@ namespace LWM.DeepStorage
             if (allowFlag!=tmpFlag) // spamming SetForbidden is bad when playing multi-player - it spams Sync requests
                 ForbidUtility.SetForbidden(thing, !allowFlag,false);
             /************************* Eject button *************************/
-            width-=24f;
-            yetAnotherRect=new Rect(width, y, 24f, 24f);
-            TooltipHandler.TipRegion(yetAnotherRect, "LWM_DS_Drop_Desc".Translate());
-            if (Widgets.ButtonImage(yetAnotherRect, Drop, Color.gray, Color.white, false)) {
-                IntVec3 loc=thing.Position;
-                Map map=thing.Map;
-                thing.DeSpawn();
-                if (!GenPlace.TryPlaceThing(thing, loc, map, ThingPlaceMode.Near)) {
-                    //thing.Destroy(DestroyMode.Vanish);
-                    GenSpawn.Spawn(thing, loc, map); // it WILL go back into Deep Storage!  Or if non-DS using this, who knows/cares?
-                    Messages.Message("LWM_DS_CouldNotEject".Translate(thing), new LookTargets(loc, map), MessageTypeDefOf.NegativeEvent);
+            if (Settings.useEjectButton) {
+                width-=24f;
+                yetAnotherRect=new Rect(width, y, 24f, 24f);
+                TooltipHandler.TipRegion(yetAnotherRect, "LWM.ContentsDropDesc".Translate());
+                if (Widgets.ButtonImage(yetAnotherRect, Drop, Color.gray, Color.white, false)) {
+                    IntVec3 loc=thing.Position;
+                    Map map=thing.Map;
+                    thing.DeSpawn(); //easier to pick it up and put it down using existing game
+                                     //  logic by way of GenPlace than to find a good place myself
+                    if (!GenPlace.TryPlaceThing(thing, loc, map, ThingPlaceMode.Near, null,
+                                                // Try to put it down not in a storage building:
+                                                delegate (IntVec3 newLoc) { // validator
+                                                    foreach (var t in map.thingGrid.ThingsListAtFast(newLoc))
+                                                        if (t is Building_Storage) return false;
+                                                    return true;
+                                                })) {
+                        GenSpawn.Spawn(thing, loc, map); // Failed to find spot: so it WILL go back into Deep Storage!
+                        //                                  if non-DS using this, who knows/cares? It'll go somewhere. Probably.
+                    }
+                    if (!thing.Spawned || thing.Position==loc) {
+                        Messages.Message("You have filled the map.", // no translation for anyone crazy enuf to do this.
+                                         new LookTargets(loc, map), MessageTypeDefOf.NegativeEvent);
+                    }
                 }
             }
             /************************* Mass *************************/
@@ -165,6 +179,7 @@ namespace LWM.DeepStorage
                     Widgets.Label(rotRect, (rotTicks/60000f).ToString("0.#"));
                     GUI.color = Color.white;
                     TooltipHandler.TipRegion(rotRect, "DaysUntilRotTip".Translate());
+                    //TODO: figure out how to give this estimate if not in a fridge!
                 }
             } // finish how long food will last
 

@@ -12,6 +12,7 @@ namespace LWM.DeepStorage
         public static float storingGlobalScale=1f;
         public static bool storingTimeConsidersStackSize=true;
         public static StoragePriority defaultStoragePriority=StoragePriority.Important;
+        public static bool useEjectButton=true; // I think users will want it, alho I will prolly not
         public static bool useDeepStorageRightClickLogic=false;
         // Turning this off removes conflicts with some other storage mods (at least I hope so):
         //   (RimFactory? I think?)
@@ -90,6 +91,9 @@ namespace LWM.DeepStorage
             }
             l.GapLine();
             l.Label("LWM_DS_userInterface".Translate());
+            l.CheckboxLabeled("LWM_DS_useEjectButton".Translate(), ref useEjectButton,
+                              "LWM_DS_useEjectButtonDesc".Translate());
+            //TODO::
             l.CheckboxLabeled("LWM_DS_useDSRightClick".Translate(), ref useDeepStorageRightClickLogic,
                               "LWM_DS_useDSRightClickDesc".Translate());
 
@@ -526,6 +530,7 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "int_to_use_DS", Intelligence.Humanlike);
             Scribe_Values.Look(ref defaultStoragePriority, "default_s_priority", StoragePriority.Important);
             Scribe_Values.Look(ref checkOverCapacity, "check_over_capacity", true);
+            Scribe_Values.Look(ref useEjectButton, "useEjectButton", true);
             Scribe_Values.Look(ref useDeepStorageRightClickLogic, "DS_AHlO", false);
             // Architect Menu:
             Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
