@@ -531,7 +531,7 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref defaultStoragePriority, "default_s_priority", StoragePriority.Important);
             Scribe_Values.Look(ref checkOverCapacity, "check_over_capacity", true);
             Scribe_Values.Look(ref useEjectButton, "useEjectButton", true);
-            Scribe_Values.Look(ref useDeepStorageRightClickLogic, "DS_AHlO", false);
+            Scribe_Values.Look(ref useDeepStorageRightClickLogic, "useRightClickLogic", true); //turn on for everyone :p
             // Architect Menu:
             Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
             Scribe_Values.Look(ref architectMenuAlwaysShowCategory, "architect_show", false);
