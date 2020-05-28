@@ -715,11 +715,13 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
       <fixedStorageSettings>
         <filter>
           <categories>
-            <li>StoneChunks</li>
+            <li>Chunks</li>
             <li>ResourcesRaw</li>
           </categories>
           <thingDefs>
-            <li>ChunkSlagSteel</li>
+            <!--Slag is already in Chunks.  Leave in parent because of
+                compatibility concerns (xpath patching into thingDefs)
+                <li>ChunkSlagSteel</li>-->
           </thingDefs>
           <disallowedCategories>
             <li>PlantMatter</li>
