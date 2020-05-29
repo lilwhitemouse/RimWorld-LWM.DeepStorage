@@ -16,13 +16,13 @@ namespace LWM.DeepStorage
 {
     /***************************************************
      * Select Deep Storage Unit
-     * 
+     *
      * It's a pain to click thru 10 items to get to the
      * Deep Storage Unit.
      * We patch Selector.cs's HandleMapClicks to allow
      * selecting the Deep Storage Unit by right clicking
      * after selecting an item in it.
-     * 
+     *
      */
 
     [HarmonyPatch(typeof(Selector), "HandleMapClicks")]
@@ -62,17 +62,17 @@ namespace LWM.DeepStorage
     /************************* Let user click on DSU instead of giant pile of stacks! ******************/
     /* We would like it so when a player clicks on a DSU that has stuff in it,
      * the DSU gets selected instead of the first item, then the 2nd item, etc.
-     * 
+     *
      * The reason the items get selected first is that ThingsUnderMouse sorts
      * usng CompareThingsByDrawAltitude - and buildings are below items.
      * So, we add a call to SortForDeepStorage.
      *
      * However, we only want to use the SortForDeepStorage if we are selecting
-     * a single object!  If we are selecting all Wheat on the screen, (double click) 
+     * a single object!  If we are selecting all Wheat on the screen, (double click)
      * we almost certainly want the default behavior.
-     * 
+     *
      * So we control whether we sort by adding a flag to SelectUnderMouse.
-     * 
+     *
      * Basically, we make ThingsUnderMouse() into ThingsUnderMouse(sortType),
      * and make SelectUnderMouse() call it with SortForSingleClick (or whatever I named it).
      */
@@ -127,7 +127,7 @@ namespace LWM.DeepStorage
         /* A flag to get passed to GenUI.ThingsUnderMouse() - make sure to set it *and unset it back to Vanilla* manually */
         /*   (because it's not a real parameter - that's more trouble than I want) */
         static public DSSort sortForDeepStorage=DSSort.Vanilla;
-        
+
         // Put DeepStorage at the top of the list:
         static public void SortForDeepStorage(List<Thing> list) {
             if (sortForDeepStorage==DSSort.Vanilla) return;
@@ -149,8 +149,8 @@ namespace LWM.DeepStorage
                 return;
             }
             if (sortForDeepStorage==DSSort.MultiSelect) {
-                /* Multi Select: for RimWorld.Selector's SelectAllMatchingObjectUnderMouseOnScreen() - 
-                 *   which happens when a user double clicks and selects all matching items on the 
+                /* Multi Select: for RimWorld.Selector's SelectAllMatchingObjectUnderMouseOnScreen() -
+                 *   which happens when a user double clicks and selects all matching items on the
                  *   screen.
                  * The behavior we want: whatever is on "top" - last added, whatever is displayed
                  *   on screen - should be what gets multi-selected.
@@ -231,69 +231,5 @@ namespace LWM.DeepStorage
             __result=__result+" ("+__instance.parent.LabelCap+")";
         }
 
-    }
-}
-
-// Used under GPL 3 from Ratysz.  Also with permission.  Thanks, RT!
-// Updated for 1.1 by LWM....enough to compile.  All bets are off if it works.
-// https://github.com/Ratysz/RT_Shelves/blob/master/Source/Patches_FloatMenuMakerMap.cs
-// Note that this is not every possible humanlike order - things involving caravans, trips, etc?
-namespace RT_Shelves {
-    [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
-    class Patch_AddHumanlikeOrders {
-        static bool Prepare(Harmony instance) {
-            return !LWM.DeepStorage.Settings.useDeepStorageRightClickLogic;
-        }
-        static void Postfix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts) {
-            var cell = clickPos.ToIntVec3();
-            if (pawn.equipment != null) {
-                foreach (var equipment in cell.GetThingList(pawn.Map).OfType<ThingWithComps>().Where(t => t.TryGetComp<CompEquippable>() != null).Skip(1)) {
-                    string labelShort = equipment.LabelShort;
-                    FloatMenuOption option;
-                    if (equipment.def.IsWeapon && pawn.WorkTagIsDisabled(WorkTags.Violent)) {
-                        option = new FloatMenuOption("CannotEquip".Translate(labelShort) + " (" + "IsIncapableOfViolenceLower".Translate(pawn.LabelShort, pawn) + ")", null, MenuOptionPriority.Default, null, null, 0f, null, null);
-                    } else if (!pawn.CanReach(equipment, PathEndMode.ClosestTouch, Danger.Deadly, false, TraverseMode.ByPawn)) {
-                        option = new FloatMenuOption("CannotEquip".Translate(labelShort) + " (" + "NoPath".Translate() + ")", null, MenuOptionPriority.Default, null, null, 0f, null, null);
-                    } else if (!pawn.health.capacities.CapableOf(PawnCapacityDefOf.Manipulation)) {
-                        option = new FloatMenuOption("CannotEquip".Translate(labelShort) + " (" + "Incapable".Translate() + ")", null, MenuOptionPriority.Default, null, null, 0f, null, null);
-                    } else if (equipment.IsBurning()) {
-                        option = new FloatMenuOption("CannotEquip".Translate(labelShort) + " (" + "BurningLower".Translate() + ")", null, MenuOptionPriority.Default, null, null, 0f, null, null);
-                    } else {
-                        string text5 = "Equip".Translate(labelShort);
-                        if (equipment.def.IsRangedWeapon && pawn.story != null && pawn.story.traits.HasTrait(TraitDefOf.Brawler)) {
-                            text5 = text5 + " " + "EquipWarningBrawler".Translate();
-                        }
-                        option = FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(text5, delegate
-                        {
-                            equipment.SetForbidden(false, true);
-                            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Equip, equipment), JobTag.Misc);
-                            MoteMaker.MakeStaticMote(equipment.DrawPos, equipment.Map, ThingDefOf.Mote_FeedbackEquip, 1f);
-                            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.EquippingWeapons, KnowledgeAmount.Total);
-                        }, MenuOptionPriority.High, null, null, 0f, null, null), pawn, equipment, "ReservedBy");
-                    }
-                    opts.Add(option);
-                }
-            }
-            if (pawn.apparel != null) {
-                foreach (var apparel in cell.GetThingList(pawn.Map).OfType<Apparel>().Skip(1)) {
-                    FloatMenuOption option;
-                    if (!pawn.CanReach(apparel, PathEndMode.ClosestTouch, Danger.Deadly, false, TraverseMode.ByPawn)) {
-                        option = new FloatMenuOption("CannotWear".Translate(apparel.Label, apparel) + " (" + "NoPath".Translate() + ")", null, MenuOptionPriority.Default, null, null, 0f, null, null);
-                    } else if (apparel.IsBurning()) {
-                        option = new FloatMenuOption("CannotWear".Translate(apparel.Label, apparel) + " (" + "BurningLower".Translate() + ")", null, MenuOptionPriority.Default, null, null, 0f, null, null);
-                    } else if (!ApparelUtility.HasPartsToWear(pawn, apparel.def)) {
-                        option = new FloatMenuOption("CannotWear".Translate(apparel.Label, apparel) + " (" + "CannotWearBecauseOfMissingBodyParts".Translate() + ")", null, MenuOptionPriority.Default, null, null, 0f, null, null);
-                    } else {
-                        option = FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("ForceWear".Translate(apparel.LabelShort, apparel), delegate
-                        {
-                            apparel.SetForbidden(false, true);
-                            Job job = JobMaker.MakeJob(JobDefOf.Wear, apparel);
-                            pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
-                        }, MenuOptionPriority.High, null, null, 0f, null, null), pawn, apparel, "ReservedBy");
-                    }
-                    opts.Add(option);
-                }
-            }
-        }
     }
 }
