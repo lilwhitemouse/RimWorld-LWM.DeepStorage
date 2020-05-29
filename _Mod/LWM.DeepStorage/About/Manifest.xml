@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Manifest><!-- ModManager manifest, in case it helps anyone -->
   <identifier>LWM'sDeepStorage</identifier><!-- Instructions don't say anything about no "'"s -->
-  <version>1.1.0.8</version><!-- Possible TODO: a git pre-commit hook to increment this.  Maybe a way to increment the assembly 
+  <version>1.1.0.9</version><!-- Possible TODO: a git pre-commit hook to increment this.  Maybe a way to increment the assembly 
   version too? -->
   <loadBefore>
     <li>PickUpAndHaul</li>
