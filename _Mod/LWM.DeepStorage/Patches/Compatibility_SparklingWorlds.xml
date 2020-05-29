@@ -2,7 +2,7 @@
   <!-- Compatibility for Sparkling Worlds - NeutroglycerinSW in pallets-->
   <Operation Class="PatchOperationFindMod">
     <mods>
-      <li>Sparklings Worlds - Full Mod</li>
+      <li>Sparkling Worlds - Full Mod</li>
       <!--These mod names may not be correct, but I try-->
       <li>Sparkling Worlds Addon - Chemical extraction - Standalone Addon</li>
     </mods>
