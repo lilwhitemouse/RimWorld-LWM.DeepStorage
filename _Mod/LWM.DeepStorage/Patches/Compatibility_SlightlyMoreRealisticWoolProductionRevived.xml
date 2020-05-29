@@ -1,27 +1,29 @@
 <Patch>
-  <!-- Compatibility for 1.0 version of CrunchyDuck's Slightly More Realistic Wool Production -->
+  <!-- Compatibility for Oken's v1.1 revival of CrunchyDuck's Slightly More Realistic Wool Production -->
+  <!-- Of COURSE the category name changed.  It's for the better, but
+       it's still annoying and requires a separate file for the 1.1 version-->
   <Operation Class="PatchOperationFindMod">
     <mods>
-      <li>Slightly More Realistic Wool Production</li>
+      <li>Slightly More Realistic Wool Production Revived</li>
     </mods>
     <match Class="PatchOperationSequence">
       <operations>
         <li Class="PatchOperationAdd">
           <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/categories</xpath>
           <value>
-            <li>fleeceCategory</li>
+            <li>SMRW_fleeceCategory</li>
           </value>
         </li>
         <li Class="PatchOperationAdd">
           <xpath>/Defs/ThingDef[defName="LWM_Pallet_Covered"]/building/fixedStorageSettings/filter/categories</xpath>
           <value>
-            <li>fleeceCategory</li>
+            <li>SMRW_fleeceCategory</li>
           </value>
         </li>
         <li Class="PatchOperationAdd">
           <xpath>/Defs/ThingDef[defName="LWM_FabricHamper"]/building/fixedStorageSettings/filter/categories</xpath>
           <value>
-            <li>fleeceCategory</li>
+            <li>SMRW_fleeceCategory</li>
           </value>
         </li>
         <li Class="LWM.DeepStorage.PatchMessage">
