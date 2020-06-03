@@ -38,6 +38,279 @@ namespace LWM.DeepStorage
     */
     [HarmonyPatch(typeof(RimWorld.FloatMenuMakerMap), "AddHumanlikeOrders")]
     static class Patch_AddHumanlikeOrders {
+        static public bool runVanillaAHlO=false;
+        static List<FloatMenuOption> listOfOptionsWeFilled=null;
+        // Thing => where it was originally from before it was stolen away to faerie:
+        //   Note:this will only contain weird things...like Pawns walkig past.  or
+        //   maybe fire.  I'm not really sure how the fire thing works.
+        static public Dictionary<Thing, IntVec3> thingsInRealmOfFaerie=new Dictionary<Thing,IntVec3>();
+        // set a Thing's positionInt directly:
+        static public Action<Thing,IntVec3> SetPosition; // created in Prepare
+        // call FloatMenuMakerMap's private AddHumanlikeOrders:
+        static public Action<Vector3,Pawn,List<FloatMenuOption>> AHlO; // created in Prepare
+
+        // Use this to prepare some "dynamic functions" we will use
+        //   (for faster performance, b/c apparently the reflection
+        //   is sloooooow.  From what i hear.)
+        static bool Prepare(Harmony instance) {
+            /* Build a dynamic method to do:
+             * void RePosition(Thing t, IntVec3 pos) {
+             *   t.positionInt=pos;  // directly set internal private field
+             * }
+             *
+             * Use this approach for speed.
+             */
+            DynamicMethod dm = new DynamicMethod("directly set thing's positionInt",
+                                        null, // return type void
+                                        new Type[] {typeof(Thing), typeof(IntVec3)},
+                                        true // skip JIT visibility checks - which is whole point
+                                             //   we want to access a private field!
+                );
+            ILGenerator il=dm.GetILGenerator();
+            // build our function from IL.  Because why not
+            il.Emit(OpCodes.Ldarg_0);//put Thing on stack
+            il.Emit(OpCodes.Ldarg_1);//put position on stack
+            // store field:
+            il.Emit(OpCodes.Stfld, typeof(Thing).GetField("positionInt",
+                                                          BindingFlags.Instance |
+                                                          BindingFlags.GetField |
+                                                          BindingFlags.SetField |
+                                                          BindingFlags.NonPublic));
+            il.Emit(OpCodes.Ret); //don't forget
+            // Create the delegate that completes the dynamic method:
+            //   (I'm just quoting the MSIL documentation, I don't
+            //    actually know what I'm doing)
+            SetPosition=(Action<Thing,IntVec3>)dm.CreateDelegate(typeof(Action<,>).MakeGenericType(typeof(Thing), typeof(IntVec3)));
+            /*****     Now do the same for AHlO - call it directly     *****/
+            dm=new DynamicMethod("directly call AddHumanlikeOrders",
+                                 null, // return type void
+                                 new Type[] {typeof(Vector3), typeof(Pawn), typeof(List<FloatMenuOption>)},
+                                 true // skip JIT visibility checks
+                );
+            il=dm.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Call, typeof(FloatMenuMakerMap).GetMethod("AddHumanlikeOrders",
+                                                       BindingFlags.Static | BindingFlags.NonPublic));
+            il.Emit(OpCodes.Ret);
+            AHlO=(Action<Vector3,Pawn,List<FloatMenuOption>>)dm
+                .CreateDelegate(typeof(Action<,,>).MakeGenericType(typeof(Vector3), typeof(Pawn), typeof(List<FloatMenuOption>)));
+
+            return true;
+            Utils.Warn(RightClickMenu, "Loading AddHumanlikeOrders menu code: "
+                       +Settings.useDeepStorageRightClickLogic);
+
+
+
+
+            return Settings.useDeepStorageRightClickLogic;
+        }
+        [HarmonyPriority(Priority.First)]
+        public static bool Prefix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts) {
+            if (!Settings.useDeepStorageRightClickLogic)
+                return Patch_FloatMenuMakerMap.Prefix(clickPos,IntVec3.Invalid,pawn,opts,false,false);
+                                                           ;
+            // if expicitly told to run vanilla, run vanilla.
+            //   (note vanilla may have any number of mods attached)
+            if (runVanillaAHlO) {
+                Utils.Warn(RightClickMenu, "-------Running Vanilla AddHumanlikeOrders"+pawn+"-------");
+                return true;
+            }
+            // if not in storage, don't worry about it:
+            IntVec3 clickCell=IntVec3.FromVector3(clickPos);
+            if (!Utils.CanStoreMoreThanOneThingAt(pawn.Map, clickCell)) {
+                Utils.Warn(RightClickMenu, "-----Running Vanilla AddHumanlikeOrders"+pawn+" - not in storage-----");
+                return true;
+            }
+            Utils.Warn(RightClickMenu, "-----Running Custom AddHumanlikeOrders for "+pawn+"-----");
+            // We will fill listOfOptionsWeFilled - this lets us properly handle other mods'
+            //   right click modifications (we will use listOfOptionsWeFilled in our postfix
+            //   to provide the actual result). In the meantime, we use listOfOptions as our
+            //   list - we will move everything over at the end.
+            List<FloatMenuOption> listOfOptions=new List<FloatMenuOption>();
+            // Get list of item things at click.  If 1, returnt true - let default menu form.
+            // Move all item things away from clickPos; store in temp location
+            thingsInRealmOfFaerie.Clear();
+// this will be unnecessary:
+/*            foreach (var t in pawn.Map.thingGrid.ThingsListAt(clickCell)) {
+                if (t.def.EverStorable(false)) {
+                    //   (the elves have stolen everything in storage! oh no!)
+                    SendToFaerie(t);
+                }
+            }
+ */
+            /*if (thingsInRealmOfFaerie.Count<2) {
+                Utils.Warn(RightClickMenu, "-----...but running Vanilla because only 1 thing in storage");
+                ReturnThingsFromFaerie();
+                return true;
+            }*/
+
+            // get menu with no items.  This will include commands such as "clean dirt."  I think.
+            runVanillaAHlO=true;
+            Utils.Mess(RightClickMenu, "Get menu with no items: invoke vanilla:");
+            List<Thing> thingList=clickCell.GetThingList(pawn.Map);
+            List<Thing> tmpList=new List<Thing>(thingList);
+            thingList.Clear();
+            AHlO(clickPos,pawn,listOfOptions);
+/*            var origParams=new object[] {clickPos, pawn, listOfOptions};
+            AHlO.Invoke(null, origParams);*/
+            runVanillaAHlO=false;
+            // return things
+            thingList.AddRange(tmpList);
+//            ReturnThingsFromFaerie();
+            // get sorted list of all things in dsu
+            List<Thing> allThings=clickCell.GetSlotGroup(pawn.Map).HeldThings.OrderBy(t=>t.LabelCap).ToList();
+            // Multilpe Options here, depending on size of allThings.
+            //   6 or fewer => should just display each set of options
+            //   7-12       => show entry for each, with options
+            //   LOTS       => open f***ing window w/ search options, etc.
+            // for each thing(mod label) in storage, add menu entry
+            for (int i=0; i<allThings.Count; i++) {
+                Thing t=allThings[i];
+                int howManyOfThis=1;
+                while (i<allThings.Count-1 && t.Label==allThings[i+1].Label) {
+                    howManyOfThis++;
+                    i++;
+                }
+                string label;
+                if (howManyOfThis==1)
+                    label=t.Label;
+                else
+                    label=howManyOfThis.ToString()+" x "+t.Label;//TODO: translate
+                //TODO: what if no option for this item????
+                listOfOptions.Add(MakeMenuOptionFor(pawn, t, howManyOfThis));
+            }
+            listOfOptionsWeFilled=listOfOptions;
+            //XXX
+            for (int ijk=0; ijk<1000; ijk++)
+                Log.Message("filling log");
+            return false;
+            //return Patch_FloatMenuMakerMap.Prefix(clickPos,IntVec3.Invalid,pawn,opts,false,false);
+        }
+        [HarmonyPriority(HarmonyLib.Priority.Last)]
+        static void Postfix(List<FloatMenuOption> opts) {
+            if (!Settings.useDeepStorageRightClickLogic) {
+                Patch_FloatMenuMakerMap.Postfix(opts);
+                return;
+            }
+            if (listOfOptionsWeFilled!=null) {
+                opts.Clear();
+                opts.AddRange(listOfOptionsWeFilled);
+                listOfOptionsWeFilled=null;
+            }
+            return;
+        }
+        static FloatMenuOption MakeMenuOptionFor(Pawn p, Thing t, int count) {
+            // Phase one: simple menu of menus
+            Utils.Mess(RightClickMenu, "  Creating Menu Option for "+count+" "+t);
+            var label=(count>1?count.ToString()+" x "+t.Label:t.Label);
+            return new FloatMenuOption(label, delegate() {
+                    ///XXX
+                    Log.ResetMessageCount();
+                    Utils.Warn(RightClickMenu, "Opening menu for "+p+" using "+t);
+                    var menu=GetFloatMenuFor(p,t);
+                    if (menu!=null)
+                        Find.WindowStack.Add(menu);
+                    //XXX
+                    for (int ijk=0; ijk<1000; ijk++)
+                        Log.Message("filling log");
+                },
+                t.def);
+        }
+        static FloatMenu GetFloatMenuFor(Pawn p, Thing t) {
+            return new FloatMenu(GeneratePawnOptionsFor(p, t));
+        }
+        public static List<FloatMenuOption> floatingList=new List<FloatMenuOption>();
+        static List<FloatMenuOption> GeneratePawnOptionsFor(Pawn p, Thing t) {
+            Utils.Mess(RightClickMenu, "Generating Options for "+p+" using "+t);
+            if (!t.Spawned) return null;
+            // if not cached, build
+/*            IntVec3 c=t.Position;
+            var list=t.Map.thingGrid.ThingsListAtFast(c);
+            foreach (Thing bye in list) {
+                if (bye==t) continue;
+                SendToFaerie(bye);
+            }
+            // get rid of non-item things (e.g., pawns?)
+            */
+
+            // We are doing UI stuff, which often uses the click-position
+            //    instead of the map position, so that's annoying and may
+            //    be risky, but I'm not sure there's much choice. We also
+            //    grab everything via TargetingParameters, which includes
+            //    all the Things on the ground as well as pawns, fire, &c
+            Vector3 clickPos=t.Position.ToVector3();
+            TargetingParameters TPeverything=new TargetingParameters();
+            TPeverything.canTargetBuildings=true; // be thorough here
+            TPeverything.canTargetItems=true; // This gets our thingListAt for us
+            TPeverything.canTargetFires=true; // not that pawns SHOULD be able to grab things from burning lockers...
+            TPeverything.canTargetPawns=true;
+            TPeverything.canTargetSelf=true; // are we sure?
+
+            foreach (LocalTargetInfo anotherT in GenUI.ThingsUnderMouse(clickPos,
+                                                                        0.8f /*see TargetsAt*/, TPeverything)) {
+                Thing tmpT=anotherT.Thing;
+                if (tmpT!=null && tmpT!=t) {
+                    Utils.Mess(RightClickMenu, "  moving away "+tmpT);
+                    SendToFaerie(tmpT);
+                }
+            }
+            // get orders for Thing t!
+            List<Thing> thingList=t.Position.GetThingList(t.Map);
+            List<Thing> tmpList=new List<Thing>(thingList);
+            thingList.Clear();
+            thingList.Add(t);
+            runVanillaAHlO=true;
+            floatingList.Clear();
+            Utils.Mess(RightClickMenu, "  running vanilla AHlO");
+            AHlO(clickPos,p,floatingList);
+//            AHlO.Invoke(null, new object[] { clickPos, p, floatingList}); //todo
+            runVanillaAHlO=false;
+            thingList.Clear();
+            thingList.AddRange(tmpList);
+
+            Utils.Mess(RightClickMenu, "  returning things");
+            ReturnThingsFromFaerie();
+      Log.Warning("List size: "+floatingList.Count);
+            return floatingList;
+        }
+        [HarmonyPriority(Priority.Last)]
+        public static void PostfixXXX(List<FloatMenuOption> opts) {
+            Patch_FloatMenuMakerMap.Postfix(opts);
+        }
+        public static void SendToFaerie(Thing t) {
+            thingsInRealmOfFaerie[t]=t.Position;
+            SetPosition(t, IntVec3.Invalid);
+        }
+        public static void ReturnThingsFromFaerie() {
+            foreach (KeyValuePair<Thing, IntVec3> kvp in thingsInRealmOfFaerie) {
+                //kvp.Key.Position=kvp.Value;
+                SetPosition(kvp.Key, kvp.Value);
+            }
+        }
+        // Allow directly setting Position of things.  And setting it back.
+/*        public static void SetPosition(Thing t, IntVec3 p) {
+            fieldPosition.SetValue(t, p);
+        }*/
+        /****************** Black Magic ***************/
+        // Allow calling AddHumanlikeOrders
+        static MethodInfo AHlO_old = typeof(FloatMenuMakerMap).GetMethod("AddHumanlikeOrders",
+                                               BindingFlags.Static | BindingFlags.NonPublic);
+        // Allow calling AddJobGiverWorkOrders
+        static public MethodInfo AJGWO = typeof(FloatMenuMakerMap).GetMethod("AddJobGiverWorkOrders",
+                                               BindingFlags.Static | BindingFlags.NonPublic);
+
+        // Allow directly setting Position of things.  And setting it back.
+        static FieldInfo fieldPosition=typeof(Thing).GetField("positionInt",
+                                                              BindingFlags.Instance |
+                                                              BindingFlags.GetField |
+                                                              BindingFlags.SetField |
+                                                              BindingFlags.NonPublic);
+
+
+    }
+    static class Patch_AddHumanlikeOrders_Orig {
         static bool Prepare(Harmony instance) {
             Utils.Warn(RightClickMenu, "Loading AddHumanlikeOrders menu code: "
                        +Settings.useDeepStorageRightClickLogic);

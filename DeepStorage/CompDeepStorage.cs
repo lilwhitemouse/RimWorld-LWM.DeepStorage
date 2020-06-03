@@ -29,6 +29,14 @@ namespace LWM.DeepStorage
 				hotKey = KeyBindingDefOf.Misc1
 			};
             #if DEBUG
+            yield return new Command_Toggle {
+                defaultLabel="Use RClick Logic",
+                defaultDesc="Toggle use of custom Right Click logic",
+                isActive=(()=>Settings.useDeepStorageRightClickLogic),
+                toggleAction=delegate() {
+                    Settings.useDeepStorageRightClickLogic=!Settings.useDeepStorageRightClickLogic;
+                }
+            };
             yield return new Command_Action {
                 defaultLabel="Items in Region",
                 action=delegate() {
