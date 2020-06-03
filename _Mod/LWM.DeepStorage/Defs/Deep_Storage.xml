@@ -572,6 +572,13 @@ Note that you can only fit so many giant corpses into one space, even if you sta
           </thingDefs>
         </filter>
       </fixedStorageSettings>
+      <defaultStorageSettings>
+        <filter>
+          <specialFiltersToDisallow>
+            <li>AllowNonDeadmansApparel</li><!--dirty clothes-->
+          </specialFiltersToDisallow>
+        </filter>
+      </defaultStorageSettings>
     </building>
     <comps>
       <li Class="LWM.DeepStorage.Properties" >
