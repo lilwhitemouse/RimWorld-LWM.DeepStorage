@@ -562,11 +562,12 @@ Note that you can only fit so many giant corpses into one space, even if you sta
             <li>Drugs</li>
             <li>MortarShells</li>
             <li>PlantMatter</li>
+            <li>Apparel</li>
             <!--Ammo, etc-->
             <!--Fleeces, raw cotton, etc-->
           </categories>
           <thingDefs>
-            <li>Gold</li>
+            <li>Gold</li><!-- so heavy! :o -->
             <li>Silver</li>
           </thingDefs>
         </filter>
