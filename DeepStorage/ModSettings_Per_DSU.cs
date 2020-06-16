@@ -108,7 +108,7 @@ namespace LWM.DeepStorage
             }
             totalContentHeight = curY;
         }
-
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         private class Dialog_DSU_Settings : Window {
             public Dialog_DSU_Settings(ThingDef def) {
                 this.forcePause = true;
@@ -239,6 +239,12 @@ namespace LWM.DeepStorage
                         }
                     }
                 }
+/*                if (l.ButtonDebug("Show default values for "+this.def)) {
+                    foreach (var kv in defaultDSUValues) {
+
+                    }
+                }
+                */
 //                l.End();
                 l.EndScrollView(ref v);
 
@@ -331,7 +337,7 @@ namespace LWM.DeepStorage
                 var value = defaultDSUValues[key];
                 string s=key.Remove(0,4); // string off first DSU_
                 var t=s.Split('_');
-                string prop=t[t.Length-1]; // LWM_Big_Shelf_label ->  grab label
+                string prop=t[t.Length-1]; // LWM_Big_Shelf_label ->  grab "label"
                 string keyDefName=string.Join("_", t.Take(t.Length-1).ToArray()); // put defName back together
                 Utils.Mess(Utils.DBF.Settings, "Checking key "+key+" (defName of "+keyDefName+")");
                 if (defName==null || defName=="" || defName==keyDefName) {
@@ -430,6 +436,7 @@ namespace LWM.DeepStorage
                            +value+"; default Value: "+defaultValue+")");
             }
             if (defaultValue.CompareTo(value) != 0 && !defaultDSUValues.ContainsKey(key)) {
+                Utils.Mess(Utils.DBF.Settings, "  -->"+key+" storing default value of "+defaultValue);
 //                Log.Message("-->"+key+" storing default value of "+defaultValue);//TODO
 //                Log.Warning("        Current value: "+value);
                 defaultDSUValues[key]=defaultValue;

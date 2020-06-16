@@ -25,6 +25,7 @@ namespace LWM.DeepStorage
             }
             SettingsChanged();
             #endif
+            LWM.DeepStorage.Properties.RemoveAnyMultipleCompProps();
             LWM.DeepStorage.Settings.DefsLoaded();
         }
         #if DEBUG
