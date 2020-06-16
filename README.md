@@ -1,3 +1,6 @@
+# Download latest version:
+https://github.com/lilwhitemouse/RimWorld-LWM.DeepStorage/releases
+
 # LWM's DeepStorage - a mod for RimWorld
 
 ## Deep Storage Units, yet another storage solution (that will likely be [WIP] for some time).
