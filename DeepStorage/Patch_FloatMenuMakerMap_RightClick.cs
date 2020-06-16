@@ -38,16 +38,28 @@ namespace LWM.DeepStorage
     */
     [HarmonyPatch(typeof(RimWorld.FloatMenuMakerMap), "AddHumanlikeOrders")]
     static class Patch_AddHumanlikeOrders {
-        static public bool runVanillaAHlO=false;
-        static List<FloatMenuOption> listOfOptionsWeFilled=null;
+        static public bool runVanillaAHlO=false; // should Vanilla(+mods) AddHumanlikeOrders run
+        static public bool blockAHlONonItems=false; // if it does run, should TargetsAt() be blocked
+        static List<FloatMenuOption> listOfOptionsWeFilled=null; // out master list; see below
+
         // Thing => where it was originally from before it was stolen away to faerie:
-        //   Note:this will only contain weird things...like Pawns walkig past.  or
-        //   maybe fire.  I'm not really sure how the fire thing works.
+        //   Note: this will only contain weird things...like Pawns walkig past.  or
+        //   maybe fire.  I'm not really sure how the fire thing works.  Clearly the
+        //   thing to do is to test it on a big shelf of artillery shells.
         static public Dictionary<Thing, IntVec3> thingsInRealmOfFaerie=new Dictionary<Thing,IntVec3>();
-        // set a Thing's positionInt directly:
+
+        //// Utility dynamic functions to access private fields quickly:
+        // set a Thing's positionInt directly (fast):
         static public Action<Thing,IntVec3> SetPosition; // created in Prepare
-        // call FloatMenuMakerMap's private AddHumanlikeOrders:
+        // call FloatMenuMakerMap's private AddHumanlikeOrders (fast):
         static public Action<Vector3,Pawn,List<FloatMenuOption>> AHlO; // created in Prepare
+        // get the ThingGrid's actual thingGrid for direct manipulation
+        //   (reflection, so slightly slower, but only run once, then cached)
+        private static readonly FieldInfo thingGridThingList = HarmonyLib.AccessTools.Field(typeof(ThingGrid), "thingGrid");
+        private static List<Thing>[] cachedThingGridThingList=null;
+        private static Map mapOfCachedThingGrid=null;
+        // List<Thing> that is kept empty but used with thingGrid's ThingListAt for building menu:
+        private static List<Thing> tmpEmpty=new List<Thing>();
 
         // Use this to prepare some "dynamic functions" we will use
         //   (for faster performance, b/c apparently the reflection
@@ -81,7 +93,7 @@ namespace LWM.DeepStorage
             //   (I'm just quoting the MSIL documentation, I don't
             //    actually know what I'm doing)
             SetPosition=(Action<Thing,IntVec3>)dm.CreateDelegate(typeof(Action<,>).MakeGenericType(typeof(Thing), typeof(IntVec3)));
-            /*****     Now do the same for AHlO - call it directly     *****/
+            /*****     Now do the same for AHlO - call the private method directly     *****/
             dm=new DynamicMethod("directly call AddHumanlikeOrders",
                                  null, // return type void
                                  new Type[] {typeof(Vector3), typeof(Pawn), typeof(List<FloatMenuOption>)},
@@ -108,9 +120,9 @@ namespace LWM.DeepStorage
         }
         [HarmonyPriority(Priority.First)]
         public static bool Prefix(Vector3 clickPos, Pawn pawn, List<FloatMenuOption> opts) {
-            if (!Settings.useDeepStorageRightClickLogic)
-                return Patch_FloatMenuMakerMap.Prefix(clickPos,IntVec3.Invalid,pawn,opts,false,false);
-                                                           ;
+            if (!Settings.useDeepStorageRightClickLogic) return true;
+//                return Patch_FloatMenuMakerMap.Prefix(clickPos,IntVec3.Invalid,pawn,opts,false,false);
+
             // if expicitly told to run vanilla, run vanilla.
             //   (note vanilla may have any number of mods attached)
             if (runVanillaAHlO) {
@@ -128,36 +140,44 @@ namespace LWM.DeepStorage
             //   right click modifications (we will use listOfOptionsWeFilled in our postfix
             //   to provide the actual result). In the meantime, we use listOfOptions as our
             //   list - we will move everything over at the end.
+            // Why?  Because we have to move over our final result in the Postfix
             List<FloatMenuOption> listOfOptions=new List<FloatMenuOption>();
-            // Get list of item things at click.  If 1, returnt true - let default menu form.
-            // Move all item things away from clickPos; store in temp location
+            // Prepare Faerie to accept pawns/etc.
             thingsInRealmOfFaerie.Clear();
-// this will be unnecessary:
-/*            foreach (var t in pawn.Map.thingGrid.ThingsListAt(clickCell)) {
-                if (t.def.EverStorable(false)) {
-                    //   (the elves have stolen everything in storage! oh no!)
-                    SendToFaerie(t);
-                }
-            }
- */
-            /*if (thingsInRealmOfFaerie.Count<2) {
-                Utils.Warn(RightClickMenu, "-----...but running Vanilla because only 1 thing in storage");
-                ReturnThingsFromFaerie();
-                return true;
-            }*/
 
             // get menu with no items.  This will include commands such as "clean dirt."  I think.
+            // and dealing with fire.  I think.  And pawns.  Definitely dealing with pawns.
+
+            /*var index = pawn.Map.cellIndices.CellToIndex(cpos.ToIntVec3());
+var listArray = (List<Thing>[]) thingListTG.GetValue(pawn.Map.thingGrid);
+var origList = listArray[index];
+
+listArray[index] = new List<Thing> {thingList[i]};
+rows[i] = new DSGUI_ListItem(pawn, thingList[i], cpos, boxHeight);
+listArray[index] = origList;
+*/
+            //   Clear thingsList
+            if (mapOfCachedThingGrid!=pawn.Map) {
+                mapOfCachedThingGrid=pawn.Map;
+                cachedThingGridThingList=(List<Thing>[]) thingGridThingList.GetValue(pawn.Map.thingGrid);
+            }
+            var index=pawn.Map.cellIndices.CellToIndex(clickCell);
+            List<Thing> origList=cachedThingGridThingList[index];
+            cachedThingGridThingList[index]=tmpEmpty;
+
             runVanillaAHlO=true;
             Utils.Mess(RightClickMenu, "Get menu with no items: invoke vanilla:");
-            List<Thing> thingList=clickCell.GetThingList(pawn.Map);
-            List<Thing> tmpList=new List<Thing>(thingList);
-            thingList.Clear();
+//            List<Thing> thingList=clickCell.GetThingList(pawn.Map);
+//            List<Thing> tmpList=new List<Thing>(thingList);
+//            thingList.Clear();
             AHlO(clickPos,pawn,listOfOptions);
-/*            var origParams=new object[] {clickPos, pawn, listOfOptions};
+            /* var origParams=new object[] {clickPos, pawn, listOfOptions};
             AHlO.Invoke(null, origParams);*/
             runVanillaAHlO=false;
             // return things
-            thingList.AddRange(tmpList);
+            cachedThingGridThingList[index]=origList;
+            Utils.Mess(RightClickMenu, "  ->"+String.Join("; ", listOfOptions));
+//            thingList.AddRange(tmpList);
 //            ReturnThingsFromFaerie();
             // get sorted list of all things in dsu
             List<Thing> allThings=clickCell.GetSlotGroup(pawn.Map).HeldThings.OrderBy(t=>t.LabelCap).ToList();
@@ -166,9 +186,10 @@ namespace LWM.DeepStorage
             //   7-12       => show entry for each, with options
             //   LOTS       => open f***ing window w/ search options, etc.
             // for each thing(mod label) in storage, add menu entry
+            // ...for now, just print them all:
             for (int i=0; i<allThings.Count; i++) {
                 Thing t=allThings[i];
-                int howManyOfThis=1;
+/*                int howManyOfThis=1;
                 while (i<allThings.Count-1 && t.Label==allThings[i+1].Label) {
                     howManyOfThis++;
                     i++;
@@ -179,12 +200,16 @@ namespace LWM.DeepStorage
                 else
                     label=howManyOfThis.ToString()+" x "+t.Label;//TODO: translate
                 //TODO: what if no option for this item????
-                listOfOptions.Add(MakeMenuOptionFor(pawn, t, howManyOfThis));
+                */
+                GeneratePawnOptionsFor(pawn, t, listOfOptions);
+//                listOfOptions.Add(MakeMenuOptionFor(pawn, t, howManyOfThis));
             }
             listOfOptionsWeFilled=listOfOptions;
-            //XXX
-            for (int ijk=0; ijk<1000; ijk++)
-                Log.Message("filling log");
+            #if DEBUG
+            if (Utils.showDebug[(int)RightClickMenu])
+                for (int ijk=0; ijk<1000; ijk++)
+                    Log.Message("pausing log...");
+            #endif
             return false;
             //return Patch_FloatMenuMakerMap.Prefix(clickPos,IntVec3.Invalid,pawn,opts,false,false);
         }
@@ -206,26 +231,44 @@ namespace LWM.DeepStorage
             Utils.Mess(RightClickMenu, "  Creating Menu Option for "+count+" "+t);
             var label=(count>1?count.ToString()+" x "+t.Label:t.Label);
             return new FloatMenuOption(label, delegate() {
-                    ///XXX
-                    Log.ResetMessageCount();
+                    #if DEBUG
+                    if (Utils.showDebug[(int)RightClickMenu]) Log.ResetMessageCount();
+                    #endif
                     Utils.Warn(RightClickMenu, "Opening menu for "+p+" using "+t);
                     var menu=GetFloatMenuFor(p,t);
                     if (menu!=null)
                         Find.WindowStack.Add(menu);
-                    //XXX
-                    for (int ijk=0; ijk<1000; ijk++)
-                        Log.Message("filling log");
+                    #if DEBUG
+                    if (Utils.showDebug[(int)RightClickMenu])
+                        for (int ijk=0; ijk<1000; ijk++)
+                            Log.Message("pausing log");
+                    #endif
                 },
                 t.def);
         }
         static FloatMenu GetFloatMenuFor(Pawn p, Thing t) {
-            return new FloatMenu(GeneratePawnOptionsFor(p, t));
+            List<FloatMenuOption> fmo=new List<FloatMenuOption>();
+            GeneratePawnOptionsFor(p, t, new List<FloatMenuOption>());
+            return new FloatMenu(fmo);
         }
-        public static List<FloatMenuOption> floatingList=new List<FloatMenuOption>();
-        static List<FloatMenuOption> GeneratePawnOptionsFor(Pawn p, Thing t) {
+//        public static List<FloatMenuOption> floatingList=new List<FloatMenuOption>();
+        static void GeneratePawnOptionsFor(Pawn p, Thing t, List<FloatMenuOption> opts) {
             Utils.Mess(RightClickMenu, "Generating Options for "+p+" using "+t);
-            if (!t.Spawned) return null;
+//            if (!t.Spawned) return null;
+            if (!t.Spawned) return;
             // if not cached, build
+            Map map=p.Map;
+            /*** Step 1: Clear ThingsList ***/
+            var index=map.cellIndices.CellToIndex(t.Position);
+            if (mapOfCachedThingGrid!=map) {
+                mapOfCachedThingGrid=map;
+                cachedThingGridThingList=(List<Thing>[]) thingGridThingList.GetValue(map.thingGrid);
+            }
+            List<Thing> origList=cachedThingGridThingList[index];
+            cachedThingGridThingList[index]=tmpEmpty;
+            // Add the thing we are interested in to the new thinglist:
+            tmpEmpty.Add(t); // (remember to empty afterwards)
+
 /*            IntVec3 c=t.Position;
             var list=t.Map.thingGrid.ThingsListAtFast(c);
             foreach (Thing bye in list) {
@@ -235,6 +278,7 @@ namespace LWM.DeepStorage
             // get rid of non-item things (e.g., pawns?)
             */
 
+            //XXX:
             // We are doing UI stuff, which often uses the click-position
             //    instead of the map position, so that's annoying and may
             //    be risky, but I'm not sure there's much choice. We also
@@ -243,7 +287,7 @@ namespace LWM.DeepStorage
             Vector3 clickPos=t.Position.ToVector3();
             TargetingParameters TPeverything=new TargetingParameters();
             TPeverything.canTargetBuildings=true; // be thorough here
-            TPeverything.canTargetItems=true; // This gets our thingListAt for us
+            TPeverything.canTargetItems=false; // We already moved the thingsList
             TPeverything.canTargetFires=true; // not that pawns SHOULD be able to grab things from burning lockers...
             TPeverything.canTargetPawns=true;
             TPeverything.canTargetSelf=true; // are we sure?
@@ -252,28 +296,43 @@ namespace LWM.DeepStorage
                                                                         0.8f /*see TargetsAt*/, TPeverything)) {
                 Thing tmpT=anotherT.Thing;
                 if (tmpT!=null && tmpT!=t) {
-                    Utils.Mess(RightClickMenu, "  moving away "+tmpT);
-                    SendToFaerie(tmpT);
+//                    Utils.Mess(RightClickMenu, "  moving away "+tmpT);
+//                    SendToFaerie(tmpT);
                 }
             }
+            /*var index = pawn.Map.cellIndices.CellToIndex(cpos.ToIntVec3());
+var listArray = (List<Thing>[]) thingListTG.GetValue(pawn.Map.thingGrid);
+var origList = listArray[index];
+
+listArray[index] = new List<Thing> {thingList[i]};
+rows[i] = new DSGUI_ListItem(pawn, thingList[i], cpos, boxHeight);
+listArray[index] = origList;
+*/
             // get orders for Thing t!
-            List<Thing> thingList=t.Position.GetThingList(t.Map);
-            List<Thing> tmpList=new List<Thing>(thingList);
-            thingList.Clear();
-            thingList.Add(t);
+//            List<Thing> thingList=t.Position.GetThingList(t.Map);
+//            List<Thing> tmpList=new List<Thing>(thingList);
+//            thingList.Clear();
+//            thingList.Add(t);
             runVanillaAHlO=true;
-            floatingList.Clear();
-            Utils.Mess(RightClickMenu, "  running vanilla AHlO");
-            AHlO(clickPos,p,floatingList);
+            blockAHlONonItems=true;
+//            floatingList.Clear();
+            Utils.Mess(RightClickMenu, "  running vanilla (but target-blocked) AHlO");
+            AHlO(clickPos,p,opts);
+            blockAHlONonItems=false;
+//            AHlO(clickPos,p,floatingList);
 //            AHlO.Invoke(null, new object[] { clickPos, p, floatingList}); //todo
             runVanillaAHlO=false;
-            thingList.Clear();
-            thingList.AddRange(tmpList);
-
+            // Restore Things:
             Utils.Mess(RightClickMenu, "  returning things");
             ReturnThingsFromFaerie();
-      Log.Warning("List size: "+floatingList.Count);
-            return floatingList;
+            // Restor ThingList:
+            cachedThingGridThingList[index]=origList;
+            tmpEmpty.Clear(); // clean up after ourselves!
+//            thingList.Clear();
+//            thingList.AddRange(tmpList);
+//      Log.Warning("List size: "+floatingList.Count);
+//            return floatingList;
+//            Log.Warning("List size: "+opts.Count);
         }
         [HarmonyPriority(Priority.Last)]
         public static void PostfixXXX(List<FloatMenuOption> opts) {
@@ -288,6 +347,20 @@ namespace LWM.DeepStorage
                 //kvp.Key.Position=kvp.Value;
                 SetPosition(kvp.Key, kvp.Value);
             }
+        }
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+            var GenUITargetsAt = HarmonyLib.AccessTools.Method(typeof(Verse.GenUI), "TargetsAt");
+            var OurTargetsAt = HarmonyLib.AccessTools.Method(typeof(Patch_AddHumanlikeOrders), "OurTargetsAt");
+            foreach (CodeInstruction c in instructions) {
+                if (c.opcode==OpCodes.Call && (MethodInfo)c.operand == GenUITargetsAt)
+                    yield return new CodeInstruction(OpCodes.Call, OurTargetsAt);
+                else yield return c;
+            }
+        }
+        public static IEnumerable<LocalTargetInfo> OurTargetsAt(Vector3 clickPos,
+                                                                TargetingParameters clickParams, bool thingsOnly = false) {
+            if (blockAHlONonItems) return Enumerable.Empty<LocalTargetInfo>();//yield break;
+            return GenUI.TargetsAt_NewTemp(clickPos, clickParams, thingsOnly, null);
         }
         // Allow directly setting Position of things.  And setting it back.
 /*        public static void SetPosition(Thing t, IntVec3 p) {
