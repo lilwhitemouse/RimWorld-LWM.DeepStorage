@@ -87,12 +87,13 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
         <li>AnotherCategoryThatDoesNOTGoInStorage</li>
       </disallowedCategories>
     </fixedStorageSettings>  // There are more filter settings if you want to search the code base
-  <defaultStorageSettings> Optional - IF YOU WANT (defaults to nothing) - What the building is ready to accept
-    // (I don't like this, because pawns may haul things there I don't want before I change the settings.
+    <defaultStorageSettings Inherit="false"> Optional - IF YOU WANT (defaults to nothing) - completely change
+    // the default storage settings when a building is built (also, see <filter Inherit="false"> below...)
+       (I don't like this, because pawns may haul things there I don't want before I change the settings.
         There's a mod "No Default Shelf Storage" that turns this off for vanilla shelves.
         This is turned ON for Combat Extended weapons lockers.)
     <priority>Low up to Critical</priority> - defaults to important
-      <filter>
+      <filter Inherit="false"><--if you only want to change filter but not priority
         As above.  If you leave this section out, storage units won't start with things checked off,
         which can be very nice.
       </filter>
@@ -573,7 +574,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
         </filter>
       </fixedStorageSettings>
       <defaultStorageSettings>
-        <filter>
+        <filter Inherit="false">
           <specialFiltersToDisallow>
             <li>AllowNonDeadmansApparel</li><!--dirty clothes-->
           </specialFiltersToDisallow>
