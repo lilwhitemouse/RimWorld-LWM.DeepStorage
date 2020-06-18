@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Verse;
 
-namespace DeepStorage
+namespace LWM.DeepStorage
 {
     public class Deep_Storage_Cell_Storage_Model : ICollection<Thing>
     {
