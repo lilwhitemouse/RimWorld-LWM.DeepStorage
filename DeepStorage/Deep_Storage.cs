@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
+using System.Security.Policy;
+using DeepStorage;
 
 namespace LWM.DeepStorage
 {
@@ -228,6 +230,41 @@ namespace LWM.DeepStorage
         } // end TidyStacksOf(thing)
 
         public static HashSet<Thing> TopThingInDeepStorage = new HashSet<Thing>(); // for display
+
+        public static bool HasDeepStorageComp(SlotGroup slotGroup, out CompDeepStorage compDeepStorage)
+        {
+            if (slotGroup?.parent is ThingWithComps thingWithComps
+                && (compDeepStorage = thingWithComps.TryGetComp<CompDeepStorage>()) != null)
+            {
+                return true;
+            }
+
+            compDeepStorage = null;
+            return false;
+        }
+
+        public static bool GetDeepStorageOnCell(IntVec3 cell, Map map, out CompDeepStorage compDeepStorage)
+        {
+            if (HasDeepStorageComp(map?.haulDestinationManager?.SlotGroupAt(cell), out compDeepStorage))
+            {
+                return true;
+            }
+
+            compDeepStorage = null;
+            return false;
+        }
+
+        public static bool IsDeepStorageBuilding(SlotGroup slotGroup, out Deep_Storage_Building deepStorage)
+        {
+            if (slotGroup?.parent is Deep_Storage_Building building)
+            {
+                deepStorage = building;
+                return true;
+            }
+
+            deepStorage = null;
+            return false;
+        }
         
     } // End Utils class
     

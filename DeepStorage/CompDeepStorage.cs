@@ -8,7 +8,7 @@ using System.Linq;
 //using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
-
+using DeepStorage;
 
 namespace LWM.DeepStorage
 {
@@ -363,6 +363,8 @@ namespace LWM.DeepStorage
                 limitingTotalFactorForCell = ((Properties)props).maxTotalMass + .0001f;
             if (((Properties)props).maxMassOfStoredItem > 0f)
                 limitingFactorForItem = ((Properties)props).maxMassOfStoredItem + .0001f;
+
+            _storageBuilding = this.parent as Deep_Storage_Building;
             /*******  Viable approach if anyone ever wants to limit storage based on >1 stat:
             if (((Properties)props).maxMassOfStoredItem > 0f) {
                 statForStoredItem[0] = StatDefOf.Mass;
@@ -393,6 +395,13 @@ namespace LWM.DeepStorage
             }
             float totalWeightStoredHere=0f;  //mass, or bulk, etc.
 
+            if (this.limitingTotalFactorForCell > 0f) {
+                if (_storageBuilding.CarriedWeight >= this.limitingTotalFactorForCell
+                    && _storageBuilding.Count >= this.minNumberStacks) {
+                    return 0;
+                }
+            }
+
             List<Thing> list = map.thingGrid.ThingsListAt(cell);
             var stacksStoredHere=0;
             for (int i=0; i<list.Count;i++) {
@@ -400,16 +409,16 @@ namespace LWM.DeepStorage
                 if (thingInStorage.def.EverStorable(false)) { // an "item" we care about
                     stacksStoredHere+=1;
                     Utils.Mess(CheckCapacity, "  Checking against "+thingInStorage.stackCount+thingInStorage);
-                    if (this.limitingTotalFactorForCell > 0f) {
-                        totalWeightStoredHere +=thingInStorage.GetStatValue(this.stat)*thingInStorage.stackCount;
-                        Utils.Mess(CheckCapacity, "    "+stat+" increased to "+totalWeightStoredHere+ " / "+
-                                   limitingTotalFactorForCell);
-                        if (totalWeightStoredHere > this.limitingTotalFactorForCell &&
-                            stacksStoredHere >= this.minNumberStacks) {
-                            Utils.Warn(CheckCapacity, "  "+thingInStorage.stackCount+thingInStorage+" already over mass!");
-                            return 0;
-                        }
-                    }
+                    //if (this.limitingTotalFactorForCell > 0f) {
+                    //    totalWeightStoredHere +=thingInStorage.GetStatValue(this.stat)*thingInStorage.stackCount;
+                    //    Utils.Mess(CheckCapacity, "    "+stat+" increased to "+totalWeightStoredHere+ " / "+
+                    //               limitingTotalFactorForCell);
+                    //    if (totalWeightStoredHere > this.limitingTotalFactorForCell &&
+                    //        stacksStoredHere >= this.minNumberStacks) {
+                    //        Utils.Warn(CheckCapacity, "  "+thingInStorage.stackCount+thingInStorage+" already over mass!");
+                    //        return 0;
+                    //    }
+                    //}
                     if (thingInStorage==thing) {
                         Utils.Mess(CheckCapacity, "Found Item!");
                         if (stacksStoredHere > maxNumberStacks) {
@@ -491,6 +500,8 @@ namespace LWM.DeepStorage
         public StatDef[] statToTotal = { };
         */
         public string buildingLabel="";
+
+        private Deep_Storage_Building _storageBuilding;
 
     } // end CompDeepStorage
 
