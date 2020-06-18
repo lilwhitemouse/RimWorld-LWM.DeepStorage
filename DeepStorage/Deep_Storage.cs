@@ -9,7 +9,8 @@ using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
 using System.Security.Policy;
-using DeepStorage;
+using HarmonyLib;
+using System.Runtime.CompilerServices;
 
 namespace LWM.DeepStorage
 {
@@ -56,7 +57,8 @@ namespace LWM.DeepStorage
 
     /***********************************************************************/
 
-    public class Utils {
+    public class Utils
+    {
         static public bool[] showDebug ={
             true,  // "Testing" will always be true
             
@@ -80,34 +82,40 @@ namespace LWM.DeepStorage
             RightClickMenu, Settings
         }
 
+        public static Harmony HarmonyInstance { get; } = new Harmony("LWM.DeepStorage");
+
         // Nifty! Won't even be compiled into assembly if not DEBUG
         [System.Diagnostics.Conditional("DEBUG")]
-        public static void Warn(DBF l, string s) {
+        public static void Warn(DBF l, string s)
+        {
             if (showDebug[(int)l])
                 Log.Warning("LWM." + l.ToString() + ": " + s);
         }
         [System.Diagnostics.Conditional("DEBUG")]
-        public static void Err(DBF l, string s) {
+        public static void Err(DBF l, string s)
+        {
             if (showDebug[(int)l])
                 Log.Error("LWM." + l.ToString() + ": " + s);
         }
         [System.Diagnostics.Conditional("DEBUG")]
-        public static void Mess(DBF l, string s) {
+        public static void Mess(DBF l, string s)
+        {
             if (showDebug[(int)l])
-                Log.Message("LWM."+l.ToString()+": "+s);
+                Log.Message("LWM." + l.ToString() + ": " + s);
         }
 
         // This gets checked a lot.  Sometimes the test is done in-place (if will 
         //   need to use the slotGroup later, for example), but when using Harmony 
         //   Transpiler, tests are easier via function call
         // Most of the bulk here is debugging stuff
-        public static bool CanStoreMoreThanOneThingAt(Map map, IntVec3 loc) {
+        public static bool CanStoreMoreThanOneThingAt(Map map, IntVec3 loc)
+        {
             SlotGroup slotGroup = loc.GetSlotGroup(map);
             if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
                 (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null)
             {
                 return false;
-                #pragma warning disable CS0162 // Unreachable code detected
+#pragma warning disable CS0162 // Unreachable code detected
                 Log.Warning("CanStoreMoreThanOneThingAt: " + loc + "? false");
                 return false;
                 if (slotGroup == null) Log.Warning("  null slotGroup");
@@ -133,9 +141,10 @@ namespace LWM.DeepStorage
                 Log.Error("Did find a " + t.ToString() + " here at " + loc.ToString());
             }
             return true;
-            #pragma warning restore CS0162 // Unreachable code detected
+#pragma warning restore CS0162 // Unreachable code detected
         }
-        public static bool CanStoreMoreThanOneThingIn(SlotGroup slotGroup) {
+        public static bool CanStoreMoreThanOneThingIn(SlotGroup slotGroup)
+        {
             if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
                 (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null)
             {
@@ -152,15 +161,16 @@ namespace LWM.DeepStorage
         public static void TidyStacksOf(Thing thing)
         {
             if (thing == null || !thing.Spawned || thing.Destroyed || thing.Map == null
-                || thing.Position == IntVec3.Invalid) {// just in case
-                #if DEBUG
+                || thing.Position == IntVec3.Invalid)
+            {// just in case
+#if DEBUG
                 if (Utils.showDebug[(int)DBF.TidyStacksOf]) {
                     if (!thing.Spawned) Log.Warning("Cannot tidy stack of unspawned " + thing.ToString());
                     else if (thing.Destroyed) Log.Warning("Cannot tidy stack of destroyed " + thing.ToString());
                     else if (thing.Map == null) Log.Warning("Cannot tidy stack on null map for " + thing.ToString());
                     else if (thing.Position == IntVec3.Invalid) Log.Warning("Cannot tidy invalid position for " + thing.ToString());
                 }
-                #endif
+#endif
                 return;
             }
             // If stack limit is 1, it cannot stack
@@ -169,6 +179,8 @@ namespace LWM.DeepStorage
             // Get everything and start tidying!
             var thingStacks = thing.Map.thingGrid.ThingsAt(thing.Position)
                                    .Where(t => t.def == thing.def).ToList();
+
+            Utils.HasDeepStorageComp(thing.GetSlotGroup(), out CompDeepStorage comp);
             int extra = 0; // "extra" Sheep we pick up from wherever
             for (int i = 0; i < thingStacks.Count; i++)
             {
@@ -189,9 +201,16 @@ namespace LWM.DeepStorage
                 if (extra > 0)
                 { // maybe there were some extra lying around?
                     int x = Math.Min(stackLimit - thingStacks[i].stackCount, extra);
-                    thingStacks[i].stackCount += x;
-                    extra -= x;
-                    if (thingStacks[i].stackCount == stackLimit) { continue; }
+                    if (x > 0)
+                    {
+                        thingStacks[i].stackCount += x;
+                        extra -= x;
+                        if (thingStacks[i].stackCount == stackLimit)
+                        {
+                            comp.StorageBuilding.Update(thingStacks[i]);
+                            continue;
+                        }
+                    }
                 }
                 // Now try to pick up any extra sheep from remaining stacks of sheep
                 // (All stacks ab)ve here already have full stacks)
@@ -211,6 +230,7 @@ namespace LWM.DeepStorage
                         int x = stackLimit - thingStacks[i].stackCount;
                         thingStacks[i].stackCount = stackLimit;
                         thingStacks[j].stackCount -= x;
+                        comp.StorageBuilding.Update(thingStacks[j]);
                         break;
                     }
                 } // continue on big loop if we filled it...
@@ -243,6 +263,7 @@ namespace LWM.DeepStorage
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool GetDeepStorageOnCell(IntVec3 cell, Map map, out CompDeepStorage compDeepStorage)
         {
             if (HasDeepStorageComp(map?.haulDestinationManager?.SlotGroupAt(cell), out compDeepStorage))
@@ -265,9 +286,9 @@ namespace LWM.DeepStorage
             deepStorage = null;
             return false;
         }
-        
+
     } // End Utils class
-    
+
 
 
 } // close LWM.DeepStorage namespace.  Thank you for reading!  =^.^=

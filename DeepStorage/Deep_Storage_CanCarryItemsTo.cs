@@ -46,10 +46,7 @@ namespace LWM.DeepStorage
         protected static bool Prefix(IntVec3 c, Map map, Thing thing, ref bool __result) {
             Utils.Err(NoStorageBlockerseIn, "Looking for blockers for " + thing + " at " + c);
             // Check if storage location is in an uber-storage building:
-            SlotGroup slotGroup = c.GetSlotGroup(map);
-            CompDeepStorage cds = null;
-            if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
-                (cds = (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>()) == null) {
+            if (!Utils.GetDeepStorageOnCell(c, map, out CompDeepStorage cds)) {
                 //                Log.Warning("  ...letting vanilla handle it.");
                 return true; // normal spot, NoStorageBlockersIn() will handle it
             }

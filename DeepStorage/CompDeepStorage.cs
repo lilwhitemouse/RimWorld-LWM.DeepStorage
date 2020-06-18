@@ -8,7 +8,9 @@ using System.Linq;
 //using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
-using DeepStorage;
+using System.Diagnostics;
+
+using CellStorage = LWM.DeepStorage.Deep_Storage_Cell_Storage_Model;
 
 namespace LWM.DeepStorage
 {
@@ -119,6 +121,8 @@ namespace LWM.DeepStorage
                 return ((Properties)this.props).maxNumberStacks;
             }
         }
+
+        public Deep_Storage_Building StorageBuilding => _storageBuilding;
 
         public virtual int TimeStoringTakes(Map map, IntVec3 cell, Pawn pawn) {
             if (cdsProps.minTimeStoringTakes <0) {
@@ -336,9 +340,6 @@ namespace LWM.DeepStorage
             }
         }
 
-
-
-
         public override void Initialize(CompProperties props) {
             base.Initialize(props);
             // Remove duplicate entries and ensure the last entry is the only one left
@@ -364,7 +365,6 @@ namespace LWM.DeepStorage
             if (((Properties)props).maxMassOfStoredItem > 0f)
                 limitingFactorForItem = ((Properties)props).maxMassOfStoredItem + .0001f;
 
-            _storageBuilding = this.parent as Deep_Storage_Building;
             /*******  Viable approach if anyone ever wants to limit storage based on >1 stat:
             if (((Properties)props).maxMassOfStoredItem > 0f) {
                 statForStoredItem[0] = StatDefOf.Mass;
@@ -377,10 +377,31 @@ namespace LWM.DeepStorage
             */
         }
 
+        public override void PostSpawnSetup(bool respawningAfterLoad)
+        {
+            base.PostSpawnSetup(respawningAfterLoad);
+            _storageBuilding = new Deep_Storage_Building(this.parent as Building_Storage);
+        }
+
+        public override void PostDeSpawn(Map map)
+        {
+            base.PostDeSpawn(map);
+            _storageBuilding.Clear();
+        }
+
+        public override void PostDestroy(DestroyMode mode, Map previousMap)
+        {
+            base.PostDestroy(mode, previousMap);
+            _storageBuilding.Clear();
+        }
+
         // IMPORTANT NOTE: some of the following logic is in the patch for TryFindBestBetterStoreCellFor
         //   (ShouldRemoveFrom logic).  TODO: it should probably be here
 
         public virtual int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             Utils.Warn(CheckCapacity, "Checking Capacity to store "+thing.stackCount+thing+" at "
                        +(map?.ToString()??"NULL MAP")+" "+cell);
             int capacity = 0;
@@ -395,19 +416,21 @@ namespace LWM.DeepStorage
             }
             float totalWeightStoredHere=0f;  //mass, or bulk, etc.
 
+            if (!_storageBuilding.TryGetCellStorage(cell, out CellStorage cellStorage))
+                return 0;
+
             if (this.limitingTotalFactorForCell > 0f) {
-                if (_storageBuilding.CarriedWeight >= this.limitingTotalFactorForCell
-                    && _storageBuilding.Count >= this.minNumberStacks) {
+                if (cellStorage.TotalWeight >= this.limitingTotalFactorForCell
+                    && cellStorage.Count >= this.minNumberStacks) {
                     return 0;
                 }
             }
+            stopwatch.Stop();
+            Log.Warning($"Segment 1 time: {stopwatch.Elapsed.TotalMilliseconds: 0000.0000}ms");
+            stopwatch.Restart();
 
-            List<Thing> list = map.thingGrid.ThingsListAt(cell);
-            var stacksStoredHere=0;
-            for (int i=0; i<list.Count;i++) {
-                Thing thingInStorage = list[i];
-                if (thingInStorage.def.EverStorable(false)) { // an "item" we care about
-                    stacksStoredHere+=1;
+            int stacksStoredHere = cellStorage.Count;
+            foreach (Thing thingInStorage in cellStorage.NonFullThings) {
                     Utils.Mess(CheckCapacity, "  Checking against "+thingInStorage.stackCount+thingInStorage);
                     //if (this.limitingTotalFactorForCell > 0f) {
                     //    totalWeightStoredHere +=thingInStorage.GetStatValue(this.stat)*thingInStorage.stackCount;
@@ -421,9 +444,9 @@ namespace LWM.DeepStorage
                     //}
                     if (thingInStorage==thing) {
                         Utils.Mess(CheckCapacity, "Found Item!");
-                        if (stacksStoredHere > maxNumberStacks) {
+                        if (stacksStoredHere  > maxNumberStacks) {
                             // It's over capacity :(
-                            Utils.Warn(CheckCapacity, "  But all stacks already taken: "+(stacksStoredHere-1)+" / "+maxNumberStacks);
+                            Utils.Warn(CheckCapacity, "  But all stacks already taken: "+(stacksStoredHere -1)+" / "+maxNumberStacks);
                             return 0;
                         }
                         return thing.stackCount;
@@ -436,8 +459,12 @@ namespace LWM.DeepStorage
                         }
                     }
                     //if (stacksStoredHere >= maxNumberStacks) break; // may be more stacks with empty space?
-                } // item
             } // end of cell's contents...
+
+            stopwatch.Stop();
+            Log.Warning($"Segment 2 time: {stopwatch.Elapsed.TotalMilliseconds: 0000.0000}ms");
+            stopwatch.Restart();
+
             // Count empty spaces:
             if (this.limitingTotalFactorForCell > 0f) {
                 if (stacksStoredHere <= minNumberStacks) {
@@ -470,6 +497,10 @@ namespace LWM.DeepStorage
                 capacity+=(this.maxNumberStacks-stacksStoredHere)*thing.def.stackLimit;
             }
             Utils.Mess(CheckCapacity, "Available capacity: "+capacity);
+
+            stopwatch.Stop();
+            Log.Warning($"Segment 3 time: {stopwatch.Elapsed.TotalMilliseconds: 0000.0000}ms");
+            stopwatch.Restart();
             return capacity;
         }
         /************************** IHoldMultipleThings interface ************************/
@@ -480,7 +511,23 @@ namespace LWM.DeepStorage
             return false;
         }
         public bool StackableAt(Thing thing, IntVec3 cell, Map map) {
-            return this.CapacityToStoreThingAt(thing,map,cell) > 0;
+            if (!_storageBuilding.TryGetCellStorage(cell, out CellStorage cellStorage))
+                return false;
+
+            int stacksStoredHere = cellStorage.Count;
+            if (this.limitingTotalFactorForCell > 0f) {
+                if (cellStorage.TotalWeight >= this.limitingTotalFactorForCell
+                    && stacksStoredHere >= this.minNumberStacks) {
+                    return false;
+                }
+
+                return true;
+            }
+
+            if (stacksStoredHere < this.minNumberStacks)
+                return true;
+
+            return false;
         }
         /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
@@ -502,7 +549,6 @@ namespace LWM.DeepStorage
         public string buildingLabel="";
 
         private Deep_Storage_Building _storageBuilding;
-
     } // end CompDeepStorage
 
 
