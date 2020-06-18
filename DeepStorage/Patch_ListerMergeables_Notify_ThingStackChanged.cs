@@ -7,7 +7,7 @@ using HarmonyLib;
 using RimWorld;
 using Verse;
 
-namespace DeepStorage
+namespace LWM.DeepStorage
 {
     /// <summary>
     /// Handles the splitoff and stack merge of spawned things on map.
