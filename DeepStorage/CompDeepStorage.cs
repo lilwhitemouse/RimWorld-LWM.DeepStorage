@@ -8,7 +8,6 @@ using System.Linq;
 //using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
-using System.Diagnostics;
 
 using CellStorage = LWM.DeepStorage.Deep_Storage_Cell_Storage_Model;
 
@@ -400,8 +399,6 @@ namespace LWM.DeepStorage
 
         public virtual int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {
 
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             Utils.Warn(CheckCapacity, "Checking Capacity to store "+thing.stackCount+thing+" at "
                        +(map?.ToString()??"NULL MAP")+" "+cell);
             int capacity = 0;
@@ -425,9 +422,6 @@ namespace LWM.DeepStorage
                     return 0;
                 }
             }
-            stopwatch.Stop();
-            Log.Warning($"Segment 1 time: {stopwatch.Elapsed.TotalMilliseconds: 0000.0000}ms");
-            stopwatch.Restart();
 
             int stacksStoredHere = cellStorage.Count;
             foreach (Thing thingInStorage in cellStorage.NonFullThings) {
@@ -460,10 +454,6 @@ namespace LWM.DeepStorage
                     }
                     //if (stacksStoredHere >= maxNumberStacks) break; // may be more stacks with empty space?
             } // end of cell's contents...
-
-            stopwatch.Stop();
-            Log.Warning($"Segment 2 time: {stopwatch.Elapsed.TotalMilliseconds: 0000.0000}ms");
-            stopwatch.Restart();
 
             // Count empty spaces:
             if (this.limitingTotalFactorForCell > 0f) {
@@ -498,9 +488,6 @@ namespace LWM.DeepStorage
             }
             Utils.Mess(CheckCapacity, "Available capacity: "+capacity);
 
-            stopwatch.Stop();
-            Log.Warning($"Segment 3 time: {stopwatch.Elapsed.TotalMilliseconds: 0000.0000}ms");
-            stopwatch.Restart();
             return capacity;
         }
         /************************** IHoldMultipleThings interface ************************/
