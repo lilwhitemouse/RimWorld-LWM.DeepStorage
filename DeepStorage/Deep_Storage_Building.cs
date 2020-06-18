@@ -9,7 +9,7 @@ using Verse;
 
 using Model = DeepStorage.Deep_Storage_Cell_Storage_Model;
 
-namespace DeepStorage
+namespace LWM.DeepStorage
 {
     public class Deep_Storage_Building : Building_Storage, ICollection<Thing>
     {
