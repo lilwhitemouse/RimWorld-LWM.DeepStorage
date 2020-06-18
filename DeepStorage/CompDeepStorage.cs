@@ -8,7 +8,6 @@ using System.Linq;
 //using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
-using DeepStorage;
 
 namespace LWM.DeepStorage
 {
