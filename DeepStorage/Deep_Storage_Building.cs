@@ -13,7 +13,7 @@ namespace LWM.DeepStorage
 {
     public class Deep_Storage_Building : ICollection<Thing>
     {
-        private Dictionary<Thing, IntVec3> _thingToCell = new Dictionary<Thing, IntVec3>();
+        private HashSet<Thing> _thingsInStore = new HashSet<Thing>();
 
         private Dictionary<IntVec3, CellStorage> _cellToCache = new Dictionary<IntVec3, CellStorage>();
 
@@ -46,19 +46,19 @@ namespace LWM.DeepStorage
             if (_cellToCache.TryGetValue(item.Position, out CellStorage model))
             {
                 model.Add(item);
-                _thingToCell[item] = item.Position;
+                _thingsInStore.Add(item);
             }
         }
 
         public void Clear()
         {
-            _thingToCell.Clear();
+            _thingsInStore.Clear();
             _cellToCache.Clear();
         }
 
         public bool Contains(Thing item)
         {
-            return _thingToCell.Keys.Contains(item);
+            return _thingsInStore.Contains(item);
         }
 
         public void CopyTo(Thing[] array, int arrayIndex)
@@ -68,17 +68,17 @@ namespace LWM.DeepStorage
 
         public bool Remove(Thing item)
         {
-            return _thingToCell.Remove(item) & (_cellToCache.TryGetValue(item.Position, out CellStorage model) && model.Remove(item));
+            return _thingsInStore.Remove(item) & (_cellToCache.TryGetValue(item.Position, out CellStorage model) && model.Remove(item));
         }
 
         public IEnumerator<Thing> GetEnumerator()
         {
-            return _thingToCell.Keys.GetEnumerator();
+            return _thingsInStore.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _thingToCell.Keys.GetEnumerator();
+            return _thingsInStore.GetEnumerator();
         }
 
         public void Update(Thing thing)
@@ -96,7 +96,7 @@ namespace LWM.DeepStorage
                 _cellToCache[cell] = new CellStorage();
                 foreach (Thing thing in cell.GetThingList(map))
                 {
-                    if (_settings.AllowedToAccept(thing))
+                    if (thing.def.EverStorable(false) && _settings.AllowedToAccept(thing))
                     {
                         this.Add(thing);
                     }
