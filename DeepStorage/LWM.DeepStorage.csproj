@@ -71,6 +71,8 @@
     <Compile Include="Deep_Storage_Building.cs" />
     <Compile Include="Deep_Storage_Cell_Storage_Model.cs" />
     <Compile Include="Patch_ListerMergeables_Notify_ThingStackChanged.cs" />
+    <Compile Include="Patch_Notify_LostThing.cs" />
+    <Compile Include="Patch_Notify_ReceivedThing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ModHugsLib.cs" />
     <Compile Include="ModSettings.cs" />
