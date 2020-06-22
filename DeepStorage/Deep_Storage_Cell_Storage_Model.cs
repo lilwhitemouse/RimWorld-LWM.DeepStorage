@@ -17,7 +17,7 @@ namespace LWM.DeepStorage
 
         public List<Thing> Things { get; private set; } = new List<Thing>();
 
-        public List<Thing> NonFullThings { get; private set; } = new List<Thing>();
+        public HashSet<Thing> NonFullThings { get; private set; } = new HashSet<Thing>();
 
         public float TotalWeight { get; private set; }
 
@@ -80,7 +80,7 @@ namespace LWM.DeepStorage
 
         private void UpdateNonFullThing(Thing item)
         {
-            if (item.stackCount < item.def.stackLimit)
+            if (item.stackCount < item.def.stackLimit && !this.NonFullThings.Contains(item))
                 this.NonFullThings.Add(item);
             else
                 this.NonFullThings.Remove(item);
