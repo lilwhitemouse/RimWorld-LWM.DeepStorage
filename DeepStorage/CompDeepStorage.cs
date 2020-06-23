@@ -498,23 +498,35 @@ namespace LWM.DeepStorage
             return false;
         }
         public bool StackableAt(Thing thing, IntVec3 cell, Map map) {
-            if (!_storageBuilding.TryGetCellStorage(cell, out CellStorage cellStorage))
-                return false;
+            if (_storageBuilding != null) {
+                if (_storageBuilding.TryGetCellStorage(cell, out CellStorage cellStorage)) {
+                    int stacksStoredHere = cellStorage.Count;
+                    if (stacksStoredHere < this.minNumberStacks || cellStorage.Any(t => t== thing))
+                        return true;
 
-            int stacksStoredHere = cellStorage.Count;
-            if (this.limitingTotalFactorForCell > 0f) {
-                if (cellStorage.TotalWeight >= this.limitingTotalFactorForCell
-                    && stacksStoredHere >= this.minNumberStacks) {
+                    foreach (Thing nonFull in cellStorage.NonFullThings) {
+                        if (nonFull.CanStackWith(thing) && thing.def.stackLimit - nonFull.stackCount >= thing.stackCount) {
+                            return true;
+                        }
+                    }
+
+                    if (this.limitingTotalFactorForCell > 0f) {
+                        if (cellStorage.TotalWeight >= this.limitingTotalFactorForCell)
+                            return false;
+                    }
+
+                    if (stacksStoredHere < this.maxNumberStacks)
+                        return true;
+
                     return false;
                 }
 
-                return true;
+                return false;
             }
-
-            if (stacksStoredHere < this.minNumberStacks)
-                return true;
-
-            return false;
+            else {
+                _storageBuilding = new Deep_Storage_Building(this.parent as Building_Storage);
+                return this.StackableAt(thing, cell, map);
+            }
         }
         /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
