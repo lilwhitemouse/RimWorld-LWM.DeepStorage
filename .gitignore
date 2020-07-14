@@ -263,4 +263,6 @@ paket-files/
 __pycache__/
 *.pyc
 
+_notooshabby_locals
 
+Assemblies/

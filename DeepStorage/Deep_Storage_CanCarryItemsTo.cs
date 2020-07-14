@@ -195,14 +195,14 @@ namespace LWM.DeepStorage
             }
             return true; // I have too much to do to look up whether Prepare(...) can be a void, so return true
         }
-        static void Postfix(ref bool __result, IntVec3 c, Map map, Pawn carrier) {
+        static void Postfix(ref bool __result, IntVec3 c, Map map, Thing t, Pawn carrier) {
             if (__result == false) return;
             if (specialTest !=null && specialTest(carrier)) return; // passes specialTest?
             if (carrier?.RaceProps == null) return;
             if (carrier.RaceProps.intelligence >= NecessaryIntelligenceToUseDeepStorage)
                 return; // smart enough to use whatever.
             // okay, potentially need to see if we're looking at deep storage after all:
-            if (LWM.DeepStorage.Utils.CanStoreMoreThanOneThingAt(map, c)) {
+            if (LWM.DeepStorage.Utils.CanStoreMoreThanOneThingAt(map, c, t)) {
                 __result = false;
             }
             return;

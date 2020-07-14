@@ -104,15 +104,20 @@ namespace LWM.DeepStorage
                 Log.Message("LWM." + l.ToString() + ": " + s);
         }
 
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void Check(Action action)
+        {
+            action?.Invoke();
+        }
+
         // This gets checked a lot.  Sometimes the test is done in-place (if will 
         //   need to use the slotGroup later, for example), but when using Harmony 
         //   Transpiler, tests are easier via function call
         // Most of the bulk here is debugging stuff
-        public static bool CanStoreMoreThanOneThingAt(Map map, IntVec3 loc)
+        public static bool CanStoreMoreThanOneThingAt(Map map, IntVec3 loc, Thing thing)
         {
             SlotGroup slotGroup = loc.GetSlotGroup(map);
-            if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
-                (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null)
+            if (!GetDeepStorageOnCell(loc, map, out CompDeepStorage comp))
             {
                 return false;
 #pragma warning disable CS0162 // Unreachable code detected
@@ -133,6 +138,14 @@ namespace LWM.DeepStorage
                 return false;
             }
             //            Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true");
+
+            if (comp is CompCachedDeepStorage compCached)
+            {
+                return compCached.StorageSettings.AllowedToAccept(thing)
+                       && compCached.CapacityAt(thing, loc, map, out int capacity)
+                       && capacity >= thing.def.stackLimit;
+            }
+
             return true;
             Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true!");
             List<Thing> lx = map.thingGrid.ThingsListAt(loc);
@@ -274,21 +287,5 @@ namespace LWM.DeepStorage
             compDeepStorage = null;
             return false;
         }
-
-        public static bool IsDeepStorageBuilding(SlotGroup slotGroup, out Deep_Storage_Building deepStorage)
-        {
-            if (slotGroup?.parent is Deep_Storage_Building building)
-            {
-                deepStorage = building;
-                return true;
-            }
-
-            deepStorage = null;
-            return false;
-        }
-
-    } // End Utils class
-
-
-
+     } // End Utils class
 } // close LWM.DeepStorage namespace.  Thank you for reading!  =^.^=

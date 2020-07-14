@@ -11,19 +11,16 @@ using Verse;
 namespace LWM.DeepStorage
 {
     /// <summary>
-    /// Handles the splitoff and stack merge of spawned things on map.
+    /// Handles the split off and stack merge of spawned things on map.
     /// </summary>
     [HarmonyPatch(typeof(ListerMergeables), nameof(ListerMergeables.Notify_ThingStackChanged))]
     public class Patch_ListerMergeables_Notify_ThingStackChanged
     {
         public static void Postfix(Thing t)
         {
-            if (t.GetSlotGroup()?.parent is Building_Storage storage)
+            if (t.GetSlotGroup() is SlotGroup slotGroup && slotGroup.IsCachedDeepStorage(out CompCachedDeepStorage comp))
             {
-                if (storage.GetComp<CompDeepStorage>() is CompDeepStorage comp)
-                {
-                    comp.StorageBuilding.Update(t);
-                }
+                    comp.CellStorages.Update(t);
             }
         }
     }

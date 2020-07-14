@@ -45,7 +45,7 @@ namespace LWM.DeepStorage
                         return true; // Don't know where the player is looking
                     }
                     // TODO: make this cleaner:
-                    if (Utils.CanStoreMoreThanOneThingAt(t.Map,t.Position)) {
+                    if (Utils.CanStoreMoreThanOneThingAt(t.Map,t.Position, t)) {
                         __instance.ClearSelection();
                         // Select the Deep Storage Unit:
                         __instance.Select(t.Position.GetSlotGroup(t.Map).parent);
