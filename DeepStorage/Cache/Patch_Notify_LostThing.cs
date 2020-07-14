@@ -15,10 +15,10 @@ namespace LWM.DeepStorage
     {
         public static void Postfix(Building_Storage __instance, Thing newItem)
         {
-            Log.ErrorOnce("LWM Patched", Rand.Int);
-            if (__instance.TryGetComp<CompDeepStorage>() is CompDeepStorage comp)
+            if (__instance.TryGetComp<CompCachedDeepStorage>() is CompCachedDeepStorage comp)
             {
-                comp.StorageBuilding.Remove(newItem);
+                Utils.Mess(Utils.DBF.Deep_Storage_Job, $"Removing {newItem.LabelCap} from {__instance.LabelCapNoCount}");
+                comp.CellStorages.Remove(newItem);
             }
         }
     }

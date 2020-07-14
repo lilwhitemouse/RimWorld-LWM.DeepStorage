@@ -15,9 +15,10 @@ namespace LWM.DeepStorage
     {
         public static void Postfix(Building_Storage __instance, Thing newItem)
         {
-            if (__instance.TryGetComp<CompDeepStorage>() is CompDeepStorage comp)
+            if (__instance.TryGetComp<CompCachedDeepStorage>() is CompCachedDeepStorage comp)
             {
-                comp.StorageBuilding.Add(newItem);
+                Utils.Mess(Utils.DBF.PlaceHauledThingInCell, $"Place {newItem.LabelCap} in {__instance.LabelCapNoCount}");
+                comp.CellStorages.Add(newItem);
             }
         }
     }
