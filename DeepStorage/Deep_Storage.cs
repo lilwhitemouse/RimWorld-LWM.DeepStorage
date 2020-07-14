@@ -57,8 +57,7 @@ namespace LWM.DeepStorage
 
     /***********************************************************************/
 
-    public class Utils
-    {
+    public class Utils {
         static public bool[] showDebug ={
             true,  // "Testing" will always be true
             
@@ -115,7 +114,7 @@ namespace LWM.DeepStorage
             if (!GetDeepStorageOnCell(loc, map, out CompDeepStorage comp))
             {
                 return false;
-#pragma warning disable CS0162 // Unreachable code detected
+                #pragma warning disable CS0162 // Unreachable code detected
                 Log.Warning("CanStoreMoreThanOneThingAt: " + loc + "? false");
                 return false;
                 if (slotGroup == null) Log.Warning("  null slotGroup");
@@ -144,11 +143,12 @@ namespace LWM.DeepStorage
             return true;
             Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true!");
             List<Thing> lx = map.thingGrid.ThingsListAt(loc);
-            foreach (Thing t in lx) {
+            foreach (Thing t in lx)
+            {
                 Log.Error("Did find a " + t.ToString() + " here at " + loc.ToString());
             }
             return true;
-#pragma warning restore CS0162 // Unreachable code detected
+            #pragma warning restore CS0162 // Unreachable code detected
         }
         public static bool CanStoreMoreThanOneThingIn(SlotGroup slotGroup) {
             if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
