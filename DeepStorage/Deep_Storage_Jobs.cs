@@ -17,7 +17,7 @@ using static LWM.DeepStorage.Utils.DBF; // trace utils
 //  You know...I could have just written my own job definition and inserted it via
 //     HaulToCellStorageJob?  Why not do it?  Because if anyone else's mod adds
 //     HaulToCellStorageJobs, I'd miss them.  Maybe xpath?
-//  The only benefit over what I have now is that I could have the pawn say 
+//  The only benefit over what I have now is that I could have the pawn say
 //    "storing" while it's doing its wait cycle.  Might TODO that some day?
 
 
@@ -27,7 +27,7 @@ namespace LWM.DeepStorage
      * Verse/AI/HaulAIUtility.cs:  HaulToCellStorageJob(...)
      * The important part here is that HaulToCellStorageJob counts how many
      *   of a stackable thing to carry to a slotGroup (storage)
-     * 
+     *
      * We patch with Harmony Transpiler to replace
      *   Thing someThing=p.Map.thingGrid.ThingAt(someCell, t.def);
      * with
@@ -40,6 +40,7 @@ namespace LWM.DeepStorage
     [HarmonyPatch(typeof(Verse.AI.HaulAIUtility), "HaulToCellStorageJob")]
     class Patch_HaulToCellStorageJob {
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
+            // this #if false block prints out the full transpiled IL code
             #if false        /////////////////////////////////////
             Log.Error("Debug information for HaulToCellStorageJob transpiler:");
             var l=XTranspiler(instructions ,generator).ToList();//
@@ -69,7 +70,7 @@ namespace LWM.DeepStorage
             bool checkedInDeepStorage=false;
             for (int i=0;i<code.Count;i++) {
                 // Logic to test if we are in Deep Storage:
-                // Add this code to the beginning of the funtion (right after slotgroup is figured out)
+                // Add this code to the beginning of the function (right after slotgroup is figured out)
                 if (code[i].opcode==OpCodes.Stloc_1 &&
                     checkedInDeepStorage==false) { // slotGroup
                     //Log.Warning("About to return Stloc_1: i is " + i);
@@ -102,7 +103,7 @@ namespace LWM.DeepStorage
                 if (code[i].opcode==OpCodes.Ldarg_0 && // Pawn p
                     // Next codeinstruction we want: callvirt Verse.Map get_Map()
                     code[i+1].opcode==OpCodes.Callvirt &&
-                    // not   .operand==Harmony.AccessTools.Method(typeof(Pawn), "get_Map") :p
+                    // not   .operand==Harmony.AccessTools.Method(typeof(Pawn), "get_Map") :p b/c virtual
                     (MethodInfo)code[i+1].operand==HarmonyLib.AccessTools.Method(typeof(Thing), "get_Map") && // p.Map
                     code[i+2].opcode==OpCodes.Ldfld &&
                     (FieldInfo)code[i+2].operand==HarmonyLib.AccessTools.Field(typeof(Map), "thingGrid")) { // p.Map.thingGrid...
@@ -146,7 +147,7 @@ namespace LWM.DeepStorage
                     }
                     // Okay, so it's true.  Now we skip over the original test:
                     Label backToNormal=generator.DefineLabel();
-                    yield return new CodeInstruction(OpCodes.Br, backToNormal); 
+                    yield return new CodeInstruction(OpCodes.Br, backToNormal);
                     // We now return to our regularly scheduled call (if not inDeepStorage):
                     code[i].labels.Add(vanillaThingAt);
                     // now fast foward thru until we hit that Brfalse command - we need to pick up after that!
@@ -219,10 +220,10 @@ namespace LWM.DeepStorage
          * We patch via prefix by first checking if the slotGroup in question is part of a
          * Deep Storage unit.  If it is, then we take over (and duplicate a little bit of code)
          * and do the more complicated calculation of how many to carry.
-         * 
+         *
          * We run through the same idea as the original function with a bunch of loops thrown in
          */
-        
+
         //  It might be possible to do this via Transpiler, but it's harder, so we do it this way.
         //      static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         //public static bool Prefix(out Job __result, Pawn p, Thing t, IntVec3 storeCell, bool fitInStoreCell) {
@@ -265,7 +266,7 @@ namespace LWM.DeepStorage
             for (int i = 0; i < stuffHere.Count; i++) // thing list at storeCell
             {
                 Thing thing2 = stuffHere[i];
-                // We look thru for stacks of storable things; if they match our thing t, 
+                // We look thru for stacks of storable things; if they match our thing t,
                 //   we see how many we can carry there!
                 if (thing2.def.EverStorable(false)) {
                     Utils.Warn(HaulToCellStorageJob, "... already have a stack here of " + thing2.stackCount + " of " + thing2.ToString());
@@ -309,7 +310,7 @@ namespace LWM.DeepStorage
                 howManyStacks = 0;
                 for (int j = 0; j < stuffHere.Count; j++) {
                     Thing thing2 = stuffHere[j];
-                    // We look thru for stacks of storable things; if they match our thing t, 
+                    // We look thru for stacks of storable things; if they match our thing t,
                     //   we see how many we can carry there!
                     if (thing2.def.EverStorable(false)) {
                         Utils.Warn(HaulToCellStorageJob, "... already have a stack here of " + thing2.stackCount + " of " + thing2.ToString());
@@ -343,4 +344,3 @@ namespace LWM.DeepStorage
     } // done patching HaulToCellStorageJob
 
 }
-
