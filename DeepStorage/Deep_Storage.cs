@@ -152,7 +152,7 @@ namespace LWM.DeepStorage
         }
         public static bool CanStoreMoreThanOneThingIn(SlotGroup slotGroup) {
             if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
-                (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null) 
+                (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null)
             {
                 return false;
             }
@@ -164,7 +164,8 @@ namespace LWM.DeepStorage
         //   - tidying is part of the time cost of using it!
         // Note that this ignores all other stacks (e.g., Wheat, Wood, &c);
         //   if that's ever needed, will have to add it.
-        public static void TidyStacksOf(Thing thing) {
+        public static void TidyStacksOf(Thing thing)
+        {
             if (thing == null || !thing.Spawned || thing.Destroyed || thing.Map == null
                 || thing.Position == IntVec3.Invalid) {// just in case
                 #if DEBUG
