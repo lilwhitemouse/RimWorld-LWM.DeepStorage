@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using Verse;
 using UnityEngine;
@@ -19,6 +20,7 @@ namespace LWM.DeepStorage
         public static bool checkOverCapacity=true;
 
         public static bool allowPerDSUSettings=false;
+        public static DefChangeTracker defTracker=new DefChangeTracker();
 
         // Architect Menu:
         // The defName for the DesignationCategoryDef the mod items are in by default:
@@ -38,8 +40,44 @@ namespace LWM.DeepStorage
         private static bool architectMenuMoveALLTmp=true;
 
 
-        public static List<ThingDef> allDeepStorageUnits=null;
+        public static IEnumerable<ThingDef> AllDeepStorageUnits {
+            get {
+                var x = LoadedDeepStorageUnits;
+                if (x==null) Log.Error("Loaded is null");
+                foreach (var d in x) yield return d;
+                foreach (ThingDef d in Settings.defTracker.GetAllWithKeylet<ThingDef>("def")) {
+                    yield return d;
+                }
+                yield break;
+            }
+        }
+        public static IEnumerable<ThingDef> LoadedDeepStorageUnits {
+            get {
+                var db=DefDatabase<ThingDef>.AllDefsListForReading;
+                if (db==null) {
+                    Log.Error("DefDatabase is nul");
+                    yield break;
+                }
+                foreach (var d in db) {
+                    if (d.HasComp(typeof(CompDeepStorage))) yield return d;
+                }
+                yield break;
+            }
+        }
+/*
 
+        // ALL deep storage units, even ones not loaded into game:
+        public static IEnumerable<ThingDef> AllDeepStorageUnits=LoadedDeepStorageUnits
+            // Add in any units removed by player.
+            //   Use "Union" over "Concat" just in case there are duplicates somehow.
+            .Union((Dialog_DS_Settings.defaultDSUValues ?? new Dictionary<string, object>()).Keys
+                   .Where(keyName=>keyName.Length>4 && String.Compare(keyName, keyName.Length-4, "_def", 0, 4)==0)
+                   .Select(key=>Dialog_DS_Settings.defaultDSUValues[key] as ThingDef));
+        // Deep storage units in the defs database:
+        public static IEnumerable<ThingDef> LoadedDeepStorageUnits=DefDatabase<ThingDef>
+            .AllDefsListForReading.FindAll(x=>x.HasComp(typeof(CompDeepStorage)));
+            */
+        //TODO-scroll: can I make these non-static? Probably, but there's no point, right?
         private static Vector2 scrollPosition=new Vector2(0f,0f);
         private static Rect viewRect=new Rect(0,0,100f,10000f); // OMG OMG OMG I got scrollView in Listing_Standard to work!
         public static void DoSettingsWindowContents(Rect inRect) {
@@ -82,7 +120,7 @@ namespace LWM.DeepStorage
                 foreach (StoragePriority p in Enum.GetValues(typeof(StoragePriority))) {
                     mlist.Add(new FloatMenuOption(p.Label(), delegate() {
                                 defaultStoragePriority=p;
-                                foreach (ThingDef d in allDeepStorageUnits) {
+                                foreach (ThingDef d in AllDeepStorageUnits) {
                                     d.building.defaultStorageSettings.Priority=p;
                                 }
                             }));
@@ -220,27 +258,35 @@ namespace LWM.DeepStorage
         public static void DefsLoaded() {
 //            Log.Warning("LWM.deepstorag - defs loaded");
             // Todo? If settings are different from defaults, then:
-            Setup();
+
+            // Def-related changes:
+            //TODO: this should probably have an option....
+            if (defaultStoragePriority != StoragePriority.Important) {
+                foreach (ThingDef d in AllDeepStorageUnits) {
+                    d.building.defaultStorageSettings.Priority=defaultStoragePriority;
+                }
+            }
+            // Re-read Mod Settings - some won't have been read because Defs weren't loaded:
+            //   (do this after priority changes above to allow user to override changes)
+//todo:
+            Utils.Mess(Utils.DBF.Settings, "Defs Loaded.  About to re-load settings");
+            // NOTE/WARNING: the mod's settings' FolderName will be different for non-steam and steam versions.
+            //   (They are stored using LoadedModManager.GetMod(typeof(DeepStorageMod)).Content.Identifier
+            //    and typeof(DeepStorageMod).Name by the way)
+            // So don't do this:
+            //   var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");
+            // Do this instead:
+            var mod=LoadedModManager.GetMod(typeof(LWM.DeepStorage.DeepStorageMod));
+            var s = LoadedModManager.ReadModSettings<Settings>(mod.Content.FolderName, "DeepStorageMod");
             // Architect Menu:
+            if (architectMenuActualDef==null) {
+                architectMenuActualDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);
+            }
             if (architectMenuDesigCatDef != architectMenuDefaultDesigCatDef ||
                 architectMenuMoveALLStorageItems) // in which case, we need to redo menu anyway
             {
                 ArchitectMenu_ChangeLocation(architectMenuDesigCatDef, true);
             }
-            // Other def-related changes:
-            if (defaultStoragePriority != StoragePriority.Important) {
-                foreach (ThingDef d in allDeepStorageUnits) {
-                    d.building.defaultStorageSettings.Priority=defaultStoragePriority;
-                }
-            }
-            // Re-read Mod Settings - some won't have been read because Defs weren't loaded:
-            //   (do this after above to allow user to override changes)
-            //   (LoadedModManager.GetMod(typeof(DeepStorageMod)).Content.Identifier and typeof(DeepStorageMod).Name by the way)
-//todo:
-            Utils.Mess(Utils.DBF.Settings, "Defs Loaded.  About to re-load settings");
-            //var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");
-            var mod=LoadedModManager.GetMod(typeof(LWM.DeepStorage.DeepStorageMod));
-            var s = LoadedModManager.ReadModSettings<Settings>(mod.Content.FolderName, "DeepStorageMod");
         }
 
         // Architect Menu:
@@ -272,8 +318,7 @@ namespace LWM.DeepStorage
             }
             // Architect Menu: Specify all your buildings/etc:
             //   var allMyBuildings=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.HasComp(etc)));
-            List<ThingDef> itemsToMove=allDeepStorageUnits;
-            Utils.Mess(Utils.DBF.Settings, "Moving these units to 'Storage' menu: "+string.Join(", ", itemsToMove));
+            List<ThingDef> itemsToMove=LoadedDeepStorageUnits.ToList();
             // We can move ALL the storage buildings!  If the player wants.  I do.
             List<DesignationCategoryDef> desigsToNotMove=new List<DesignationCategoryDef>();
             List<DesignationCategoryDef> desigsToOnlyCopy=new List<DesignationCategoryDef>();
@@ -295,12 +340,13 @@ namespace LWM.DeepStorage
                 //   But, let's just copy them:
                 if (industrialCategory!=null) desigsToOnlyCopy.Add(industrialCategory);
                 // Interesting detail: apparently it IS possible to have thingDefs with null thingClass... weird.
-                itemsToMove=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>((x?.thingClass != null) && (x.thingClass==typeof(Building_Storage) ||
-                                                                                     x.thingClass.IsSubclassOf(typeof(Building_Storage)))
-                                                                                    && x.designationCategory!=null &&
-                                                                                    !desigsToNotMove.Contains(x.designationCategory)
-                                                                                    //&& !toCopy.Contains(x.designationCategory)
-                                                                                    ));
+                itemsToMove=DefDatabase<ThingDef>.AllDefsListForReading
+                    .FindAll(x=>((x?.thingClass != null) && (x.thingClass==typeof(Building_Storage) ||
+                                                             x.thingClass.IsSubclassOf(typeof(Building_Storage)))
+                                 && x.designationCategory!=null &&
+                                 !desigsToNotMove.Contains(x.designationCategory)
+                                 //&& !toCopy.Contains(x.designationCategory)
+                                 ));
                 /*if (ModLister.GetActiveModWithIdentifier("spdskatr.projectrimfactory")!=null) {
                     if (industrialCategory==null) {
                         Log.Warning("LWM.DeepStorage: menu compatibility with Project RimFactory failed: could not find Industrial cat");
@@ -311,6 +357,7 @@ namespace LWM.DeepStorage
                 // testing:
 //                itemsToMove.AddRange(DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.defName.Contains("MURWallLight")));
             }
+            Utils.Mess(Utils.DBF.Settings, "Moving these units to 'Storage' menu: "+string.Join(", ", itemsToMove));
             // get access to a DesignationCategoryDef's resolvedDesignators:
             var _resolvedDesignatorsField = typeof(DesignationCategoryDef)
                 .GetField("resolvedDesignators", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -491,31 +538,12 @@ namespace LWM.DeepStorage
         }
 
         public static void ArchitectMenu_ClearCache() {
+            Log.Message("Clearing Cache------------------------------Architect menu");
             // Clear the architect menu cache:
             //   Run the main Architect.TabWindow.CacheDesPanels()
             typeof(RimWorld.MainTabWindow_Architect).GetMethod("CacheDesPanels", System.Reflection.BindingFlags.NonPublic |
                                                                      System.Reflection.BindingFlags.Instance)
                 .Invoke(((MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow), null);
-        }
-
-
-        // Setup stuff that needs to be run before settings can be used.
-        //   I don't risk using a static constructor because I must make sure defs have been finished loading.
-        //     (testing shows this is VERY correct!!)
-        //   There's probably some rimworld annotation that I could use, but this works:
-        private static void Setup() {
-            if (architectMenuActualDef==null) {
-//Log.Message("LWM.DeepStorage Settings Setup() called first time");
-                architectMenuActualDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);
-            }
-            if (allDeepStorageUnits.NullOrEmpty()) {
-                allDeepStorageUnits=DefDatabase<ThingDef>.AllDefsListForReading.FindAll(x=>x.HasComp(typeof(CompDeepStorage)));
-                Utils.Mess(Utils.DBF.Settings, "  allDeepStorageUnits initialized: "+allDeepStorageUnits.Count+" units");
-            }
-            /*           if (architectLWM_DS_Storage_DesignationCatDef==null) {
-                architectLWM_DS_Storage_DesignationCatDef=DefDatabase<DesignationCategoryDef>.GetNamed("LWM_DS_Storage");
-                Utils.Mess(Utils.DBF.Settings, "  Designation Category Def loaded: "+architectLWM_DS_Storage_DesignationCatDef);
-            }*/
         }
 
         public override void ExposeData() {
@@ -538,8 +566,10 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref architectMenuMoveALLStorageItems, "architect_moveall", true);
             // Per DSU Building storage settings:
             Scribe_Values.Look(ref allowPerDSUSettings, "allowPerDSUSettings", false);
-            if (allowPerDSUSettings && !allDeepStorageUnits.NullOrEmpty()) {
-                Dialog_DS_Settings.ExposeDSUSettings(allDeepStorageUnits);
+            // Only load settigs if defs are loaded (there is separate mechanism to
+            //   check settings after defs loaded)
+            if (allowPerDSUSettings && Verse.StaticConstructorOnStartupUtility.coreStaticAssetsLoaded) {
+                Dialog_DS_Settings.ExposeDSUSettings(AllDeepStorageUnits);
             }
         } // end ExposeData()
 

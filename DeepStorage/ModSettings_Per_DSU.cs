@@ -25,7 +25,7 @@ namespace LWM.DeepStorage
         public Dialog_DS_Settings() {
 			this.forcePause = true;
 			this.doCloseX = true;
-            this.doCloseButton = true;
+            this.doCloseButton = false;
 			this.closeOnClickedOutside = true;
 			this.absorbInputAroundWindow = true;
         }
@@ -41,7 +41,6 @@ namespace LWM.DeepStorage
         public override void DoWindowContents(Rect inRect)
 		{
             var contentRect = new Rect(0, 0, inRect.width, inRect.height - (CloseButSize.y + 10f)).ContractedBy(10f);
-//            var scrollViewVisible = new Rect(0f, titleRect.height, contentRect.width, contentRect.height - titleRect.height);
             bool scrollBarVisible = totalContentHeight > contentRect.height;
             var scrollViewTotal = new Rect(0f, 0f, contentRect.width - (scrollBarVisible ? ScrollBarWidthMargin : 0), totalContentHeight);
             Widgets.DrawHighlight(contentRect);
@@ -49,7 +48,6 @@ namespace LWM.DeepStorage
             float curY = 0f;
             Rect r=new Rect(0,curY,scrollViewTotal.width, LabelHeight);
 
-//            r=new Rect(0,curY,scrollViewTotal.width, LabelHeight);
             Widgets.CheckboxLabeled(r, "LWMDSperDSUturnOn".Translate(), ref Settings.allowPerDSUSettings);//TODO
             TooltipHandler.TipRegion(r, "LWMDSperDSUturnOnDesc".Translate());
             curY+=LabelHeight+1f;
@@ -70,9 +68,35 @@ namespace LWM.DeepStorage
             var bg=ContentFinder<Texture2D>.Get("UI/Widgets/ButtonBG", true);
             var bgmouseover=ContentFinder<Texture2D>.Get("UI/Widgets/ButtonBGMouseover", true);
             var bgclick=ContentFinder<Texture2D>.Get("UI/Widgets/ButtonBGClick", true);
-            foreach (ThingDef u in Settings.allDeepStorageUnits) {
-
-                r=new Rect(5f, curY, (scrollViewTotal.width)*2/3-7f, LabelHeight);
+            //  note: make own list b/c this can modify what's in the DefDatabase.
+            foreach (ThingDef u in Settings.AllDeepStorageUnits.ToList()) {
+                //////////////// Disble button: //////////////////
+                // disabled if it's already been disabled previously
+                //   or if it's slated to be disabled on window close
+                bool isEnabled=!tracker.HasDefaultValueFor(u.defName, "def") &&
+                    (this.unitsToBeDisabled==null || !unitsToBeDisabled.Contains(u));
+                bool wasEnabled = isEnabled;
+                Rect disableRect = new Rect(5f, curY, LabelHeight, LabelHeight);
+                TooltipHandler.TipRegion(disableRect, "TODO: Add description. But basically, you can disable some units and they won't show up in game.\n\nVERY likely to cause unimportant errors in saved games.");
+                Widgets.Checkbox(disableRect.x, disableRect.y, ref isEnabled, LabelHeight, false, true, null, null);
+                if (!isEnabled && wasEnabled) { // newly disabled
+                    Utils.Warn(Utils.DBF.Settings, "Marking unit for disabling: "+u.defName);
+                    if (unitsToBeDisabled==null) unitsToBeDisabled=new HashSet<ThingDef>();
+                    unitsToBeDisabled.Add(u); // hash sets don't care if it's already there!
+                }
+                if (isEnabled && !wasEnabled) { // add back:
+                    Utils.Warn(Utils.DBF.Settings, "Restoring disabled unit: "+u.defName);
+                    if (unitsToBeDisabled !=null &&  unitsToBeDisabled.Contains(u)) {
+                        unitsToBeDisabled.Remove(u);
+                    }
+                    if (tracker.HasDefaultValueFor(u.defName, "def")) {
+                        tracker.Remove(u.defName, "def");
+                    }
+                    if (!DefDatabase<ThingDef>.AllDefsListForReading.Contains(u))
+                        ReturnDefToUse(u);
+                }
+                //////////////// Select def: //////////////////
+                r=new Rect(10f+LabelHeight, curY, (scrollViewTotal.width)*2/3-12f-LabelHeight, LabelHeight);
                 // Draw button-ish background:
                 Texture2D atlas = bg;
 				if (Mouse.IsOver(r))
@@ -90,9 +114,9 @@ namespace LWM.DeepStorage
                 if (Widgets.ButtonInvisible(r)) {
                     Find.WindowStack.Add(new Dialog_DSU_Settings(u));
                 }
-                // Reset button:
+                //////////////// Reset button: //////////////////
                 r=new Rect((scrollViewTotal.width)*2/3+2f,curY, (scrollViewTotal.width)/3-7f, LabelHeight);
-                if (IsDSUChanged(u) && Widgets.ButtonText(r, "ResetBinding".Translate())) {
+                if (tracker.IsChanged(u.defName) && Widgets.ButtonText(r, "ResetBinding".Translate())) {
                     ResetDSUToDefaults(u.defName);
                 }
                 curY+=LabelHeight+2f;
@@ -101,12 +125,55 @@ namespace LWM.DeepStorage
             // end buttons
 
             Widgets.EndScrollView();
-            r=new Rect(10f, inRect.height-CloseButSize.y-5f, inRect.width/3, CloseButSize.y);
-            if (defaultDSUValues.Count>0 && Widgets.ButtonText(r, "LWM.ResetAllToDefault".Translate())) {
+            // close button:
+            r=new Rect(inRect.width/2-(CloseButSize.x/2), inRect.height-CloseButSize.y-5f, CloseButSize.x, CloseButSize.y);
+            if (Widgets.ButtonText(r, "CloseButton".Translate())) {
+                if (unitsToBeDisabled != null && unitsToBeDisabled.Count > 0) {
+                    //TODO: add out-of-order flag.
+                    foreach (ThingDef d in unitsToBeDisabled) {
+                        Utils.Warn(Utils.DBF.Settings, "Closing Window: Removing def: "+d.defName);
+                        RemoveDefFromUse(d);
+                        tracker.AddDefaultValue(d.defName, "def", d);
+                    }
+                    unitsToBeDisabled=null;
+                }
+                Close();
+            }
+            r=new Rect(10f, inRect.height-CloseButSize.y-5f, 2*CloseButSize.x, CloseButSize.y);
+            if (tracker.HasAnyDefaultValues && Widgets.ButtonText(r, "LWM.ResetAllToDefault".Translate())) {
                 Utils.Mess(Utils.DBF.Settings, "Resetting all per-building storage settings to default:");
                 ResetAllToDefaults();
             }
             totalContentHeight = curY;
+        }
+        private static void RemoveDefFromUse(ThingDef def) {
+            // Remove from DefDatabase:
+            //   equivalent to DefDatabase<DesignationCategoryDef>.Remove(def);
+            //                  that's a private method, of course ^^^^^^
+            //   #reflection #magic
+            typeof(DefDatabase<>).MakeGenericType(new Type[] {typeof(ThingDef)})
+                    .GetMethod("Remove", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke (null, new object [] { def });
+
+            DefDatabase<ThingDef>.AllDefsListForReading.Remove(def);
+            ThingDef tester=DefDatabase<ThingDef>.GetNamed(def.defName, false);
+            if (tester != null) Log.Error("Tried to remove "+def.defName+" from DefDatabase, but it's stil there???");
+            // remove from architect menu
+            if (def.designationCategory != null) {
+                Utils.Mess(Utils.DBF.Settings, "  removing "+def+" from designation category "+def.designationCategory);
+                def.designationCategory.AllResolvedDesignators.RemoveAll(x=>((x is Designator_Build) &&
+                                                                             ((Designator_Build)x).PlacingDef==def));
+            }
+            return;
+        }
+        private static void ReturnDefToUse(ThingDef def) {
+            Utils.Mess(Utils.DBF.Settings, "Returning def "+def+" to use.");
+            // Def database
+            DefDatabase<ThingDef>.AllDefsListForReading.Add(def);
+            // restore to architect menu:
+            if (def.designationCategory != null) {
+                def.designationCategory.AllResolvedDesignators.Add(new Designator_Build(def));
+            }
         }
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         private class Dialog_DSU_Settings : Window {
@@ -118,7 +185,7 @@ namespace LWM.DeepStorage
                 this.absorbInputAroundWindow = true;
                 this.def=def;
 
-                if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                if (tracker.HasDefaultValueFor(def.defName, "filter")) {
                     this.useCustomThingFilter=true;
                 }
 
@@ -136,18 +203,15 @@ namespace LWM.DeepStorage
 
             private void SetTempVarsToDefaults() {
                 SetTempVars();
-                string k="DSU_"+def.defName;
-//                if (defaultDSUValues.ContainsKey(k+"_label")) tmpLabel=(string)defaultDSUValues[k+"label"];
-                HelpSetTempVarToDefault<string>(ref tmpLabel, "label");
-                HelpSetTempVarToDefault<int>(ref tmpMaxNumStacks, "maxNumStacks");
-                HelpSetTempVarToDefault<float>(ref tmpMaxTotalMass, "maxTotalMass");
-                HelpSetTempVarToDefault<float>(ref tmpMaxMassStoredItem, "maxMassStoredItem");
-                HelpSetTempVarToDefault<bool>(ref tmpShowContents, "showContents");
-                HelpSetTempVarToDefault<StoragePriority>(ref tmpStoragePriority, "storagePriority");
-                HelpSetTempVarToDefault<LWM.DeepStorage.GuiOverlayType>(ref tmpOverlayType, "overlayType");
+                tmpLabel=tracker.GetDefaultValue(def.defName, "label", tmpLabel);
+                tmpMaxNumStacks=tracker.GetDefaultValue(def.defName, "maxNumStacks", tmpMaxNumStacks);
+                tmpMaxTotalMass=tracker.GetDefaultValue(def.defName, "maxTotalMass", tmpMaxTotalMass);
+                tmpMaxMassStoredItem=tracker.GetDefaultValue(def.defName, "maxMassStoredItem", tmpMaxMassStoredItem);
+                tmpShowContents=tracker.GetDefaultValue(def.defName, "showContents", tmpShowContents);
+                tmpStoragePriority=tracker.GetDefaultValue(def.defName, "storagePriority", tmpStoragePriority);
+                tmpOverlayType=tracker.GetDefaultValue(def.defName, "overlayType", tmpOverlayType);
                 useCustomThingFilter=false;
                 customThingFilter=null;
-                //HelpSetTempVarToDefault<>(ref tmp, "");
             }
             private bool AreTempVarsDefaults() {
                 var cp=def.GetCompProperties<LWM.DeepStorage.Properties>();
@@ -162,13 +226,7 @@ namespace LWM.DeepStorage
                 if (useCustomThingFilter) return false;
                 return true;
             }
-            private void HelpSetTempVarToDefault<T>(ref T v, string keylet) { // MEH.
-                string key="DSU_"+def.defName+"_"+keylet;
-                if (defaultDSUValues.ContainsKey(key)) {
-                    Utils.Mess(Utils.DBF.Settings, "Resetting "+def.defName+"'s "+keylet+" to default "+defaultDSUValues[key]);
-                    v=(T)defaultDSUValues[key];
-                }
-            }
+
             public override Vector2 InitialSize
             {
                 get
@@ -180,7 +238,8 @@ namespace LWM.DeepStorage
             public override void DoWindowContents(Rect inRect) // For a specific DSU
             {
 //                var XXXcontentRect = new Rect(0, 0, inRect.width, inRect.height - (CloseButSize.y + 10f)).ContractedBy(10f);
-
+                // for the record, Listing_Standards kind of suck. Convenient enough, but no flexibility
+                // TODO when I'm bored: switch to manual, add red background for disabled units
                 var l = new Listing_Standard();
 //                l.Begin(new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f));
                 Rect s=new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f);
@@ -230,12 +289,13 @@ namespace LWM.DeepStorage
                     r.x+=10f;
                     ThingFilterUI.DoThingFilterConfigWindow(r, ref thingFilterScrollPosition, customThingFilter);
                 } else { // not using custom thing filter:
-                    if (customThingFilter!=null || defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                    if (customThingFilter!=null || tracker.HasDefaultValueFor(this.def.defName, "filter")) {
                         customThingFilter=null;
-                        if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                        if (tracker.HasDefaultValueFor(this.def.defName, "filter")) {
                             Utils.Mess(Utils.DBF.Settings, "  Removing filter for "+def.defName);
-                            def.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"];
-                            defaultDSUValues.Remove("DSU_"+def.defName+"_filter");
+                            def.building.fixedStorageSettings.filter=(ThingFilter)tracker
+                                .GetDefaultValue<ThingFilter>(def.defName, "filter", null);
+                            tracker.Remove(def.defName, "filter");
                         }
                     }
                 }
@@ -257,29 +317,37 @@ namespace LWM.DeepStorage
                 // Accept button - with accompanying logic
                 closeRect = new Rect(inRect.width-(2*CloseButSize.x+5f), inRect.height-CloseButSize.y,CloseButSize.x,CloseButSize.y);
                 if (Widgets.ButtonText(closeRect, "AcceptButton".Translate())) {
+                    LWM.DeepStorage.Properties props=def.GetCompProperties<Properties>();
                     GUI.FocusControl(null); // unfocus, so that a focused text field may commit its value
                     Utils.Warn(Utils.DBF.Settings, "\"Accept\" button selected: changing values for "+def.defName);
-                    TestAndUpdate("label", tmpLabel, ref def.label);
-                    TestAndUpdate("maxNumStacks", tmpMaxNumStacks, ref def.GetCompProperties<Properties>().maxNumberStacks);
-                    TestAndUpdate("maxTotalMass", tmpMaxTotalMass, ref def.GetCompProperties<Properties>().maxTotalMass);
-                    TestAndUpdate("maxMassStoredItem", tmpMaxMassStoredItem, ref def.GetCompProperties<Properties>().maxMassOfStoredItem);
-                    TestAndUpdate("showContents", tmpShowContents, ref def.GetCompProperties<Properties>().showContents);
-                    TestAndUpdate("overlayType", tmpOverlayType, ref def.GetCompProperties<Properties>().overlayType);
+                    tracker.UpdateToNewValue(def.defName, "label", tmpLabel, ref def.label);
+                    tracker.UpdateToNewValue(def.defName,
+                               "maxNumStacks", tmpMaxNumStacks, ref props.maxNumberStacks);
+                    tracker.UpdateToNewValue(def.defName,
+                               "maxTotalMass", tmpMaxTotalMass, ref props.maxTotalMass);
+                    tracker.UpdateToNewValue(def.defName,
+                               "maxMassStoredItem", tmpMaxMassStoredItem, ref props.maxMassOfStoredItem);
+                    tracker.UpdateToNewValue(def.defName,
+                               "showContents", tmpShowContents, ref props.showContents);
+                    tracker.UpdateToNewValue(def.defName,
+                               "overlayType", tmpOverlayType, ref props.overlayType);
                     StoragePriority tmpSP=def.building.defaultStorageSettings.Priority; // hard to access private field directly
-                    TestAndUpdate("storagePriority", tmpStoragePriority, ref tmpSP);
+                    tracker.UpdateToNewValue(def.defName, "storagePriority", tmpStoragePriority, ref tmpSP);
                     def.building.defaultStorageSettings.Priority=tmpSP;
-                    if (useCustomThingFilter) {
-                        if (!defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                    if (useCustomThingFilter) { // danger ahead - automatically use it, even if stupidly set up
+                        if (!tracker.HasDefaultValueFor(def.defName, "filter")) {
                             Utils.Mess(Utils.DBF.Settings, "Creating default filter record for item "+def.defName);
-                            defaultDSUValues["DSU_"+def.defName+"_filter"]=def.building.fixedStorageSettings.filter;
+                            tracker.AddDefaultValue(def.defName, "filter", def.building.fixedStorageSettings.filter);
                         }
                         def.building.fixedStorageSettings.filter=customThingFilter;
                     } else {
-                        if (defaultDSUValues.ContainsKey("DSU_"+def.defName+"_filter")) {
+                        // restore default filter:
+                        if (tracker.HasDefaultValueFor(def.defName, "filter")) {
                             // we need to remove it
                             Utils.Mess(Utils.DBF.Settings, "Removing default filter record for item "+def.defName);
-                            def.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+def.defName+"_filter"];
-                            defaultDSUValues.Remove("DSU_"+def.defName+"_filter");
+                            def.building.fixedStorageSettings.filter=(ThingFilter)tracker
+                                .GetDefaultValue<ThingFilter>(def.defName, "filter", null);
+                            tracker.Remove(def.defName, "filter");
                         }
                     }
                     Close();
@@ -288,32 +356,10 @@ namespace LWM.DeepStorage
                 closeRect = new Rect(inRect.width-(4*CloseButSize.x+10f), inRect.height-CloseButSize.y,2*CloseButSize.x,CloseButSize.y);
                 if (!AreTempVarsDefaults() && Widgets.ButtonText(closeRect, "ResetBinding".Translate())) {
                     SetTempVarsToDefaults();
-                    //ResetDSUToDefaults(def.defName);
-                    //SetTempVars();
                 }
             }
 
-            private void TestAndUpdate<T>(string keylet, T value, ref T origValue) where T : IComparable {
-                string key="DSU_"+def.defName+"_"+keylet;
-                if (value.CompareTo(origValue)==0) {
-                    Utils.Mess(Utils.DBF.Settings,"  No change: "+key);
-                    return;
-                }
-                Utils.Mess(Utils.DBF.Settings,"changing value for "+key+" from "+origValue+" to "+value);
-                // "origValue" may be suspect - user could already have changed it once.  So:
-                //    (this IS assignment by value, right?)
-                T defaultValue=(defaultDSUValues.ContainsKey(key)?(T)defaultDSUValues[key]:origValue);
-                origValue=value;
-                // if the user reset to originald defaul values, remove the default values key
-                if (defaultValue.CompareTo(origValue)==0 && defaultDSUValues.ContainsKey(key)) {
-                    defaultDSUValues.Remove(key);
-                    Utils.Mess(Utils.DBF.Settings, "  removing default record for item "+keylet+" ("+def.defName+")");
-                } else if (!defaultDSUValues.ContainsKey(key)) {
-                    defaultDSUValues[key]=defaultValue;
-                    Utils.Mess(Utils.DBF.Settings, "  creating default record for item "+keylet+" ("+def.defName+")");
-                }
-            }
-
+            DefChangeTracker tracker = Settings.defTracker;
             ThingDef def;
             string tmpLabel;
             int tmpMaxNumStacks;
@@ -328,124 +374,105 @@ namespace LWM.DeepStorage
             Vector2 thingFilterScrollPosition=new Vector2(0,0);
             Vector2 DSUScrollPosition=new Vector2(0,0);
         }
-        private static void ResetDSUToDefaults(string defName) {
-            var allKeys=new List<string>(defaultDSUValues.Keys);
-            Utils.Warn(Utils.DBF.Settings, "Resetting DSU to default: "+(defName==null?"ALL":defName)
-                       +" ("+allKeys.Count+" defaults to search)");
-            while (allKeys.Count > 0) {
-                var key=allKeys.Last();
-                var value = defaultDSUValues[key];
-                string s=key.Remove(0,4); // string off first DSU_
-                var t=s.Split('_');
-                string prop=t[t.Length-1]; // LWM_Big_Shelf_label ->  grab "label"
-                string keyDefName=string.Join("_", t.Take(t.Length-1).ToArray()); // put defName back together
-                Utils.Mess(Utils.DBF.Settings, "Checking key "+key+" (defName of "+keyDefName+")");
-                if (defName==null || defName=="" || defName==keyDefName) {
-                    Log.Message("LWM.DeepStorage: Resetting "+keyDefName+"'s "+prop+" to default: "+value);
-                    var def=DefDatabase<ThingDef>.GetNamed(keyDefName);
-                    if (prop=="label") {
-                        def.label=(string)(value);
-                    } else if (prop=="maxNumStacks") {
-                        def.GetCompProperties<Properties>().maxNumberStacks=(int)(value);
-                    } else if (prop=="maxTotalMass") {
-                        def.GetCompProperties<Properties>().maxTotalMass=(float)(value);
-                    } else if (prop=="maxMassStoredItem") {
-                        def.GetCompProperties<Properties>().maxMassOfStoredItem=(float)(value);
-                    } else if (prop=="showContents") {
-                        def.GetCompProperties<Properties>().showContents=(bool)(value);
-                    } else if (prop=="storagePriority") {
-                        def.building.defaultStorageSettings.Priority=(StoragePriority)(value);
-                    } else if (prop=="overlayType") {
-                        def.GetCompProperties<Properties>().overlayType=(LWM.DeepStorage.GuiOverlayType)(value);
-                    } else if (prop=="filter") {
-                        def.building.fixedStorageSettings.filter=(ThingFilter)(value);
+        private static void ResetDSUToDefaults(string resetDefName) {
+            object tmpObject;
+            string defName=resetDefName;
+            string prop;
+            bool resetAll=(resetDefName==null || resetDefName=="");
+            while ((resetAll && Settings.defTracker.GetFirstDefaultValue(out defName, out prop, out tmpObject))
+                   || Settings.defTracker.GetFirstDefaultValueFor(defName, out prop, out tmpObject)) {
+                Utils.Mess(Utils.DBF.Settings,"Resetting "+prop+" to default value for "+defName);
+                var def=DefDatabase<ThingDef>.GetNamed(defName, false);
+                if (def==null) {
+                    ThingDef tmp = (ThingDef)Settings.defTracker.GetDefaultValue(defName, "def", def);
+                    if (tmp!=null) {
+                        def=tmp;
+                        // We are resetting the def, so we need it back in the DefDatabase!
+                        ReturnDefToUse(def);
+                        Settings.defTracker.Remove(defName, "def");
+                        if (prop=="def") continue;
                     } else {
-                        Log.Error("LWM.DeepStorage: FAILED TO RESET OPTION TO DEFAULT: "+key);
+                        //todo: put this error message it translate
+                        Log.Warning("LWM.DeepStorage: Tried to change mod setting for "+defName+" but could not find def.\nClear your settings to remove this error.");
+                        Settings.defTracker.Remove(defName, prop);
+                        continue;
                     }
-                    defaultDSUValues.Remove(key);
                 }
-                allKeys.RemoveLast();
-            }
+                if (prop=="label") {
+                    def.label=(string)(tmpObject);
+                } else if (prop=="maxNumStacks") {
+                    def.GetCompProperties<Properties>().maxNumberStacks=(int)(tmpObject);
+                } else if (prop=="maxTotalMass") {
+                    def.GetCompProperties<Properties>().maxTotalMass=(float)(tmpObject);
+                } else if (prop=="maxMassStoredItem") {
+                    def.GetCompProperties<Properties>().maxMassOfStoredItem=(float)(tmpObject);
+                } else if (prop=="showContents") {
+                    def.GetCompProperties<Properties>().showContents=(bool)(tmpObject);
+                } else if (prop=="storagePriority") {
+                    def.building.defaultStorageSettings.Priority=(StoragePriority)(tmpObject);
+                } else if (prop=="overlayType") {
+                    def.GetCompProperties<Properties>().overlayType=(LWM.DeepStorage.GuiOverlayType)(tmpObject);
+                } else if (prop=="filter") {
+                    def.building.fixedStorageSettings.filter=(ThingFilter)(tmpObject);
+                } else if (prop=="def") {
+                    // Def was marked for removal but hasn't been removed yet
+                    Utils.Mess(Utils.DBF.Settings, "Removing "+defName+" from list of defs to remove.");
+                    ReturnDefToUse(def);
+                } else {
+                    Log.Error("LWM.DeepStorage: FAILED TO RESET OPTION TO DEFAULT: "+defName+", "+prop);
+                }
+                Settings.defTracker.Remove(defName, prop);
+            } // end while loop, defSettings.DefTracker didn't have anything else
+            // done resetting!
         }
-        private static bool IsDSUChanged(ThingDef d) {
-            foreach (string k in defaultDSUValues.Keys) {
-                string s=k.Remove(0,4); // strip off DSU_
-                var t=s.Split('_');
-                string keyDefName=string.Join("_", t.Take(t.Length-1).ToArray());
-                if (keyDefName==d.defName) return true;
-            }
-            return false;
-        }
+
         private static void ResetAllToDefaults() {
             ResetDSUToDefaults(null);
         }
 
-        public static void ExposeDSUSettings(List<ThingDef> units) {
-            foreach (ThingDef u in units) {
+        public static void ExposeDSUSettings(IEnumerable<ThingDef> units) {
+            // note: make our own list in case we modify DefDatabase/etc from here
+            if (units==null) { Log.Warning("Passed null units"); return; }
+            if (Settings.defTracker==null) {Log.Error("DefChangeTracker is null"); return;}
+            foreach (ThingDef u in units.ToList()) {
                 Utils.Warn(Utils.DBF.Settings, "Expose DSU Settings: "+u.defName+" ("+Scribe.mode+")");
-                string k1=u.defName;
-                ExposeDSUSetting<string>(k1+"_label",ref u.label);
-                ExposeDSUSetting(k1+"_maxNumStacks", ref u.GetCompProperties<Properties>().maxNumberStacks);
-                ExposeDSUSetting(k1+"_maxTotalMass", ref u.GetCompProperties<Properties>().maxTotalMass);
-                ExposeDSUSetting(k1+"_maxMassStoredItem", ref u.GetCompProperties<Properties>().maxMassOfStoredItem);
-                ExposeDSUSetting(k1+"_showContents", ref u.GetCompProperties<Properties>().showContents);
-                ExposeDSUSetting(k1+"_overlayType", ref u.GetCompProperties<Properties>().overlayType);
+                string defName=u.defName;
+                Settings.defTracker.ExposeSetting<string>(defName, "label",ref u.label);
+                Settings.defTracker.ExposeSetting(defName, "maxNumStacks", ref u.GetCompProperties<Properties>().maxNumberStacks);
+                Settings.defTracker.ExposeSetting(defName, "maxTotalMass", ref u.GetCompProperties<Properties>().maxTotalMass);
+                Settings.defTracker.ExposeSetting(defName, "maxMassStoredItem", ref u.GetCompProperties<Properties>().maxMassOfStoredItem);
+                Settings.defTracker.ExposeSetting(defName, "showContents", ref u.GetCompProperties<Properties>().showContents);
+                Settings.defTracker.ExposeSetting(defName, "overlayType", ref u.GetCompProperties<Properties>().overlayType);
                 StoragePriority tmpSP=u.building.defaultStorageSettings.Priority; // hard to access private field directly
-                ExposeDSUSetting<StoragePriority>(k1+"_storagePriority", ref tmpSP);
+                Settings.defTracker.ExposeSetting<StoragePriority>(defName, "storagePriority", ref tmpSP);
                 u.building.defaultStorageSettings.Priority=tmpSP;
-                if (defaultDSUValues.ContainsKey("DSU_"+u.defName+"_filter")) {
-                    Utils.Mess(Utils.DBF.Settings, "  default filter recorded, doing Scribe_Deep");
-                    Scribe_Deep.Look(ref u.building.fixedStorageSettings.filter, "DSU_"+u.defName+"_filter", null);
-                    if (u.building.fixedStorageSettings.filter==null) { // we were loading/resetting, looks like
-                        Utils.Mess(Utils.DBF.Settings, "  ----> default filter is now null!");
-                        u.building.fixedStorageSettings.filter=(ThingFilter)defaultDSUValues["DSU_"+u.defName+"_filter"];
-                        defaultDSUValues.Remove("DSU_"+u.defName+"_filter");
+                // If fixedStorageSettings is null, it's because it can store anything. We don't change that:
+                if (u.building?.fixedStorageSettings != null)
+                    Settings.defTracker.ExposeSettingDeep(defName, "filter", ref u.building.fixedStorageSettings.filter);
+                //Utils.Mess(Utils.DBF.Settings, "  Basics exposed.");
+                //////////////////////// disabling defs //////////////////////////
+                if (Scribe.mode == LoadSaveMode.LoadingVars) {
+                    // Check if this unit has been disabled:
+                    bool disabled=false;
+                    Scribe_Values.Look(ref disabled, "DSU_"+defName+"_disabled", false);
+                    if (disabled) {
+//todo                        defaultDSUValues["outOfOrder"]=true;
+                        Utils.Mess(Utils.DBF.Settings, "Startup: disabling unit "+u.defName);
+                        Settings.defTracker.AddDefaultValue(defName, "def", u);
+                        RemoveDefFromUse(u);
                     }
-                } else {
-                    ThingFilter tmp=null;
-                    Scribe_Deep.Look(ref tmp, "DSU_"+u.defName+"_filter", null);
-                    if (tmp!=null) {
-                        Utils.Mess(Utils.DBF.Settings, "  Found Filter, applying.");
-                        defaultDSUValues["DSU_"+u.defName+"_filter"]=u.building.fixedStorageSettings.filter;
-                        u.building.fixedStorageSettings.filter=tmp;
+                } else if (Scribe.mode == LoadSaveMode.Saving) {
+                    if (Settings.defTracker.HasDefaultValueFor(defName, "def")) {
+                        bool disabled=true;
+                        Scribe_Values.Look(ref disabled, "DSU_"+defName+"_disabled", false);
+                        Utils.Mess(Utils.DBF.Settings, "Saving disabled unit name "+u.defName);
                     }
                 }
-/*                    string key="DSU_"+u.defName+"_label";
-                      string value=u.label;
-                      string defaultValue=(defaultDSUValues.ContainsKey(key)?(string)defaultDSUValues[key]:value);
-                      Scribe_Values.Look(ref value, key, defaultValue);
-                      if (defaultValue != value && !defaultDSUValues.ContainsKey(key)) {
-                      defaultDSUValues[key]=defaultValue;
-                      }
-*/
-            }
-
-
+            } // end units loop
         }
-        // Only ONE DSU Setting:
-        private static void ExposeDSUSetting<T>(string keylet, ref T value) where T : IComparable {
-            string key = "DSU_"+keylet;
-            T defaultValue=(defaultDSUValues.ContainsKey(key)?(T)defaultDSUValues[key]:value);
-            if (defaultValue.CompareTo(value)!=0) {
-                Utils.Mess(Utils.DBF.Settings, "  Expose Setting: "+key+" (current value: "
-                           +value+"; default Value: "+defaultValue+")");
-            }
-            Scribe_Values.Look(ref value, key, defaultValue);
-            if (defaultValue.CompareTo(value)!=0) {
-                Utils.Mess(Utils.DBF.Settings, "  after scribing: "+key+" (current value: "
-                           +value+"; default Value: "+defaultValue+")");
-            }
-            if (defaultValue.CompareTo(value) != 0 && !defaultDSUValues.ContainsKey(key)) {
-                Utils.Mess(Utils.DBF.Settings, "  -->"+key+" storing default value of "+defaultValue);
-//                Log.Message("-->"+key+" storing default value of "+defaultValue);//TODO
-//                Log.Warning("        Current value: "+value);
-                defaultDSUValues[key]=defaultValue;
-            }
-        }
-
 
         private float totalContentHeight=1000f;
-        private static Vector2 scrollPosition;
+        private Vector2 scrollPosition;
 
 		private const float TopAreaHeight = 40f;
 		private const float TopButtonHeight = 35f;
@@ -453,10 +480,12 @@ namespace LWM.DeepStorage
         private const float ScrollBarWidthMargin = 18f;
         private const float LabelHeight=22f;
 
+
         // Actual Logic objects:
-        //   Default values for DSU objects, so that when saving mod settings, we know what the defaults are.
-        //   Only filled in as user changes the values.
-        public static Dictionary<string, object> defaultDSUValues=new Dictionary<string, object>();
+        //   list of DSUs to be disabled on window close:
+        HashSet<ThingDef> unitsToBeDisabled=null;
+        // Helpful for typing:
+        public DefChangeTracker tracker=Settings.defTracker;
     }
 
 }
