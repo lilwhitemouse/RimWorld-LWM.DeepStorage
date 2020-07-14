@@ -143,11 +143,11 @@ namespace LWM.DeepStorage
                 Log.Error("Did find a " + t.ToString() + " here at " + loc.ToString());
             }
             return true;
-#pragma warning restore CS0162 // Unreachable code detected
+            #pragma warning restore CS0162 // Unreachable code detected
         }
         public static bool CanStoreMoreThanOneThingIn(SlotGroup slotGroup) {
             if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
-                (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null) 
+                (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null)
             {
                 return false;
             }
