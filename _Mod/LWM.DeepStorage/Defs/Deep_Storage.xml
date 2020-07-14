@@ -93,7 +93,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
         There's a mod "No Default Shelf Storage" that turns this off for vanilla shelves.
         This is turned ON for Combat Extended weapons lockers.)
     <priority>Low up to Critical</priority> - defaults to important
-      <filter Inherit="false"><--if you only want to change filter but not priority
+      <filter Inherit="false"> - if you only want to change filter but not priority
         As above.  If you leave this section out, storage units won't start with things checked off,
         which can be very nice.
       </filter>
@@ -170,6 +170,9 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <researchPrerequisites>
       <li>ComplexFurniture</li>
     </researchPrerequisites>
+    <!-- You can turn off ability to minify things like this:
+         <minifiedDef Inherit="false" />
+    -->
     <minifiedDef>MinifiedThing</minifiedDef><!--If user doesn't like it, user doesn't have to use it-->
     <!-- thingCategories are covered by FurnitureBase
          TODO: thingCategories define where these things go under Buildings in thingFilters
