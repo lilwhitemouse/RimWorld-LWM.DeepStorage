@@ -28,6 +28,17 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Test|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\_Mod\LWM.DeepStorage\1.1\Assemblies\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Lib.Harmony.2.0.1\lib\net472\0Harmony.dll</HintPath>
@@ -75,6 +86,8 @@
     <Compile Include="Cache\Patch_ListerMergeables_Notify_ThingStackChanged.cs" />
     <Compile Include="Cache\Patch_Notify_LostThing.cs" />
     <Compile Include="Cache\Patch_Notify_ReceivedThing.cs" />
+    <Compile Include="Cache\Patch_Thing_SpawnSetup.cs" />
+    <Compile Include="Cache\Patch_Thing_TryAbsorbStack.cs" />
     <Compile Include="Cache\StackableThingComparer.cs" />
     <Compile Include="Cache\ThingCountComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -104,35 +117,17 @@
     <Compile Include="Updates.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">
-      <Link>_Mod\LWM.DeepStorage\About\About-Master.xml</Link>
-    </None>
-    <None Include="..\_Mod\LWM.DeepStorage\About\About-NonSteam.xml">
-      <Link>_Mod\LWM.DeepStorage\About\About-NonSteam.xml</Link>
-    </None>
-    <None Include="..\_Mod\LWM.DeepStorage\About\About-Steam.xml">
-      <Link>_Mod\LWM.DeepStorage\About\About-Steam.xml</Link>
-    </None>
     <None Include="..\_Mod\LWM.DeepStorage\About\About.xml">
       <Link>_Mod\LWM.DeepStorage\About\About.xml</Link>
     </None>
     <None Include="..\_Mod\LWM.DeepStorage\About\Preview.png">
       <Link>_Mod\LWM.DeepStorage\About\Preview.png</Link>
     </None>
-    <None Include="..\_Mod\LWM.DeepStorage\About\PublishedFileId.txt">
-      <Link>_Mod\LWM.DeepStorage\About\PublishedFileId.txt</Link>
-    </None>
     <None Include="..\_Mod\LWM.DeepStorage\Assemblies\0Harmony.dll">
       <Link>_Mod\LWM.DeepStorage\Assemblies\0Harmony.dll</Link>
     </None>
     <None Include="..\_Mod\LWM.DeepStorage\Assemblies\LWM.DeepStorage.dll">
       <Link>_Mod\LWM.DeepStorage\Assemblies\LWM.DeepStorage.dll</Link>
-    </None>
-    <None Include="..\_Mod\LWM.DeepStorage\Defs\ThingDefs\Deep_Storage.xml">
-      <Link>_Mod\LWM.DeepStorage\Defs\ThingDefs\Deep_Storage.xml</Link>
-    </None>
-    <None Include="..\_Mod\LWM.DeepStorage\Defs\ThingDefs\Weapon_Lockers.xml">
-      <Link>_Mod\LWM.DeepStorage\Defs\ThingDefs\Weapon_Lockers.xml</Link>
     </None>
     <None Include="..\_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\MeatHook.png">
       <Link>_Mod\LWM.DeepStorage\Textures\Things\Building\Furniture\MeatHook.png</Link>
@@ -265,6 +260,8 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="_Mod\LWM.DeepStorage\Defs\ThingDefs\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -226,13 +226,13 @@ namespace LWM.DeepStorage
         {
             // The only time when result is true is when thing is not split and it is either fully absorbed into another stack
             // or it is placed with GenSpawn.Spawn(). In either case, there is no more work to do.
+            // If result is false, it always suggests that there are some stacks left in the initial thing.
             if (result)
                 return;
 
             if (!thing.def.EverStorable(false) || !compCached.StorageSettings.AllowedToAccept(thing))
                 return;
 
-            // If result is false, it always suggests that there are some stacks left in the initial thing.
             if (compCached.CapacityAt(thing, loc, map, out int capacity))
             {
                 int stackLimit = thing.def.stackLimit;
@@ -246,10 +246,11 @@ namespace LWM.DeepStorage
                     // 5. stackCount >= stackLimit >= capacity
                     // 6. stackCount >= capacity >= stackLimit
                     // 7. stackLimit = capacity = stackCount
+
                     // The building has only one non-full stack for storage.
                     if (capacity < stackLimit)
                     {
-                        result = compCached.CellStorages.AbsorbWithNonFull(thing, placedAction, ref resultingThing);
+                        result = compCached.CellStorages.AbsorbWithNonFull(thing, loc, placedAction, ref resultingThing);
                         // Absorb whatever it can and returns.
                         break;
                     }
@@ -270,13 +271,14 @@ namespace LWM.DeepStorage
                             // given capacity >= stackLimit and thing.stackCount <= stackLimit.
                             if (thing.stackCount != stackLimit)
                             {
-                                result = compCached.CellStorages.AbsorbWithNonFull(thing, placedAction, ref resultingThing);
+                                result = compCached.CellStorages.AbsorbWithNonFull(thing, loc, placedAction, ref resultingThing);
                                 if (result)
                                     break;
                             }
 
                             // NonFull cannot finish the job, so use a empty slot in storage.
                             resultingThing = GenSpawn.Spawn(thing, loc, map);
+                            result = true;
                             placedAction?.Invoke(resultingThing, resultingThing.stackCount);
                             break;
                         }
@@ -314,10 +316,12 @@ namespace LWM.DeepStorage
     [HarmonyPatch(typeof(Verse.GenSpawn), "Spawn", new Type[] { typeof(Thing), typeof(IntVec3), typeof(Map), typeof(Rot4), typeof(WipeMode), typeof(bool) })]
     class Patch_GenSpawn_Spawn
     {
+        private static MethodInfo _spawnSetupMethod = typeof(Thing).GetMethod(nameof(Thing.SpawnSetup));
+
         //        static void Prefix (Thing newThing) {
         //            Log.Warning("Spawn: " + newThing.ToString() + ".  Destroyed? " + newThing.Destroyed);
         //        }
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator)
         {
             // replace if (newThing.def.category == ThingCategory.Item)
             // with
@@ -379,6 +383,26 @@ namespace LWM.DeepStorage
                     }
                 }
             }
+
+            for (; i < code.Count; i++)
+            {
+                yield return code[i];
+                if (code[i].opcode == OpCodes.Callvirt && code[i].OperandIs(_spawnSetupMethod))
+                {
+                    while (code[++i].opcode != OpCodes.Brfalse_S)
+                        yield return code[i];
+
+                    if (code[i + 12].opcode == OpCodes.Ldnull)
+                    {
+                        // If a new thing is DeSpawned because it is absorbed, abort the rest of the Spawn process.
+                        Label retLabel = ilGenerator.DefineLabel();
+                        code[i + 12].labels.Add(retLabel);
+                        code[i].operand = retLabel;
+                        break;
+                    }
+                }
+            }
+
             // finish the rest of the function:
             for (; i < code.Count; i++)
             {

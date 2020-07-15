@@ -14,6 +14,14 @@ namespace LWM.DeepStorage
 {
     public class CompDeepStorage : ThingComp, IHoldMultipleThings.IHoldMultipleThings {
         //public float y=0f;
+
+        public CompDeepStorage() {
+        }
+
+        public CompDeepStorage(CompCachedDeepStorage compCached) {
+            buildingLabel = compCached.buildingLabel;
+        }
+
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;

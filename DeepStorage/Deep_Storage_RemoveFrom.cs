@@ -156,7 +156,7 @@ namespace LWM.DeepStorage
             //          + carryCapacity + " of job " + toil.actor.jobs.curJob.count);
             tmpThing = null;
             // We'd like thing to have at least num in our stack to pick up at once:
-            int num = Mathf.Min(carryCapacity, toil.actor.jobs.curJob.count);
+            int num = Mathf.Min(toil.actor.carryTracker.AvailableStackSpace(thing.def), toil.actor.jobs.curJob.count);
             if (thing.stackCount >= num) { return; }
             var slotGroup = thing.Map.haulDestinationManager.SlotGroupAt(thing.Position);
             if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
@@ -186,6 +186,13 @@ namespace LWM.DeepStorage
                 }
                 otherThing.stackCount -= num - thing.stackCount;
                 thing.stackCount = num;
+
+                if (otherThing.Spawned)
+                    otherThing.Map.listerMergeables.Notify_ThingStackChanged(otherThing);
+
+                if (thing.Spawned)
+                    thing.Map.listerMergeables.Notify_ThingStackChanged(thing);
+
                 return;
             }
         }

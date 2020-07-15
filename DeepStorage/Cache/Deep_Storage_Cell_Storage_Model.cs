@@ -6,84 +6,125 @@ using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using Verse;
 
 namespace LWM.DeepStorage
 {
-    public class Deep_Storage_Cell_Storage_Model : ICollection<Thing>
+    /// <summary>
+    /// The basic unit of any storage. All input used by methods in this class should be sanitized by
+    /// its holding class. Checks to make:
+    /// 1. stackCount on thing.
+    /// 2. Whether thing and the storage on the same map.
+    /// 3. If a thing is accepted by the Storage setting.
+    /// </summary>
+    public class Deep_Storage_Cell_Storage_Model : ICollection<Thing>, IExposable
     {
-        public Dictionary<ThingDef, Dictionary<Thing, float>> ThingCache { get; private set; } = new Dictionary<ThingDef, Dictionary<Thing, float>>();
+        private CompCachedDeepStorage _comp;
+
+        private readonly int _minNumberStacks;
+
+        private readonly int _maxNumberStacks;
+
+        private readonly float _limitintTotalFactorForCell;
+
+        private List<Thing> _serializationList = new List<Thing>();
+
+        /// <summary>
+        /// Indicates if the Add method is re-entry because of a previous call to Add.
+        /// </summary>
+        private bool _addReEntry;
+
+        public Deep_Storage_Cell_Storage_Model() {
+        }
+
+        public Deep_Storage_Cell_Storage_Model(IntVec3 cell, CompCachedDeepStorage comp) {
+            this.Cell = cell;
+            _comp = comp;
+            _minNumberStacks = _comp.minNumberStacks;
+            _maxNumberStacks = _comp.maxNumberStacks;
+            _limitintTotalFactorForCell = _comp.limitingTotalFactorForCell;
+        }
+
+        public Dictionary<ThingDef, Dictionary<Thing, float>> ThingCache { get; private set; }
+            = new Dictionary<ThingDef, Dictionary<Thing, float>>();
 
         public IntVec3 Cell { get; private set; }
 
         /// <summary>
-        /// The value in the KeyValuePair represents the current <see cref="Thing.stackCount"/> for <see cref="ThingDef"/>.
+        /// Note: It needs to always keep the non-full things on top of the stack,
+        /// because it determines the amount of items to haul in some hauling jobs.
         /// </summary>
-        public Dictionary<Thing, Thing> NonFullThings { get; } = new Dictionary<Thing, Thing>(StackableThing_Comparer.Instance);
+        public Dictionary<Thing, Thing> NonFullThings { get; } =
+            new Dictionary<Thing, Thing>(StackableThing_Comparer.Instance);
 
-        public float TotalWeight { get; private set; }
+        public float TotalWeight { get; private set; } = 0;
 
-        public int Count { get; private set; }
+        public int Count { get; private set; } = 0;
 
         public bool IsReadOnly => false;
 
-        public Deep_Storage_Cell_Storage_Model(IntVec3 cell)
-        {
-            Cell = cell;
-        }
+        
 
-        public void Add(Thing item)
-        {
-            Add(item, out _);
-        }
-
-        // Should not call DeSpawn() on item in this method or in any subsequent method call,
-        // because this method is a callback from SpawnSetup().
-        public void Add(Thing item, out float itemWeight)
-        {
+        public void Add(Thing item) {
             float unitWeight = GetUnitWeight(item);
-            itemWeight = unitWeight * item.stackCount;
+            Add(item, unitWeight);
+        }
+
+        public void Add(Thing item, float unitWeight) {
+            float itemWeight = unitWeight * item.stackCount;
             TotalWeight += itemWeight;
-            Count++;
+
+            AddToNonFull(item);
+
+            // Could be despawn when it is processed by AddToNonFull().
+            if (!item.Spawned)
+                return;
 
             AddToThingCache(item, unitWeight);
-            AddToNonFull(item);
+            this.Count++;
         }
 
-        public void Clear()
-        {
+        public bool TryAdd(Thing item) {
+            float unitWeight = item.GetStatValue(StatDefOf.Mass);
+            if (_addReEntry || CanAccept(item, unitWeight))
+            {
+                Add(item, unitWeight);
+                _addReEntry = false;
+                return true;
+            }
+
+            return false;
+        }
+
+        public void Clear() {
             ThingCache.Clear();
             NonFullThings.Clear();
             TotalWeight = 0;
         }
 
-        public bool Contains(Thing item)
-        {
+        public bool Contains(Thing item) {
             if (item is null)
                 return false;
 
-            return ThingCache[item.def].ContainsKey(item);
+            return this.ThingCache.TryGetValue(item.def, out Dictionary<Thing, float> value)
+                   && value.ContainsKey(item);
         }
 
-        public void CopyTo(Thing[] array, int arrayIndex)
-        {
+        public void CopyTo(Thing[] array, int arrayIndex) {
             ThingCache.Values
                 .SelectMany(pair => pair.Keys)
                 .ToList()
                 .CopyTo(array, arrayIndex);
         }
 
-        public IEnumerator<Thing> GetEnumerator()
-        {
+        public IEnumerator<Thing> GetEnumerator() {
             return ThingCache.Values
                 .SelectMany(pair => pair.Keys)
                 .GetEnumerator();
         }
 
-        public bool Remove(Thing item, out float itemWeight)
-        {
-            itemWeight = 0;
-
+        public bool Remove(Thing item) {
             if (item is null)
                 return false;
 
@@ -93,7 +134,7 @@ namespace LWM.DeepStorage
             if (!things.Remove(item))
                 return false;
 
-            itemWeight = item.GetStatValue(StatDefOf.Mass) * item.stackCount;
+            float itemWeight = item.GetStatValue(StatDefOf.Mass) * item.stackCount;
             TotalWeight -= itemWeight;
             Count--;
 
@@ -101,40 +142,67 @@ namespace LWM.DeepStorage
             return true;
         }
 
-        public bool Remove(Thing item)
-        {
-            return Remove(item, out _);
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
+        IEnumerator IEnumerable.GetEnumerator() {
             return GetEnumerator();
         }
 
-        // It is only invoked when ListerMergeables_Notify_ThingStackChanged() is called,
-        // therefore, stackCount of item should be sanitized.
-        public void Update(Thing item, out float deltaWeight)
-        {
-            Dictionary<Thing, float> things = ThingCache[item.def];
+        /// <summary>
+        /// Update items in storage.
+        /// </summary>
+        /// <param name="item"> The updated item. </param>
+        /// <summary>
+        ///     There could be many reason why the stackCount of an item changes in storage,
+        /// e.g., decay, partially taken out for construction of projects. Therefore, it is necessary
+        /// to update the NonFullThings here.
+        /// </summary>
+        public void Update(Thing item) {
+            // Do not update things that are not already in storage.
+            if (!this.ThingCache.TryGetValue(item.def, out Dictionary<Thing, float> things))
+                return;
+
+            if (!things.ContainsKey(item))
+                return;
+
             float newWeight = item.GetStatValue(StatDefOf.Mass) * item.stackCount;
             float oldWeight = things[item];
-            deltaWeight = newWeight - oldWeight;
+            float deltaWeight = newWeight - oldWeight;
 
             TotalWeight += deltaWeight;
             things[item] = newWeight;
 
-            if (item.stackCount == item.def.stackLimit)
+            if (this.NonFullThings.TryGetValue(item, out Thing nonFullThing))
             {
-                NonFullThings.Remove(item);
+                if (item.stackCount == item.def.stackLimit)
+                {
+                    if (nonFullThing == item)
+                        NonFullThings.Remove(item);
+                }
+                else
+                {
+                    // Possible states:
+                    // 1. Item is the same as the one stored in NonFullThings, no action required.
+                    // 2. Item is not the same as the one in NonFullThings.
+
+                    // State 2
+                    if (nonFullThing != item)
+                    {
+                        // TryAbsorbStack() will trigger a re-entry to this method for nonFullThing.
+                        // The other branches in this method will take care of the re-entry.
+                        if (!nonFullThing.TryAbsorbStack(item, true))
+                        {
+                            NonFullThings[item] = item;
+                        }
+                    }
+                }
             }
             else
             {
-                NonFullThings[item] = item;
+                if (item.stackCount != item.def.stackLimit)
+                    this.NonFullThings[item] = item;
             }
         }
 
-        public int SpareSpaceOnNonFull(Thing thing)
-        {
+        public int SpareSpaceOnNonFull(Thing thing) {
             if (NonFullThings.TryGetValue(thing, out Thing value))
             {
                 return thing.def.stackLimit - value.stackCount;
@@ -143,30 +211,132 @@ namespace LWM.DeepStorage
             return 0;
         }
 
-        public bool StackableOnNonFull(Thing thing)
-        {
+        public bool StackableOnNonFull(Thing thing) {
             return SpareSpaceOnNonFull(thing) >= thing.stackCount;
         }
 
-        private void RemoveFromNonFull(Thing item)
-        {
+        public bool CanAccept(Thing thing, float unitWeight) {
+            float thingWeight = thing.stackCount * unitWeight;
+            int thingStacks = Mathf.CeilToInt((float) thing.stackCount / thing.def.stackLimit);
+            int stacksStoredHere = this.Count;
+
+            bool gTMinStack = stacksStoredHere + thingStacks > _minNumberStacks;
+            bool gTMaxStack = stacksStoredHere + thingStacks > _maxNumberStacks;
+            bool gTCellFactor = _limitintTotalFactorForCell > 0f &&
+                                thingWeight + this.TotalWeight > _limitintTotalFactorForCell;
+
+            if (!gTCellFactor && (!gTMinStack || !gTMaxStack))
+                return true;
+
+            return StackableOnNonFull(thing);
+        }
+
+        #region Implementation of IExposable
+
+        public void ExposeData() {
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                _serializationList = ThingCache.Values.SelectMany(d => d.Keys).ToList();
+            }
+            else if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                PostLoadInit(_serializationList);
+            }
+
+            Scribe_Collections.Look(ref _serializationList, false, nameof(_serializationList), LookMode.Reference);
+        }
+
+        #endregion
+
+
+        private static float GetUnitWeight(Thing thing) {
+            return thing.GetStatValue(StatDefOf.Mass);
+        }
+
+        private void PostLoadInit(List<Thing> things) {
+            this.ThingCache = new Dictionary<ThingDef, Dictionary<Thing, float>>();
+            foreach (Thing thing in things)
+            {
+                if (thing.stackCount != thing.def.stackLimit)
+                {
+                    // Trying to find the item in NonFullThings.
+                    if (!this.NonFullThings.TryGetValue(thing, out Thing nonFullThing))
+                    {
+                        // If not present in the cache, add it.
+                        this.NonFullThings[thing] = thing;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            if (!nonFullThing.TryAbsorbStack(thing, true))
+                            {
+                                // If nonFullThing can't absorb thing entirely, which suggests nonFulling reaches its stackLimit,
+                                // assign thing to NonFullThings cache.
+                                this.NonFullThings[thing] = thing;
+                            }
+                            else
+                            {
+                                // After merging, if it reaches stackLimit, remove it from cache.
+                                if (nonFullThing.stackCount == thing.def.stackLimit)
+                                    this.NonFullThings.Remove(nonFullThing);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Log.Warning($"Naughty item {thing} refuses to play with a little white mouse. Please report this warning" +
+                                        $"to LWM.\n{e}");
+                        }
+                    }
+                }
+
+                // thing got absorbed.
+                if (thing.Destroyed)
+                    continue;
+
+                float weight;
+                if (this.ThingCache.TryGetValue(thing.def, out Dictionary<Thing, float> value))
+                {
+                    weight = value[thing] = thing.GetStatValue(StatDefOf.Mass) * thing.stackCount;
+                }
+                else
+                {
+                    Dictionary<Thing, float> newCache = new Dictionary<Thing, float>()
+                    {
+                        [thing] = weight = thing.GetStatValue(StatDefOf.Mass) * thing.stackCount,
+                    };
+
+                    this.ThingCache[thing.def] = newCache;
+                }
+
+
+                this.TotalWeight += weight;
+                this.Count++;
+            }
+        }
+
+        /// <summary>
+        /// Remove item from NonFull cache.
+        /// </summary>
+        /// <param name="item"> Item to remove. </param>
+        /// <remarks> If the add and update operation runs correctly, there will always be only one non-full stack per kind. </remarks>
+        private void RemoveFromNonFull(Thing item) {
             if (item.stackCount == item.def.stackLimit)
                 return;
 
-            NonFullThings.Remove(item);
+            if (NonFullThings[item] == item)
+                NonFullThings.Remove(item);
         }
 
         /// <summary>
         /// Add <paramref name="item"/> to the NonFull cache if qualified.
         /// </summary>
         /// <param name="item"> Item to add. </param>
-        private void AddToNonFull(Thing item)
-        {
+        private void AddToNonFull(Thing item) {
             // Possible states:
             // 1. Item stack count equals to stack limit.
             // 2. Item not in cache.
-            // 3. Item in cache, which should not happen given TryPlaceDirect() should have handled this case with calling TryAbsorbStack().
-            // NOTE: Possible erroneous states in cache due to state 3.
+            // 3. Item in cache.
 
             ThingDef def = item.def;
             int defStackLimit = def.stackLimit;
@@ -176,17 +346,24 @@ namespace LWM.DeepStorage
                 return;
 
             // State 2
-            if (!NonFullThings.ContainsKey(item))
+            if (!NonFullThings.TryGetValue(item, out Thing value))
             {
                 NonFullThings[item] = item;
                 return;
             }
 
-            Utils.Err(Utils.DBF.CheckCapacity, $"{item.LabelCap} is spawned even though there is NonFull {item.LabelCap} in cache");
+            // State 3
+            // Update() method will take care of the change related to value.
+            // Note: Steps are taken to clean up the spawn setup for item if TryAbsorbStack() returns true,
+            // because item is DeSpawned when in the process of spawning.
+            // Detail can check in the Harmony patch to GenSpawn.Spawn() and Thing.SpawnSetup().
+            if (!value.TryAbsorbStack(item, true))
+            {
+                this.NonFullThings[item] = item;
+            }
         }
 
-        private void AddToThingCache(Thing thing, float unitWeight)
-        {
+        private void AddToThingCache(Thing thing, float unitWeight) {
             if (ThingCache.TryGetValue(thing.def, out Dictionary<Thing, float> things))
             {
                 things[thing] = thing.stackCount * unitWeight;
@@ -202,9 +379,21 @@ namespace LWM.DeepStorage
             }
         }
 
-        private static float GetUnitWeight(Thing thing)
-        {
-            return thing.GetStatValue(StatDefOf.Mass);
+        private void SelfCorrection() {
+            int count = 0;
+            float totalWeight = 0;
+
+            foreach (Dictionary<Thing, float> sameThings in this.ThingCache.Values)
+            {
+                foreach (Thing thing in sameThings.Keys)
+                {
+                    totalWeight += sameThings[thing] = thing.GetStatValue(StatDefOf.Mass);
+                    count++;
+                }
+            }
+
+            this.Count = count;
+            this.TotalWeight = totalWeight;
         }
     }
 }

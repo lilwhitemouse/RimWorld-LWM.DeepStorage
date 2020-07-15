@@ -111,11 +111,11 @@ namespace LWM.DeepStorage
         //   Transpiler, tests are easier via function call
         // Most of the bulk here is debugging stuff
         public static bool CanStoreMoreThanOneThingAt(Map map, IntVec3 loc, Thing thing) {
-            SlotGroup slotGroup = loc.GetSlotGroup(map);
             if (!GetDeepStorageOnCell(loc, map, out CompDeepStorage comp))
             {
                 return false;
 #pragma warning disable CS0162 // Unreachable code detected
+                SlotGroup slotGroup = loc.GetSlotGroup(map);
                 Log.Warning("CanStoreMoreThanOneThingAt: " + loc + "? false");
                 return false;
                 if (slotGroup == null) Log.Warning("  null slotGroup");
@@ -136,9 +136,11 @@ namespace LWM.DeepStorage
 
             if (comp is CompCachedDeepStorage compCached)
             {
-                return compCached.StorageSettings.AllowedToAccept(thing)
-                       && compCached.CapacityAt(thing, loc, map, out int capacity)
-                       && capacity >= thing.def.stackLimit;
+                int capacity = 0;
+                bool result = compCached.StorageSettings.AllowedToAccept(thing)
+                       && compCached.CapacityAt(thing, loc, map, out capacity)
+                       && capacity >= thing.stackCount;
+                return result;
             }
 
             return true;
