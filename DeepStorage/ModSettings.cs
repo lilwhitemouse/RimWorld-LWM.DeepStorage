@@ -332,12 +332,17 @@ namespace LWM.DeepStorage
                 //   but I think it's okay to leave it in Replimat.
                 DesignationCategoryDef tmp=DefDatabase<DesignationCategoryDef>.GetNamed("Replimat_Replimat", false);
                 if (tmp!=null) desigsToNotMove.Add(tmp);
+                // TODO: get these categories in a more flexible way!
                 // ProjectRimFactory has several subclasses of Building_Storage that are in the Industrial category.
                 //   Several users of PRF have gotten confused when they couldn't find the storage things.
                 DesignationCategoryDef industrialCategory=DefDatabase<DesignationCategoryDef>.GetNamed("Industrial", false);
                 //   So we COULD remove those storage buildings from our list too:
                 //     if (industrialCategory!=null) desigsToNotMove.Add(industrialCategory);
                 //   But, let's just copy them:
+                if (industrialCategory!=null) desigsToOnlyCopy.Add(industrialCategory);
+                // Bonus PRF: DocWorld changes the designation from Industrial to DZ_Industrial.
+                // Get them both:
+                industrialCategory=DefDatabase<DesignationCategoryDef>.GetNamed("DZ_Industrial", false);
                 if (industrialCategory!=null) desigsToOnlyCopy.Add(industrialCategory);
                 // Interesting detail: apparently it IS possible to have thingDefs with null thingClass... weird.
                 itemsToMove=DefDatabase<ThingDef>.AllDefsListForReading
