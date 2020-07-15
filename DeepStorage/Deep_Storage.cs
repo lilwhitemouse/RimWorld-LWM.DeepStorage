@@ -57,8 +57,7 @@ namespace LWM.DeepStorage
 
     /***********************************************************************/
 
-    public class Utils
-    {
+    public class Utils {
         static public bool[] showDebug ={
             true,  // "Testing" will always be true
             
@@ -82,8 +81,6 @@ namespace LWM.DeepStorage
             RightClickMenu, Settings
         }
 
-        public static Harmony HarmonyInstance { get; } = new Harmony("LWM.DeepStorage");
-
         // Nifty! Won't even be compiled into assembly if not DEBUG
         [System.Diagnostics.Conditional("DEBUG")]
         public static void Warn(DBF l, string s) {
@@ -98,12 +95,7 @@ namespace LWM.DeepStorage
         [System.Diagnostics.Conditional("DEBUG")]
         public static void Mess(DBF l, string s) {
             if (showDebug[(int)l])
-                Log.Message("LWM." + l.ToString() + ": " + s);
-        }
-
-        [System.Diagnostics.Conditional("DEBUG")]
-        public static void Check(Action action) {
-            action?.Invoke();
+                Log.Message("LWM."+l.ToString()+": "+s);
         }
 
         // This gets checked a lot.  Sometimes the test is done in-place (if will 
@@ -146,7 +138,8 @@ namespace LWM.DeepStorage
             return true;
             Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true!");
             List<Thing> lx = map.thingGrid.ThingsListAt(loc);
-            foreach (Thing t in lx) {
+            foreach (Thing t in lx)
+            {
                 Log.Error("Did find a " + t.ToString() + " here at " + loc.ToString());
             }
             return true;
@@ -166,7 +159,8 @@ namespace LWM.DeepStorage
         //   - tidying is part of the time cost of using it!
         // Note that this ignores all other stacks (e.g., Wheat, Wood, &c);
         //   if that's ever needed, will have to add it.
-        public static void TidyStacksOf(Thing thing) {
+        public static void TidyStacksOf(Thing thing)
+        {
             if (thing == null || !thing.Spawned || thing.Destroyed || thing.Map == null
                 || thing.Position == IntVec3.Invalid) {// just in case
                 #if DEBUG

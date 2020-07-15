@@ -18,6 +18,11 @@ namespace LWM.DeepStorage
         public CompDeepStorage() {
         }
 
+        /// <summary>
+        /// This constructor is used for substituting a CompCacheDeepStorage with CompDeepStorage
+        /// for storage units that are previously saved with CompDeepStorage.
+        /// </summary>
+        /// <param name="compCached"></param>
         public CompDeepStorage(CompCachedDeepStorage compCached) {
             buildingLabel = compCached.buildingLabel;
         }
