@@ -121,13 +121,13 @@ namespace LWM.DeepStorage {
             if (Scribe.mode==LoadSaveMode.Saving) {
                 if (!IsDefaultValue(defName, keylet, value)) {
                     Utils.Mess(Utils.DBF.Settings, "  Saving "+defName+"'s new value "+value);
-                    Scribe_Values.Look(ref value, "DSU_"+defName+"_"+keylet);
+                    Scribe_Values.Look(ref value, "DSU_"+defName+"_"+keylet, value, true); // force save
                 }
             }
         }
 
         public void ExposeSettingDeep<T>(string defName, string keylet, ref T value) where T : class {
-            if (defaultDefValues.ContainsKey(defName+"_"+"keylet")) {
+            if (defaultDefValues.ContainsKey(defName+"_"+keylet)) {
                 Utils.Mess(Utils.DBF.Settings, "  default "+keylet+" recorded, doing Scribe_Deep");
                 // if saving, save the value, all is well.
                 // if loading, default valueis already in our dictionary, all is well...
@@ -140,7 +140,7 @@ namespace LWM.DeepStorage {
                 }
             } else { // no default currently saved
                 T tmp=null;
-                Scribe_Deep.Look(ref tmp, defName+"_"+keylet, null);
+                Scribe_Deep.Look(ref tmp, "DSU_"+defName+"_"+keylet, null);
                 // either we loaded a new default, or we saved nothing.
                 if (tmp!=null) {
                     Utils.Mess(Utils.DBF.Settings, "  Found "+keylet+", applying to "+defName);
