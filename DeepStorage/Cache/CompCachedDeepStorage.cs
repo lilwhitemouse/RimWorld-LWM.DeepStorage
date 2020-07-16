@@ -53,7 +53,7 @@ namespace LWM.DeepStorage
             if (!this.CellStorages.TryGetCellStorage(cell, out CellStorage cellStorage))
                 return false;
 
-            return StackableAt(thing, cell, map, cellStorage, thing.GetStatValue(StatDefOf.Mass));
+            return StackableAt(thing, map, cellStorage, thing.GetStatValue(StatDefOf.Mass));
         }
 
         public override bool CapacityAt(Thing thing, IntVec3 cell, Map map, out int capacity)
@@ -67,7 +67,7 @@ namespace LWM.DeepStorage
                 return 0;
 
             float unitWeight = thing.GetStatValue(StatDefOf.Mass);
-            if (!StackableAt(thing, cell, map, cellStorage, unitWeight))
+            if (!StackableAt(thing, map))
                 return 0;
 
             int emptyStack = this.maxNumberStacks - cellStorage.Count;
@@ -107,7 +107,15 @@ namespace LWM.DeepStorage
 
         #endregion
 
-        public bool StackableAt(Thing thing, IntVec3 cell, Map map, CellStorage cellStorage, float unitWeight) {
+        private bool StackableAt(Thing thing, Map map, CellStorage cellStorage, float unitWeight) {
+
+            if (!StackableAt(thing, map))
+                return false;
+
+            return cellStorage.CanAccept(thing, unitWeight);
+        }
+
+        private bool StackableAt(Thing thing, Map map) {
             if (map != this.StorageBuilding.Map)
                 return false;
 
@@ -125,7 +133,7 @@ namespace LWM.DeepStorage
                 }
             }
 
-            return cellStorage.CanAccept(thing, unitWeight);
+            return true;
         }
 
         #region Overrides of ThingComp

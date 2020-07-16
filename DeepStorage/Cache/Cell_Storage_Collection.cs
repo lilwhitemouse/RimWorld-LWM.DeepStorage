@@ -41,6 +41,8 @@ namespace LWM.DeepStorage
 
         public bool IsReadOnly => false;
 
+        public List<CellStorage> Storages => _cacheCell.Values.ToList();
+
         public bool TryGetCellStorage(IntVec3 position, out CellStorage model)
         {
             return _cacheCell.TryGetValue(position, out model);
