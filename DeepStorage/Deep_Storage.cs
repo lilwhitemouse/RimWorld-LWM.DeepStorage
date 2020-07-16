@@ -106,7 +106,7 @@ namespace LWM.DeepStorage
             if (!GetDeepStorageOnCell(loc, map, out CompDeepStorage comp))
             {
                 return false;
-#pragma warning disable CS0162 // Unreachable code detected
+                #pragma warning disable CS0162 // Unreachable code detected
                 SlotGroup slotGroup = loc.GetSlotGroup(map);
                 Log.Warning("CanStoreMoreThanOneThingAt: " + loc + "? false");
                 return false;

@@ -264,6 +264,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="_Mod\LWM.DeepStorage\Defs\ThingDefs\" />
+    <Folder Include="_Mod\LWM.DeepStorage\Languages\English\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
