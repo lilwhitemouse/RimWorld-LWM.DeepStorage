@@ -130,15 +130,16 @@ namespace LWM.DeepStorage
 
             if (!ThingCache.TryGetValue(item.def, out Dictionary<Thing, float> things))
                 return false;
-
-            if (!things.Remove(item))
+            
+            if (!things.TryGetValue(item, out float weight))
                 return false;
 
-            float itemWeight = item.GetStatValue(StatDefOf.Mass) * item.stackCount;
-            TotalWeight -= itemWeight;
-            Count--;
+            things.Remove(item);
+            this.TotalWeight -= weight;
+            this.Count--;
 
             RemoveFromNonFull(item);
+
             return true;
         }
 
@@ -174,8 +175,9 @@ namespace LWM.DeepStorage
             {
                 if (item.stackCount == item.def.stackLimit)
                 {
-                    if (nonFullThing == item)
+                    if (nonFullThing == item) {
                         NonFullThings.Remove(item);
+                    }
                 }
                 else
                 {
@@ -319,13 +321,12 @@ namespace LWM.DeepStorage
         /// Remove item from NonFull cache.
         /// </summary>
         /// <param name="item"> Item to remove. </param>
-        /// <remarks> If the add and update operation runs correctly, there will always be only one non-full stack per kind. </remarks>
+        /// <remarks> If the add and update operation runs correctly, there will always be only one or zero non-full stack per kind. </remarks>
         private void RemoveFromNonFull(Thing item) {
-            if (item.stackCount == item.def.stackLimit)
-                return;
-
-            if (NonFullThings[item] == item)
+            if (NonFullThings.TryGetValue(item, out Thing nonFullThings)
+                && nonFullThings == item) {
                 NonFullThings.Remove(item);
+            }
         }
 
         /// <summary>

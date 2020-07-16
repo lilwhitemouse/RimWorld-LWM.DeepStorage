@@ -233,8 +233,7 @@ namespace LWM.DeepStorage
 
                     // The building has only one non-full stack for storage.
                     if (capacity < stackLimit) {
-                        result = compCached.CellStorages.AbsorbWithNonFull(thing, loc, placedAction,
-                            ref resultingThing);
+                        result = compCached.CellStorages.AbsorbWithNonFull(thing, loc, placedAction, ref resultingThing);
                         // Absorb whatever it can and returns.
                         break;
                     }
@@ -251,8 +250,7 @@ namespace LWM.DeepStorage
                             // At this state, there are certainly enough room for the storage to take in all stacks,
                             // given capacity >= stackLimit and thing.stackCount <= stackLimit.
                             if (thing.stackCount != stackLimit) {
-                                result = compCached.CellStorages.AbsorbWithNonFull(thing, loc, placedAction,
-                                    ref resultingThing);
+                                result = compCached.CellStorages.AbsorbWithNonFull(thing, loc, placedAction, ref resultingThing);
                                 if (result)
                                     break;
                             }
