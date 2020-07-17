@@ -126,12 +126,9 @@ namespace LWM.DeepStorage
             }
             //            Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true");
 
-            if (comp is CompCachedDeepStorage compCached)
-            {
-                int capacity = 0;
+            if (comp is CompCachedDeepStorage compCached) {
                 bool result = compCached.StorageSettings.AllowedToAccept(thing)
-                       && compCached.CapacityAt(thing, loc, map, out capacity)
-                       && capacity >= thing.stackCount;
+                              && compCached.StackableAt(thing, loc, map);
                 return result;
             }
 
@@ -260,6 +257,18 @@ namespace LWM.DeepStorage
             }
 
             compDeepStorage = null;
+            return false;
+        }
+
+        public static bool GetCacheDeepStorageOnCell(IntVec3 cell, Map map, out CompCachedDeepStorage compCached) {
+            if (GetDeepStorageOnCell(cell, map, out CompDeepStorage comp)) {
+                if (comp is CompCachedDeepStorage temp) {
+                    compCached = temp;
+                    return true;
+                }
+            }
+
+            compCached = null;
             return false;
         }
      } // End Utils class

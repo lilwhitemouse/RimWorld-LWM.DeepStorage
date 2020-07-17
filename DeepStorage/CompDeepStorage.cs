@@ -25,6 +25,8 @@ namespace LWM.DeepStorage
         /// <param name="compCached"></param>
         public CompDeepStorage(CompCachedDeepStorage compCached) {
             buildingLabel = compCached.buildingLabel;
+            this.parent = compCached.parent;
+            this.Initialize(compCached.props);
         }
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
@@ -216,19 +218,37 @@ namespace LWM.DeepStorage
             float itemsTotalMass = 0; // or Bulk for CE ;p
             int cellsBelowMin=0;
             int cellsAtAboveMin=0;
-            foreach (IntVec3 storageCell in (parent as Building_Storage).AllSlotCells()) {
-                int countInThisCell=0;
-                numCells++;
-                foreach (Thing t in parent.Map.thingGrid.ThingsListAt(storageCell)) {
-                    if (t.Spawned && t.def.EverStorable(false)) {
-                        listOfStoredItems.Add(t);
-                        itemsTotalMass += t.GetStatValue(this.stat, true) * (float)t.stackCount;
-                        if (t.def.stackLimit > 1) flagUseStackInsteadOfItem=true;
-                        countInThisCell++;
+            Type compType = this.GetType();
+            if (compType == typeof(CompDeepStorage)) {
+                foreach (IntVec3 storageCell in (parent as Building_Storage).AllSlotCells()) {
+                    int countInThisCell=0;
+                    numCells++;
+                    foreach (Thing t in parent.Map.thingGrid.ThingsListAt(storageCell)) {
+                        if (t.Spawned && t.def.EverStorable(false)) {
+                            listOfStoredItems.Add(t);
+                            itemsTotalMass += t.GetStatValue(this.stat, true) * (float)t.stackCount;
+                            if (t.def.stackLimit > 1) flagUseStackInsteadOfItem=true;
+                            countInThisCell++;
+                        }
+                    }
+                    if (countInThisCell >= this.minNumberStacks) cellsAtAboveMin++;
+                    else cellsBelowMin++;
+                }
+            }
+            else if (this is CompCachedDeepStorage compCached) {
+                List<Deep_Storage_Cell_Storage_Model> storages = compCached.CellStorages.Storages;
+
+                numCells = storages.Count;
+                itemsTotalMass = storages.Sum(s => s.TotalWeight);
+                listOfStoredItems = storages.SelectMany(s => s).ToList();
+
+                foreach (Deep_Storage_Cell_Storage_Model storage in storages) {
+                    if (storage.Count > this.minNumberStacks)
+                        cellsAtAboveMin++;
+                    else {
+                        cellsBelowMin++;
                     }
                 }
-                if (countInThisCell >= this.minNumberStacks) cellsAtAboveMin++;
-                else cellsBelowMin++;
             }
             // We want to give user inforation about mass limits and how close we are, if they exist
             // TODO: Maybe use prop's kg() to translate everywhere, for better readability if using
@@ -489,6 +509,20 @@ namespace LWM.DeepStorage
         /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
             Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
+            Scribe_Values.Look(ref cached, nameof(cached));
+
+            if (Scribe.mode == LoadSaveMode.LoadingVars) {
+                if (cached) {
+                    CompCachedDeepStorage compCached = new CompCachedDeepStorage();
+                    compCached.parent = this.parent;
+                    compCached.Initialize(this.props);
+
+                    int index = this.parent.AllComps.IndexOf(this);
+                    this.parent.AllComps[index] = compCached;
+                    compCached.loadingCache = true;
+                    compCached.PostExposeData();
+                }
+            }
         }
 
         public StatDef stat = StatDefOf.Mass;
@@ -504,6 +538,9 @@ namespace LWM.DeepStorage
         public StatDef[] statToTotal = { };
         */
         public string buildingLabel="";
+        public bool cached = false;
+
+        protected bool loadingCache = false;
 
     } // end CompDeepStorage
 

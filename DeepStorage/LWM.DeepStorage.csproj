@@ -13,10 +13,10 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\_Mod\LWM.DeepStorage\1.1\Assemblies</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -90,6 +90,7 @@
     <Compile Include="Cache\Patch_Thing_SpawnSetup.cs" />
     <Compile Include="Cache\Patch_Thing_TryAbsorbStack.cs" />
     <Compile Include="Cache\StackableThingComparer.cs" />
+    <Compile Include="Cache\CacheComponent.cs" />
     <Compile Include="Cache\ThingCountComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mod.cs" />

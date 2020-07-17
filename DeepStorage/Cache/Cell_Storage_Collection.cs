@@ -17,11 +17,13 @@ namespace LWM.DeepStorage
 
         private readonly Dictionary<IntVec3, CellStorage> _cacheCell = new Dictionary<IntVec3, CellStorage>();
 
-        private readonly StorageSettings _settings;
-
         private readonly CompCachedDeepStorage _comp;
 
+        private readonly Building_Storage _parent;
+
         private List<CellStorage> _storageList;
+
+        private StorageSettings _settings;
 
         public Cell_Storage_Collection() {
         }
@@ -29,6 +31,7 @@ namespace LWM.DeepStorage
         public Cell_Storage_Collection(Building_Storage storage, CompCachedDeepStorage comp)
         {
             _comp = comp;
+            _parent = storage;
             _settings = storage.settings;
 
             if (storage.Spawned)
@@ -114,12 +117,20 @@ namespace LWM.DeepStorage
         #region Implementation of IExposable
 
         public void ExposeData() {
-            _storageList = this._cacheCell.Values.ToList();
+            if (Scribe.mode == LoadSaveMode.Saving)
+                _storageList = _cacheCell.Values.ToList();
+
             Scribe_Collections.Look(ref _storageList, nameof(_storageList), LookMode.Deep);
 
-            if (Scribe.mode == LoadSaveMode.PostLoadInit){
+            Log.Message($"list is {(_storageList == null ? "null" : "not null")} for {_comp.parent} at {Scribe.mode}");
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit) {
+                _settings = _parent.settings;
+                Log.Message($"{string.Join("-", _storageList.SelectMany(t => t))}");
                 foreach (CellStorage storage in _storageList)
                 {
+                    Log.Message($"At cell {storage.Cell} has {string.Join(" - ", storage.Select(t => t))}");
+                    storage.Init(storage.Cell, _comp);
                     _cacheCell[storage.Cell] = storage;
                 }
             }
