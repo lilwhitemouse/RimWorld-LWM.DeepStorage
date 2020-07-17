@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO; //for Path() in trace
 using System.Linq;
 using RimWorld;
 using Verse;
@@ -81,6 +82,8 @@ namespace LWM.DeepStorage
         private static Vector2 scrollPosition=new Vector2(0f,0f);
         private static Rect viewRect=new Rect(0,0,100f,10000f); // OMG OMG OMG I got scrollView in Listing_Standard to work!
         public static void DoSettingsWindowContents(Rect inRect) {
+            ModMetaData tmpMod;
+            Color origColor=GUI.color; // make option gray if ignored
             Rect outerRect=inRect.ContractedBy(10f);
             Widgets.DrawHighlight(outerRect);
             Listing_Standard l = new Listing_Standard(GameFont.Medium); // my tiny high-resolution monitor :p
@@ -132,11 +135,16 @@ namespace LWM.DeepStorage
             l.CheckboxLabeled("LWM_DS_useEjectButton".Translate(), ref useEjectButton,
                               "LWM_DS_useEjectButtonDesc".Translate());
             //TODO::
+            if ((tmpMod=ModLister.GetActiveModWithIdentifier("netrve.dsgui"))!=null) {
+                GUI.color=Color.gray;
+                l.Label("LWMDSignoredDueTo".Translate(tmpMod.Name));
+            }
             l.CheckboxLabeled("LWM_DS_useDSRightClick".Translate(), ref useDeepStorageRightClickLogic,
                               "LWM_DS_useDSRightClickDesc".Translate());
 
             // Architect Menu:
             l.GapLine();  //Architect Menu location
+            GUI.color=origColor;
 /*
 //            string archLabel=
 //            if (archLabel==n
@@ -227,8 +235,9 @@ namespace LWM.DeepStorage
             //   Turn it off automatically for Project RimFactory and Extended Storage
             //   Note: should turn it off automatically for any other storage mods, too
             l.GapLine();
-            Color origColor=GUI.color; // make option gray if ignored
-            var tmpMod=ModLister.GetActiveModWithIdentifier("spdskatr.projectrimfactory");
+            tmpMod=ModLister.GetActiveModWithIdentifier("spdskatr.projectrimfactory");
+
+
             if (tmpMod!=null) {
                 GUI.color=Color.gray;
                 // This setting is disabled due to mod Extended Storage
@@ -271,12 +280,15 @@ namespace LWM.DeepStorage
 //todo:
             Utils.Mess(Utils.DBF.Settings, "Defs Loaded.  About to re-load settings");
             // NOTE/WARNING: the mod's settings' FolderName will be different for non-steam and steam versions.
-            //   (They are stored using LoadedModManager.GetMod(typeof(DeepStorageMod)).Content.Identifier
-            //    and typeof(DeepStorageMod).Name by the way)
+            //   Internally, they are loaded using:
+            //     this.modSettings = LoadedModManager
+            //            .ReadModSettings<T>(this.intContent.FolderName, base.GetType().Name);
             // So don't do this:
             //   var s = LoadedModManager.ReadModSettings<Settings>("LWM.DeepStorage", "DeepStorageMod");
             // Do this instead:
             var mod=LoadedModManager.GetMod(typeof(LWM.DeepStorage.DeepStorageMod));
+            Utils.Warn(Utils.DBF.Settings, "About to re-read mod settings from: "+GenText
+                       .SanitizeFilename(string.Format("Mod_{0}_{1}.xml", mod.Content.FolderName, "DeepStorageMod")));
             var s = LoadedModManager.ReadModSettings<Settings>(mod.Content.FolderName, "DeepStorageMod");
             // Architect Menu:
             if (architectMenuActualDef==null) {

@@ -65,6 +65,7 @@ namespace LWM.DeepStorage
         //   (for faster performance, b/c apparently the reflection
         //   is sloooooow.  From what i hear.)
         static bool Prepare(Harmony instance) {
+            if (ModLister.GetActiveModWithIdentifier("netrve.dsgui")!=null) return false;
             /* Build a dynamic method to do:
              * void RePosition(Thing t, IntVec3 pos) {
              *   t.positionInt=pos;  // directly set internal private field
@@ -383,8 +384,10 @@ listArray[index] = origList;
 
 
     }
+    #if false
     static class Patch_AddHumanlikeOrders_Orig {
         static bool Prepare(Harmony instance) {
+            if (ModLister.GetActiveModWithIdentifier("netrve.dsgui")!=null) return false;
             Utils.Warn(RightClickMenu, "Loading AddHumanlikeOrders menu code: "
                        +Settings.useDeepStorageRightClickLogic);
             return Settings.useDeepStorageRightClickLogic;
@@ -398,10 +401,12 @@ listArray[index] = origList;
             Patch_FloatMenuMakerMap.Postfix(opts);
         }
     }
+    #endif
     #if false
 //    [HarmonyPatch(typeof(FloatMenuMakerMap), "AddJobGiverWorkOrders")]
     static class Patch_AddJobGiverWorkOrders {
         static bool Prepare(HarmonyInstance instance) {
+            if (ModLister.GetActiveModWithIdentifier("netrve.dsgui")!=null) return false;
             Utils.Warn(RightClickMenu, "Loading AddJobGiverWorkOrders menu code: "
                        +Settings.useDeepStorageRightClickLogic);
             return Settings.useDeepStorageRightClickLogic;
@@ -434,6 +439,10 @@ listArray[index] = origList;
         static List<FloatMenuOption> realList=new List<FloatMenuOption>();
         static int failsafe=0;
         static Vector3 clickPos;
+        public static bool Prepare() {
+            if (ModLister.GetActiveModWithIdentifier("netrve.dsgui")!=null) return false;
+            return true;
+        }
 
         // We have to run as Prefix, because we need to intercept the incoming List.
         public static bool Prefix(Vector3 clickPosition, IntVec3 c, Pawn pawn, List<FloatMenuOption> opts,
