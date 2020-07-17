@@ -16,8 +16,6 @@ namespace LWM.DeepStorage
 {
     public class CompCachedDeepStorage : CompDeepStorage
     {
-        private bool _isCachedComp = false;
-
         private StorageSettings _storageSetting;
 
         public Building_Storage StorageBuilding { get; private set; }
@@ -35,8 +33,8 @@ namespace LWM.DeepStorage
 
         public Cell_Storage_Collection CellStorages { get; private set; }
 
-        public CompCachedDeepStorage()
-        {
+        public CompCachedDeepStorage() {
+            this.cached = true;
         }
 
         #region Overrides of CompDeepStorage
@@ -86,17 +84,13 @@ namespace LWM.DeepStorage
         }
 
         public override void PostExposeData() {
-            base.PostExposeData();
-            if (Scribe.mode == LoadSaveMode.Saving)
-                _isCachedComp = true;
+            if (!loadingCache)
+                base.PostExposeData();
 
-            Scribe_Values.Look(ref _isCachedComp, nameof(_isCachedComp));
+            if (this.CellStorages == null)
+                this.CellStorages = new Cell_Storage_Collection(this.parent as Building_Storage, this);
 
-            if (Scribe.mode == LoadSaveMode.LoadingVars && !_isCachedComp)
-            {
-                int index = this.parent.AllComps.IndexOf(this);
-                this.parent.AllComps[index] = new CompDeepStorage(this);
-            }
+            CellStorages.ExposeData();
         }
 
         public override void Initialize(CompProperties props) {

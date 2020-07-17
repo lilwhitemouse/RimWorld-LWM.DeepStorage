@@ -60,7 +60,6 @@
     <Compile Include="UnitTest\FoodBasketTest.cs" />
     <Compile Include="UnitTest\HamperTest.cs" />
     <Compile Include="UnitTest\Test.cs" />
-    <Compile Include="UnitTest\TestComponent.cs" />
     <Compile Include="UnitTest\TestRoot.cs" />
   </ItemGroup>
   <ItemGroup>

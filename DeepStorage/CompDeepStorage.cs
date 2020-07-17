@@ -509,6 +509,20 @@ namespace LWM.DeepStorage
         /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
             Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
+            Scribe_Values.Look(ref cached, nameof(cached));
+
+            if (Scribe.mode == LoadSaveMode.LoadingVars) {
+                if (cached) {
+                    CompCachedDeepStorage compCached = new CompCachedDeepStorage();
+                    compCached.parent = this.parent;
+                    compCached.Initialize(this.props);
+
+                    int index = this.parent.AllComps.IndexOf(this);
+                    this.parent.AllComps[index] = compCached;
+                    compCached.loadingCache = true;
+                    compCached.PostExposeData();
+                }
+            }
         }
 
         public StatDef stat = StatDefOf.Mass;
@@ -524,6 +538,9 @@ namespace LWM.DeepStorage
         public StatDef[] statToTotal = { };
         */
         public string buildingLabel="";
+        public bool cached = false;
+
+        protected bool loadingCache = false;
 
     } // end CompDeepStorage
 

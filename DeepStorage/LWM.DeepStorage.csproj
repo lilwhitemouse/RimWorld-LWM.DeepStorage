@@ -89,6 +89,7 @@
     <Compile Include="Cache\Patch_Thing_SpawnSetup.cs" />
     <Compile Include="Cache\Patch_Thing_TryAbsorbStack.cs" />
     <Compile Include="Cache\StackableThingComparer.cs" />
+    <Compile Include="Cache\CacheComponent.cs" />
     <Compile Include="Cache\ThingCountComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mod.cs" />

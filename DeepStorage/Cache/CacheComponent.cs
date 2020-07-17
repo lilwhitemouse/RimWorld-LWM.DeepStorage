@@ -7,13 +7,11 @@ using Verse;
 
 namespace LWM.DeepStorage.UnitTest
 {
-    public class TestComponent : GameComponent
+    public class CacheComponent : GameComponent
     {
-        private DeepStorageTest _root = new TestRoot();
-
         private bool _init;
 
-        public TestComponent(Game game) {
+        public CacheComponent(Game game) {
         }
 
         #region Overrides of GameComponent
@@ -34,7 +32,6 @@ namespace LWM.DeepStorage.UnitTest
                         }
                     });
 
-                _root.Start();
                 _init = true;
             }
         }

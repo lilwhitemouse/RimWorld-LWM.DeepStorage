@@ -22,11 +22,11 @@ namespace LWM.DeepStorage
     {
         private CompCachedDeepStorage _comp;
 
-        private readonly int _minNumberStacks;
+        private int _minNumberStacks;
 
-        private readonly int _maxNumberStacks;
+        private int _maxNumberStacks;
 
-        private readonly float _limitintTotalFactorForCell;
+        private float _limitintTotalFactorForCell;
 
         private List<Thing> _serializationList = new List<Thing>();
 
@@ -35,21 +35,17 @@ namespace LWM.DeepStorage
         /// </summary>
         private bool _addReEntry;
 
+        public IntVec3 Cell; 
+
         public Deep_Storage_Cell_Storage_Model() {
         }
 
         public Deep_Storage_Cell_Storage_Model(IntVec3 cell, CompCachedDeepStorage comp) {
-            this.Cell = cell;
-            _comp = comp;
-            _minNumberStacks = _comp.minNumberStacks;
-            _maxNumberStacks = _comp.maxNumberStacks;
-            _limitintTotalFactorForCell = _comp.limitingTotalFactorForCell;
+            this.Init(cell, comp);
         }
 
         public Dictionary<ThingDef, Dictionary<Thing, float>> ThingCache { get; private set; }
             = new Dictionary<ThingDef, Dictionary<Thing, float>>();
-
-        public IntVec3 Cell { get; private set; }
 
         /// <summary>
         /// Note: It needs to always keep the non-full things on top of the stack,
@@ -64,7 +60,13 @@ namespace LWM.DeepStorage
 
         public bool IsReadOnly => false;
 
-        
+        public void Init(IntVec3 cell, CompCachedDeepStorage comp) {
+            this.Cell = cell;
+            _comp = comp;
+            _minNumberStacks = _comp.minNumberStacks;
+            _maxNumberStacks = _comp.maxNumberStacks;
+            _limitintTotalFactorForCell = _comp.limitingTotalFactorForCell;
+        }
 
         public void Add(Thing item) {
             float unitWeight = GetUnitWeight(item);
@@ -240,12 +242,14 @@ namespace LWM.DeepStorage
             {
                 _serializationList = ThingCache.Values.SelectMany(d => d.Keys).ToList();
             }
-            else if (Scribe.mode == LoadSaveMode.PostLoadInit)
+
+            Scribe_Collections.Look(ref _serializationList, false, nameof(_serializationList), LookMode.Reference);
+            Scribe_Values.Look(ref Cell, nameof(Cell));
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 PostLoadInit(_serializationList);
             }
-
-            Scribe_Collections.Look(ref _serializationList, false, nameof(_serializationList), LookMode.Reference);
         }
 
         #endregion
@@ -259,6 +263,7 @@ namespace LWM.DeepStorage
             this.ThingCache = new Dictionary<ThingDef, Dictionary<Thing, float>>();
             foreach (Thing thing in things)
             {
+                Log.Message($"Initializing {thing}");
                 if (thing.stackCount != thing.def.stackLimit)
                 {
                     // Trying to find the item in NonFullThings.
