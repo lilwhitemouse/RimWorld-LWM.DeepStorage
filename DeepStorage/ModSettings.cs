@@ -543,7 +543,6 @@ namespace LWM.DeepStorage
         }
 
         public static void ArchitectMenu_ClearCache() {
-            Log.Message("Clearing Cache------------------------------Architect menu");
             // Clear the architect menu cache:
             //   Run the main Architect.TabWindow.CacheDesPanels()
             typeof(RimWorld.MainTabWindow_Architect).GetMethod("CacheDesPanels", System.Reflection.BindingFlags.NonPublic |
