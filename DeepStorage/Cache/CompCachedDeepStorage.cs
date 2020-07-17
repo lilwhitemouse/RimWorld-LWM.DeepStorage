@@ -67,7 +67,7 @@ namespace LWM.DeepStorage
                 return 0;
 
             float unitWeight = thing.GetStatValue(StatDefOf.Mass);
-            if (!StackableAt(thing, map))
+            if (!CanStore(thing, map))
                 return 0;
 
             int emptyStack = this.maxNumberStacks - cellStorage.Count;
@@ -109,13 +109,13 @@ namespace LWM.DeepStorage
 
         private bool StackableAt(Thing thing, Map map, CellStorage cellStorage, float unitWeight) {
 
-            if (!StackableAt(thing, map))
+            if (!CanStore(thing, map))
                 return false;
 
             return cellStorage.CanAccept(thing, unitWeight);
         }
 
-        private bool StackableAt(Thing thing, Map map) {
+        private bool CanStore(Thing thing, Map map) {
             if (map != this.StorageBuilding.Map)
                 return false;
 

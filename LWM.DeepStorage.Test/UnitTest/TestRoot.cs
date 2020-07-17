@@ -13,6 +13,7 @@ namespace LWM.DeepStorage.UnitTest
 
         public override void Setup() {
             Tests.Add(new FoodBasketTest());
+            Tests.Add(new HamperTest());
         }
 
         public override void Cleanup() {

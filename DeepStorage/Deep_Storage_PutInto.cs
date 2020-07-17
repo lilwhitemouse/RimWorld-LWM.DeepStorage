@@ -296,9 +296,16 @@ namespace LWM.DeepStorage
     class Patch_GenSpawn_Spawn {
         private static MethodInfo _spawnSetupMethod = typeof(Thing).GetMethod(nameof(Thing.SpawnSetup));
 
+        private static MethodInfo _stackableAtMethod =
+            typeof(CompCachedDeepStorage).GetMethod(nameof(CompCachedDeepStorage.StackableAt));
+
+        private static MethodInfo _getCompCachedMethod =
+            typeof(Utils).GetMethod(nameof(Utils.GetCacheDeepStorageOnCell), BindingFlags.Static | BindingFlags.Public);
+
         //        static void Prefix (Thing newThing) {
         //            Log.Warning("Spawn: " + newThing.ToString() + ".  Destroyed? " + newThing.Destroyed);
         //        }
+        [HarmonyDebug]
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator) {
             // replace if (newThing.def.category == ThingCategory.Item)
             // with
@@ -351,6 +358,62 @@ namespace LWM.DeepStorage
                             yield return c; // Utils.CanStoreMoreThanOneThingAt(map, loc);
                             c = new CodeInstruction(OpCodes.Brtrue, branchLabel);
                             yield return c; // if CanStoreMoreThanOneThing, skip this section
+
+                            LocalBuilder hasCacheComp = ilGenerator.DeclareLocal(typeof(bool));
+                            LocalBuilder compCached = ilGenerator.DeclareLocal(typeof(CompCachedDeepStorage));
+                            // Add `Utils.GetCacheDeepStorageOnCell(loc, map, out compCached)` after the CanStoreMoreThanOneThing check.
+                            c = new CodeInstruction(OpCodes.Ldarg_1); // loc
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Ldarg_2); // map
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Ldloca, compCached); // compCached
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Call, _getCompCachedMethod);
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Stloc, hasCacheComp);
+                            yield return c;
+
+                            // ********** Target call site ***********************************
+                            //if (item2 != newThing && item2.def.category == ThingCategory.Item) <= Insert to this check
+                            //{
+                            //	item2.DeSpawn();
+                            //	if (!GenPlace.TryPlaceThing(item2, item, map, ThingPlaceMode.Near, null, (IntVec3 x) => !occupiedRect.Contains(x)))
+                            //	{
+                            //		item2.Destroy();
+                            //	}
+                            //}
+                            //********** Objective **************************************
+                            // If not patched, vanilla will re-spawn everything, that is in the way of newThing, near loc and put newThing on loc.
+                            // Thus, things that previously occupies loc will spread around that location so to make room for newThing.
+                            // This patch is to stop the spreading the moment when a DS unit has the capacity to store newThing.
+                            while (code[i].opcode != OpCodes.Ldc_I4_2)
+                                // Stop at ThingCategory.item on line `if (item2 != newThing && item2.def.category == ThingCategory.Item)`
+                                yield return code[i++];
+
+                            yield return code[i++];
+                            yield return code[i++]; // Return branch instruction and move to DeSpawn()
+                            Label continueLabel = ilGenerator.DefineLabel();
+                            code[i].labels.Add(continueLabel); // Add label to item2.DeSpawn()
+
+                            // Add more check so the final code is:
+                            //if (item2 != newThing && item2.def.category == ThingCategory.Item && (compCached == null || !compCached.StackableAt(thing, loc, map)))
+                            c = new CodeInstruction(OpCodes.Ldloc_S, hasCacheComp);
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Brfalse_S, continueLabel);
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Ldloc_S, compCached);
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Ldarg_0); // thing
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Ldarg_1); // loc
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Ldarg_2); // map
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Callvirt, _stackableAtMethod);
+                            yield return c;
+                            c = new CodeInstruction(OpCodes.Brtrue_S, branchLabel); // Branch to `newThing.Rotation = rot;`
+                            yield return c;
+
                             break; // Done with this for loop                            
                         }
                     }
@@ -359,24 +422,34 @@ namespace LWM.DeepStorage
 
             for (; i < code.Count; i++) {
                 yield return code[i];
+
+                //newThing.SpawnSetup(map, respawningAfterLoad); <-- First, find this line
+			    //if (newThing.Spawned && newThing.stackCount == 0) <-- Add our own code at the newThing.Spawned check.
+			    //{
+			    //	Log.Error("Spawned thing with 0 stackCount: " + newThing);
+			    //	newThing.Destroy();
+			    //	return null;
+			    //}
                 if (code[i].opcode == OpCodes.Callvirt && code[i].OperandIs(_spawnSetupMethod)) {
-                    while (code[++i].opcode != OpCodes.Brfalse_S)
+                    while (code[++i].opcode != OpCodes.Brfalse_S) // <-- Stop at "Brfalse_S newThing.Spawned"
                         yield return code[i];
 
-                    if (code[i + 12].opcode == OpCodes.Ldnull) {
-                        // If a new thing is DeSpawned because it is absorbed, abort the rest of the Spawn process.
-                        Label retLabel = ilGenerator.DefineLabel();
-                        code[i + 12].labels.Add(retLabel);
-                        code[i].operand = retLabel;
-                        break;
+                    int j = i;
+                    while (code[++j].opcode != OpCodes.Ldnull) { // <-- Stop at "return null;"
                     }
+
+                    // If a new thing is DeSpawned because it is absorbed, abort the rest of the Spawn process.
+                    Label retLabel = ilGenerator.DefineLabel();
+                    code[j].labels.Add(retLabel);
+                    code[i].operand = retLabel; // <-- Have "Brfalse_S newThing.Spawned" point to "return null".
+                    break;
                 }
             }
+
             // finish the rest of the function:
             for (; i < code.Count; i++) {
                 yield return code[i];
             }
-            yield break;
         }
     } // done with patching GenSpawn's Spawn(...)
 

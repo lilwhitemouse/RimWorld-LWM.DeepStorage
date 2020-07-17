@@ -225,9 +225,9 @@ namespace LWM.DeepStorage
             bool gTMinStack = stacksStoredHere + thingStacks > _minNumberStacks;
             bool gTMaxStack = stacksStoredHere + thingStacks > _maxNumberStacks;
             bool gTCellFactor = _limitintTotalFactorForCell > 0f &&
-                                thingWeight + this.TotalWeight > _limitintTotalFactorForCell;
+                                (thingWeight + this.TotalWeight - _limitintTotalFactorForCell) > 0.01f;
 
-            if (!gTCellFactor && (!gTMinStack || !gTMaxStack))
+            if (!gTMinStack || (!gTCellFactor && !gTMaxStack))
                 return true;
 
             return StackableOnNonFull(thing);
