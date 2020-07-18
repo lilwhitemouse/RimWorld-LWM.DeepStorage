@@ -8,36 +8,42 @@ using System.Linq;
 //using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
-
+using SaveStorageSettingsUtil;
 
 namespace LWM.DeepStorage
 {
     public class CompDeepStorage : ThingComp, IHoldMultipleThings.IHoldMultipleThings {
         //public float y=0f;
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
-            foreach (Gizmo g in base.CompGetGizmosExtra()) {
-                yield return g;
+            List<Gizmo> gizmos = new List<Gizmo>(base.CompGetGizmosExtra())
+            {
+                new Command_Action
+                {
+                    icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
+                    defaultLabel = "CommandRenameZoneLabel".Translate(),
+                    action = delegate ()
+                    {
+                        Find.WindowStack.Add(new Dialog_RenameDSU(this));
+                    },
+                    hotKey = KeyBindingDefOf.Misc1
+                }
+            };
+
+            if (base.parent is Building_Storage s)
+            {
+                SaveStorageSettingsGizmoUtil.AddSaveLoadGizmos(gizmos, SaveTypeEnum.Zone_Stockpile, s.settings.filter);
             }
-            yield return new Command_Action
-			{
-				icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
-				defaultLabel = "CommandRenameZoneLabel".Translate(),
-				action = delegate()
-				{
-					Find.WindowStack.Add(new Dialog_RenameDSU(this));
-				},
-				hotKey = KeyBindingDefOf.Misc1
-			};
-            #if DEBUG
-            yield return new Command_Toggle {
+
+#if DEBUG
+            gizmos.Add(new Command_Toggle {
                 defaultLabel="Use RClick Logic",
                 defaultDesc="Toggle use of custom Right Click logic",
                 isActive=(()=>Settings.useDeepStorageRightClickLogic),
                 toggleAction=delegate() {
                     Settings.useDeepStorageRightClickLogic=!Settings.useDeepStorageRightClickLogic;
                 }
-            };
-            yield return new Command_Action {
+            });
+            gizmos.Add(new Command_Action {
                 defaultLabel="Items in Region",
                 action=delegate() {
                     Log.Warning("ListerThings for "+parent+" (at region at position "+parent.Position+")");
@@ -46,28 +52,28 @@ namespace LWM.DeepStorage
                         Log.Message("  "+t);
                     }
                 }
-            };
-            #endif
+            });
+#endif
 
-            #if false
-            yield return new Command_Action {
+#if false
+            gizmos.Add(new Command_Action {
                 defaultLabel="Y-=.1",
                 action=delegate () {
                     y-=0.1f;
                     Messages.Message("Offset: "+y,MessageTypeDefOf.NeutralEvent);
                 }
-            };
-            yield return new Command_Action {
+            });
+            gizmos.Add(new Command_Action {
                 defaultLabel="Y+=.1",
                 action=delegate () {
                     y+=0.1f;
                     Messages.Message("Offset: "+y,MessageTypeDefOf.NeutralEvent);
                 }
-            };
-            #endif
+            });
+#endif
 
             // I left this lovely testing code in - oops.
-            //yield return new Command_Action
+            //gizmos.Add(new Command_Action
             //{
             //    defaultLabel = "Minus One",
             //    action=delegate ()
@@ -87,7 +93,9 @@ namespace LWM.DeepStorage
             //            }// each thing
             //        }// each cell
             //    },// end action
-            //};
+            //});
+
+            return gizmos;
         }
 
         public override string TransformLabel(string label) {
