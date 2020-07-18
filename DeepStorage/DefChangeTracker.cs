@@ -113,9 +113,12 @@ namespace LWM.DeepStorage {
                 T defaultValue=Settings.defTracker.GetDefaultValue(defName, keylet, value);
                 Scribe_Values.Look(ref value, "DSU_"+defName+"_"+keylet, defaultValue);
                 if (defaultValue.CompareTo(value)!=0) {
-                    defaultDefValues[defName+"_"+keylet]=value;
+                    Utils.Mess(Utils.DBF.Settings,"  loaded value for "+defName+"'s "+keylet+" from settings: "+value);
+                    defaultDefValues[defName+"_"+keylet]=defaultValue;
                 } else {
-                    defaultDefValues.Remove(defName+"_"+keylet);
+                    if (defaultDefValues.Remove(defName+"_"+keylet)) {
+                        Utils.Mess(Utils.DBF.Settings, "  loaded default value for "+defName+"'s "+keylet+" and removed record");
+                    }
                 }
             }
             if (Scribe.mode==LoadSaveMode.Saving) {
