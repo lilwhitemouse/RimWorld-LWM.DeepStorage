@@ -1,0 +1,41 @@
+<Patch>
+  <!-- Compatibility for Vanilla Cooking Expanded.
+       They add 3 new category defs:
+         condiments,
+         cheese,
+         uncooked soups.
+       I see no reason to not allow any of them in either 
+       meal racks or food baskets. If players want a giant
+       marble vat of mayonnaise, who am I to judge?
+       https://github.com/juanosarg/VanillaCookingExpanded/blob/master/1.1/Defs/ThingCategoryDefs/ThingCategories.xml
+       -->
+  <!--===== Vanilla Cooking Expanded =====-->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Vanilla Cooking Expanded</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/categories</xpath>
+          <value>
+            <li>VCE_Condiments</li>
+            <li>VCE_Cheese</li>
+            <li>VCE_UncookedSoups</li>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_MealRack"]/building/fixedStorageSettings/filter/categories</xpath>
+          <value>
+            <li>VCE_Condiments</li>
+            <li>VCE_Cheese</li>
+            <li>VCE_UncookedSoups</li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for Vanilla Cooking Expanded</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>
