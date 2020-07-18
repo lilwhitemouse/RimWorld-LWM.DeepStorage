@@ -122,14 +122,10 @@ namespace LWM.DeepStorage
 
             Scribe_Collections.Look(ref _storageList, nameof(_storageList), LookMode.Deep);
 
-            Log.Message($"list is {(_storageList == null ? "null" : "not null")} for {_comp.parent} at {Scribe.mode}");
-
             if (Scribe.mode == LoadSaveMode.PostLoadInit) {
                 _settings = _parent.settings;
-                Log.Message($"{string.Join("-", _storageList.SelectMany(t => t))}");
                 foreach (CellStorage storage in _storageList)
                 {
-                    Log.Message($"At cell {storage.Cell} has {string.Join(" - ", storage.Select(t => t))}");
                     storage.Init(storage.Cell, _comp);
                     _cacheCell[storage.Cell] = storage;
                 }

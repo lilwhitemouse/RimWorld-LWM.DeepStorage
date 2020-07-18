@@ -63,14 +63,13 @@
     <Compile Include="UnitTest\TestRoot.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\DeepStorage\LWM.DeepStorage.csproj">
       <Project>{a5ca1745-dff4-4dde-b237-f0bb3d8b1c27}</Project>
       <Name>LWM.DeepStorage</Name>
-      <Private>False</Private>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
