@@ -45,10 +45,10 @@ namespace LWM.DeepStorage.UnitTest
 
         public override void Run(out bool result) {
 
-            // Store Herbal Medicine x 25 to the allowed maximum number of stacks for food basket in a cell.
+            // Store Herbal Medicine one by one until the basket is full.
             result = Test.StoreXUntilStackFull(_comp, _defHerb, 1, _map, _position, out List<Thing> storedThings1);
 
-            // Store Herbal Medicine one by one until the basket is full.
+            // Store Herbal Medicine x 25 to the allowed maximum number of stacks for food basket in a cell.
             result &= Test.StoreXUntilStackFull(
                 _comp, _defHerb, _defHerb.stackLimit, _map, _position + new IntVec3(1, 0, 0), out List<Thing> storedThings2);
 

@@ -422,14 +422,6 @@ namespace LWM.DeepStorage
 
             for (; i < code.Count; i++) {
                 yield return code[i];
-
-                //newThing.SpawnSetup(map, respawningAfterLoad); <-- First, find this line
-			    //if (newThing.Spawned && newThing.stackCount == 0) <-- Add our own code at the newThing.Spawned check.
-			    //{
-			    //	Log.Error("Spawned thing with 0 stackCount: " + newThing);
-			    //	newThing.Destroy();
-			    //	return null;
-			    //}
                 if (code[i].opcode == OpCodes.Callvirt && code[i].OperandIs(_spawnSetupMethod)) {
                     while (code[++i].opcode != OpCodes.Brfalse_S) // <-- Stop at "Brfalse_S newThing.Spawned"
                         yield return code[i];
@@ -445,7 +437,6 @@ namespace LWM.DeepStorage
                     break;
                 }
             }
-
             // finish the rest of the function:
             for (; i < code.Count; i++) {
                 yield return code[i];
