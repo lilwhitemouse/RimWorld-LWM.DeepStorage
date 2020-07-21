@@ -7,6 +7,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Experimental.PlayerLoop;
 using Verse;
 
 namespace LWM.DeepStorage
@@ -56,6 +57,9 @@ namespace LWM.DeepStorage
 
         public float TotalWeight { get; private set; } = 0;
 
+        /// <summary>
+        /// Gets the number of stacks on this cell.
+        /// </summary>
         public int Count { get; private set; } = 0;
 
         public bool IsReadOnly => false;
@@ -103,6 +107,7 @@ namespace LWM.DeepStorage
             ThingCache.Clear();
             NonFullThings.Clear();
             TotalWeight = 0;
+            Count = 0;
         }
 
         public bool Contains(Thing item) {
@@ -385,21 +390,56 @@ namespace LWM.DeepStorage
             }
         }
 
-        private void SelfCorrection() {
-            int count = 0;
-            float totalWeight = 0;
+        public void SelfCorrection() {
+            bool outOfSync = false;
 
-            foreach (Dictionary<Thing, float> sameThings in this.ThingCache.Values)
-            {
-                foreach (Thing thing in sameThings.Keys)
-                {
-                    totalWeight += sameThings[thing] = thing.GetStatValue(StatDefOf.Mass);
-                    count++;
+            // A hash set that keeps track of non-full things.
+            HashSet<Thing> nonFullThings = new HashSet<Thing>(StackableThing_Comparer.Instance);
+
+            // Loop through cache.
+            foreach (var defThings in this.ThingCache) {
+                ThingDef def = defThings.Key;
+                Dictionary<Thing, float> sameThings = defThings.Value;
+
+                // Check sub-category
+                foreach (Thing thing in sameThings.Select(thingWeight => thingWeight.Key)) {
+                    if (thing.stackCount == def.stackLimit)
+                        continue;
+
+                    if (nonFullThings.Contains(thing)) {
+                        // There are two things whose stackCount is not equal to stackLimit
+                        outOfSync = true;
+                        Utils.Warn(Utils.DBF.Cache, 
+                            $"{_comp.parent} is out of sync. The culprits are {thing} x {thing.stackCount} and" +
+                            $"{(nonFullThings.TryGetValue(thing, out Thing value) ? value : null)} x {value.stackCount}");
+                        break;
+                    }
+
+                    nonFullThings.Add(thing);
+                }
+
+                if (outOfSync) {
+                    break;
                 }
             }
 
-            this.Count = count;
-            this.TotalWeight = totalWeight;
+            if (!outOfSync)
+                return;
+
+            this.TotalWeight = this.Count = 0;
+            this.NonFullThings.Clear();
+
+            foreach (var pair in this.ThingCache) {
+                Dictionary<Thing, float> sameThings = pair.Value;
+                foreach (Thing thing in sameThings.Keys.ToList())
+                {
+                    this.TotalWeight += sameThings[thing] = thing.GetStatValue(StatDefOf.Mass) * thing.stackCount;
+                    this.Count++;
+                    this.AddToNonFull(thing);
+                }
+            }
+
+            this.PrintStates();
         }
     }
 }

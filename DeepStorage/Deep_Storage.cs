@@ -72,13 +72,14 @@ namespace LWM.DeepStorage
             false, // CheckCapacity
             false, // RightClickMenu // Patch_FloatMenuMakerMap_RightClick
             true, // Settings
+            false, // Cache
         };
 
         public enum DBF // DeBugFlag
         {
             Testing, NoStorageBlockerseIn, HaulToCellStorageJob, TryPlaceDirect, Spawn, TidyStacksOf,
             Deep_Storage_Job, PlaceHauledThingInCell, ShouldRemoveFromStorage, CheckCapacity,
-            RightClickMenu, Settings
+            RightClickMenu, Settings, Cache
         }
 
         // Nifty! Won't even be compiled into assembly if not DEBUG
@@ -249,6 +250,8 @@ namespace LWM.DeepStorage
             return false;
         }
 
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool GetDeepStorageOnCell(IntVec3 cell, Map map, out CompDeepStorage compDeepStorage) {
             if (HasDeepStorageComp(map?.haulDestinationManager?.SlotGroupAt(cell), out compDeepStorage))
@@ -272,4 +275,4 @@ namespace LWM.DeepStorage
             return false;
         }
      } // End Utils class
-} // close LWM.DeepStorage namespace.  Thank you for reading!  =^.^=
+} // close LWM.DeepStorage namespace.  Thank you for reading!  =^.^= 

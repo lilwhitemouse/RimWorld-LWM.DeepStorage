@@ -108,12 +108,13 @@ namespace LWM.DeepStorage
             GetIndexRangeFromScrollPosition(outRect.height, this.scrollPosition.y, out int from, out int to, GenUI.ListSpacing);
             to = to > itemToDraw.Count ? itemToDraw.Count : to;
 
+            curY = from * GenUI.ListSpacing;
             for (int i = from; i < to; i++) {
                 this.DrawThingRow(ref curY, viewRect.width, itemToDraw[i]);
             }
 
             if (Event.current.type == EventType.Layout) {
-                this.scrollViewHeight = curY + 25f; //25f buffer   -- ??
+                this.scrollViewHeight = storedItems.Count * GenUI.ListSpacing + 25f; //25f buffer   -- ??
             }
 
             Widgets.EndScrollView();
