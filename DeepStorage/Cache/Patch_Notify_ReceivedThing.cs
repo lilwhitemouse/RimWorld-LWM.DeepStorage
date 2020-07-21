@@ -17,7 +17,7 @@ namespace LWM.DeepStorage
         {
             if (__instance.TryGetComp<CompCachedDeepStorage>() is CompCachedDeepStorage comp)
             {
-                Utils.Mess(Utils.DBF.PlaceHauledThingInCell, $"Place {newItem.LabelCap} in {__instance.LabelCapNoCount}");
+                Utils.Mess(Utils.DBF.Cache, $"Place {newItem.LabelCap} in {__instance.LabelCapNoCount}");
                 comp.CellStorages.Add(newItem);
             }
         }

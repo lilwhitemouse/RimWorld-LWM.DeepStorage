@@ -508,14 +508,15 @@ namespace LWM.DeepStorage
         }
         /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
-            Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
             Scribe_Values.Look(ref cached, nameof(cached));
 
             if (Scribe.mode == LoadSaveMode.LoadingVars) {
+                Log.Message($"Saving cached {cached}");
                 if (cached) {
                     CompCachedDeepStorage compCached = new CompCachedDeepStorage();
                     compCached.parent = this.parent;
                     compCached.Initialize(this.props);
+                    compCached.buildingLabel = this.buildingLabel;
 
                     int index = this.parent.AllComps.IndexOf(this);
                     this.parent.AllComps[index] = compCached;

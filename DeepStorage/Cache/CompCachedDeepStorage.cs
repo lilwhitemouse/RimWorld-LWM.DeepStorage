@@ -18,6 +18,8 @@ namespace LWM.DeepStorage
     {
         private StorageSettings _storageSetting;
 
+        private const int _tickRateQuotient = GenTicks.TickLongInterval / GenTicks.TickRareInterval;
+
         public Building_Storage StorageBuilding { get; private set; }
 
         public StorageSettings StorageSettings
@@ -84,13 +86,13 @@ namespace LWM.DeepStorage
         }
 
         public override void PostExposeData() {
-            if (!loadingCache)
+            if (!this.loadingCache)
                 base.PostExposeData();
 
             if (this.CellStorages == null)
                 this.CellStorages = new Cell_Storage_Collection(this.parent as Building_Storage, this);
 
-            CellStorages.ExposeData();
+            this.CellStorages.ExposeData();
         }
 
         public override void Initialize(CompProperties props) {
@@ -139,6 +141,8 @@ namespace LWM.DeepStorage
             {
                 this.CellStorages = new Cell_Storage_Collection(this.parent as Building_Storage, this);
             }
+
+            Utils.Mess(Utils.DBF.Cache, $"TickerType: {this.parent.def.tickerType}");
         }
 
         public override void PostDeSpawn(Map map)
@@ -151,6 +155,24 @@ namespace LWM.DeepStorage
         {
             base.PostDestroy(mode, previousMap);
             this.CellStorages.Clear();
+        }
+
+        /// <summary>
+        /// CompTickRare is only called when Remainder, which is equal to Find.TickManager.TicksGame % GenTicks.TicksRareInterval,
+        /// equals to the index of list to which this comp is added. Given TicksRareInterval = 250 and TicksLongInterval = 2000,
+        /// _tickRateQuotient = 2000 / 250 = 8. Whenever this method is called, TicksGame = 250 * Multiplier + Remainder(position in the tick list).
+        /// Therefore, SelfCorrection will only be invoked when Multiplier is a multiple of _tickRateQuotient.
+        /// </summary>
+        public override void CompTickRare() {
+            Utils.Mess(Utils.DBF.Cache, 
+                $"Quotient: {Find.TickManager.TicksGame / GenTicks.TickRareInterval}, _tickQuotient: {_tickRateQuotient}");
+
+            if (Find.TickManager.TicksGame / GenTicks.TickRareInterval % _tickRateQuotient != 0)
+                return;
+
+            Utils.Mess(Utils.DBF.Cache, $"Tick for {this.parent} at tick {Find.TickManager.TicksGame}");
+            foreach (CellStorage cellStorage in this.CellStorages.Storages)
+                cellStorage.SelfCorrection();
         }
 
         #endregion

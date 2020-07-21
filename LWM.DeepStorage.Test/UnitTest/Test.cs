@@ -77,20 +77,7 @@ namespace LWM.DeepStorage.UnitTest
             ReportCantFindCell(collection, cell);
             return false;
         }
-
-        public static void PrintStates(this CellStorage cellStorage) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine($"Storage at {cellStorage.Cell} has:");
-            stringBuilder.AppendLine($"Stack: {cellStorage.Count}");
-            stringBuilder.AppendLine($"TotalWeight: {cellStorage.TotalWeight}");
-            stringBuilder.AppendLine($"NonFullThings:");
-            foreach (KeyValuePair<Thing, Thing> nonFullThing in cellStorage.NonFullThings) {
-                stringBuilder.AppendLine($"{nonFullThing.Value}: {nonFullThing.Value.stackCount}");
-            }
-
-            Log.Warning($"{stringBuilder}");
-        }
-
+ 
        public static bool StoreXUntilStackFull(CompCachedDeepStorage comp, ThingDef def, int stackCount, Map map,
                                                   IntVec3 cell, out List<Thing> storedThings) {
             bool result = false;
@@ -210,6 +197,53 @@ namespace LWM.DeepStorage.UnitTest
                 innerResult &= comp.CellStorages.TestSpareSpaceOnNonFull(blackHole, cell, spareOnNonFull);
                 innerResult &= comp.TestCellStorageCapacity(blackHole, map, cell, capacity);
                 return innerResult;
+            }
+
+            return result;
+        }
+
+        public static bool TestSelfCorrection(CompCachedDeepStorage compCached, IntVec3 cell, Map map, ThingDef def, int stackCount, int iteration) {
+            FieldInfo _mapIndex =
+                typeof(Thing).GetField("mapIndexOrState", BindingFlags.Instance | BindingFlags.NonPublic);
+
+            bool result = true;
+
+            if (compCached.CellStorages.TryGetCellStorage(cell, out CellStorage cellStorage)) {
+                Dictionary<ThingDef, Dictionary<Thing, float>> thingCache = cellStorage.ThingCache;
+                Dictionary<Thing, float> sameThings = new Dictionary<Thing, float>();
+                thingCache[def] = sameThings;
+
+                // Can't use destroyed thing(thing got absorbed) to query NonFullThings because if will always fails the test, CanStackWith().
+                Thing reference = ThingMaker.MakeThing(def, GenStuff.DefaultStuffFor(def));
+                for (int i = 0; i < iteration; i++) {
+
+                    Thing newThing = ThingMaker.MakeThing(def, GenStuff.DefaultStuffFor(def));
+                    newThing.stackCount = stackCount;
+
+                    // If the stackCount is not equal to the stackLimit, we will need to sneak those things into cache,
+                    // otherwise, non-full things will be absorbed when try to spawn to cache.
+                    if (stackCount != def.stackLimit) {
+                        newThing.Position = cell;
+                        _mapIndex.SetValue(newThing, (sbyte)compCached.parent.Map.Index);
+                        sameThings[newThing] = newThing.GetStatValue(StatDefOf.Mass) * stackCount;
+                    }
+                    else {
+                        // stackCount equals to stackLimit, we can use the "normal" way to put it into cache.
+                        GenPlace.TryPlaceThing(newThing, cell, map, ThingPlaceMode.Direct);
+                    }
+                }
+
+                cellStorage.SelfCorrection();
+
+                int expectedStack = Mathf.CeilToInt((float) stackCount * iteration / def.stackLimit);
+                float expectedWeight = stackCount * iteration * reference.GetStatValue(StatDefOf.Mass);
+                int expectedSpareSpaceOnNonFull = (def.stackLimit - (stackCount * iteration % def.stackLimit)) % def.stackLimit;
+
+                result &= compCached.CellStorages.TestCellStorageStack(cell, expectedStack);
+                result &= compCached.CellStorages.TestCellStorageWeight(cell, expectedWeight);
+                result &= compCached.CellStorages.TestSpareSpaceOnNonFull(reference, cell, expectedSpareSpaceOnNonFull);
+
+                cellStorage.Clear();
             }
 
             return result;

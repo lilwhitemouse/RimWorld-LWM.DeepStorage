@@ -305,7 +305,7 @@ namespace LWM.DeepStorage
         //        static void Prefix (Thing newThing) {
         //            Log.Warning("Spawn: " + newThing.ToString() + ".  Destroyed? " + newThing.Destroyed);
         //        }
-        [HarmonyDebug]
+
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGenerator) {
             // replace if (newThing.def.category == ThingCategory.Item)
             // with

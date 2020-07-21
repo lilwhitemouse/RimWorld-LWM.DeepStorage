@@ -61,61 +61,13 @@ namespace LWM.DeepStorage.UnitTest
             result &= Test.StoreXUntilStackFull(_comp, _defHerb, 23, _map, _position, out storedThings1);
             result &= Test.RemoveXUntilEmpty(_comp, storedThings1, 23, _map, _position);
 
+            result &= Test.TestSelfCorrection(_comp, _position, _map, _defHerb, 1, 4);
+            result &= Test.TestSelfCorrection(_comp, _position, _map, _defHerb, 20, 4);
+            result &= Test.TestSelfCorrection(_comp, _position, _map, _defHerb, _defHerb.stackLimit, 4);
+
             _comp.CellStorages.Storages.ForEach(c => c.PrintStates());
         }
 
         #endregion
-
-        private static bool StoreToFullStacksWithStackLimit(CompCachedDeepStorage comp, ThingDef def, Map map,
-                                                            IntVec3 cell, out List<Thing> storedThings) {
-            bool result = false;
-            storedThings = new List<Thing>();
-            for (int i = 0; i < comp.maxNumberStacks; i++) {
-                Thing temp = ThingMaker.MakeThing(def);
-                temp.stackCount = def.stackLimit;
-
-                // Used for query NonFullThings. Using temp, which is destroyed because TryAbsorbStack(), will return value not found.
-                Thing temp2 = ThingMaker.MakeThing(def);
-
-                float unitWeight = temp.GetStatValue(StatDefOf.Mass);
-                storedThings.Add(temp);
-
-                GenPlace.TryPlaceThing(temp, cell, map, ThingPlaceMode.Direct);
-
-                result = comp.CellStorages.TestCellStorageWeight(cell, unitWeight * (i + 1) * def.stackLimit);
-                result &= comp.CellStorages.TestCellStorageStack(cell, i + 1);
-                result &= comp.CellStorages.TestSpareSpaceOnNonFull(temp2, cell, 0);
-                result &= comp.TestCellStorageCapacity(temp, map, cell, (comp.maxNumberStacks - i - 1) * def.stackLimit);
-            }
-
-            return result;
-        }
-
-        private static bool StoreToFullStacksWithOneCount(CompCachedDeepStorage comp, ThingDef def, Map map,
-                                                            IntVec3 cell, out List<Thing> storedThings) {
-            bool result = false;
-            storedThings = new List<Thing>();
-
-            for (int i = 0; i < comp.maxNumberStacks * def.stackLimit; i++) {
-                Thing temp = ThingMaker.MakeThing(def);
-                temp.stackCount = 1; 
-
-                // Used for query NonFullThings. Using temp, which is destroyed because TryAbsorbStack(), will return value not found.
-                Thing temp2 = ThingMaker.MakeThing(def);
-
-                float unitWeight = temp.GetStatValue(StatDefOf.Mass);
-                storedThings.Add(temp);
-
-                GenPlace.TryPlaceThing(temp, cell, map, ThingPlaceMode.Direct);
-
-                result = comp.CellStorages.TestCellStorageWeight(cell, unitWeight * (i + 1));
-                result &= comp.CellStorages.TestCellStorageStack(cell, Mathf.CeilToInt((i + 1) / (float)def.stackLimit));
-                result &= comp.CellStorages.TestSpareSpaceOnNonFull(temp2, cell, (def.stackLimit - (i + 1) % def.stackLimit) % def.stackLimit);
-                result &= comp.TestCellStorageCapacity(temp2, map, cell, comp.maxNumberStacks * def.stackLimit - i - 1);
-            }
-
-            return result;
-        }
-
      }
 }

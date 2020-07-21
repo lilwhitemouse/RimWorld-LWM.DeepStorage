@@ -17,7 +17,7 @@ namespace LWM.DeepStorage
         {
             if (__instance.TryGetComp<CompCachedDeepStorage>() is CompCachedDeepStorage comp)
             {
-                Utils.Mess(Utils.DBF.Deep_Storage_Job, $"Removing {newItem.LabelCap} from {__instance.LabelCapNoCount}");
+                Utils.Mess(Utils.DBF.Cache, $"Removing {newItem.LabelCap} from {__instance.LabelCapNoCount}");
                 comp.CellStorages.Remove(newItem);
             }
         }
