@@ -8,6 +8,9 @@ using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using UnityEngine;
 using static LWM.DeepStorage.Utils.DBF; // trace utils
+using System.Security.Policy;
+using HarmonyLib;
+using System.Runtime.CompilerServices;
 
 namespace LWM.DeepStorage
 {
@@ -69,13 +72,14 @@ namespace LWM.DeepStorage
             false, // CheckCapacity
             false, // RightClickMenu // Patch_FloatMenuMakerMap_RightClick
             true, // Settings
+            false, // Cache
         };
 
         public enum DBF // DeBugFlag
         {
             Testing, NoStorageBlockerseIn, HaulToCellStorageJob, TryPlaceDirect, Spawn, TidyStacksOf,
             Deep_Storage_Job, PlaceHauledThingInCell, ShouldRemoveFromStorage, CheckCapacity,
-            RightClickMenu, Settings
+            RightClickMenu, Settings, Cache
         }
 
         // Nifty! Won't even be compiled into assembly if not DEBUG
@@ -99,13 +103,12 @@ namespace LWM.DeepStorage
         //   need to use the slotGroup later, for example), but when using Harmony 
         //   Transpiler, tests are easier via function call
         // Most of the bulk here is debugging stuff
-        public static bool CanStoreMoreThanOneThingAt(Map map, IntVec3 loc) {
-            SlotGroup slotGroup = loc.GetSlotGroup(map);
-            if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
-                (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null)
+        public static bool CanStoreMoreThanOneThingAt(Map map, IntVec3 loc, Thing thing) {
+            if (!GetDeepStorageOnCell(loc, map, out CompDeepStorage comp))
             {
                 return false;
                 #pragma warning disable CS0162 // Unreachable code detected
+                SlotGroup slotGroup = loc.GetSlotGroup(map);
                 Log.Warning("CanStoreMoreThanOneThingAt: " + loc + "? false");
                 return false;
                 if (slotGroup == null) Log.Warning("  null slotGroup");
@@ -123,6 +126,13 @@ namespace LWM.DeepStorage
                 return false;
             }
             //            Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true");
+
+            if (comp is CompCachedDeepStorage compCached) {
+                bool result = compCached.StorageSettings.AllowedToAccept(thing)
+                              && compCached.StackableAt(thing, loc, map);
+                return result;
+            }
+
             return true;
             Log.Warning("CanStoreMoreThanOneThingAt: " + loc.ToString() + "? true!");
             List<Thing> lx = map.thingGrid.ThingsListAt(loc);
@@ -228,9 +238,41 @@ namespace LWM.DeepStorage
         } // end TidyStacksOf(thing)
 
         public static HashSet<Thing> TopThingInDeepStorage = new HashSet<Thing>(); // for display
-        
-    } // End Utils class
-    
+
+        public static bool HasDeepStorageComp(SlotGroup slotGroup, out CompDeepStorage compDeepStorage) {
+            if (slotGroup?.parent is ThingWithComps thingWithComps
+                && (compDeepStorage = thingWithComps.TryGetComp<CompDeepStorage>()) != null)
+            {
+                return true;
+            }
+
+            compDeepStorage = null;
+            return false;
+        }
 
 
-} // close LWM.DeepStorage namespace.  Thank you for reading!  =^.^=
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool GetDeepStorageOnCell(IntVec3 cell, Map map, out CompDeepStorage compDeepStorage) {
+            if (HasDeepStorageComp(map?.haulDestinationManager?.SlotGroupAt(cell), out compDeepStorage))
+            {
+                return true;
+            }
+
+            compDeepStorage = null;
+            return false;
+        }
+
+        public static bool GetCacheDeepStorageOnCell(IntVec3 cell, Map map, out CompCachedDeepStorage compCached) {
+            if (GetDeepStorageOnCell(cell, map, out CompDeepStorage comp)) {
+                if (comp is CompCachedDeepStorage temp) {
+                    compCached = temp;
+                    return true;
+                }
+            }
+
+            compCached = null;
+            return false;
+        }
+     } // End Utils class
+} // close LWM.DeepStorage namespace.  Thank you for reading!  =^.^= 

@@ -45,10 +45,11 @@ namespace LWM.DeepStorage
                         return true; // Don't know where the player is looking
                     }
                     // TODO: make this cleaner:
-                    if (Utils.CanStoreMoreThanOneThingAt(t.Map,t.Position)) {
+                    if (Utils.GetDeepStorageOnCell(t.Position, t.Map, out CompDeepStorage comp))
+                    {
                         __instance.ClearSelection();
                         // Select the Deep Storage Unit:
-                        __instance.Select(t.Position.GetSlotGroup(t.Map).parent);
+                        __instance.Select(comp.parent);
                         Event.current.Use();
                         return false;
                     }

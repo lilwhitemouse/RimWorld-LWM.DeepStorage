@@ -14,6 +14,21 @@ namespace LWM.DeepStorage
 {
     public class CompDeepStorage : ThingComp, IHoldMultipleThings.IHoldMultipleThings {
         //public float y=0f;
+
+        public CompDeepStorage() {
+        }
+
+        /// <summary>
+        /// This constructor is used for substituting a CompCacheDeepStorage with CompDeepStorage
+        /// for storage units that are previously saved with CompDeepStorage.
+        /// </summary>
+        /// <param name="compCached"></param>
+        public CompDeepStorage(CompCachedDeepStorage compCached) {
+            buildingLabel = compCached.buildingLabel;
+            this.parent = compCached.parent;
+            this.Initialize(compCached.props);
+        }
+
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
@@ -203,19 +218,37 @@ namespace LWM.DeepStorage
             float itemsTotalMass = 0; // or Bulk for CE ;p
             int cellsBelowMin=0;
             int cellsAtAboveMin=0;
-            foreach (IntVec3 storageCell in (parent as Building_Storage).AllSlotCells()) {
-                int countInThisCell=0;
-                numCells++;
-                foreach (Thing t in parent.Map.thingGrid.ThingsListAt(storageCell)) {
-                    if (t.Spawned && t.def.EverStorable(false)) {
-                        listOfStoredItems.Add(t);
-                        itemsTotalMass += t.GetStatValue(this.stat, true) * (float)t.stackCount;
-                        if (t.def.stackLimit > 1) flagUseStackInsteadOfItem=true;
-                        countInThisCell++;
+            Type compType = this.GetType();
+            if (compType == typeof(CompDeepStorage)) {
+                foreach (IntVec3 storageCell in (parent as Building_Storage).AllSlotCells()) {
+                    int countInThisCell=0;
+                    numCells++;
+                    foreach (Thing t in parent.Map.thingGrid.ThingsListAt(storageCell)) {
+                        if (t.Spawned && t.def.EverStorable(false)) {
+                            listOfStoredItems.Add(t);
+                            itemsTotalMass += t.GetStatValue(this.stat, true) * (float)t.stackCount;
+                            if (t.def.stackLimit > 1) flagUseStackInsteadOfItem=true;
+                            countInThisCell++;
+                        }
+                    }
+                    if (countInThisCell >= this.minNumberStacks) cellsAtAboveMin++;
+                    else cellsBelowMin++;
+                }
+            }
+            else if (this is CompCachedDeepStorage compCached) {
+                List<Deep_Storage_Cell_Storage_Model> storages = compCached.CellStorages.Storages;
+
+                numCells = storages.Count;
+                itemsTotalMass = storages.Sum(s => s.TotalWeight);
+                listOfStoredItems = storages.SelectMany(s => s).ToList();
+
+                foreach (Deep_Storage_Cell_Storage_Model storage in storages) {
+                    if (storage.Count > this.minNumberStacks)
+                        cellsAtAboveMin++;
+                    else {
+                        cellsBelowMin++;
                     }
                 }
-                if (countInThisCell >= this.minNumberStacks) cellsAtAboveMin++;
-                else cellsBelowMin++;
             }
             // We want to give user inforation about mass limits and how close we are, if they exist
             // TODO: Maybe use prop's kg() to translate everywhere, for better readability if using
@@ -465,17 +498,32 @@ namespace LWM.DeepStorage
         }
         /************************** IHoldMultipleThings interface ************************/
         /* For compatibility with Mehni's PickUpAndHaul                                  */
-        public bool CapacityAt(Thing thing, IntVec3 cell, Map map, out int capacity) {
+        public virtual bool CapacityAt(Thing thing, IntVec3 cell, Map map, out int capacity) {
             capacity = this.CapacityToStoreThingAt(thing, map, cell);
             if (capacity > 0) return true;
             return false;
         }
-        public bool StackableAt(Thing thing, IntVec3 cell, Map map) {
+        public virtual bool StackableAt(Thing thing, IntVec3 cell, Map map) {
             return this.CapacityToStoreThingAt(thing,map,cell) > 0;
         }
         /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
+            Scribe_Values.Look(ref cached, nameof(cached));
             Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
+
+            if (Scribe.mode == LoadSaveMode.LoadingVars) {
+                Log.Message($"Saving cached {cached} for {this.parent}");
+                if (cached) {
+                    CompCachedDeepStorage compCached = new CompCachedDeepStorage();
+                    compCached.parent = this.parent;
+                    compCached.Initialize(this.props);
+                    compCached.buildingLabel = this.buildingLabel;
+
+                    int index = this.parent.AllComps.IndexOf(this);
+                    this.parent.AllComps[index] = compCached;
+                    compCached.PostExposeData();
+                }
+            }
         }
 
         public StatDef stat = StatDefOf.Mass;
@@ -491,10 +539,7 @@ namespace LWM.DeepStorage
         public StatDef[] statToTotal = { };
         */
         public string buildingLabel="";
+        public bool cached = false;
 
     } // end CompDeepStorage
-
-
-
-
 }

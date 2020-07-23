@@ -132,7 +132,7 @@ namespace LWM.DeepStorage
             }
             // if not in storage, don't worry about it:
             IntVec3 clickCell=IntVec3.FromVector3(clickPos);
-            if (!Utils.CanStoreMoreThanOneThingAt(pawn.Map, clickCell)) {
+            if (!Utils.GetDeepStorageOnCell(clickCell, pawn.Map, out _)) {
                 Utils.Warn(RightClickMenu, "-----Running Vanilla AddHumanlikeOrders"+pawn+" - not in storage-----");
                 return true;
             }

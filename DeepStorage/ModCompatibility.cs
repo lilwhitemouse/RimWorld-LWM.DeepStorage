@@ -54,7 +54,12 @@ namespace LWM.DeepStorage
             if (!__result) return;
             // Simply disable hauling hysterisis for DeepStorage:
             // TODO: more complicated fix would be good:
-            if (Utils.CanStoreMoreThanOneThingAt(map, c)) return;
+            if (Utils.GetDeepStorageOnCell(c, map, out CompDeepStorage comp))
+            {
+                __result = comp.StackableAt(thing, c, map);
+                return;
+            }
+
             object[] args = { true, c, map, thing }; // could use __result instead of true, but same effect
             oldPatch.Invoke(null, args);
             __result = (bool)args[0]; // Not sure why C# does it this way, but whatever.

@@ -205,6 +205,26 @@ namespace LWM.DeepStorage
             return lastThing; // if this is also null, we have a problem :p
         }
 
+        // Use a new logic for CompCachedDeepStorage to get the maximum job.count.
+        public static bool Prefix(Pawn p, Thing t, IntVec3 storeCell, ref Job __result) {
+            if (Utils.GetDeepStorageOnCell(storeCell, p.Map, out CompDeepStorage comp)
+                && comp is CompCachedDeepStorage compCached)
+            {
+                int capacity = compCached.CapacityToStoreThingAt(t, p.Map, storeCell);
+                float carryingCapacity = p.carryTracker.AvailableStackSpace(t.def);
+
+                Job job = JobMaker.MakeJob(JobDefOf.HaulToCell, t, storeCell);
+                job.count = Mathf.Min(capacity, Mathf.FloorToInt(carryingCapacity));
+                job.haulOpportunisticDuplicates = true;
+                job.haulMode = HaulMode.ToCellStorage;
+
+                __result = job;
+                return false;
+            }
+
+            return true;
+        }
+
 #if DEBUG
         public static void LogNum(int line, int num, int count, float statValue, Thing t1, Thing t2) {
             Utils.Warn(HaulToCellStorageJob, "----"+line+": "+num+" vs "+count+" (total max: "+statValue+")");
