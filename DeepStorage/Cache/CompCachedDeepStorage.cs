@@ -86,7 +86,7 @@ namespace LWM.DeepStorage
         }
 
         public override void PostExposeData() {
-            if (!this.loadingCache)
+            if (Scribe.mode != LoadSaveMode.LoadingVars)
                 base.PostExposeData();
 
             if (this.CellStorages == null)
@@ -139,6 +139,7 @@ namespace LWM.DeepStorage
             base.PostSpawnSetup(respawningAfterLoad);
             if (!respawningAfterLoad)
             {
+                Log.Message($"Initialize cached DS unit");
                 this.CellStorages = new Cell_Storage_Collection(this.parent as Building_Storage, this);
             }
 
