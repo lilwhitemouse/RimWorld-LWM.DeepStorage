@@ -182,14 +182,14 @@ namespace LWM.DeepStorage
             int stackCount = thing.stackCount;
             if (nonFullThing.TryAbsorbStack(thing, true))
             {
-                placedAction?.Invoke(nonFullThing, nonFullThing.stackCount);
+                placedAction?.Invoke(nonFullThing, thing.stackCount);
                 resultingThing = nonFullThing;
 
                 return true;
             }
 
             if (stackCount != thing.stackCount)
-                placedAction?.Invoke(thing, thing.stackCount);
+                placedAction?.Invoke(thing, stackCount - thing.stackCount);
 
             return false;
         }

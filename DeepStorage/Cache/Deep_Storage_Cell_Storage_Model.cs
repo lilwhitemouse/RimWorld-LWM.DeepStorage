@@ -268,7 +268,6 @@ namespace LWM.DeepStorage
             this.ThingCache = new Dictionary<ThingDef, Dictionary<Thing, float>>();
             foreach (Thing thing in things)
             {
-                Log.Message($"Initializing {thing}");
                 if (thing.stackCount != thing.def.stackLimit)
                 {
                     // Trying to find the item in NonFullThings.
