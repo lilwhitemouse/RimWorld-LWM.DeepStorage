@@ -24,18 +24,27 @@
 
 LWM presents a way to organize your supplies, loot, clothes, and even your garbage, to allow you a tidy base where your colonists aren't simply dumping stuff on the floor.  Deep Storage units include medicine cabinets, meat hooks, clothing racks, weapon lockers, etc, and all can store diverse items - just like regular shelves, but they allow more than one thing!
 
-FAQ:
+ADDON MODS:
+ * Note: I have not used these, and have been super busy so haven't had a chance to add anything to the base mod. If you find right-clicking on storage slow, you might try this:
+ * A (faster?) UI for right-clicking on things: https://steamcommunity.com/sharedfiles/filedetails/?id=2169841018
+ * Little Storage 2, Vault, Simple Storage, etc - if you want more ways to store things, there are several available in the Steam workshop!
+
+FAQ / "I have a problem":
  * Meat Hooks require the Smithing research!
+ * These Hampers are made of fabric, they don't hold fabric
+ * Does it work with Vanilla shelves?
+ * You can always add more stored things in Mod Settings
+ ** (A little walkthrough for doing that: https://steamcommunity.com/sharedfiles/filedetails/?id=2187075071)
 
 Want to say Thanks?
  * Have ** in Art?  Draw me a picture of a little white mouse!  I'm reachable on the Ludeon forum.
  * Have extra spending money?  Share a cup of something tasty (some places around here deliver!) at https://ko-fi.com/littlewhitemouse
 
-Note:
+Notes:
  * Storing things properly takes time - the colonists must carefully organize everything so it's easy to find what's needed.(*)
  * Animals cannot by default haul to Storage - their little brains and paws (claws, etc) cannot manage the clasps, locks, catches, etc required to store things properly.(*)
  * All the units you can build are in the Storage menu - by default this includes other mods' storage buildings.(*)
- * (*) - these can be changed in the Mod Settings
+ * (*) - these can be changed in the Mod Settings (again, link above)
 
 Compatibility:
  * Storage compatible with many different mods: Dubs Bad Hygiene, RimCuisine, Survival Tools, Vegetable Garden.  If you see something that SHOULD be stored but isn't?  You can let me know!
@@ -45,7 +54,7 @@ Compatibility:
  * Plays well with mods that affect hauling: CommonSense, Pick Up and Haul.
  * Haul To Stack?  I have conflicting reports, let me know.
  * Other storage mods? maybe:
- ** Project RimFactory: probably okay
+ ** Project RimFactory: probably okay, should be fully compatible soon
  ** Extended Storage: maybe
  ** Other storage mod???  If you get weird behavior, turn off "Over Capacity" check in mod settings
  * Industrial Rollers: not fully, but fix is coming!
@@ -55,7 +64,8 @@ Want more types of units?  Frozen organ storage?  Piggy banks for silver?  Cubby
 Translations:
 Русский - Тхакиро
 Deutsch - Erdnussbrot
-Note on Translations: these are both partial translations.  Want to translate it (all or part) into your language?  Great!  Let me know, I'll add it to the mod (or do a Pull Request on GitHub, if you do that thing)
+Chinese Traditional - shiuanyue
+Note on Translations: These may not be complete translations, as I do add things from time to time. Want to translate it (all or part) into your language?  Great!  Let me know, I'll add it to the mod (or do a Pull Request on GitHub, if you do that thing - that is easiest for me!)
 
 The code can be found online at: https://github.com/lilwhitemouse/RimWorld-LWM.DeepStorage
 On Steam: https://steamcommunity.com/id/littlewhitemouse/myworkshopfiles/?appid=294100
