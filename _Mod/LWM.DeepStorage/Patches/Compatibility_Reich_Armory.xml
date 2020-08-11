@@ -4,6 +4,8 @@
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>Reich Armory [1.0]</li>
+      <li>Reich Armory [1.2]</li>
+      <li>Reich Armory [1.1]</li>
     </mods>
     <match Class="PatchOperationSequence">
       <operations>
