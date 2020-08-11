@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Harmony;
+using HarmonyLib;
 using RimWorld;
 using Verse;
 using Verse.AI;
