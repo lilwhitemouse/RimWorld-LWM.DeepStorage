@@ -8,7 +8,7 @@
     <mods>
       <li>[KV] RimFridge - 1.0</li>
       <li>[KV] RimFridge - 1.1</li>
-      <li>[KV] RimFridge - 1.2</li><!--This is a popular mod, and I get a lot of complaints when KV changes the name :p -->
+      <li>[KV] RimFridge</li><!-- 1.2+ version -->
     </mods>
     <match Class="PatchOperationAdd">
       <xpath>/Defs</xpath>
