@@ -253,20 +253,19 @@ namespace LWM.DeepStorage
                 // Much TODO, so wow:
                 tmpLabel=l.TextEntryLabeled("LWMDSpDSUlabel".Translate(), tmpLabel);
                 string tmpstring=null;
-                //TODO: redo, include defaults:
                 l.TextFieldNumericLabeled("LWM_DS_maxNumStacks".Translate().CapitalizeFirst()+" "
-                                          +"LWM_DS_Default".Translate(tmpMaxNumStacks),
+                                          +"LWM_DS_Default".Translate(tracker.GetDefaultValue(def.defName, "maxNumStacks",
+                                                                                              tmpMaxNumStacks)),
                                           ref tmpMaxNumStacks, ref tmpstring,0);
-//                l.TextFieldNumericLabeled("Maximum Number of Stacks per Cell", ref tmpMaxNumStacks, ref tmpstring,0);
                 tmpstring=null;
-//                l.TextFieldNumericLabeled<float>("Maximum Total Mass per Cell", ref tmpMaxTotalMass, ref tmpstring,0f);
                 l.TextFieldNumericLabeled<float>("LWM_DS_maxTotalMass".Translate().CapitalizeFirst()+" "+
-                                                 "LWM_DS_Default".Translate(tmpMaxTotalMass),
+                                                 "LWM_DS_Default".Translate(tracker.GetDefaultValue(def.defName,
+                                                                            "maxTotalMass", tmpMaxTotalMass).ToString()),
                                                  ref tmpMaxTotalMass, ref tmpstring,0f);
                 tmpstring=null;
-//                l.TextFieldNumericLabeled<float>("Maximum Mass of any Stored Item", ref tmpMaxMassStoredItem, ref tmpstring,0f);
                 l.TextFieldNumericLabeled<float>("LWM_DS_maxMassOfStoredItem".Translate().CapitalizeFirst()+" "+
-                                                 "LWM_DS_Default".Translate(tmpMaxMassStoredItem),
+                                                 "LWM_DS_Default".Translate(tracker.GetDefaultValue(def.defName,
+                                                             "maxMassStoredItem", tmpMaxMassStoredItem).ToString()),
                                                  ref tmpMaxMassStoredItem, ref tmpstring,0f);
                 l.CheckboxLabeled("LWMDSpDSUshowContents".Translate(), ref tmpShowContents);
                 l.GapLine();
