@@ -244,7 +244,7 @@ namespace LWM.DeepStorage
 //                l.Begin(new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f));
                 Rect s=new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f);
                 Rect v=new Rect(inRect.x, inRect.y, inRect.width-20f, inRect.height-CloseButSize.y-5f);
-                if (useCustomThingFilter) v.height+=300f;
+                if (useCustomThingFilter) v.height+=CustomThingFilterHeight;
                 l.BeginScrollView(s, ref DSUScrollPosition, ref v);
 //                l.BeginScrollView(
 //                l.BeginScrollView(Rect rect, ref Vector2 scrollPosition, ref Rect viewRect)
@@ -283,7 +283,7 @@ namespace LWM.DeepStorage
 //                        Log.Error("Old filter has: "+def.building.fixedStorageSettings.filter.AllowedDefCount);
 //                        Log.Warning("New filter has: "+customThingFilter.AllowedDefCount);
                     }
-                    Rect r=l.GetRect(300);
+                    Rect r=l.GetRect(CustomThingFilterHeight);
                     r.width*=2f/3f;
                     r.x+=10f;
                     ThingFilterUI.DoThingFilterConfigWindow(r, ref thingFilterScrollPosition, customThingFilter);
@@ -372,6 +372,7 @@ namespace LWM.DeepStorage
             ThingFilter customThingFilter=null;
             Vector2 thingFilterScrollPosition=new Vector2(0,0);
             Vector2 DSUScrollPosition=new Vector2(0,0);
+            const float CustomThingFilterHeight=600f;
         }
         private static void ResetDSUToDefaults(string resetDefName) {
             object tmpObject;
