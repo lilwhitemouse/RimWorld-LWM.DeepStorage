@@ -1,6 +1,7 @@
 using System;
 using Verse;
 using UnityEngine;
+using Multiplayer.API;
 
 namespace LWM.DeepStorage
 {
@@ -10,6 +11,9 @@ namespace LWM.DeepStorage
         public DeepStorageMod(ModContentPack content) : base(content) {
             this.settings=GetSettings<Settings>();
             
+            if (MP.enabled) {
+                MP.RegisterAll();
+            }
         }
 
         public override string SettingsCategory() => "LWM's Deep Storage"; // todo: translate?

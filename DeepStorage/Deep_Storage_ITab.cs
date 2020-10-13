@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using HarmonyLib;
+using Multiplayer.API;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -143,24 +144,7 @@ namespace LWM.DeepStorage
                 yetAnotherRect=new Rect(width, y, 24f, 24f);
                 TooltipHandler.TipRegion(yetAnotherRect, "LWM.ContentsDropDesc".Translate());
                 if (Widgets.ButtonImage(yetAnotherRect, Drop, Color.gray, Color.white, false)) {
-                    IntVec3 loc=thing.Position;
-                    Map map=thing.Map;
-                    thing.DeSpawn(); //easier to pick it up and put it down using existing game
-                                     //  logic by way of GenPlace than to find a good place myself
-                    if (!GenPlace.TryPlaceThing(thing, loc, map, ThingPlaceMode.Near, null,
-                                                // Try to put it down not in a storage building:
-                                                delegate (IntVec3 newLoc) { // validator
-                                                    foreach (var t in map.thingGrid.ThingsListAtFast(newLoc))
-                                                        if (t is Building_Storage) return false;
-                                                    return true;
-                                                })) {
-                        GenSpawn.Spawn(thing, loc, map); // Failed to find spot: so it WILL go back into Deep Storage!
-                        //                                  if non-DS using this, who knows/cares? It'll go somewhere. Probably.
-                    }
-                    if (!thing.Spawned || thing.Position==loc) {
-                        Messages.Message("You have filled the map.", // no translation for anyone crazy enuf to do this.
-                                         new LookTargets(loc, map), MessageTypeDefOf.NegativeEvent);
-                    }
+                    EjectThing(thing);
                 }
             }
             /************************* Mass *************************/
@@ -223,6 +207,28 @@ namespace LWM.DeepStorage
             TooltipHandler.TipRegion(itemRect, text2);
             y += 28f;
         } // end draw thing row
+
+        [SyncMethod]
+        private static void EjectThing(Thing thing) {
+            IntVec3 loc = thing.Position;
+            Map map = thing.Map;
+            thing.DeSpawn(); //easier to pick it up and put it down using existing game
+                             //  logic by way of GenPlace than to find a good place myself
+            if (!GenPlace.TryPlaceThing(thing, loc, map, ThingPlaceMode.Near, null,
+                                        // Try to put it down not in a storage building:
+                                        delegate (IntVec3 newLoc) { // validator
+                                                    foreach (var t in map.thingGrid.ThingsListAtFast(newLoc))
+                                                if (t is Building_Storage) return false;
+                                            return true;
+                                        })) {
+                GenSpawn.Spawn(thing, loc, map); // Failed to find spot: so it WILL go back into Deep Storage!
+                                                 //                                  if non-DS using this, who knows/cares? It'll go somewhere. Probably.
+            }
+            if (!thing.Spawned || thing.Position == loc) {
+                Messages.Message("You have filled the map.", // no translation for anyone crazy enuf to do this.
+                                 new LookTargets(loc, map), MessageTypeDefOf.NegativeEvent);
+            }
+        }
     } /* End itab */
     /* Now make the itab open automatically! */
     /*   Thanks to Falconne for doing this in ImprovedWorkbenches, and showing how darn useful it is! */
