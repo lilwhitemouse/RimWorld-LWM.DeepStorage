@@ -23,7 +23,7 @@
           <!-- no nomatch; use success - Always instead -->
         </li>
         <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingCategoryDef[defName="FellingTools"</xpath>
+          <xpath>/Defs/ThingCategoryDef[defName="FellingTools"]</xpath>
           <success>Always</success>
           <match Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
@@ -33,7 +33,7 @@
           </match>
         </li>
         <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingCategoryDef[defName="ConstructionTools"</xpath>
+          <xpath>/Defs/ThingCategoryDef[defName="ConstructionTools"]</xpath>
           <success>Always</success>
           <match Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
@@ -43,7 +43,7 @@
           </match>
         </li>
         <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingCategoryDef[defName="MiningTools"</xpath>
+          <xpath>/Defs/ThingCategoryDef[defName="MiningTools"]</xpath>
           <success>Always</success>
           <match Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
@@ -53,7 +53,7 @@
           </match>
         </li>
         <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingCategoryDef[defName="HarvestingTools"</xpath>
+          <xpath>/Defs/ThingCategoryDef[defName="HarvestingTools"]</xpath>
           <success>Always</success>
           <match Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
