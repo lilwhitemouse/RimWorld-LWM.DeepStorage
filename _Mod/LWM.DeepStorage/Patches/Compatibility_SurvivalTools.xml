@@ -12,7 +12,7 @@
              apparently there are a bunch of versions running around
              on Steam. Gotta catch 'em all? -->
         <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingCategoryDef[defName="SurvivalTools"</xpath>
+          <xpath>/Defs/ThingCategoryDef[defName="SurvivalTools"]</xpath>
           <success>Always</success>
           <match Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
