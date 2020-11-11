@@ -857,6 +857,68 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
       <li><compClass>CompQuality</compClass></li><!--Ideal todo: some sort of armoir with this quality base and prettiness-->
     </comps>
   </ThingDef>
+  
+  <ThingDef ParentName="LWM_DeepStorage">
+	<defName>LWM_Safe</defName>
+	<label>Safe</label>
+	<description>A secure, lockable box for safely storing valuables against theft and/or damage from fire.</description>
+	<graphicData>
+		<texPath>sumghai/safe/safe</texPath>
+		<graphicClass>Graphic_Multi</graphicClass>
+		<shaderType>CutoutComplex</shaderType>
+		<drawSize>(3,3)</drawSize>
+	</graphicData>
+	<defaultPlacingRot>South</defaultPlacingRot>
+	<uiIconPath>sumghai/safe/safe_UI</uiIconPath>
+	<castEdgeShadows>true</castEdgeShadows>
+	<size>(1,1)</size>
+	<statBases>
+		<MaxHitPoints>500</MaxHitPoints>
+		<WorkToBuild>3000</WorkToBuild> <!-- Solid cast-iron (or whatever) construction -->
+		<Flammability>0</Flammability>
+		<Beauty>-1.5</Beauty> <!-- Dull, heavy metal box -->
+		<Mass>500</Mass> <!-- Solid cast-iron (or whatever) construction -->
+	</statBases>
+	<stuffCategories>
+		<li>Metallic</li>
+	</stuffCategories>
+	<costStuffCount>300</costStuffCount>
+	<building>
+		<preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+		<ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+		<fixedStorageSettings>
+			<priority>Critical</priority>
+			<filter>
+				<categories>
+					<li>Artifacts</li>
+				</categories>
+				<thingDefs>
+					<li>Gold</li>
+					<li>Silver</li>
+					<li>Jade</li> <!-- Debatable -->
+				</thingDefs>
+			</filter>
+		</fixedStorageSettings>
+		<defaultStorageSettings>
+			<priority>Critical</priority>
+			<filter />
+		</defaultStorageSettings>
+	</building>
+	<comps>
+		<li Class="LWM.DeepStorage.Properties">
+			<!-- Needs tuning; delete this comment once tuned -->
+			<maxNumberStacks>20</maxNumberStacks>
+			<minNumberStacks>20</minNumberStacks>
+			<timeStoringTakes>2000</timeStoringTakes> <!-- Combination dial -->
+			<showContents>false</showContents>
+			<overlayType>CountOfStacksPerCell</overlayType> <!-- Not sure if appropriate -->
+		</li>
+	</comps>
+	<researchPrerequisites>
+		<li>ComplexFurniture</li>
+		<li>Machining</li>
+    </researchPrerequisites>
+  </ThingDef>
 
   <!--TODO: put template here? -->
 </Defs>
