@@ -19,6 +19,7 @@
 <loadAfter>
   <li>UnlimitedHugs.HugsLib</li>
   <li>rimfridge.kv.rw</li>
+  <li>Mlie.CannibalMeals</li>
 </loadAfter>
 <description>Deep Storage Units: yet another storage solution
 
