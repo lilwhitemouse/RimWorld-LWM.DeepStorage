@@ -3,6 +3,7 @@
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>Call of Cthulhu - Cosmic Horrors</li>
+      <li>Call of Cthulhu - Cosmic Horrors (Continued)</li>
     </mods>
     <match Class="PatchOperationSequence">
       <operations>
