@@ -49,8 +49,12 @@ namespace LWM.DeepStorage
             Utils.Mess(Utils.DBF.Settings, "Patch to check if overCapacity? "+Settings.checkOverCapacity);
             if (!Settings.checkOverCapacity)
                 return false;
+            // Other mods with storage don't have the CompDeepStorage, so I can't test if they're
+            //   over capacity too.
             // Turn this off (hard) for Project Rim Factory - otherwise pawns may get stuck in loop
             if (ModLister.GetActiveModWithIdentifier("spdskatr.projectrimfactory")!=null) return false;
+            // Turn this off (hard) for Project Rim Factory - lite (which has storage too)
+            if (ModLister.GetActiveModWithIdentifier("zymex.prf.lite")!=null) return false;
             // Turn this off (hard) for Extended Storage (if players want to be crazy and try both)
             if (ModLister.GetActiveModWithIdentifier("Skullywag.ExtendedStorage")!=null) return false;
             return true;
