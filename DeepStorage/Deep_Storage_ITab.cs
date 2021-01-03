@@ -206,6 +206,7 @@ namespace LWM.DeepStorage
             TooltipHandler.TipRegion(itemRect, text2);
             y += 28f;
         } // end draw thing row
+        // make this separate function instead of delegate() so the MP people can link to it
         public static void EjectTarget(Thing thing) {
             IntVec3 loc=thing.Position;
             Map map=thing.Map;
