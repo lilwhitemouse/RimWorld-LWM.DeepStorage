@@ -861,7 +861,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
   <ThingDef ParentName="LWM_DeepStorage">
 	<defName>LWM_Safe</defName>
 	<label>Safe</label>
-	<description>A secure, lockable box for safely storing valuables against theft and/or damage from fire.</description>
+	<description>A secure, lockable box for safely storing valuables against theft and/or damage from fire.\n\nNote: protection from fire not yet implemented)</description>
 	<graphicData>
 		<texPath>sumghai/safe/safe</texPath>
 		<graphicClass>Graphic_Multi</graphicClass>
@@ -909,9 +909,9 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
 			<!-- Needs tuning; delete this comment once tuned -->
 			<maxNumberStacks>20</maxNumberStacks>
 			<minNumberStacks>20</minNumberStacks>
-			<timeStoringTakes>2000</timeStoringTakes> <!-- Combination dial -->
+			<timeStoringTakes>200</timeStoringTakes> <!-- TODO: Increase by factor of 10 for Combination dial -->
 			<showContents>false</showContents>
-			<overlayType>CountOfStacksPerCell</overlayType> <!-- Not sure if appropriate -->
+			<overlayType>SumOfAllItems</overlayType> <!-- Not sure if appropriate -->
 		</li>
 	</comps>
 	<researchPrerequisites>
