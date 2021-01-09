@@ -1,5 +1,6 @@
 ﻿using System;  // for delegate(), Type, Func<>() stuff
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using RimWorld;
 using Verse;
 using HarmonyLib;
@@ -152,50 +153,84 @@ namespace LWM.DeepStorage
         public static Intelligence NecessaryIntelligenceToUseDeepStorage=Intelligence.Humanlike;
         // A way to specify some pawns can use Storage no matter what:
         static System.Func<Pawn,bool> specialTest=null;
+        // Prepare: Check to see if there are any robot/drone mods - if there are,
+        //   prepare special logic to allow them to haul to storage no matter what:
         static bool Prepare(Harmony instance) {
-            // Prepare: See if there are any mods that should be able to haul to storage even
-            //   tho they don't meet normal criteria:
-            if (!Settings.robotsCanUse) return true;
-            Type classMiscRobots=null;
-            Type classBaseRobots=null;
+            if (!Settings.robotsCanUse || specialTest != null) return true;
+
+            var types = new List<Type>();
+
+            Type tmp;
+
+            // General procedure to get "close enough" classes:
+            //   "NameSpace.ClassName, AssemblyName(=.dllName)"
             if (ModLister.HasActiveModWithName("Misc. Robots")) {
                 // From Haplo:  From my point of view they are normal drones with a kind of
                 //    robot arm (for hauling) somewhere and a simple (job-specific) AI
                 // Good enough for me!  A robot arm can manipulate things, an any AI that can
                 // handle lifting random objects can probably handle latches.
-                classMiscRobots=Type.GetType("AIRobot.X2_AIRobot, AIRobot");
-                if (classMiscRobots==null) {
+                tmp=Type.GetType("AIRobot.X2_AIRobot, AIRobot");
+                if (tmp==null) {
                     Log.Error("LWM's Deep Storage tried to find the Type 'AIRobot.X2_AIRobot, AIRobot', but failed even tho Misc. Robots is loaded.\n"+
                               "Please let LWM know.");
                 } else {
                     Log.Message("LWM: activating compatibility logic for Misc. Robots");
+                    types.Add(tmp);
                 }
             }
             if (ModLister.HasActiveModWithName("Base Robots")) {
-                classBaseRobots=Type.GetType("BaseRobot.ArcBaseRobot, BaseRobot");
-                if (classBaseRobots==null) {
+                tmp=Type.GetType("BaseRobot.ArcBaseRobot, BaseRobot");
+                if (tmp==null) {
                     Log.Error("LWM's Deep Storage tried to find the Type 'BaseRobot.ArcBaseRobot, BaseRobot', but failed even tho Base Robots is loaded.\n"+
                               "Please let LWM know.");
                 } else {
                     Log.Message("LWM: activating compatibility logic for Base Robots");
+                    types.Add(tmp);
                 }
             }
-            if (classMiscRobots != null) {
-                if (classBaseRobots != null) { // Are these even compatible?  Someone will try
-                    specialTest=delegate(Pawn p) {
-                        if (classMiscRobots.IsAssignableFrom(p?.def.thingClass)) return true;
-                        return classBaseRobots.IsAssignableFrom(p?.def.thingClass);
-                    };
-                } else { // only MiscRobots
-                    specialTest=delegate(Pawn p) {
-                        return classMiscRobots.IsAssignableFrom(p?.def.thingClass);
-                    };
+            if (ModLister.HasActiveModWithName("Project RimFactory Revived") ||
+                ModLister.HasActiveModWithName("Project RimFactory Lite")) { // They use the same .dll
+                tmp=Type.GetType("ProjectRimFactory.Drones.Pawn_Drone, ProjectRimFactory");
+                if (tmp==null) {
+                    Log.Error("LWM's Deep Storage tried to find the Type 'ProjectRimFactory.Drones.Pawn_Drone', but failed even tho PRF is loaded.\n"+
+                              "Please let LWM know.");
+                } else {
+                    Log.Message("LWM: activating compatibility logic for Project RimFactory");
+                    types.Add(tmp);
                 }
-            } else if (classBaseRobots != null) {
-                    specialTest=delegate(Pawn p) {
-                        return classBaseRobots.IsAssignableFrom(p?.def.thingClass);
-                    };
             }
+
+            if (types.Count ==0) return true;
+            // The fun part:
+            //   Built a function from IL to test if a pawn is a robot:
+            var dm = new DynamicMethod("Check if Pawn is a robot",
+                                       typeof(bool),
+                                       new Type[] {typeof(Pawn)});
+            var il = dm.GetILGenerator();
+            // Build from IL:
+            //     if p is t1 goto isRobotLabel;
+            //     if p is t2 goto isRobotLabel; //maybe
+            //     ...
+            //     return false;
+            //    isRobotLabel:
+            //     return true;
+            var isRobotLabel = il.DefineLabel();
+            foreach (var t in types) {
+                // test (p is t)
+                il.Emit(OpCodes.Ldarg_0); // put pawn p on stack
+                il.Emit(OpCodes.Isinst, t);
+                // Note: cannot return result of Isinst as a bool value
+                //   (maybe I could cast it?  Whatever)
+                il.Emit(OpCodes.Brtrue, isRobotLabel);
+            }
+            // return false
+            il.Emit(OpCodes.Ldc_I4_0);
+            il.Emit(OpCodes.Ret);
+            il.MarkLabel(isRobotLabel);
+            il.Emit(OpCodes.Ldc_I4_1);
+            il.Emit(OpCodes.Ret);
+
+            specialTest = (System.Func<Pawn,bool>)dm.CreateDelegate(typeof(System.Func<Pawn,bool>));
             return true; // I have too much to do to look up whether Prepare(...) can be a void, so return true
         }
         static void Postfix(ref bool __result, IntVec3 c, Map map, Pawn carrier) {
