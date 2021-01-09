@@ -235,16 +235,12 @@ namespace LWM.DeepStorage
             //   Turn it off automatically for Project RimFactory and Extended Storage
             //   Note: should turn it off automatically for any other storage mods, too
             l.GapLine();
-            tmpMod=ModLister.GetActiveModWithIdentifier("spdskatr.projectrimfactory");
-
-
+            tmpMod=ModLister.GetActiveModWithIdentifier("spdskatr.projectrimfactory")
+                ?? ModLister.GetActiveModWithIdentifier("zymex.prf.lite")
+                ?? ModLister.GetActiveModWithIdentifier("Skullywag.ExtendedStorage");
             if (tmpMod!=null) {
                 GUI.color=Color.gray;
-                // This setting is disabled due to mod Extended Storage
-                l.Label("LWMDSignoredDueTo".Translate(tmpMod.Name));
-            }
-            if ((tmpMod=ModLister.GetActiveModWithIdentifier("Skullywag.ExtendedStorage"))!=null) {
-                GUI.color=Color.gray;
+                // This setting is disabled due to mod [Extended Storage, etc]
                 l.Label("LWMDSignoredDueTo".Translate(tmpMod.Name));
             }
             l.CheckboxLabeled("LWMDSoverCapacityCheck".Translate(), ref checkOverCapacity,
