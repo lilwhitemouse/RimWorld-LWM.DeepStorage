@@ -10,20 +10,20 @@
           <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/thingDefs</xpath>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter</xpath>
-            <value><thingDefs><li>FecalSludge</li></thingDefs></value>
+            <value><thingDefs><li MayRequire="dbhFullMode">FecalSludge</li></thingDefs></value>
           </nomatch>
           <match Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/thingDefs</xpath>
             <value>
-              <li>FecalSludge</li>
+              <li MayRequire="dbhFullMode">FecalSludge</li>
             </value>
           </match>
         </li>
         <li Class="PatchOperationAdd">
           <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/building/fixedStorageSettings/filter/thingDefs</xpath>
           <value><!-- Well, garbage, right? -->
-            <li>Biosolids</li>
-            <li>FecalSludge</li><!--I went ahead and added this here, too-->
+            <li MayRequire="dbhFullMode">Biosolids</li>
+            <li MayRequire="dbhFullMode">FecalSludge</li><!--I went ahead and added this here, too-->
           </value>
         </li>
         <!-- Add to quickStoringItems for skip -->
@@ -34,16 +34,16 @@
             <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
             <value>
               <quickStoringItems>
-                <li>Biosolids</li>
-                <li>FecalSludge</li>
+                <li MayRequire="dbhFullMode">Biosolids</li>
+                <li MayRequire="dbhFullMode">FecalSludge</li>
               </quickStoringItems>
             </value>
           </nomatch>
           <match Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/comps/li[@Class='LWM.DeepStorage.Properties']/quickStoringItems</xpath>
             <value>
-              <li>Biosolids</li>
-              <li>FecalSludge</li>
+              <li MayRequire="dbhFullMode">Biosolids</li>
+              <li MayRequire="dbhFullMode">FecalSludge</li>
             </value>
           </match>
         </li>
