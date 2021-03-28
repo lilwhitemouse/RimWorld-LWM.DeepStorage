@@ -6,7 +6,7 @@
     <match Class="PatchOperationSequence">
       <operations>
         <li Class="PatchOperationAdd">
-          <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/categories</xpath>
+          <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>
           <value>
             <li>CAN_CannibalPemmican</li>
             <li>CAN_CannibalKibble</li>
