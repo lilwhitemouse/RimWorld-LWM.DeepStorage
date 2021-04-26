@@ -115,9 +115,6 @@
     <None Include="..\_Mod\LWM.DeepStorage\About\PublishedFileId.txt">
       <Link>_Mod\LWM.DeepStorage\About\PublishedFileId.txt</Link>
     </None>
-    <None Include="..\_Mod\LWM.DeepStorage\Assemblies\0Harmony.dll">
-      <Link>_Mod\LWM.DeepStorage\Assemblies\0Harmony.dll</Link>
-    </None>
     <None Include="..\_Mod\LWM.DeepStorage\Assemblies\LWM.DeepStorage.dll">
       <Link>_Mod\LWM.DeepStorage\Assemblies\LWM.DeepStorage.dll</Link>
     </None>
