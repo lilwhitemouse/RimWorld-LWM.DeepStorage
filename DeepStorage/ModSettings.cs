@@ -625,6 +625,52 @@ namespace LWM.DeepStorage
             }
             return result;
         }
+                // Helper function to create EnumRadioButton for Enums in settings
+        /*public static bool EnumRadioButton<T>(float width, ref float y, ref T val, string label, string tooltip="",
+                                              bool showEnumValues=true, string[] buttonLabels=null) {
+            if ((val as Enum)==null) {
+                Log.Error("LWM.DisplayHelperFunction: EnumRadioButton passed non-enum value");
+                return false;
+            }
+            bool result=false;
+            MyLabel(width, ref y, label, tooltip);
+            var enumValues = Enum.GetValues(val.GetType());
+            int i=0;
+            foreach (T x in enumValues) {
+                string optionLabel;
+                if (showEnumValues || buttonLabels==null) {
+                    optionLabel=x.ToString();
+                    if (buttonLabels != null) {
+                        optionLabel+=": "+buttonLabels[i];
+                    }
+                } else {
+                    optionLabel=buttonLabels[i]; // got a better way?
+                }
+                //TODO
+                if (l.RadioButton(optionLabel, (val.ToString()==x.ToString()))) {
+                    val=x; // I swear....ToString() was the only thing that worked.
+                    result=true;
+                } // nice try, C#, nice try.
+                // ((val as Enum)==(x as Enum)) // nope
+                // (System.Convert.ChangeType(val, Enum.GetUnderlyingType(val.GetType()))==
+                //  System.Convert.ChangeType(  x, Enum.GetUnderlyingType(  x.GetType()))) // nope
+                // (x.ToString()==val.ToString())// YES!
+                i++;
+            }
+            return result;
+        }
+        */
+        public static void MyLabel(float width, ref float y, string label, string tooltip=null) {
+            float h = Text.CalcHeight(label, width);
+            Rect r = new Rect(0,y,width,y+h);
+            Widgets.Label(r, label);
+            if (tooltip != null && tooltip != "") {
+                TooltipHandler.TipRegion(r, tooltip);
+            }
+            y+=h+2;
+        }
+        public const float LabelHeight = 22f;
+
     } // end DisplayHelperFunctions
 
 

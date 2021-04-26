@@ -237,17 +237,30 @@ namespace LWM.DeepStorage
 
             public override void DoWindowContents(Rect inRect) // For a specific DSU
             {
-//                var XXXcontentRect = new Rect(0, 0, inRect.width, inRect.height - (CloseButSize.y + 10f)).ContractedBy(10f);
                 // for the record, Listing_Standards kind of suck. Convenient enough, but no flexibility
                 // TODO when I'm bored: switch to manual, add red background for disabled units
+                // Bonus problem with Listing_Standard: nested scrolling windows do not work
+                //   well - specifically the ThingFilter UI insisde a Listing_Standard
+                // We are able to get around that problem by having our ScrollView be outside
+                //   the Listing_S... (instead of using the L_S's .ScrollView) and having the
+                //   ThingFilter's UI after the L_S ends.
+
+                // First: Set up a ScrollView:
+                // outer window (with room for buttons at bottom:
+                Rect s = new Rect(inRect.x, inRect.y, inRect.width, inRect.height - CloseButSize.y - 5f);
+                // inner window that has entire content:
+                y = y + 200; // this is to ensure the Listing_Standard does not run out of height,
+                //                and can fully display everything - giving a proper length 'y' at
+                //                its .End() call.
+                //          Worst case scenario: y starts as 0, and the L_S gets to a CurHeight of
+                //            200, and then updates at 400 the next time.  Because of the way RW's
+                //            windows work, this will rapidly converge on a large enough value.
+                Rect inner = new Rect(0, 0, s.width - 20, this.y);
+                Widgets.BeginScrollView(s, ref DSUScrollPosition, inner);
+                // We cannot do the scrollview inside the L_S:
+                // l.BeginScrollView(s, ref DSUScrollPosition, ref v); // Does not allow filter UI
                 var l = new Listing_Standard();
-//                l.Begin(new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f));
-                Rect s=new Rect(inRect.x, inRect.y, inRect.width, inRect.height-CloseButSize.y-5f);
-                Rect v=new Rect(inRect.x, inRect.y, inRect.width-20f, inRect.height-CloseButSize.y-5f);
-                if (useCustomThingFilter) v.height+=CustomThingFilterHeight;
-                l.BeginScrollView(s, ref DSUScrollPosition, ref v);
-//                l.BeginScrollView(
-//                l.BeginScrollView(Rect rect, ref Vector2 scrollPosition, ref Rect viewRect)
+                l.Begin(inner);
                 l.Label(def.label);
                 l.GapLine();
                 // Much TODO, so wow:
@@ -275,6 +288,8 @@ namespace LWM.DeepStorage
                 l.GapLine();
                 l.CheckboxLabeled("LWMDSpDSUchangeFilterQ".Translate(), ref useCustomThingFilter,
                                   "LWMDSpDSUchangeFilterQDesc".Translate());
+                y = l.CurHeight;
+                l.End();
                 if (useCustomThingFilter) {
                     if (customThingFilter==null) {
                         customThingFilter=new ThingFilter();
@@ -283,9 +298,10 @@ namespace LWM.DeepStorage
 //                        Log.Error("Old filter has: "+def.building.fixedStorageSettings.filter.AllowedDefCount);
 //                        Log.Warning("New filter has: "+customThingFilter.AllowedDefCount);
                     }
-                    Rect r=l.GetRect(CustomThingFilterHeight);
-                    r.width*=2f/3f;
-                    r.x+=10f;
+                    // Since this is outside the L_S, we make our own rectangle and use it:
+                    //   Nope: Rect r=l.GetRect(CustomThingFilterHeight); // this fails
+                    Rect r = new Rect(20, y, (inner.width - 40)*3/4, CustomThingFilterHeight);
+                    y += CustomThingFilterHeight;
                     ThingFilterUI.DoThingFilterConfigWindow(r, ref thingFilterScrollPosition, customThingFilter);
                 } else { // not using custom thing filter:
                     if (customThingFilter!=null || tracker.HasDefaultValueFor(this.def.defName, "filter")) {
@@ -298,14 +314,9 @@ namespace LWM.DeepStorage
                         }
                     }
                 }
-/*                if (l.ButtonDebug("Show default values for "+this.def)) {
-                    foreach (var kv in defaultDSUValues) {
 
-                    }
-                }
-                */
-//                l.End();
-                l.EndScrollView(ref v);
+                // This fails: l.EndScrollView(ref v);
+                Widgets.EndScrollView();
 
                 // Cancel button
                 var closeRect = new Rect(inRect.width-CloseButSize.x, inRect.height-CloseButSize.y,CloseButSize.x,CloseButSize.y);
@@ -372,7 +383,8 @@ namespace LWM.DeepStorage
             ThingFilter customThingFilter=null;
             Vector2 thingFilterScrollPosition=new Vector2(0,0);
             Vector2 DSUScrollPosition=new Vector2(0,0);
-            const float CustomThingFilterHeight=600f;
+            float y=1000f;
+            const float CustomThingFilterHeight=400f;
         }
         private static void ResetDSUToDefaults(string resetDefName) {
             object tmpObject;
