@@ -183,6 +183,7 @@ namespace LWM.DeepStorage
         public StatDef altStat=null;
         public bool showContents=true;
         public GuiOverlayType overlayType=GuiOverlayType.Normal;
+        public bool isSecure = false; // harder for pawns to get into, harder to break things inside, etc
 
         public int size=0;
         public ThingDef parent=null; // :p  Have to keep track of this myself

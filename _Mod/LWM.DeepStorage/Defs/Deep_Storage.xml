@@ -912,6 +912,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
 			<timeStoringTakes>200</timeStoringTakes> <!-- TODO: Increase by factor of 10 for Combination dial -->
 			<showContents>false</showContents>
 			<overlayType>SumOfAllItems</overlayType> <!-- Not sure if appropriate -->
+      <isSecure>true</isSecure><!--harder for pawns to break things, safer from damage(todo)-->
 		</li>
 	</comps>
 	<researchPrerequisites>
