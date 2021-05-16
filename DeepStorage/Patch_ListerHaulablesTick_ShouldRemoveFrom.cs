@@ -41,15 +41,19 @@ namespace LWM.DeepStorage
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
             List<CodeInstruction> code=instructions.ToList();
             var check=typeof(ListerHaulables).GetMethod("Check", BindingFlags.NonPublic|BindingFlags.Instance);
+            bool madeChange = false;
             for (int i=0; i<code.Count; i++) {
-                if (code[i].opcode!=OpCodes.Br ||
+                    // check both Branch and Branch_Short for the `Break;` command:
+                if ((code[i].opcode!=OpCodes.Br && code[i].opcode!=OpCodes.Br_S) ||
                     code[i-1].opcode!=OpCodes.Call ||
                     (MethodInfo)code[i-1].operand!=check) {
                     yield return code[i];
-                //} else {
-                //    Log.Warning("Found the 'break;' code! Skipping...");
+                } else {
+                    //    Log.Warning("Found the 'break;' code! Skipping...");
+                    madeChange = true;
                 }
             }
+            if (!madeChange) Log.Error("LWM.DeepStorage: could not patch ListerHaulablesTick()");
             yield break;
         }
     }
