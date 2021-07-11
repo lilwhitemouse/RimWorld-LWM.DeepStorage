@@ -53,7 +53,7 @@ namespace LWM.DeepStorage
                     madeChange = true;
                 }
             }
-            if (!madeChange) Log.Error("LWM.DeepStorage: could not patch ListerHaulablesTick()");
+            if (!madeChange) Log.Warning("LWM.DeepStorage: could not patch ListerHaulablesTick()\nThis may be a problem, unless some other hauling/storage mod has patched ListerHaulablesTick()");
             yield break;
         }
     }
