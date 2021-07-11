@@ -350,18 +350,20 @@ listArray[index] = origList;
             }
         }
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
-            var GenUITargetsAt = HarmonyLib.AccessTools.Method(typeof(Verse.GenUI), "TargetsAt");
-            var OurTargetsAt = HarmonyLib.AccessTools.Method(typeof(Patch_AddHumanlikeOrders), "OurTargetsAt");
+            var genUITargetsAt = HarmonyLib.AccessTools.Method(typeof(Verse.GenUI), "TargetsAt");
+            var ourTargetsAt = HarmonyLib.AccessTools.Method(typeof(Patch_AddHumanlikeOrders), "OurTargetsAt");
             foreach (CodeInstruction c in instructions) {
-                if (c.opcode==OpCodes.Call && (MethodInfo)c.operand == GenUITargetsAt)
-                    yield return new CodeInstruction(OpCodes.Call, OurTargetsAt);
+                if (c.opcode==OpCodes.Call && (MethodInfo)c.operand == genUITargetsAt)
+                    yield return new CodeInstruction(OpCodes.Call, ourTargetsAt);
                 else yield return c;
             }
         }
         public static IEnumerable<LocalTargetInfo> OurTargetsAt(Vector3 clickPos,
-                                                                TargetingParameters clickParams, bool thingsOnly = false) {
+                                                                TargetingParameters clickParams, 
+                                                                bool thingsOnly = false,
+                                                                ITargetingSource source = null) {
             if (blockAHlONonItems) return Enumerable.Empty<LocalTargetInfo>();//yield break;
-            return GenUI.TargetsAt_NewTemp(clickPos, clickParams, thingsOnly, null);
+            return GenUI.TargetsAt(clickPos, clickParams, thingsOnly, source);
         }
         // Allow directly setting Position of things.  And setting it back.
 /*        public static void SetPosition(Thing t, IntVec3 p) {
