@@ -302,7 +302,7 @@ namespace LWM.DeepStorage
                     //   Nope: Rect r=l.GetRect(CustomThingFilterHeight); // this fails
                     Rect r = new Rect(20, y, (inner.width - 40)*3/4, CustomThingFilterHeight);
                     y += CustomThingFilterHeight;
-                    ThingFilterUI.DoThingFilterConfigWindow(r, ref thingFilterScrollPosition, customThingFilter);
+                    ThingFilterUI.DoThingFilterConfigWindow(r, thingFilterState, customThingFilter);
                 } else { // not using custom thing filter:
                     if (customThingFilter!=null || tracker.HasDefaultValueFor(this.def.defName, "filter")) {
                         customThingFilter=null;
@@ -369,6 +369,12 @@ namespace LWM.DeepStorage
                 }
             }
 
+            public override void PreOpen() {
+                // Per Dialog_BillsConfig
+                base.PreOpen();
+                thingFilterState.quickSearch.Reset();
+            }
+
             DefChangeTracker tracker = Settings.defTracker;
             ThingDef def;
             string tmpLabel;
@@ -381,7 +387,7 @@ namespace LWM.DeepStorage
 
             bool useCustomThingFilter=false;
             ThingFilter customThingFilter=null;
-            Vector2 thingFilterScrollPosition=new Vector2(0,0);
+            ThingFilterUI.UIState thingFilterState = new ThingFilterUI.UIState();
             Vector2 DSUScrollPosition=new Vector2(0,0);
             float y=1000f;
             const float CustomThingFilterHeight=400f;
