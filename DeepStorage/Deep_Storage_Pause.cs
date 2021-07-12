@@ -74,8 +74,8 @@ namespace LWM.DeepStorage
                 //                Log.Error("Place Hauled Thing in Cell:  Toil preInit!  Putting in "+cell.ToString());
                 //                actor.jobs.debugLog = true;
                 if (actor.carryTracker.CarriedThing == null)
-                { // error as per original toil code
-                    Log.Error(actor + " tried to place hauled thing in cell but is not hauling anything?", false);
+                { // error as per original toil code (v1.0 or something)
+                    Log.Error(actor + " tried to place hauled thing in cell but is not hauling anything?");
                     return;
                 }
                 SlotGroup slotGroup = actor.Map.haulDestinationManager.SlotGroupAt(cell);
