@@ -65,30 +65,27 @@ namespace LWM.DeepStorage
                 yield break;
             }
         }
-/*
 
-        // ALL deep storage units, even ones not loaded into game:
-        public static IEnumerable<ThingDef> AllDeepStorageUnits=LoadedDeepStorageUnits
-            // Add in any units removed by player.
-            //   Use "Union" over "Concat" just in case there are duplicates somehow.
-            .Union((Dialog_DS_Settings.defaultDSUValues ?? new Dictionary<string, object>()).Keys
-                   .Where(keyName=>keyName.Length>4 && String.Compare(keyName, keyName.Length-4, "_def", 0, 4)==0)
-                   .Select(key=>Dialog_DS_Settings.defaultDSUValues[key] as ThingDef));
-        // Deep storage units in the defs database:
-        public static IEnumerable<ThingDef> LoadedDeepStorageUnits=DefDatabase<ThingDef>
-            .AllDefsListForReading.FindAll(x=>x.HasComp(typeof(CompDeepStorage)));
-            */
         //TODO-scroll: can I make these non-static? Probably, but there's no point, right?
-        private static Vector2 scrollPosition=new Vector2(0f,0f);
-        private static Rect viewRect=new Rect(0,0,100f,10000f); // OMG OMG OMG I got scrollView in Listing_Standard to work!
+        //             Either way, there will be memory allocated for them :p
+        private static Vector2 scrollPosition = new Vector2(0f, 0f);
+        private static float totalContentHeight = 1000f;
+        private const float ScrollBarWidthMargin = 18f;
+        // NOTE: They removed Listing_Standard's scroll views in 1.3 :p
+        //private static Rect viewRect=new Rect(0,0,100f,10000f); // OMG OMG OMG I got scrollView in Listing_Standard to work!
         public static void DoSettingsWindowContents(Rect inRect) {
             ModMetaData tmpMod;
             Color origColor=GUI.color; // make option gray if ignored
             Rect outerRect=inRect.ContractedBy(10f);
             Widgets.DrawHighlight(outerRect);
-            Listing_Standard l = new Listing_Standard(GameFont.Medium); // my tiny high-resolution monitor :p
-            l.BeginScrollView(outerRect, ref scrollPosition, ref viewRect);
 
+            // We put a scrollbar around a listing_standard; it seems to work okay
+            bool scrollBarVisible = totalContentHeight > outerRect.height;
+            var scrollViewTotal = new Rect(0f, 0f, outerRect.width - (scrollBarVisible ? ScrollBarWidthMargin : 0), totalContentHeight);
+            Widgets.BeginScrollView(outerRect, ref scrollPosition, scrollViewTotal);
+
+            Listing_Standard l = new Listing_Standard(GameFont.Medium); // my tiny high-resolution monitor :p
+            l.Begin(new Rect(0f, 0f, scrollViewTotal.width, 9999f)); // Some RW window does this "9999f" thing, & it seems to work?
             //l.GapLine();  // Who can haul to Deep Storage (robots, animals, etc)
             l.Label("LWMDShaulToStorageExplanation".Translate());
             l.CheckboxLabeled("LWMDSrobotsCanUse".Translate(), ref robotsCanUse, "LWMDSrobotsCanUseDesc".Translate());
@@ -257,7 +254,9 @@ namespace LWM.DeepStorage
                                   "LWMDSperDSUturnOnDesc".Translate());
             }
             l.GapLine(); // End. Finis. Looks pretty having a line at the end.
-            l.EndScrollView(ref viewRect);
+            totalContentHeight = l.CurHeight + 10f;
+            l.End();
+            Widgets.EndScrollView();
         }
 
         public static void DefsLoaded() {
