@@ -653,7 +653,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
   <ThingDef Name="LWM_Pallet_Covered" ParentName="LWM_Pallet" >
     <defName>LWM_Pallet_Covered</defName>
     <label>Pallet with wrapping</label>
-    <description>A flat pallet for packing things.  Wrapping things up in thick oilcloth keeps items secure and organized.  You can pack more types of things on this pallet because you can wrap items together, altho this slows you down a little.</description>
+    <description>A flat pallet for packing things.  Wrapping things up in thick oilcloth keeps items secure and organized.  You can pack more types of things on this pallet because you can wrap items together, although this slows you down a little.</description>
     <statBases>
       <WorkToBuild>800</WorkToBuild>
       <Flammability>1.0</Flammability>
