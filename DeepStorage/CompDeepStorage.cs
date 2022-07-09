@@ -378,7 +378,7 @@ namespace LWM.DeepStorage
         // IMPORTANT NOTE: some of the following logic is in the patch for TryFindBestBetterStoreCellFor
         //   (ShouldRemoveFrom logic).  TODO: it should probably be here
 
-        public virtual int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {
+        public virtual int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell, bool calledFromPatch = false) {
             Utils.Warn(CheckCapacity, "Checking Capacity to store "+thing.stackCount+thing+" at "
                        +(map?.ToString()??"NULL MAP")+" "+cell);
             int capacity = 0;
@@ -394,10 +394,16 @@ namespace LWM.DeepStorage
             float totalWeightStoredHere=0f;  //mass, or bulk, etc.
 
             List<Thing> list = map.thingGrid.ThingsListAt(cell);
+            var imax = list.Count;
             var stacksStoredHere=0;
-            for (int i=0; i<list.Count;i++) {
-                Thing thingInStorage = list[i];
-                if (thingInStorage.def.EverStorable(false)) { // an "item" we care about
+            var listarray = list.ToArray();
+
+            for (int i=0; i< imax; i++) {
+                Thing thingInStorage = listarray[i];
+                //EverStorable checks if the item can be stored
+                //since it is already stored lets not check it again
+                //Might cause the building itself to be included but asuming no mass limit that should not be an issue
+                if (calledFromPatch || thingInStorage.def.EverStorable(false)) { // an "item" we care about
                     stacksStoredHere+=1;
                     Utils.Mess(CheckCapacity, "  Checking against "+thingInStorage.stackCount+thingInStorage);
                     if (this.limitingTotalFactorForCell > 0f) {
@@ -424,6 +430,7 @@ namespace LWM.DeepStorage
                             Utils.Warn(CheckCapacity, "  has stackCount of only "+thingInStorage.stackCount+
                                        " so it can hold more");
                             capacity += thingInStorage.def.stackLimit - thingInStorage.stackCount;
+                            if (calledFromPatch) return capacity;
                         }
                     }
                     //if (stacksStoredHere >= maxNumberStacks) break; // may be more stacks with empty space?
@@ -471,7 +478,7 @@ namespace LWM.DeepStorage
             return false;
         }
         public bool StackableAt(Thing thing, IntVec3 cell, Map map) {
-            return this.CapacityToStoreThingAt(thing,map,cell) > 0;
+            return this.CapacityToStoreThingAt(thing,map,cell,true) > 0;
         }
         /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
