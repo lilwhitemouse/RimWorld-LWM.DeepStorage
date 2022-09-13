@@ -65,7 +65,7 @@
   <LWM_Pallet_Covered_Entwurf_Install.label>Palette mit Verpackung (Entwurf)</LWM_Pallet_Covered_Entwurf_Install.label>
   <LWM_Pallet_Covered_Frame.label>Palette mit Verpackung (im Bau)</LWM_Pallet_Covered_Frame.label>
   <LWM_Pallet_Covered_Frame.description>Eine flache Palette zum Lagern von Gegenständen. Das Einwickeln von Dingen in ein dickes Wachstuch hält die Gegenstände sicher und organisiert. Sie können mehr Arten von Dingen auf dieser Palette lagern, weil die Gegenstände zusammengepackt werden können, obwohl dies ein wenig länger dauert.</LWM_Pallet_Covered_Frame.description>
-  
+
   <LWM_DeepStorage_Skip.label>Absetzmulde</LWM_DeepStorage_Skip.label>
   <LWM_DeepStorage_Skip.description>Ein großer Metallbehälter, in den schwere Dinge geworfen werden können. Diese Behälter sind nicht abgedeckt. Sie sind anfällig für Umwelteinflüsse.
 Hinweis: Es dauert eine Weile, bis der gewünschte Artikel gefunden wird. Der Mod-Autor hat das als längere Zeit zum Speichern großer Stapel von Gegenständen abgezogen. Stelle dir vor, deine Kolonisten müssen reinklettern und alles sortieren, damit sie die Gegenstände aufheben können.</LWM_DeepStorage_Skip.description>
@@ -81,12 +81,19 @@ Hinweis: Es dauert eine Weile, bis der gewünschte Artikel gefunden wird. Der Mo
   <LWM_Medicine_Cabinet_Entwurf_Install.label>Arzeischrank (Entwurf)</LWM_Medicine_Cabinet_Entwurf_Install.label>
   <LWM_Medicine_Cabinet_Frame.label>Arzeischrank (im Bau)</LWM_Medicine_Cabinet_Frame.label>
   <LWM_Medicine_Cabinet_Frame.description>Eine Reihe von Schränken und Regalen für die Lagerung von Medikamenten und Drogen. Empfohlen: Kinder im Auge behalten.</LWM_Medicine_Cabinet_Frame.description>
-  
+
   <LWM_Clothing_Rack.label>Kleiderständer</LWM_Clothing_Rack.label>
   <LWM_Clothing_Rack.description>Ein überdachter Ständer zur Aufbewahrung von Kleidung für einen einfachen und schnellen Zugriff und einen aufgeräumten Raum.</LWM_Clothing_Rack.description>
   <LWM_Clothing_Rack_Entwurf.label>Kleiderständer (Entwurf)</LWM_Clothing_Rack_Entwurf.label>
   <LWM_Clothing_Rack_Entwurf_Install.label>Kleiderständer (Entwurf)</LWM_Clothing_Rack_Entwurf_Install.label>
   <LWM_Clothing_Rack_Frame.label>Kleiderständer (im Bau)</LWM_Clothing_Rack_Frame.label>
   <LWM_Clothing_Rack_Frame.description>Ein überdachter Ständer zur Aufbewahrung von Kleidung für einen einfachen und schnellen Zugriff und einen aufgeräumten Raum.</LWM_Clothing_Rack_Frame.description>
+
+  <LWM_Safe.label>Tresor</LWM_Safe.label>
+  <LWM_Safe.description>Eine sichere, verschließbare Box zum sicheren Verstauen von Wertsachen gegen Diebstahl und/oder Schaden durch Feuer.\n\n(Anmerkung: Schutz vor Feuer ist noch nicht implementiert)</LWM_Safe.description>
+  <LWM_Safe_Entwurf.label>Tresor (Entwurf)</LWM_Safe_Entwurf.label>
+  <LWM_Safe_Entwurf_Install.label>Tresor (Entwurf)</LWM_Safe_Entwurf_Install.label>
+  <LWM_Safe_Frame.label>Tresor (im Bau)</LWM_Safe_Frame.label>
+  <LWM_Safe_Frame.description>Eine sichere, verschließbare Box zum sicheren Verstauen von Wertsachen gegen Diebstahl und/oder Schaden durch Feuer.\n\n(Anmerkung: Schutz vor Feuer ist noch nicht implementiert)</LWM_Safe_Frame.description>
 
 </LanguageData>
