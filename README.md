@@ -88,3 +88,4 @@ All of LWM's code (and sumghai's) are also available to Ludeon Studios, should t
 
 Thanks to Marnador for the RimWorld font.  Thanks to Pardeike for Harmony.  Awesome.
 
+Ludeon Studios (the people who make RimWorld) require this: "Portions of the materials used to create this content/mod are trademarks and/or copyrighted works of Ludeon Studios Inc. All rights reserved by Ludeon. This content/mod is not official and is not endorsed by Ludeon." In case you were under any misapprehension. As they sometimes say in books, credit to Ludeon for RW, all mistakes are most certainly my own.
