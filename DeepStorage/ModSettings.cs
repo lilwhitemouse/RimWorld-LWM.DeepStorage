@@ -260,13 +260,14 @@ namespace LWM.DeepStorage
         }
 
         public static void DefsLoaded() {
-//            Log.Warning("LWM.deepstorag - defs loaded");
+            //            Log.Warning("LWM.deepstorag - defs loaded");
+
             // Todo? If settings are different from defaults, then:
 
             // Def-related changes:
-            //TODO: this should probably have an option....
             if (defaultStoragePriority != StoragePriority.Important) {
                 foreach (ThingDef d in AllDeepStorageUnits) {
+                    //TODO: this should probably have an option....
                     d.building.defaultStorageSettings.Priority=defaultStoragePriority;
                 }
             }
@@ -285,6 +286,22 @@ namespace LWM.DeepStorage
             Utils.Warn(Utils.DBF.Settings, "About to re-read mod settings from: "+GenText
                        .SanitizeFilename(string.Format("Mod_{0}_{1}.xml", mod.Content.FolderName, "DeepStorageMod")));
             var s = LoadedModManager.ReadModSettings<Settings>(mod.Content.FolderName, "DeepStorageMod");
+
+            // Update 1.4 introduced def's .building.maxItemsInCell
+            //   ....and for backward compatibility, we need both :p
+            //   Approach:  take whichever is bigger: maxItemsInCell or our maxNumberStacks
+            //   Potential problem: If someone bases an item off of vanilla shelves (mIIC=3)
+            //     but sets comp's mNS to 2.  ....I don't think that's likely?  So we won't
+            //     worry about it
+            foreach (ThingDef d in AllDeepStorageUnits) {
+                int max = Math.Max(d.building.maxItemsInCell,
+                        d.GetCompProperties<DeepStorage.Properties>().maxNumberStacks);
+                d.building.maxItemsInCell = max;
+                d.GetCompProperties<DeepStorage.Properties>().maxNumberStacks = max;
+                //Log.Message("LWM just set maxItemsInCell for " + d.defName + " to " + d.building.maxItemsInCell);
+                // NOTE: We also need to do this any time someone presses update settings button
+            }
+
             // Architect Menu:
             if (architectMenuActualDef==null) {
                 architectMenuActualDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);

@@ -333,6 +333,9 @@ namespace LWM.DeepStorage
                     tracker.UpdateToNewValue(def.defName, "label", tmpLabel, ref def.label);
                     tracker.UpdateToNewValue(def.defName,
                                "maxNumStacks", tmpMaxNumStacks, ref props.maxNumberStacks);
+                    // Update for 1.4 added multi-storage.  We have to keep our compproperty for back compat...
+                    // Update def's .building.maxItemsInCell directly.  This is just easier that rewriting all this
+                    def.building.maxItemsInCell = tmpMaxNumStacks;
                     tracker.UpdateToNewValue(def.defName,
                                "maxTotalMass", tmpMaxTotalMass, ref props.maxTotalMass);
                     tracker.UpdateToNewValue(def.defName,

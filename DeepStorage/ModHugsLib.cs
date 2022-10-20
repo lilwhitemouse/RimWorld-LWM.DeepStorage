@@ -27,6 +27,9 @@ namespace LWM.DeepStorage
             #endif
             LWM.DeepStorage.Properties.RemoveAnyMultipleCompProps();
             LWM.DeepStorage.Settings.DefsLoaded();
+            Log.Message("....");
+            var harmony = new Harmony("net.littlewhitemouse.LWM.DeepStorage");
+
         }
         #if DEBUG
         public override void SettingsChanged() {
@@ -40,7 +43,9 @@ namespace LWM.DeepStorage
                 Utils.showDebug[i]=debugONorOFF[i];
             }
         }
-        #endif
+#endif
+        // For careful harmony adding:
+        protected override bool HarmonyAutoPatch => false;
     }
 
 }

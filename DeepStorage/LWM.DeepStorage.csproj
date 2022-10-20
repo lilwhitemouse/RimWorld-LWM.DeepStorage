@@ -9,13 +9,13 @@
     <AssemblyName>LWM.DeepStorage</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <UseMSBuildEngine>false</UseMSBuildEngine>
-    <ReleaseVersion>1.3.0</ReleaseVersion>
+    <ReleaseVersion>1.1.0</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\_Mod\LWM.DeepStorage\1.3\Assemblies</OutputPath>
+    <OutputPath>..\_Mod\LWM.DeepStorage\1.4\Assemblies</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -23,7 +23,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
-    <OutputPath>..\_Mod\LWM.DeepStorage\1.3\Assemblies</OutputPath>
+    <OutputPath>..\_Mod\LWM.DeepStorage\1.4\Assemblies</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -39,12 +39,12 @@
       <HintPath>..\packages\IHoldMultipleThings.dll</HintPath>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>..\packages\Lib.Harmony.2.1.0\lib\net472\0Harmony.dll</HintPath>
+      <HintPath>..\packages\Lib.Harmony.2.2.2\lib\net472\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
     <Reference Include="HugsLib">
-      <HintPath>..\packages\UnlimitedHugs.Rimworld.HugsLib.8.0.0\lib\net472\HugsLib.dll</HintPath>
+      <HintPath>..\packages\UnlimitedHugs.Rimworld.HugsLib.9.0.1\lib\net472\HugsLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
