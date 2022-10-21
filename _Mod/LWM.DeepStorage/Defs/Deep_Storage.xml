@@ -191,6 +191,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <building>
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop><!-- Might be overridden -->
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty><!-- Might be overridden -->
+      <blueprintClass>Blueprint_Storage</blueprintClass><!-- to allow blueprints to link -->
       <defaultStorageSettings>
         <priority>Important</priority><!--It's what *I* use, so it's what you get ^.^  Can be changed in settings-->
         <filter>
