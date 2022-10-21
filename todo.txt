@@ -1,0 +1,2 @@
+Update defs:
+add <building><storageGroupTag>...</ &c to each and every fucking def :sad:
