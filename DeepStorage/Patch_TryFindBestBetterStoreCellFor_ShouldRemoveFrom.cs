@@ -43,7 +43,10 @@ namespace LWM.DeepStorage
  *
  * I use Transpiler because it's right in the middle of code.  :p
  */
-    [HarmonyPatch(typeof(StoreUtility), "TryFindBestBetterStoreCellFor")]
+ //todo1.4 - They seem to have covered a lot of these circumstances!  Quite well
+ //          in fact :)  So....more testing required, but I think we okay for base
+ //          case.  Weight?  Who knows.... :/
+    //[HarmonyPatch(typeof(StoreUtility), "TryFindBestBetterStoreCellFor")]
     static class Patch_TryFindBestBetterStoreCellFor {
         static bool Prepare() {
             Utils.Mess(Utils.DBF.Settings, "Patch to check if overCapacity? "+Settings.checkOverCapacity);

@@ -42,7 +42,8 @@ namespace LWM.DeepStorage
      *   Check maxStacks in a loop.
      * This was easier.
      **************************************/
-    [HarmonyPatch(typeof(RimWorld.StoreUtility), "NoStorageBlockersIn")]
+     //todo1.4: OMG, this all goes away:D
+//todo1.4    [HarmonyPatch(typeof(RimWorld.StoreUtility), "NoStorageBlockersIn")]
     class Patch_NoStorageBlockersIn {
         protected static bool Prefix(IntVec3 c, Map map, Thing thing, ref bool __result) {
             Utils.Err(NoStorageBlockerseIn, "Looking for blockers for " + thing + " at " + c);
@@ -148,7 +149,8 @@ namespace LWM.DeepStorage
     // TODO: make an option
     //   TODO: Option could include NonHumanlikeOrWildMan OR AnimalOrWildMan
     //   maybe p.RaceProps.Animal or p.RaceProps.HumanLike
-    [HarmonyPatch(typeof(StoreUtility), "IsGoodStoreCell")]
+    //todo1.4: this does not go away
+//todo1.4    [HarmonyPatch(typeof(StoreUtility), "IsGoodStoreCell")]
     class Patch_IsGoodStoreCell {
         public static Intelligence NecessaryIntelligenceToUseDeepStorage=Intelligence.Humanlike;
         // A way to specify some pawns can use Storage no matter what:

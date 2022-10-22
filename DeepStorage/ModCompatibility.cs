@@ -28,8 +28,8 @@ namespace LWM.DeepStorage
      * If RSA is active, we unpatch NoStorageBlockersIn and
      * apply our own patch for the RSA effect.
      */
-
-     [HarmonyPatch(typeof(StoreUtility), "NoStorageBlockersIn")]
+     //todo1.4 : ...test this now
+//     [HarmonyPatch(typeof(StoreUtility), "NoStorageBlockersIn")]
      static class Fix_RSA_Incompatibilit_NoStorageBlockersIn {
         public static MethodInfo oldPatch;
         static bool Prepare(Harmony instance) {
@@ -60,7 +60,7 @@ namespace LWM.DeepStorage
             __result = (bool)args[0]; // Not sure why C# does it this way, but whatever.
         }
     }
-
+    //todo1.4 - put this in own class somewhere?
     /* A cheap cute way to post a Message, for when an xml patch operation is done :p */
     public class PatchMessage : PatchOperation {
         protected override bool ApplyWorker(System.Xml.XmlDocument xml) {

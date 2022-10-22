@@ -8,7 +8,7 @@ using UnityEngine; // because graphics.
 
 
 namespace LWM.DeepStorage
-{
+{//todo1.4 - omg all of this
     /*********************************************
      * Display   
      * 
@@ -343,6 +343,7 @@ namespace LWM.DeepStorage
     /* (thank you DuckDuckGo for providing this approach, and thak you to everyone
      *  who helped people who had similar which-mesh-is-on-top problems)
      */
+     // todo1.4 <) this - maybe we don't need with the new fancy stuff Ludeon does?
     [HarmonyPatch(typeof(Verse.Thing),"get_DrawPos")]
     static class Ensure_Top_Item_In_DSU_Draws_Correctly {
         static void Postfix(Thing __instance, ref Vector3 __result) {

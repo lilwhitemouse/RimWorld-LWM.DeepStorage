@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs> <!-- Thanks to sumghai for help with this; icons are his -->
+  <!-- Wooden Weapons Cabinet for tribal, medieval and pre-industrial playthroughs -->
+  <!--       also available for lazy colonists -->
+  <ThingDef Name="LWM_WeaponsCabinet" ParentName="LWM_DeepStorage" >
+    <defName>LWM_WeaponsCabinet</defName>
+    <label>Weapons Cabinet</label>
+    <description>A sturdy cabinet for storing multiple weapons. Items stored in this will not deteriorate, even if outside.</description>
+    <graphicData>
+      <texPath>sumghai/weaponsCabinet</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3,3)</drawSize>
+      <drawRotated>false</drawRotated>
+    </graphicData>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <uiIconPath>sumghai/weaponsCabinet_UI</uiIconPath>
+    <castEdgeShadows>true</castEdgeShadows>
+    <size>(1,1)</size>
+    <statBases>
+      <Beauty>3.5</Beauty><!--Some pretty gun cabinets out there in the US's South--><!--TODO: allow art?-->
+      <MaxHitPoints>200</MaxHitPoints>
+      <WorkToBuild>600</WorkToBuild>
+      <Flammability>1.0</Flammability>
+      <Mass>8</Mass>
+    </statBases>
+    <stuffCategories>
+      <li>Woody</li>
+      <li>Metallic</li><!-- You build it from what you can? -->
+    </stuffCategories>
+    <costStuffCount>75</costStuffCount><!--Dresser costs 60 to build, and this has weirder requirements-->
+    <building>
+      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+      <fixedStorageSettings>
+	<priority>Important</priority>
+	<filter>
+	  <categories>
+	    <li>Weapons</li>
+            <li>Artifacts</li>
+            <li>ApparelUtility</li>
+	  </categories>
+	</filter>
+      </fixedStorageSettings>
+      <defaultStorageSettings>
+	<priority>Important</priority>
+	<filter>
+	</filter>
+      </defaultStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+	<minNumberStacks>2</minNumberStacks><!-- Can always store at least two weapons! -->
+	<maxNumberStacks>30</maxNumberStacks><!--Wooden cabinet is not as flexible as metal -->
+	<maxTotalMass>30</maxTotalMass><!-- ~8 assault rifles --><!--Its pieces cannot be moved as precisely to fit as many-->
+	<maxMassOfStoredItem>10</maxMassOfStoredItem>
+	<timeStoringTakes>100</timeStoringTakes><!-- slightly lower than locker as less packing to do -->
+	<showContents>false</showContents>
+	<overlayType>CountOfStacksPerCell</overlayType>
+      </li>
+      <li><compClass>CompQuality</compClass></li>
+    </comps>
+    <researchPrerequisites>
+      <li>ComplexFurniture</li>
+    </researchPrerequisites>
+  </ThingDef>
+
+  <!-- Metallic Weapons Locker for industrial, modern and spacer playthroughs -->
+  <!--   or for anyone who builds some good careful metal-working tools -->	
+  <ThingDef Name="LWM_WeaponsLocker" ParentName="LWM_DeepStorage" ><!--TODO: make this non-quality based?-->
+    <defName>LWM_WeaponsLocker</defName>
+    <label>Weapons Locker</label>
+    <description>A high-capacity metal locker for securely storing many weapons. Items stored in this will not deteriorate, even if outside.</description>
+    <graphicData>
+      <texPath>sumghai/weaponsLocker</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3,3)</drawSize>
+      <drawRotated>false</drawRotated>
+    </graphicData>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <uiIconPath>sumghai/weaponsLocker_UI</uiIconPath>
+    <castEdgeShadows>true</castEdgeShadows>
+    <size>(1,1)</size>
+    <statBases>
+      <Beauty>0.7</Beauty>
+      <MaxHitPoints>150</MaxHitPoints><!--thin metal sheets-->
+      <WorkToBuild>600</WorkToBuild>
+      <Flammability>0.1</Flammability>
+      <Mass>8</Mass>
+    </statBases>
+    <stuffCategories>
+      <li>Metallic</li>
+    </stuffCategories>
+    <costStuffCount>70</costStuffCount><!-- This sheets cost less than bulk metal? -->
+    <building>
+      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+      <fixedStorageSettings>
+        <priority>Important</priority>
+        <filter>
+          <categories>
+            <li>Weapons</li>
+            <li>Artifacts</li>
+            <li>ApparelUtility</li>
+          </categories>
+        </filter>
+      </fixedStorageSettings>
+      <defaultStorageSettings>
+        <priority>Important</priority>
+        <filter>
+        </filter>
+      </defaultStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <minNumberStacks>2</minNumberStacks><!-- Can always store at least two weapons! -->
+        <maxNumberStacks>50</maxNumberStacks><!-- I am ambivalent about this but sumghai was persuasive -->
+        <maxTotalMass>50</maxTotalMass><!-- ~14 assault rifles -->
+        <maxMassOfStoredItem>10</maxMassOfStoredItem>
+        <timeStoringTakes>120</timeStoringTakes>
+        <showContents>false</showContents>
+        <overlayType>CountOfStacksPerCell</overlayType>
+      </li>
+    </comps>
+    <researchPrerequisites>
+      <li>ComplexFurniture</li>
+      <li>Machining</li>
+    </researchPrerequisites>
+  </ThingDef>
+</Defs>

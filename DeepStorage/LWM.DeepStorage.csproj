@@ -96,6 +96,7 @@
     <Compile Include="CompProperties.cs" />
     <Compile Include="Dialog_RenameDSU.cs" />
     <Compile Include="Updates.cs" />
+    <Compile Include="ModInit.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">

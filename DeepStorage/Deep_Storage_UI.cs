@@ -24,7 +24,7 @@ namespace LWM.DeepStorage
      * after selecting an item in it.
      *
      */
-
+    //todo1.4 - I think we still need this?
     [HarmonyPatch(typeof(Selector), "HandleMapClicks")]
     class Patch_HandleMapClicks {
         static bool Prefix(Selector __instance, List<object> ___selected) {
@@ -80,7 +80,8 @@ namespace LWM.DeepStorage
     // After the list is sorted via CompareThingsByDrawAltitude, we insert code to sort the list
     //   in our new function SortForDeepStorage.
     //   SortForDeepStorage will use a flag that was set before ThingsUnderMouse was called.
-    [HarmonyPatch(typeof(Verse.GenUI),"ThingsUnderMouse")]
+    //todo1.4 - this should be handled in vanilla now?
+    //[HarmonyPatch(typeof(Verse.GenUI),"ThingsUnderMouse")]
     public static class Patch_GenUI_ThingsUnderMouse {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
             // First marker we are looking for is
@@ -199,6 +200,7 @@ namespace LWM.DeepStorage
     } // done with Patch_GenUI_ThingsUnderMouse
 
     // Single click should select the Deep Storage unit
+    // todo1.4 - wait, wasn't this already handled?
     [HarmonyPatch(typeof(RimWorld.Selector), "SelectUnderMouse")]
     static class Make_Select_Under_Mouse_Use_SortForDeepStorage {
         static void Prefix() {
@@ -209,7 +211,8 @@ namespace LWM.DeepStorage
         }
     }
     // Double click should multi-select all of whatever item is on top (similar to how items on shelves behave)
-    [HarmonyPatch(typeof(RimWorld.Selector),"SelectAllMatchingObjectUnderMouseOnScreen")]
+    //todo1.4 - ...make sure this works!
+    //[HarmonyPatch(typeof(RimWorld.Selector),"SelectAllMatchingObjectUnderMouseOnScreen")]
     static class Make_DoubleClick_Work {
         static void Prefix(Selector __instance) {
             // If the DSU is still selected from the first click of SelectUnderMouse(),
@@ -225,7 +228,8 @@ namespace LWM.DeepStorage
 
     // If there are 10 artifacts in a weapons locker, it's nice to be able to tell which one you are about to activate:
     // Add "  (Label for Artifact)" to the right-click label.
-    [HarmonyPatch(typeof(RimWorld.CompUsable), "FloatMenuOptionLabel")]
+    // todo1.4 - check this?
+    //[HarmonyPatch(typeof(RimWorld.CompUsable), "FloatMenuOptionLabel")]
     static public class MakeArtifactsActivateLabelNameArtifact {
         static void Postfix(ref string __result, CompUsable __instance) {
             __result=__result+" ("+__instance.parent.LabelCap+")";

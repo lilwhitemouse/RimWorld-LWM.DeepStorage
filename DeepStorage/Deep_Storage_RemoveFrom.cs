@@ -35,7 +35,8 @@ namespace LWM.DeepStorage
      * can be adjusted to match the job from other stacks in the Deep Storage unit.
      * #DeepMagic #YouHaveBeenWarned
      **************************************/
-    [HarmonyPatch]
+    //todo1.4 : ....o.O
+    //[HarmonyPatch]
     public static class Patch_StartCarryThing_Delegate {
         public static Type predicateClass;
         static MethodBase TargetMethod()//The target method is found using the custom logic defined here

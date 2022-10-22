@@ -36,7 +36,9 @@ namespace LWM.DeepStorage
      *
      * Note that it is safe for this patch to be applied more than once.
      */
-    [HarmonyPatch(typeof(RimWorld.ListerHaulables), "ListerHaulablesTick")]
+     // todo1.4 - I think they took care of this, ALTHO
+     // todo1.4 - we may want to revisit if settings change mid-game?
+    //[HarmonyPatch(typeof(RimWorld.ListerHaulables), "ListerHaulablesTick")]
     static class Patch_ListerHaulablesTick {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
             List<CodeInstruction> code=instructions.ToList();

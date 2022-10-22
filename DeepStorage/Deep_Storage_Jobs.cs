@@ -37,6 +37,7 @@ namespace LWM.DeepStorage
      *     someThing=p.Map.thingGrid.ThingAt(someCell, t.def);
      *   }
      **************************************/
+     //todo1.4: totally untested
     [HarmonyPatch(typeof(Verse.AI.HaulAIUtility), "HaulToCellStorageJob")]
     class Patch_HaulToCellStorageJob {
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {

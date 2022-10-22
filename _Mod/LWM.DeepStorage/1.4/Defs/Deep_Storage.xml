@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!-- IMPORTANT NOTE: this is only for v1.0-v1.3.  Later versions
-     use the Defs folder in v1.4 or later -->
 <Defs>
 
   <!--============================== Storage ==============================-->
@@ -193,6 +191,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <building>
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop><!-- Might be overridden -->
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty><!-- Might be overridden -->
+      <blueprintClass>Blueprint_Storage</blueprintClass><!-- to allow blueprints to link -->
       <defaultStorageSettings>
         <priority>Important</priority><!--It's what *I* use, so it's what you get ^.^  Can be changed in settings-->
         <filter>
