@@ -9,6 +9,7 @@
       <li>[KV] RimFridge - 1.0</li>
       <li>[KV] RimFridge - 1.1</li>
       <li>[KV] RimFridge</li><!-- 1.2+ version -->
+      <li>RimFridge Updated</li><!-- 1.4+ version - KV is retiring ;_; -->
     </mods>
     <match Class="PatchOperationAdd">
       <xpath>/Defs</xpath>
