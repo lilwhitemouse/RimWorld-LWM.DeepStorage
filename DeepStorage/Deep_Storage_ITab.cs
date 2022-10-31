@@ -18,7 +18,9 @@ namespace LWM.DeepStorage
      *                                              */
     [StaticConstructorOnStartup]
     public class ITab_DeepStorage_Inventory : ITab {
-        static ITab_DeepStorage_Inventory () {
+        // Init drop texture:
+        static ITab_DeepStorage_Inventory ()
+        {
             Drop=(Texture2D)HarmonyLib.AccessTools.Field(HarmonyLib.AccessTools.TypeByName("Verse.TexButton"), "Drop").GetValue(null);
         }
         private static Texture2D Drop; // == TexButton.Drop
@@ -34,13 +36,17 @@ namespace LWM.DeepStorage
         private const float ThingLeftX = 36f;
         private const float StandardLineHeight = 22f;
 
-        public ITab_DeepStorage_Inventory() {
+        public ITab_DeepStorage_Inventory()
+        {
             this.size = new Vector2(460f, 450f);
             this.labelKey = "Contents"; // could define <LWM.Contents>Contents</LWM.Contents> in Keyed language, but why not use what's there.
         }
 
-        protected override void FillTab() {
+        protected override void FillTab()
+        {
             buildingStorage = this.SelThing as Building_Storage; // don't attach this to other things, 'k?
+            //TODO: Handle blueprints gracefully
+            if (buildingStorage == null) { return; } // Blueprints!!  Blueprints can have the ITab  in 1.4
             List<Thing> storedItems;
 //TODO: set fonts ize, etc.
             Text.Font = GameFont.Small;
