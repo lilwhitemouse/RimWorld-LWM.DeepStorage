@@ -147,11 +147,13 @@ namespace LWM.DeepStorage
     // Other options for who is allowed to use could include
     //   NonHumanlikeOrWildMan OR AnimalOrWildMan
     //   maybe p.RaceProps.Animal or p.RaceProps.HumanLike
+    // Set to ToolUser for 1.4, as mechanoid carriers are now
+    //   a vanilla thing.
     [HarmonyPatch(typeof(StoreUtility), "IsGoodStoreCell")]
     class Patch_IsGoodStoreCell
     {
         // This is modified by mod settings on startup (and when changed):
-        public static Intelligence NecessaryIntelligenceToUseDeepStorage = Intelligence.Humanlike;
+        public static Intelligence NecessaryIntelligenceToUseDeepStorage = Intelligence.ToolUser;
         // A way to specify some pawns can use Storage no matter what:
         static System.Func<Pawn, bool> specialTest = null;
         // Prepare: Check to see if there are any robot/drone mods - if there are,
