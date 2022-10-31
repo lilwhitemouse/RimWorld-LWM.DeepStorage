@@ -23,6 +23,9 @@
   <li>rimfridge.kv.rw</li>
   <li>Mlie.CannibalMeals</li>
 </loadAfter>
+<loadBefore>
+  <li>com.github.alandariva.moreplanning</li>
+</loadBefore>
 <description>Deep Storage Units: yet another storage solution
 
 LWM presents a way to organize your supplies, loot, clothes, and even your garbage, to allow you a tidy base where your colonists aren't simply dumping stuff on the floor.  Deep Storage units include medicine cabinets, meat hooks, clothing racks, weapon lockers, etc, and all can store diverse items - just like regular shelves, but they allow more than one thing!
