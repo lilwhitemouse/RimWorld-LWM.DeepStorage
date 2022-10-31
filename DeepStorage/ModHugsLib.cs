@@ -18,7 +18,7 @@ namespace LWM.DeepStorage
         //#endif
         public override void DefsLoaded() {
             //#if DEBUG
-            Log.Message("LWM.DeepStorage:  DefsLoaded via HugsLib():");
+            //Log.Message("LWM.DeepStorage:  DefsLoaded via HugsLib():");
             for (int i=1; i<Utils.showDebug.Length; i++) {
                 debugONorOFF[i]=Settings.GetHandle("turnDebugONorOFF"+(Utils.DBF)i, "Turn ON/OFF debugging: "+(Utils.DBF)i,
                                        "Turn ON/OFF all debugging - this is a lot of trace, and only available on debug builds",
