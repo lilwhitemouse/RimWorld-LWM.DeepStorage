@@ -309,6 +309,12 @@ namespace LWM.DeepStorage
                           +__instance.ToString()); return;
             }
             ISlotGroupParent DSU = __instance as Building_Storage;
+            if (DSU == null)
+            {
+                Log.Warning("LWM.DeepStorage: despawning comp owner that is not Building_Storage: " + 
+                            __instance.Label + "\nDisplay of items may be incorrect!");
+                return;
+            }
             foreach (IntVec3 cell in DSU.AllSlotCells()) {
                 List<Thing> list = map.thingGrid.ThingsListAt(cell);
                 Thing t;
