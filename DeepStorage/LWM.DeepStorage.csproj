@@ -98,6 +98,7 @@
     <Compile Include="Updates.cs" />
     <Compile Include="ModInit.cs" />
     <Compile Include="Patch_GenThing_ItemCenterAt_Graphics.cs" />
+    <Compile Include="Patch_Building_Storage_Gizmos.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">

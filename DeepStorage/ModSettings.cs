@@ -127,10 +127,42 @@ namespace LWM.DeepStorage
                 }
                 Find.WindowStack.Add(new FloatMenu(mlist));
             }
-            l.GapLine();
+            l.GapLine(); ////////  User Interface /////////
             l.Label("LWM_DS_userInterface".Translate());
             l.CheckboxLabeled("LWM_DS_useEjectButton".Translate(), ref useEjectButton,
                               "LWM_DS_useEjectButtonDesc".Translate());
+            //////// Contents in Gizmo Brackets ///////
+            l.Label("LWM_DS_VanillaHasContentsInBrackets".Translate());
+            bool useVanillaBrackets = Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos < 0;
+            l.CheckboxLabeled("    "+"LWM_DS_UseVanillaContentsInBrackets".Translate(), ref useVanillaBrackets,
+                "LWM_DS_UseVanillaContentsInBracketsDesc".Translate());
+            if (useVanillaBrackets)
+            {
+                Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos = -1;
+            }
+            else
+            {
+                if (Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos < 0) // just changed it
+                    Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos = Patch_Building_Storage_Gizmos.cutoffDefault;
+                bool showAnyContentsInBrackets = Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos > 0;
+                l.CheckboxLabeled("    "+"LWM_DS_showContentsInBrackets".Translate(), ref showAnyContentsInBrackets,
+                    "LWM_DS_showContentsInBracketsDesc".Translate());
+                if (showAnyContentsInBrackets)
+                {
+                    if (Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos == 0) // just changed it
+                        Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos = Patch_Building_Storage_Gizmos.cutoffDefault;
+                    string buffer = Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos.ToString();
+                    l.TextFieldNumericLabeled<int>("    "+"LWM_DS_howManyContentsInBrackets".Translate(),
+                        ref Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos,
+                        ref buffer,
+                        1);
+                }
+                else
+                {
+                    Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos = 0;
+                }
+            }
+
             //TODO::
             if ((tmpMod=ModLister.GetActiveModWithIdentifier("netrve.dsgui"))!=null) {
                 GUI.color=Color.gray;
@@ -587,6 +619,8 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref defaultStoragePriority, "default_s_priority", StoragePriority.Important);
             Scribe_Values.Look(ref checkOverCapacity, "check_over_capacity", true);
             Scribe_Values.Look(ref useEjectButton, "useEjectButton", true);
+            Scribe_Values.Look(ref Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos, "cutoffContentGizmos",
+                Patch_Building_Storage_Gizmos.cutoffDefault);
             Scribe_Values.Look(ref useDeepStorageRightClickLogic, "useRightClickLogic", true); //turn on for everyone :p
             // Architect Menu:
             Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
