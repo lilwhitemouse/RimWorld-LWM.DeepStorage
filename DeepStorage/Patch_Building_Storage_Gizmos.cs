@@ -113,14 +113,15 @@ namespace LWM.DeepStorage
                      * So.....how about this?
                      *     if (IsOverCutoff(this.slotGroup.HeldThings.GetEnumerator)) branch skipGizmosLabel
                      * That's relatively easy.  Why?  Because the next 5 IL fields give us that
-                     * Enumerator!
-                     * 
+                     * Enumerator! ...Unless someone else patches the exact same spot and changes
+                     * those IL codes :laughs::cries::facepalm:&c                    
+                     * So how about we just call those instructions directly:
                      */
-                    for (int j = i + 1; j <= i + 5; j++)
-                    {
-                        //Log.Message("About to Return " + j + ": " + instructions[j].opcode + " " + instructions[j].operand);
-                        yield return instructions[j];
-                    }
+                    yield return new CodeInstruction(OpCodes.Ldloc_2); // storage building in question
+                    yield return new CodeInstruction(OpCodes.Ldfld, typeof(Building_Storage)
+                                        .GetField("slotGroup", AccessTools.all)); // .slotGroup
+                    yield return new CodeInstruction(OpCodes.Callvirt, typeof(SlotGroup)
+                                        .GetMethod("get_HeldThings", AccessTools.all)); // .HeldThings
                     //Log.Warning("Call over threshold");
                     yield return new CodeInstruction(OpCodes.Call,
                                  typeof(Patch_Building_Storage_Gizmos).GetMethod("IsOverThreshold", AccessTools.all));
@@ -138,7 +139,19 @@ namespace LWM.DeepStorage
             yield break;
         }
         // Simple and quick way to count if something is over the cuttoff threshold
-        static bool IsOverThreshold(IEnumerator<Verse.Thing> thingsEnumerator)
+        static bool IsOverThreshold(IEnumerable<Verse.Thing> things)
+        {
+            var thingsEnumerator = things.GetEnumerator();
+            for (int i = 0; i <= cutoffBuildingStorageGizmos; i++)
+            {
+                if (thingsEnumerator.MoveNext())
+                    continue;
+                return false;
+            }
+            return true;
+        }
+        // Simple and quick way to count if something is over the cuttoff threshold
+        static bool IsOverThresholdX(IEnumerator<Verse.Thing> thingsEnumerator)
         {
             for (int i=0; i<=cutoffBuildingStorageGizmos; i++)
             {
