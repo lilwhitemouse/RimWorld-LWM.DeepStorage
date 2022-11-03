@@ -275,8 +275,11 @@ namespace LWM.DeepStorage
             l.CheckboxLabeled("LWMDSoverCapacityCheck".Translate(), ref checkOverCapacity,
                               "LWMDSoverCapacityCheckDesc".Translate());
             GUI.color=origColor;
-            // Per DSU settings - let players change them around...
-            l.GapLine();
+            l.GapLine();   ///////// Graphics //////////
+            l.CheckboxLabeled("LWMDSuseOldBoringStackingGraphic".Translate(),
+                ref Patch_GenThing_ItemCenterAt.useBoringOldStackingGraphic,
+                "LWMDSuseOldBoringStackingGraphicDesc".Translate());
+            l.GapLine();   /////// Per DSU settings - let players change them around... ////////
             if (allowPerDSUSettings) {
                 if (l.ButtonText("LWMDSperDSUSettings".Translate())) {
                     Find.WindowStack.Add(new Dialog_DS_Settings());
@@ -626,6 +629,8 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
             Scribe_Values.Look(ref architectMenuAlwaysShowCategory, "architect_show", false);
             Scribe_Values.Look(ref architectMenuMoveALLStorageItems, "architect_moveall", true);
+            // Graphics
+            Scribe_Values.Look(ref Patch_GenThing_ItemCenterAt.useBoringOldStackingGraphic, "useBoringOldStackingGraphic", false);
             // Per DSU Building storage settings:
             Scribe_Values.Look(ref allowPerDSUSettings, "allowPerDSUSettings", false);
             // Only load settigs if defs are loaded (there is separate mechanism to

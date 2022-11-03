@@ -7,7 +7,7 @@ using System.Reflection.Emit; // for OpCodes in Harmony Transpiler
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DeepStorage
+namespace LWM.DeepStorage
 {
     /***************************************************
      * Patch_GenThing_ItemCenterAt
@@ -35,10 +35,44 @@ namespace DeepStorage
     [HarmonyPatch(typeof(GenThing), "ItemCenterAt")]
     public static class Patch_GenThing_ItemCenterAt
     {
+        public static bool useBoringOldStackingGraphic = false;
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             bool found1 = false;
             bool found2 = false;
+            if (useBoringOldStackingGraphic) // If this branch of transpiler is selcted, 
+                // we are rather more brutal in where we prune the code....
+            {   // Basically, we want v1.3 behavior: all items simply drawn on top of each other
+                var list = instructions.ToList();
+                for (int i = 0; i< list.Count; i++)
+                {
+                    // Looking for: if (numberTotalItems <= 1) { ...do boring graphic placement... }
+                    /* IL_00ad: ldloc.1
+                     * IL_00ae: ldc.i4.1
+                     * IL_00af: bgt.s IL_00cf
+                     */                    
+                    // Will replacae with: if (true)
+                    if (list[i].opcode   == OpCodes.Ldloc_1 &&   // numberTotalItems
+                        list[i+1].opcode == OpCodes.Ldc_I4_1 &&  // 1
+                        list[i+2].opcode == OpCodes.Bgt_S)       // if (num > 1) jump to fancy logic we don't want
+                    {
+                        i++; // skip Ldloc_1
+                        i++; // skip 1
+                        i++; // skip that unwanted jump to fancy logic
+                        for (int j=i; j<list.Count; j++)
+                        {
+                            yield return list[j];
+                        }
+                        yield break;
+                    }
+                    else
+                    {
+                        yield return list[i];
+                    }
+                }
+                Log.Warning("LWM.DeepStorage: Transpiler failed to break jump to fancy stacking graphics");
+                yield break; // Should never reach this, but if we do....???
+            }
             foreach (var instruction in instructions)
             {
                 if (instruction.opcode == OpCodes.Ldc_R4 // from the IL code

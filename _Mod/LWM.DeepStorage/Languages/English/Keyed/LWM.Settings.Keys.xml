@@ -45,6 +45,9 @@
 
   <LWMDSoverCapacityCheck>Check for storage being Over Capacity</LWMDSoverCapacityCheck>
   <LWMDSoverCapacityCheckDesc>If more than one thing ends up in a stockpile, pawns need to know to clean it up.  Turning this off prevents that.\n\nTurn this OFF to allow some other storage mods to function:\n  RimFactory</LWMDSoverCapacityCheckDesc>
+  <!-- Graphics -->
+  <LWMDSuseOldBoringStackingGraphic>Use older (boring, but tidy) stacking graphic?</LWMDSuseOldBoringStackingGraphic>
+  <LWMDSuseOldBoringStackingGraphicDesc>Starting in RW 1.4, items in storage are stacked so that every item is visible. Many people find this untidy, ugly, overly busy, or irritating. Select this option to use the old graphics, where all items were directly on top of each other. NOTE: REQUIRES RESTART TO TAKE EFFECT</LWMDSuseOldBoringStackingGraphicDesc>
   <!-- Per DSU Settings -->
   <LWMDSperDSUSettings>EXPERIMENTAL: Change Storage Settings for each type of Unit: Caution</LWMDSperDSUSettings>
   <LWMDSperDSUturnOn>TURN ON USER-MODIFIED BUILDING SETTINGS:</LWMDSperDSUturnOn>
