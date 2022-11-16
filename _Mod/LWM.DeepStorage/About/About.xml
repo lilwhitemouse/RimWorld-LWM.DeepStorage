@@ -20,6 +20,7 @@
 </modDependencies>
 <loadAfter>
   <li>brrainz.harmony</li>
+  <li>Ludeon.RimWorld.Core</li><!-- Don't ask why this needs to be here. Just accept -->
   <li>rimfridge.kv.rw</li>
   <li>Mlie.CannibalMeals</li>
 </loadAfter>
