@@ -2,7 +2,9 @@
 <!-- Settings -->
 <LanguageData>
   <LWMDSignoredDueTo>This setting is ignored due to mod {0}</LWMDSignoredDueTo>
-
+  <!--Some basic vanilla compatibility-->
+  <LWMDSmakeAllStorageDeepStorage>Make all storage Deep Storage?</LWMDSmakeAllStorageDeepStorage>
+  <LWMDSmakeAllStorageDeepStorageDesc>Treat all storage items (for example, vanilla Shelves) as Deep Storage. Mostly, this doesn't affect much, but it does mean you get DS's fancy inventory tab, so there's that?</LWMDSmakeAllStorageDeepStorageDesc>
   <!--Who can haul TO storage-->
   <LWMDShaulToStorageExplanation>Who Can Use Storage:\nBy default, only Humans (or human-like aliens) have the intelligence required to put things INTO storage: stacking carefully, organizing shelves, manipulating latches, etc.\nANYONE may take FROM storage.</LWMDShaulToStorageExplanation>
   <LWMDSrobotsCanUse>Robots can always haul to Deep Storage? (some robots supported)</LWMDSrobotsCanUse>

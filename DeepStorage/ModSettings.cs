@@ -9,6 +9,7 @@ using UnityEngine;
 namespace LWM.DeepStorage
 {
     public class Settings : ModSettings {
+        public static bool makeAllStorageDeepStorage = true;
         public static bool robotsCanUse=false;
         public static bool storingTakesTime=true;
         public static float storingGlobalScale=1f;
@@ -65,6 +66,33 @@ namespace LWM.DeepStorage
                 yield break;
             }
         }
+        public static void MakeAllStorageDeepStorage()
+        {
+            foreach (var d in DefDatabase<ThingDef>.AllDefsListForReading)
+            {
+                if (typeof(Building_Storage).IsAssignableFrom(d.thingClass))
+                { // if it's a building_storage or is a subclass of
+                    // First, does it have the comp:
+                    if (!d.HasAssignableCompFrom(typeof(CompDeepStorage)))
+                    {
+                        Log.Message("LWM.DeepStorage: Making " + d.defName + " into Deep Storage");
+                        var cp = new DeepStorage.Properties();
+                        cp.maxNumberStacks = d.building.maxItemsInCell;
+                        d.comps.Add(cp);
+                    }
+                    // Second, does it have the ITab:
+                    if (!d.inspectorTabs.Contains(typeof(LWM.DeepStorage.ITab_DeepStorage_Inventory)))
+                    {
+                        // Add to the inspectorTabs
+                        d.inspectorTabs.Add(typeof(ITab_DeepStorage_Inventory));
+                        // But then do the real work, because ThingDef.ResolveReferences() does some fancy work
+                        //    with ITabs to make them work:
+                        if (d.inspectorTabsResolved == null) d.inspectorTabsResolved = new List<InspectTabBase>();
+                        d.inspectorTabsResolved.Add(InspectTabManager.GetSharedInstance(typeof(ITab_DeepStorage_Inventory)));
+                    }
+                }
+            }
+        }
 
         //TODO-scroll: can I make these non-static? Probably, but there's no point, right?
         //             Either way, there will be memory allocated for them :p
@@ -73,7 +101,8 @@ namespace LWM.DeepStorage
         private const float ScrollBarWidthMargin = 18f;
         // NOTE: They removed Listing_Standard's scroll views in 1.3 :p
         //private static Rect viewRect=new Rect(0,0,100f,10000f); // OMG OMG OMG I got scrollView in Listing_Standard to work!
-        public static void DoSettingsWindowContents(Rect inRect) {
+        public static void DoSettingsWindowContents(Rect inRect)
+        {
             ModMetaData tmpMod;
             Color origColor=GUI.color; // make option gray if ignored
             Rect outerRect=inRect.ContractedBy(10f);
@@ -86,7 +115,10 @@ namespace LWM.DeepStorage
 
             Listing_Standard l = new Listing_Standard(GameFont.Medium); // my tiny high-resolution monitor :p
             l.Begin(new Rect(0f, 0f, scrollViewTotal.width, 9999f)); // Some RW window does this "9999f" thing, & it seems to work?
-            //l.GapLine();  // Who can haul to Deep Storage (robots, animals, etc)
+            //l.GapLine();  ////////// Make all storage Deep Storage //////////
+            l.CheckboxLabeled("LWMDSmakeAllStorageDeepStorage".Translate(), ref makeAllStorageDeepStorage,
+                              "LWMDSmakeAllStorageDeepStorageDesc".Translate());
+            l.GapLine();  ///////////// Who can haul to Deep Storage (robots, animals, etc)
             l.Label("LWMDShaulToStorageExplanation".Translate());
             l.CheckboxLabeled("LWMDSrobotsCanUse".Translate(), ref robotsCanUse, "LWMDSrobotsCanUseDesc".Translate());
             string [] intLabels={
@@ -298,6 +330,7 @@ namespace LWM.DeepStorage
             //            Log.Warning("LWM.deepstorag - defs loaded");
 
             // Todo? If settings are different from defaults, then:
+            if (makeAllStorageDeepStorage) MakeAllStorageDeepStorage();
 
             // Def-related changes:
             if (defaultStoragePriority != StoragePriority.Important) {
@@ -614,6 +647,7 @@ namespace LWM.DeepStorage
             //Log.Error("LWM.DeepStorage: Settings ExposeData() called");
             base.ExposeData();
 
+            Scribe_Values.Look(ref makeAllStorageDeepStorage, "makeAllStorageDeepStorage", true);
             Scribe_Values.Look(ref storingTakesTime, "storing_takes_time", true);
             Scribe_Values.Look(ref storingGlobalScale, "storing_global_scale", 1f);
             Scribe_Values.Look(ref storingTimeConsidersStackSize, "storing_time_CSS", true);

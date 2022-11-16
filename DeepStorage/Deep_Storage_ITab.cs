@@ -263,7 +263,9 @@ namespace LWM.DeepStorage
             /* If there are no items stored, default intead to settings (preferably with note about being empty?) */
             // If we find a stored item, open Contents tab:
             // TODO: Make storage settings tab show label if it's empty
-            if (t.Spawned && t is IStoreSettingsParent && t is ISlotGroupParent) {
+            // Note: If it can only store 1 item, then don't bother opening inventory, just go straight to settings
+            if (t.Spawned && t is IStoreSettingsParent && t is ISlotGroupParent && 
+                t.def.building.maxItemsInCell > 1) {
                 foreach (IntVec3 c in ((ISlotGroupParent)t).GetSlotGroup().CellsList) {
                     List<Thing> l = t.Map.thingGrid.ThingsListAt(c);
                     foreach (Thing tmp in l) {
