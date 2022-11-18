@@ -110,6 +110,7 @@ namespace LWM.DeepStorage
                         nowDS.Add(d.defName);
                         var cp = new DeepStorage.Properties();
                         cp.maxNumberStacks = d.building.maxItemsInCell;
+                        if (cp.maxNumberStacks == 1) cp.timeStoringTakes = 0;
                         d.comps.Add(cp);
                     }
                     // Second, does it have the ITab:
