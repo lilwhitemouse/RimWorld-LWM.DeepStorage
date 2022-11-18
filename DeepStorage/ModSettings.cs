@@ -10,19 +10,31 @@ namespace LWM.DeepStorage
 {
     public class Settings : ModSettings {
         public static bool makeAllStorageDeepStorage = true;
-        public static bool robotsCanUse=false;
-        public static bool storingTakesTime=true;
-        public static float storingGlobalScale=1f;
-        public static bool storingTimeConsidersStackSize=true;
-        public static StoragePriority defaultStoragePriority=StoragePriority.Important;
-        public static bool useEjectButton=true; // I think users will want it, alho I will prolly not
-        public static bool useDeepStorageRightClickLogic=false;
+        public const int myPriceForVanillaShelves = 60; // vanilla is 20 - see note:
+        /* Note delivered to Devs:
+         * Consensus around various storage modders is that vanilla shelves are crazy cheap(10/cell).
+         * They cost less than a stool(25)! Chairs(45), which bear the same weight as stools add an 
+         * extra 20 material for the back. Real world cheap shelves cost considerably more than real 
+         * world cheap chairs, and while a full grown pawn weighs more than 2 suits of plate mail armor, 
+         * shelves are much taller than a stool...  The shelves(20) even cost less than a table(28), 
+         * despite needing 3(or 4) levels.
+         * A more reasonable amount of material would be from 60 (or 30 for 1-cell) up to 90(45). From 
+         * a gameplay situation, 60 might be a better choice.
+         * In conclusion, thank you for listening to my talk, and shelves should cost more.    
+         */
+        public static bool robotsCanUse = false;
+        public static bool storingTakesTime = true;
+        public static float storingGlobalScale = 1f;
+        public static bool storingTimeConsidersStackSize = true;
+        public static StoragePriority defaultStoragePriority = StoragePriority.Important;
+        public static bool useEjectButton = true; // I think users will want it, alho I will prolly not
+        public static bool useDeepStorageRightClickLogic = false;
         // Turning this off removes conflicts with some other storage mods (at least I hope so):
         //   (RimFactory? I think?)
-        public static bool checkOverCapacity=true;
+        public static bool checkOverCapacity = true;
 
-        public static bool allowPerDSUSettings=false;
-        public static DefChangeTracker defTracker=new DefChangeTracker();
+        public static bool allowPerDSUSettings = false;
+        public static DefChangeTracker defTracker = new DefChangeTracker();
 
         // Architect Menu:
         // The defName for the DesignationCategoryDef the mod items are in by default:
@@ -32,21 +44,22 @@ namespace LWM.DeepStorage
         // <[const string]_ArchitectMenuSettings>Location on Architect Menu:</...>
         // Copy and paste the rest of anything that says "Architect Menu"
         // Change the list of new mod items in the final place "Architect Menu" tells you to
-        private const string architectMenuDefaultDesigCatDef="LWM_DS_Storage";
-        private static string architectMenuDesigCatDef=architectMenuDefaultDesigCatDef;
-        private static bool architectMenuAlwaysShowCategory=false;
-        private static bool architectMenuMoveALLStorageItems=true;
+        private const string architectMenuDefaultDesigCatDef = "LWM_DS_Storage";
+        private static string architectMenuDesigCatDef = architectMenuDefaultDesigCatDef;
+        private static bool architectMenuAlwaysShowCategory = false;
+        private static bool architectMenuMoveALLStorageItems = true;
         //   For later use if def is removed from menu...so we can put it back:
-        private static DesignationCategoryDef architectMenuActualDef=null;
-        private static bool architectMenuAlwaysShowTmp=false;
-        private static bool architectMenuMoveALLTmp=true;
+        private static DesignationCategoryDef architectMenuActualDef = null;
+        private static bool architectMenuAlwaysShowTmp = false;
+        private static bool architectMenuMoveALLTmp = true;
 
 
         public static IEnumerable<ThingDef> AllDeepStorageUnits {
             get {
                 var x = LoadedDeepStorageUnits;
-                if (x==null) Log.Error("Loaded is null");
+                if (x == null) Log.Error("Loaded is null");
                 foreach (var d in x) yield return d;
+                // All things that have been removed from the DefDatabase:
                 foreach (ThingDef d in Settings.defTracker.GetAllWithKeylet<ThingDef>("def")) {
                     yield return d;
                 }
@@ -55,8 +68,8 @@ namespace LWM.DeepStorage
         }
         public static IEnumerable<ThingDef> LoadedDeepStorageUnits {
             get {
-                var db=DefDatabase<ThingDef>.AllDefsListForReading;
-                if (db==null) {
+                var db = DefDatabase<ThingDef>.AllDefsListForReading;
+                if (db == null) {
                     Log.Error("DefDatabase is nul");
                     yield break;
                 }
@@ -66,8 +79,27 @@ namespace LWM.DeepStorage
                 yield break;
             }
         }
+        public static IEnumerable<ThingDef> StoredDeepStorageUnits
+        {
+            get {  // All things that have been removed from the DefDatabase:
+                foreach (ThingDef d in Settings.defTracker.GetAllWithKeylet<ThingDef>("def"))
+                {
+                    yield return d;
+                }
+            }
+        }
+        public static ThingDef FindDeepStorageDef(string defName)
+        {
+            foreach (var d in AllDeepStorageUnits)
+            {
+                if (d.defName == defName) return d;
+            }
+            return null;
+        }
+
         public static void MakeAllStorageDeepStorage()
         {
+            var nowDS = new List<string>();
             foreach (var d in DefDatabase<ThingDef>.AllDefsListForReading)
             {
                 if (typeof(Building_Storage).IsAssignableFrom(d.thingClass))
@@ -75,7 +107,7 @@ namespace LWM.DeepStorage
                     // First, does it have the comp:
                     if (!d.HasAssignableCompFrom(typeof(CompDeepStorage)))
                     {
-                        Log.Message("LWM.DeepStorage: Making " + d.defName + " into Deep Storage");
+                        nowDS.Add(d.defName);
                         var cp = new DeepStorage.Properties();
                         cp.maxNumberStacks = d.building.maxItemsInCell;
                         d.comps.Add(cp);
@@ -91,6 +123,10 @@ namespace LWM.DeepStorage
                         d.inspectorTabsResolved.Add(InspectTabManager.GetSharedInstance(typeof(ITab_DeepStorage_Inventory)));
                     }
                 }
+            }
+            if (nowDS.Count>0)
+            {
+                Log.Message("LWM.DeepStorage: Making " + String.Join(", ",nowDS) + " into Deep Storage");
             }
         }
 
@@ -115,6 +151,25 @@ namespace LWM.DeepStorage
 
             Listing_Standard l = new Listing_Standard(GameFont.Medium); // my tiny high-resolution monitor :p
             l.Begin(new Rect(0f, 0f, scrollViewTotal.width, 9999f)); // Some RW window does this "9999f" thing, & it seems to work?
+            ///////////////// shelf cost //////////////////////
+            var vanillaShelf = DefDatabase<ThingDef>.GetNamed("Shelf", false);
+            if (vanillaShelf != null && Settings.defTracker.HasDefaultValueFor("shelf", "cost"))
+            {
+                l.Label("LWMDSVanillaShelves".Translate(), -1, "LWMDSVanillaShelvesDesc".Translate());
+                Text.Font = GameFont.Small;
+                int cost = vanillaShelf.costStuffCount;
+                string buf = cost.ToString();
+                l.TextFieldNumericLabeled<int>("LWMDSVanillaShelvesCost".Translate(), ref cost, ref buf);
+                if (cost != vanillaShelf.costStuffCount)
+                {
+                    Settings.defTracker.AddDefaultValue("shelf", "cost", cost);
+                    vanillaShelf.costStuffCount = cost;
+                    var vanillaShelfSmall = DefDatabase<ThingDef>.GetNamed("ShelfSmall", false);
+                    if (vanillaShelfSmall != null) vanillaShelfSmall.costStuffCount = cost / 2;
+                }
+                Text.Font = GameFont.Medium;
+                l.GapLine();
+            }
             //l.GapLine();  ////////// Make all storage Deep Storage //////////
             l.CheckboxLabeled("LWMDSmakeAllStorageDeepStorage".Translate(), ref makeAllStorageDeepStorage,
                               "LWMDSmakeAllStorageDeepStorageDesc".Translate());
@@ -331,6 +386,16 @@ namespace LWM.DeepStorage
 
             // Todo? If settings are different from defaults, then:
             if (makeAllStorageDeepStorage) MakeAllStorageDeepStorage();
+
+            // TODO: Hopefully devs change this:
+            var vanillaShelf = DefDatabase<ThingDef>.GetNamed("Shelf", false);
+            if (vanillaShelf != null)
+            {
+                vanillaShelf.costStuffCount = myPriceForVanillaShelves;
+                DefDatabase<ThingDef>.GetNamed("ShelfSmall", false).costStuffCount = myPriceForVanillaShelves / 2;
+                // easy way to track that we're changing this:
+                Settings.defTracker.AddDefaultValue("shelf", "cost", myPriceForVanillaShelves);
+            }
 
             // Def-related changes:
             if (defaultStoragePriority != StoragePriority.Important) {
@@ -648,6 +713,20 @@ namespace LWM.DeepStorage
             base.ExposeData();
 
             Scribe_Values.Look(ref makeAllStorageDeepStorage, "makeAllStorageDeepStorage", true);
+            if (Settings.defTracker.HasDefaultValueFor("shelf", "cost"))
+            {
+                int c = Settings.defTracker.GetDefaultValue("shelf", "cost", myPriceForVanillaShelves);
+                Scribe_Values.Look(ref c, "shelfCost", myPriceForVanillaShelves);
+                if (Scribe.mode == LoadSaveMode.LoadingVars)
+                {
+                    Settings.defTracker.AddDefaultValue("shelf", "cost", c);
+                    ThingDef tmpD = DefDatabase<ThingDef>.GetNamed("Shelf", false);
+                    if (tmpD != null) tmpD.costStuffCount = c;
+                    tmpD = DefDatabase<ThingDef>.GetNamed("ShelfSmall", false);
+                    if (tmpD != null) tmpD.costStuffCount = c;
+                    // If you have disabled vanilla shelves and this changes, well, you can restart the game.
+                }
+            }
             Scribe_Values.Look(ref storingTakesTime, "storing_takes_time", true);
             Scribe_Values.Look(ref storingGlobalScale, "storing_global_scale", 1f);
             Scribe_Values.Look(ref storingTimeConsidersStackSize, "storing_time_CSS", true);
