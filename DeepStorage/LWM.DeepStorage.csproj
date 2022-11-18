@@ -77,7 +77,7 @@
     <Compile Include="ModSettings_Per_DSU.cs" />
     <Compile Include="DefChangeTracker.cs" />
     <Compile Include="ModCompatibility.cs" />
-    <Compile Include="Deep_Storage.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="Deep_Storage_Pause.cs" />
     <Compile Include="Deep_Storage_SaveLoad.cs" />
     <Compile Include="Debugging.cs" />
@@ -258,6 +258,7 @@
       <Link>_Mod\LWM.DeepStorage\Languages\English\Keyed\LWM.DeepStorage.Keys.xml</Link>
     </None>
     <None Include="packages.config" />
+    <None Include="Deep_Storage.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="_Mod\LWM.DeepStorage\Languages\English\" />
