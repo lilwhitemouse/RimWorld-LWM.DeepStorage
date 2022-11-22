@@ -173,14 +173,14 @@ namespace LWM.DeepStorage
                         Utils.Mess(ShouldRemoveFromStorage, "      total mass so far: "+totalWeightStoredHere+" / "+
                                    cds.limitingTotalFactorForCell);
                         if (totalWeightStoredHere > cds.limitingTotalFactorForCell &&
-                            stacksStoredHere >= cds.minNumberStacks) {
+                            stacksStoredHere >= cds.MinNumberStacks) {
                             Utils.Warn(ShouldRemoveFromStorage,
                                        "LWM.DeepStorage: "+thing.stackCount+thing+" is over weight capacity at "+thing.Position);
                             storagePriority=StoragePriority.Unstored;
                             return true;  // this takes us to capacity, and we haven't hit thing
                         }
                     }
-                    if (stacksStoredHere >= cds.maxNumberStacks) { // breaks if minNumberStacks > maxNumberStacks. I'm okay with this
+                    if (stacksStoredHere >= cds.MaxNumberStacks) { // breaks if minNumberStacks > maxNumberStacks. I'm okay with this
                         Utils.Warn(ShouldRemoveFromStorage,
                                    "LWM.DeepStorage: "+thing.stackCount+thing+" is over capacity at "+thing.Position);
                         storagePriority=StoragePriority.Unstored;

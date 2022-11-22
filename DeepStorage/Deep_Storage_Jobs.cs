@@ -183,7 +183,7 @@ namespace LWM.DeepStorage
         public static Thing NullOrLastThingAt(Map map, IntVec3 c, ThingDef def) {
             CompDeepStorage cds=(c.GetSlotGroup(map).parent as ThingWithComps).GetComp<CompDeepStorage>();
             var l=map.thingGrid.ThingsListAtFast(c); // we know it's a slotgroup, so it's valid :p
-            var freeSlots=cds.maxNumberStacks;
+            var freeSlots=cds.MaxNumberStacks;
             Utils.Err(HaulToCellStorageJob, "  testing for def "+def+" at "+c+"; "+freeSlots+" slots.");
             Thing lastThing=null;
             for (int i=0; i<l.Count;i++) {

@@ -33,7 +33,7 @@ namespace LWM.DeepStorage
                         __result = false;
                         return;
                     }
-                    if (cds.cdsProps.isSecure && !(thing.thingIDNumber % 10 == 0)) { // subject to review?
+                    if (cds.CdsProps.isSecure && !(thing.thingIDNumber % 10 == 0)) { // subject to review?
                         __result = false;
                         return;
                     }

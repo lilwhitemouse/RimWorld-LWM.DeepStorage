@@ -71,7 +71,7 @@ namespace LWM.DeepStorage
             if (cds!=null) {
                 storedItems=cds.GetContentsHeader(out header, out headerTooltip);
             } else {
-                storedItems=CompDeepStorage.genericContentsHeader(buildingStorage, out header, out headerTooltip);
+                storedItems=ITab_Inventory_HeaderUtil.GenericContentsHeader(buildingStorage, out header, out headerTooltip);
             }
             Rect tmpRect=new Rect(8f, curY, frame.width-16, Text.CalcHeight(header, frame.width-16));
             Widgets.Label(tmpRect, header);

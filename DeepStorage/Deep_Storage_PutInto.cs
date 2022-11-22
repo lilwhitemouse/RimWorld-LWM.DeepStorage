@@ -118,7 +118,7 @@ namespace LWM.DeepStorage
 
             // Let's see if there's still room in the Deep Storage area the pawn is using:
             List<Thing> list = map.thingGrid.ThingsListAt(loc);
-            int maxNumberStacks = ((ThingWithComps)slotGroup.parent).GetComp<CompDeepStorage>().maxNumberStacks;
+            int maxNumberStacks = ((ThingWithComps)slotGroup.parent).GetComp<CompDeepStorage>().MaxNumberStacks;
             // We know there was at least one thing here, and it either doesn't stack with our thing
             //   or its stack is full.
             // So, we go thru the items that are there
