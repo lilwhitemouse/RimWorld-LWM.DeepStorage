@@ -11,49 +11,6 @@ using static LWM.DeepStorage.Utils.DBF; // trace utils
 
 namespace LWM.DeepStorage
 {
-    ///////////////////////////////////////////////////////////////////////
-    /// Deep Storage:
-    /// 
-    /// So many things need to be added or patched to allow more than one object 
-    ///    in Deep Storage units:
-    /// 1. Deep_Storage.cs:
-    ///    Adds CompProperties LWM.DeepStorage.Properties
-    ///      and assosciated ThingComp CompDeepStorage
-    ///    also some utility functions
-    /// 2. Deep_Storage_CanCarryItemsTo.cs
-    ///    Patches RimWorld.StoreUtility's NoStorageBlockersIn - no longer block
-    ///    if the storage unit isn't full yet
-    ///    Also, disallow pets from hauling to Deep Storage Units
-    /// 3. Deep_Storage_Jobs.cs
-    ///    Verse.AI.HaulAIUtility's HaulToCellStorageJob - let pawns know how many
-    ///    of stackable things (e.g., wood) they can carry to deep storage
-    /// 4. Deep_Storage_Pause.cs
-    ///    Verse/AI/Toils_Haul.cs's Toil PlaceHauledThingInCell(...) - 
-    ///    change the toil to having a bit of a wait while putting into a DSU
-    /// 5. Deep_Storage_PutInto.cs
-    ///    Verse.GenPlace's TryPlaceDirect - allow putting down stuff
-    ///      in deep storage, even if there's already stuff there.
-    ///      also, tidy up stackable stuff
-    ///    Verse.GenSpawn's Spawn - allow putting 2 or more items in the same place
-    /// 6. Deep_Storage_TakeFrom.cs
-    ///    Verse.Ai.Toil_Haul's StartCarryThing - the delegate() function, so
-    ///    Pawns picking up 50 of something from Deep Storage pick up more than
-    ///    just the 7 in the top stack. (otherwise, they have reserved the spot
-    ///    so can't get anything else lying there)
-    /// 7. Deep_Storage_SaveLoad.cs
-    ///    And then there is the loading, which requires 3 more patches to make sure
-    ///    items can spawn on top of each other...and not pretty patches.  Why?  B/c
-    ///    buildings spawn after items do...so checking if an item is in DeepStorage
-    ///    isn't possible during game load. TODO: Bug still exists here
-    /// 8. Deep_Storage_UI.cs
-    ///    Because no one wants to click 9 times to finally select the building.
-    /// 9. ModCompatibility.cs
-    ///    Makes Deep Storage play well with:
-    ///      RimWorld Search Agency (Hauling Hysteresis)
-    ///////////////////////////////////////////////////////////////////////
-
-    /***********************************************************************/
-
     public class Utils {
         static public bool[] showDebug ={
             true,  // "Testing" will always be true
@@ -95,6 +52,7 @@ namespace LWM.DeepStorage
                 Log.Message("LWM."+l.ToString()+": "+s);
         }
 
+        //TODO: Can I just make this `is Building_Storage`?
         // This gets checked a lot.  Sometimes the test is done in-place (if will 
         //   need to use the slotGroup later, for example), but when using Harmony 
         //   Transpiler, tests are easier via function call

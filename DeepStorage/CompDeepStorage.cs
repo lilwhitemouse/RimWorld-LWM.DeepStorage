@@ -18,7 +18,7 @@ namespace LWM.DeepStorage
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
             }
-            yield return new Command_Action
+            yield return new Command_Action // Rename
 			{
 				icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
 				defaultLabel = "CommandRenameZoneLabel".Translate(),
@@ -193,7 +193,7 @@ namespace LWM.DeepStorage
 
         static List<Thing> listOfStoredItems=new List<Thing>();
         static System.Text.StringBuilder headerStringB=new System.Text.StringBuilder();
-        public List<Thing> getContentsHeader(out string header, out string tooltip) {
+        public List<Thing> GetContentsHeader(out string header, out string tooltip) {
             listOfStoredItems.Clear();
             headerStringB.Length=0;
             tooltip=null; // TODO: add more information via tooltip for DSUs with minNumStacks above 2

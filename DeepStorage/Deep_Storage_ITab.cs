@@ -69,7 +69,7 @@ namespace LWM.DeepStorage
             string header, headerTooltip;
             CompDeepStorage cds=buildingStorage.GetComp<CompDeepStorage>();
             if (cds!=null) {
-                storedItems=cds.getContentsHeader(out header, out headerTooltip);
+                storedItems=cds.GetContentsHeader(out header, out headerTooltip);
             } else {
                 storedItems=CompDeepStorage.genericContentsHeader(buildingStorage, out header, out headerTooltip);
             }
@@ -243,43 +243,60 @@ namespace LWM.DeepStorage
             Thing t = __instance.SingleSelectedThing;
             if (t == null) return;
             if (!(t is ThingWithComps)) return;
+            if (!t.Spawned) return;
             CompDeepStorage cds = t.TryGetComp<CompDeepStorage>();
             if (cds == null) return;
             // Off to a good start; it's a DSU
             // Check to see if a tab is already open.
-            var pane= (MainTabWindow_Inspect)MainButtonDefOf.Inspect.TabWindow;
+            var pane = (MainTabWindow_Inspect)MainButtonDefOf.Inspect.TabWindow;
             Type alreadyOpenTabType = pane.OpenTabType;
             if (alreadyOpenTabType != null) {
                 var listOfTabs=t.GetInspectTabs();
                 foreach (var x in listOfTabs) {
                     if (x.GetType() == alreadyOpenTabType) { // Misses any subclassing?
-                        return; // standard Selector behavior should kick in.
+                        // if it is already open, don't do anything, we want it to stay open:
+                        return; // standard Selector behavior should be good
                     }
                 }
             }
             // If not, open ours!
             // TODO: ...make this happen for shelves, heck, any storage buildings?
             ITab tab = null;
-            /* If there are no items stored, default intead to settings (preferably with note about being empty?) */
-            // If we find a stored item, open Contents tab:
-            // TODO: Make storage settings tab show label if it's empty
-            // Note: If it can only store 1 item, then don't bother opening inventory, just go straight to settings
-            if (t.Spawned && t is IStoreSettingsParent && t is ISlotGroupParent && 
-                t.def.building.maxItemsInCell > 1) {
-                foreach (IntVec3 c in ((ISlotGroupParent)t).GetSlotGroup().CellsList) {
-                    List<Thing> l = t.Map.thingGrid.ThingsListAt(c);
-                    foreach (Thing tmp in l) {
-                        if (tmp.def.EverStorable(false)) {
-                            goto EndLoop;
+            /* Desired behavior:
+             * If it is only supposed to store 1 item (per cell)
+             *   If it has more than 1 in any cell -> Inventory
+             *   Otherwise -> Settings
+             * If it is supposed to store more than 1 item:
+             *   If it has *any* items -> Inventory
+             *   Otherwise -> Settings
+             */
+            // TODO: Make storage settings tab show label if it's empty?
+            bool showInventoryIfAnyItems = ((t is Building b && b.MaxItemsInCell > 1) 
+                                   || t.def.building?.maxItemsInCell > 1); // should be false if no .building
+            if (t is ISlotGroupParent p)
+            {
+                foreach (IntVec3 c in p.GetSlotGroup().CellsList)
+                {
+                    // start count at 1 if we break on any item. That way, any items trigger opening
+                    int numItemsInThisCell = showInventoryIfAnyItems ? 1 : 0;
+                    foreach (Thing tmp in p.Map.thingGrid.ThingsListAt(c))
+                    {
+                        // a storable, Item-type thing
+                        if (tmp.def.EverStorable(false))
+                        {
                             // Seriously?  C# doesn't have "break 2;"?
+                            if (numItemsInThisCell > 0) goto EndLoop;
+                            numItemsInThisCell++;
                         }
                     }
                 }
+                // no more than 1 (or 0) per cell, so open Settings:
                 tab = t.GetInspectTabs().OfType<ITab_Storage>().First();
             }
           EndLoop:
+            // Worst case scenario, just openen Inventory tab?
             if (tab == null) { tab = t.GetInspectTabs().OfType<ITab_DeepStorage_Inventory>().First(); }
-            if (tab == null) { Log.Error("LWM Deep Storage object " + t + " does not have an inventory tab?");  return; }
+            if (tab == null) { Log.Warning("LWM Deep Storage object " + t + " does not have an inventory tab?");  return; }
             tab.OnOpen();
             if (tab is ITab_DeepStorage_Inventory)
                 pane.OpenTabType = typeof(ITab_DeepStorage_Inventory);
