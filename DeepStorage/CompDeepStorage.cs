@@ -119,6 +119,9 @@ namespace LWM.DeepStorage
                 return maxNumberStacks;
                 //return ((Properties)this.props).maxNumberStacks;
             }
+            set {
+                this.maxNumberStacks = value;
+            }
         }
 
         public virtual void ResetSettings()

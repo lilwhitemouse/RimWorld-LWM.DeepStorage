@@ -94,12 +94,14 @@
     <Compile Include="Patch_FloatMenuMakerMap_RightClick.cs" />
     <Compile Include="CompDeepStorage.cs" />
     <Compile Include="CompProperties.cs" />
-    <Compile Include="Dialog_RenameDSU.cs" />
+    <Compile Include="Dialog_CompSettings.cs" />
     <Compile Include="Updates.cs" />
     <Compile Include="ModInit.cs" />
     <Compile Include="Patch_GenThing_ItemCenterAt_Graphics.cs" />
     <Compile Include="Patch_Building_Storage_Gizmos.cs" />
     <Compile Include="ITab_Inventory_HeaderUtil.cs" />
+    <Compile Include="Dialog_CompSettingsMaybe.cs" />
+    <Compile Include="Patch_Building_MaxItemsInCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">
