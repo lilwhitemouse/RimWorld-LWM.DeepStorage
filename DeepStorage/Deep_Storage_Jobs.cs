@@ -258,8 +258,8 @@ namespace LWM.DeepStorage
             // Really???  statValue is the carrying capacity of the Pawn
             float statValue = p.GetStatValue(StatDefOf.CarryingCapacity, true);
             job.count = 0;
-
-            var maxStacks = ((ThingWithComps)slotGroup.parent).GetComp<CompDeepStorage>().maxNumberStacks;
+            
+            var maxStacks = ((ThingWithComps)slotGroup.parent).GetComp<CompDeepStorage>().MaxNumberStacks;
             Utils.Err(HaulToCellStorageJob, p.ToString() + " taking " + t.ToString() + ", count: " + t.stackCount);
             var howManyStacks = 0;
             //fill job.count with space in the direct storeCell:

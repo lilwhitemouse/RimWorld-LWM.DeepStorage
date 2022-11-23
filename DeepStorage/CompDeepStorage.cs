@@ -24,7 +24,7 @@ namespace LWM.DeepStorage
 				defaultLabel = "CommandRenameZoneLabel".Translate(),
 				action = delegate()
 				{
-					Find.WindowStack.Add(new Dialog_RenameDSU(this));
+					Find.WindowStack.Add(new Dialog_CompSettings(this));
 				},
 				hotKey = KeyBindingDefOf.Misc1
 			};
@@ -116,8 +116,14 @@ namespace LWM.DeepStorage
         }
         public int MaxNumberStacks {
             get {
-                return ((Properties)this.props).maxNumberStacks;
+                return maxNumberStacks;
+                //return ((Properties)this.props).maxNumberStacks;
             }
+        }
+
+        public virtual void ResetSettings()
+        {
+            this.maxNumberStacks = this.CdsProps.maxNumberStacks;
         }
 
         public virtual int TimeStoringTakes(Map map, IntVec3 cell, Pawn pawn) {
@@ -202,7 +208,6 @@ namespace LWM.DeepStorage
                 return ((Properties)this.props);
             }
         }
-
 
 
 
@@ -346,10 +351,15 @@ namespace LWM.DeepStorage
             Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
         }
 
+        public string buildingLabel="";
+
+        /////////////// Storage Data ////////////////
+        private int maxNumberStacks;
+
         public StatDef stat = StatDefOf.Mass;
         /*******  For only one limiting stat: (mass, or bulk for CombatExtended)  *******/
-        public float limitingFactorForItem=0f;
-        public float limitingTotalFactorForCell=0f;
+        public float limitingFactorForItem = 0f;
+        public float limitingTotalFactorForCell = 0f;
         /*******  Viable approach if anyone ever wants to limit storage based on >1 stat:
          *          We can revisit this is anyone ever requests it
          *          (this approach would need a for loop in _CanCarryItemsTo.cs, etc)
@@ -358,7 +368,7 @@ namespace LWM.DeepStorage
         public float[] maxTotalStat = { };
         public StatDef[] statToTotal = { };
         */
-        public string buildingLabel="";
+
 
     } // end CompDeepStorage
 

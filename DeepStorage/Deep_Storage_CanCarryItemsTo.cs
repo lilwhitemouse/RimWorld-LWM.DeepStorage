@@ -73,7 +73,7 @@ namespace LWM.DeepStorage
                 }
             }
             // We will usually care how many stacks can fit here:
-            var maxStacks = cds.maxNumberStacks;
+            var maxStacks = cds.MaxNumberStacks;
             // If maxTotalMass is set, we will keep track of how much "room" we have as well:
             float totalAmountHereSoFar=0f;
             if (cds.limitingTotalFactorForCell > 0f) {
