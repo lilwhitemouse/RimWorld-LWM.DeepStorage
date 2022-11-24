@@ -24,7 +24,7 @@ namespace LWM.DeepStorage
 				defaultLabel = "CommandRenameZoneLabel".Translate(),
 				action = delegate()
 				{
-					Find.WindowStack.Add(new Dialog_CompSettings(this));
+					Find.WindowStack.Add(new Dialog_RenameDSU(this));
 				},
 				hotKey = KeyBindingDefOf.Misc1
 			};
@@ -212,14 +212,13 @@ namespace LWM.DeepStorage
             }
         }
 
-
-
         public override void Initialize(CompProperties props) {
             base.Initialize(props);
             // Remove duplicate entries and ensure the last entry is the only one left
             //   This allows a default abstract def with the comp
             //   and child def to change the comp value:
             // TODO: Why not take care of this on defs loaded?  That's more sensible.
+            // TODO TODO TODO TODO TODO TODO TODO TODO This is stupid and should not be here
             CompDeepStorage[] list = this.parent.GetComps<CompDeepStorage>().ToArray();
             // Remove everything but the last entry in both this and original def:
             // Don't ask why I made the choice to allow two <comps> entries.  Probably a bad idea.
@@ -232,6 +231,8 @@ namespace LWM.DeepStorage
                     this.parent.def.comps.Remove(l2[i]);
                 }
             }
+            /*******  Initialize local variables                                      *******/
+            this.maxNumberStacks = CdsProps.maxNumberStacks;
 
             /*******  For only one limiting stat: (mass, or bulk for CombatExtended)  *******/
             if (((Properties)props).altStat != null) stat = ((Properties)props).altStat;
@@ -352,6 +353,7 @@ namespace LWM.DeepStorage
         /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
             Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
+            Scribe_Values.Look<int>(ref maxNumberStacks, "LWM_DS_DSU_maxNumberStacks", CdsProps.maxNumberStacks, false);
         }
 
         public string buildingLabel="";

@@ -102,6 +102,7 @@
     <Compile Include="ITab_Inventory_HeaderUtil.cs" />
     <Compile Include="Dialog_CompSettingsMaybe.cs" />
     <Compile Include="Patch_Building_MaxItemsInCell.cs" />
+    <Compile Include="Dialog_RenameDSU.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">

@@ -53,6 +53,7 @@ namespace LWM.DeepStorage
      *     The item re-registers to be drawn on spawn.
      * Note2: When an item is added to DS, we put the DSU at the
      *     end of the thingsListAt.
+     *     //TODO: CHANGE THIS    
      *     Vanilla behavior, pre-save:
      *       stuff-in-storage (at end of list)
      *       Shelf
@@ -118,7 +119,6 @@ namespace LWM.DeepStorage
             CompDeepStorage cds;
             ThingWithComps building;
             SlotGroup slotGroup=loc.GetSlotGroup(map);
-
             if (slotGroup==null || (building=(slotGroup.parent as ThingWithComps))==null ||
                 (cds=(slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>())==null||
                 cds.ShowContents)
@@ -372,7 +372,6 @@ namespace LWM.DeepStorage
             if (cds == null) return true;
             if (cds.CdsProps.overlayType == LWM.DeepStorage.GuiOverlayType.Normal) return true;
             if (cds.CdsProps.overlayType == GuiOverlayType.None) return false;
-
             List<Thing> things;
             String s;
             if (cds.CdsProps.overlayType == GuiOverlayType.CountOfAllStacks) {

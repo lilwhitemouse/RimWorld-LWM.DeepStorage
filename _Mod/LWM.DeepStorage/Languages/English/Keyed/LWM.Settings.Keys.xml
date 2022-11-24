@@ -3,6 +3,9 @@
 <LanguageData>
   <LWMDSignoredDueTo>This setting is ignored due to mod {0}</LWMDSignoredDueTo>
   <!--Some basic vanilla compatibility-->
+  <LWMDSVanillaShelves>Vanilla Shelf Balance</LWMDSVanillaShelves>
+  <LWMDSVanillaShelvesDesc>Vanilla Shelves cost 20 by default. Vanilla stools cost 25 by default. This seems to me rather silly... Real world cheap shelves cost considerably more than real world cheap chairs. While a full grown pawn weighs more than 2 suits of plate mail armor, shelves are much taller than a stool...  The shelves(20) even cost less than a table(28), despite needing 3(or 4) levels! I feel 60 material is a more reasonable amount. BUT - you can go with vanilla value of 20 if you want :)</LWMDSVanillaShelvesDesc>
+  <LWMDSVanillaShelvesCost>New cost of Vanilla Shelves (vanilla is 20, LWM says 60):</LWMDSVanillaShelvesCost>
   <LWMDSmakeAllStorageDeepStorage>Make all storage Deep Storage?</LWMDSmakeAllStorageDeepStorage>
   <LWMDSmakeAllStorageDeepStorageDesc>Treat all storage items (for example, vanilla Shelves) as Deep Storage. Mostly, this doesn't affect much, but it does mean you get DS's fancy inventory tab, so there's that?</LWMDSmakeAllStorageDeepStorageDesc>
   <!--Who can haul TO storage-->

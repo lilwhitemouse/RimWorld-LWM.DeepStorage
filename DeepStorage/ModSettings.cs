@@ -110,7 +110,17 @@ namespace LWM.DeepStorage
                         nowDS.Add(d.defName);
                         var cp = new DeepStorage.Properties();
                         cp.maxNumberStacks = d.building.maxItemsInCell;
-                        if (cp.maxNumberStacks == 1) cp.timeStoringTakes = 0;
+                        if (cp.maxNumberStacks == 1)
+                        {
+                            cp.timeStoringTakes = 0;
+                            //cp.minTimeStoringTakes = 0;
+                        }
+                        else
+                        {
+                            cp.timeStoringTakes = 10;
+                            cp.additionalTimeEachStack = 45;
+                            cp.minTimeStoringTakes = 10;
+                        }
                         d.comps.Add(cp);
                     }
                     // Second, does it have the ITab:
@@ -123,6 +133,9 @@ namespace LWM.DeepStorage
                         if (d.inspectorTabsResolved == null) d.inspectorTabsResolved = new List<InspectTabBase>();
                         d.inspectorTabsResolved.Add(InspectTabManager.GetSharedInstance(typeof(ITab_DeepStorage_Inventory)));
                     }
+                    // Third, to make sure displays work:
+                    d.drawGUIOverlay = true; // If false, the engine doesn't try to draw an overlay,
+                                             //   so no content numbers are drawn - oops
                 }
             }
             if (nowDS.Count>0)
