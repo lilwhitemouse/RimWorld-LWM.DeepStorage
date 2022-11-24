@@ -214,23 +214,6 @@ namespace LWM.DeepStorage
 
         public override void Initialize(CompProperties props) {
             base.Initialize(props);
-            // Remove duplicate entries and ensure the last entry is the only one left
-            //   This allows a default abstract def with the comp
-            //   and child def to change the comp value:
-            // TODO: Why not take care of this on defs loaded?  That's more sensible.
-            // TODO TODO TODO TODO TODO TODO TODO TODO This is stupid and should not be here
-            CompDeepStorage[] list = this.parent.GetComps<CompDeepStorage>().ToArray();
-            // Remove everything but the last entry in both this and original def:
-            // Don't ask why I made the choice to allow two <comps> entries.  Probably a bad idea.
-            if (list.Length > 1) {
-                for (var i = 0; i < list.Length - 1; i++) {
-                    this.parent.AllComps.Remove(list[i]);
-                }
-                var l2=this.parent.def.comps.Where(cp => ((cp as Properties)!=null)).ToArray();
-                for (var i=0; i< l2.Length -1; i++) {
-                    this.parent.def.comps.Remove(l2[i]);
-                }
-            }
             /*******  Initialize local variables                                      *******/
             this.maxNumberStacks = CdsProps.maxNumberStacks;
 
