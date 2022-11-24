@@ -464,9 +464,16 @@ namespace LWM.DeepStorage
                 Settings.defTracker.ExposeSetting(defName, "maxMassStoredItem", ref u.GetCompProperties<Properties>().maxMassOfStoredItem);
                 Settings.defTracker.ExposeSetting(defName, "showContents", ref u.GetCompProperties<Properties>().showContents);
                 Settings.defTracker.ExposeSetting(defName, "overlayType", ref u.GetCompProperties<Properties>().overlayType);
-                StoragePriority tmpSP=u.building.defaultStorageSettings.Priority; // hard to access private field directly
-                Settings.defTracker.ExposeSetting<StoragePriority>(defName, "storagePriority", ref tmpSP);
-                u.building.defaultStorageSettings.Priority=tmpSP;
+                if (u.building.defaultStorageSettings == null)
+                { // Todo? If we do find something like this....should we try to fix it?
+                    Log.Warning("LWM.DeepStorage found " + u.defName + " has no defaultStorageSettings. This should probably not happen?");
+                }
+                else
+                {
+                    StoragePriority tmpSP = u.building.defaultStorageSettings.Priority; // hard to access private field directly
+                    Settings.defTracker.ExposeSetting<StoragePriority>(defName, "storagePriority", ref tmpSP);
+                    u.building.defaultStorageSettings.Priority = tmpSP;
+                }
                 // If fixedStorageSettings is null, it's because it can store anything. We don't change that:
                 if (u.building?.fixedStorageSettings != null)
                     Settings.defTracker.ExposeSettingDeep(defName, "filter", ref u.building.fixedStorageSettings.filter);
