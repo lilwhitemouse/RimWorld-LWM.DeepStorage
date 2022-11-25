@@ -102,10 +102,13 @@ namespace LWM.DeepStorage
             var nowDS = new List<string>();
             foreach (var d in DefDatabase<ThingDef>.AllDefsListForReading)
             {
-                if (typeof(Building_Storage).IsAssignableFrom(d.thingClass))
+                // No, seriously. Things end up in the DefsDatabase that have null thingClass.
+                if (d.thingClass != null && typeof(Building_Storage).IsAssignableFrom(d.thingClass))
                 { // if it's a building_storage or is a subclass of
                     // First, does it have the comp:
-                    if (!d.HasAssignableCompFrom(typeof(CompDeepStorage)))
+                    // IGNORE: anything from PRF - Project RimFactory has settings/&c that do basically everything
+                    //   DS does, and they do these in their own way...  Better to just use PRF in such a case...
+                    if (!d.HasAssignableCompFrom(typeof(CompDeepStorage)) && d.modContentPack.PackageId != "spdskatr.projectrimfactory")
                     {
                         nowDS.Add(d.defName);
                         var cp = new DeepStorage.Properties();
@@ -406,7 +409,8 @@ namespace LWM.DeepStorage
             if (vanillaShelf != null)
             {
                 vanillaShelf.costStuffCount = myPriceForVanillaShelves;
-                DefDatabase<ThingDef>.GetNamed("ShelfSmall", false).costStuffCount = myPriceForVanillaShelves / 2;
+                var halfVanillaShelf = DefDatabase<ThingDef>.GetNamed("ShelfSmall", false);
+                if (halfVanillaShelf != null) halfVanillaShelf.costStuffCount = myPriceForVanillaShelves / 2;
                 // easy way to track that we're changing this:
                 Settings.defTracker.AddDefaultValue("shelf", "cost", myPriceForVanillaShelves);
             }
@@ -415,7 +419,10 @@ namespace LWM.DeepStorage
             if (defaultStoragePriority != StoragePriority.Important) {
                 foreach (ThingDef d in AllDeepStorageUnits) {
                     //TODO: this should probably have an option....
-                    d.building.defaultStorageSettings.Priority=defaultStoragePriority;
+                    if (d.building?.defaultStorageSettings != null)
+                        d.building.defaultStorageSettings.Priority = defaultStoragePriority;
+                    else
+                        Log.Warning("LWM.DeepStorage could not set priority for " + d.defName);
                 }
             }
             // Re-read Mod Settings - some won't have been read because Defs weren't loaded:
@@ -503,6 +510,9 @@ namespace LWM.DeepStorage
                 //   but I think it's okay to leave it in Replimat.
                 DesignationCategoryDef tmp=DefDatabase<DesignationCategoryDef>.GetNamed("Replimat_Replimat", false);
                 if (tmp!=null) desigsToNotMove.Add(tmp);
+                // Vanilla Chemfuel Expanded should only use their menu:
+                tmp = DefDatabase<DesignationCategoryDef>.GetNamed("VCHE_PipeNetworks", false);
+                if (tmp != null) desigsToNotMove.Add(tmp);
                 // TODO: get these categories in a more flexible way!
                 // ProjectRimFactory has several subclasses of Building_Storage that are in the Industrial category.
                 //   Several users of PRF have gotten confused when they couldn't find the storage things.

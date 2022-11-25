@@ -454,8 +454,9 @@ namespace LWM.DeepStorage
         public static void ExposeDSUSettings(IEnumerable<ThingDef> units) {
             // note: make our own list in case we modify DefDatabase/etc from here
             if (units==null) { Log.Warning("Passed null units"); return; }
+            var unitList = units.ToList();
             if (Settings.defTracker==null) {Log.Error("DefChangeTracker is null"); return;}
-            foreach (ThingDef u in units.ToList()) {
+            foreach (ThingDef u in unitList) {
                 Utils.Warn(Utils.DBF.Settings, "Expose DSU Settings: "+u.defName+" ("+Scribe.mode+")");
                 string defName=u.defName;
                 Settings.defTracker.ExposeSetting<string>(defName, "label",ref u.label);
@@ -464,7 +465,7 @@ namespace LWM.DeepStorage
                 Settings.defTracker.ExposeSetting(defName, "maxMassStoredItem", ref u.GetCompProperties<Properties>().maxMassOfStoredItem);
                 Settings.defTracker.ExposeSetting(defName, "showContents", ref u.GetCompProperties<Properties>().showContents);
                 Settings.defTracker.ExposeSetting(defName, "overlayType", ref u.GetCompProperties<Properties>().overlayType);
-                if (u.building.defaultStorageSettings == null)
+                if (u.building?.defaultStorageSettings == null)
                 { // Todo? If we do find something like this....should we try to fix it?
                     Log.Warning("LWM.DeepStorage found " + u.defName + " has no defaultStorageSettings. This should probably not happen?");
                 }
