@@ -146,30 +146,6 @@ namespace LWM.DeepStorage
             }
         }
 
-        public static void RemoveAnyMultipleCompProps() {
-            // For each def, make sure that only the last DS.Properties is
-            // used.  (this can happen if a modder makes another DSU based
-            // off of one of the base ones; see Pallet_Covered)  Call this
-            // after all defs are loaded
-            foreach (var d in DefDatabase<ThingDef>.AllDefs) {
-                if (typeof(Building_Storage).IsAssignableFrom(d.thingClass)) {
-                    var cmps=d.comps;
-                    for (int i=cmps.Count-1; i>=0; i--) {
-                        if (cmps[i] is LWM.DeepStorage.Properties && i>0) {
-                            // remove any earlier instances
-                            // last one in should count:
-                            for (i--; i>=0; i--) {
-                                if (cmps[i] is LWM.DeepStorage.Properties)
-                                    cmps.RemoveAt(i);
-                            }
-                            break;
-                        }
-                    }
-                }
-                //continue to next def
-            }
-        } //end RemoveAnyMultipleCompProps
-
         public int minNumberStacks = 1;
         public int maxNumberStacks = 2;
         public int timeStoringTakes = 1000; // measured in ticks
