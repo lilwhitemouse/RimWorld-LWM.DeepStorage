@@ -204,8 +204,8 @@ namespace LWM.DeepStorage
     public static class PatchDisplay_Notify_ReceivedThing {
         public static void Postfix(Building_Storage __instance,Thing newItem) {
             CompDeepStorage cds;
-            if ((cds = __instance.TryGetComp<CompDeepStorage>()) == null) return;
-
+            if ((cds = __instance?.TryGetComp<CompDeepStorage>()) == null) return;
+            if (!newItem.Spawned) return;
             /****************** Put DSU at top of list *******************/
             /*  See note 2 at top of file re: display                    */
             List<Thing> list = newItem.Map.thingGrid.ThingsListAt(newItem.Position);
