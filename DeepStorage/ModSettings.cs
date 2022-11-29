@@ -125,6 +125,7 @@ namespace LWM.DeepStorage
                             cp.additionalTimeEachStack = 45;
                             cp.minTimeStoringTakes = 10;
                         }
+                        cp.overlayType = GuiOverlayType.SumOfItemsPerCell;
                         d.comps.Add(cp);
                     }
                     // Second, does it have the ITab:
@@ -141,6 +142,7 @@ namespace LWM.DeepStorage
                     // Third, to make sure displays work:
                     d.drawGUIOverlay = true; // If false, the engine doesn't try to draw an overlay,
                                              //   so no content numbers are drawn - oops
+                    d.drawGUIOverlayQuality = false; // Keep the display from also drawing "Good" under "[750]"
                 }
             }
             if (nowDS.Count>0)
