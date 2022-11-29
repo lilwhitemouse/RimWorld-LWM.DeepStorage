@@ -108,7 +108,8 @@ namespace LWM.DeepStorage
                     // First, does it have the comp:
                     // IGNORE: anything from PRF - Project RimFactory has settings/&c that do basically everything
                     //   DS does, and they do these in their own way...  Better to just use PRF in such a case...
-                    if (!d.HasAssignableCompFrom(typeof(CompDeepStorage)) && d.modContentPack.PackageId != "spdskatr.projectrimfactory")
+                    if (!d.HasAssignableCompFrom(typeof(CompDeepStorage)) 
+                        && d.modContentPack.PackageId != "spdskatr.projectrimfactory")
                     {
                         nowDS.Add(d.defName);
                         var cp = new DeepStorage.Properties();
@@ -127,6 +128,7 @@ namespace LWM.DeepStorage
                         d.comps.Add(cp);
                     }
                     // Second, does it have the ITab:
+                    if (d.inspectorTabs == null) d.inspectorTabs = new List<Type>();
                     if (!d.inspectorTabs.Contains(typeof(LWM.DeepStorage.ITab_DeepStorage_Inventory)))
                     {
                         // Add to the inspectorTabs
