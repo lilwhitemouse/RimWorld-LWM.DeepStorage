@@ -12,7 +12,7 @@ namespace LWM.DeepStorage {
             LWM.DeepStorage.Settings.DefsLoaded();
             // Can use this when pushing out changes to Steam, to make sure user-tester has
             //     the correct version
-            Log.Message("LWM Update: testing for Rebel and 302 version");
+            Log.Message("LWM Update: fix for Make all storage into Deep Storage");
             var harmony = new Harmony("net.littlewhitemouse.LWM.DeepStorage");
             harmony.PatchAll();
 
