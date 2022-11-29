@@ -151,8 +151,8 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
 
     <surfaceType>Item</surfaceType><!-- ?????  -->
     <fillPercent>0.4</fillPercent><!-- -TODO: This effects COVER!  TODO: Rethink this value for units -->
-    <drawGUIOverlay>true</drawGUIOverlay>
-
+    <drawGUIOverlay>true</drawGUIOverlay><!-- required for item count overlays. -->
+    <drawGUIOverlayQuality>false</drawGUIOverlayQuality><!-- Draw the overlay, but don't draw "Excellent" under "[750]" -->
     <statBases><!-- overwritten -->
       <MaxHitPoints>100</MaxHitPoints>
       <Mass>30</Mass>
