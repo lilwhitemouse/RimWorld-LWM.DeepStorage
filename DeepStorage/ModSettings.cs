@@ -103,46 +103,54 @@ namespace LWM.DeepStorage
             foreach (var d in DefDatabase<ThingDef>.AllDefsListForReading)
             {
                 // No, seriously. Things end up in the DefsDatabase that have null thingClass.
-                if (d.thingClass != null && typeof(Building_Storage).IsAssignableFrom(d.thingClass))
+                //
+                // IGNORE: anything from PRF - Project RimFactory has settings/&c that do basically everything
+                //   DS does, and they do these in their own way...  Better to just use PRF in such a case...
+                if (d.thingClass != null && typeof(Building_Storage).IsAssignableFrom(d.thingClass)
+                    && d.modContentPack.PackageId != "spdskatr.projectrimfactory"
+                    )
                 { // if it's a building_storage or is a subclass of
-                    // First, does it have the comp:
-                    // IGNORE: anything from PRF - Project RimFactory has settings/&c that do basically everything
-                    //   DS does, and they do these in their own way...  Better to just use PRF in such a case...
-                    if (!d.HasAssignableCompFrom(typeof(CompDeepStorage)) 
-                        && d.modContentPack.PackageId != "spdskatr.projectrimfactory")
+                    try // This broke so many times. I should have done this earlier.
                     {
-                        nowDS.Add(d.defName);
-                        var cp = new DeepStorage.Properties();
-                        cp.maxNumberStacks = d.building.maxItemsInCell;
-                        if (cp.maxNumberStacks == 1)
+                        // First, does it have the comp:
+                        if (!d.HasAssignableCompFrom(typeof(CompDeepStorage)))
                         {
-                            cp.timeStoringTakes = 0;
-                            //cp.minTimeStoringTakes = 0;
+                            nowDS.Add(d.defName);
+                            var cp = new DeepStorage.Properties();
+                            cp.maxNumberStacks = d.building.maxItemsInCell;
+                            if (cp.maxNumberStacks == 1)
+                            {
+                                cp.timeStoringTakes = 0;
+                                //cp.minTimeStoringTakes = 0;
+                            }
+                            else
+                            {
+                                cp.timeStoringTakes = 10;
+                                cp.additionalTimeEachStack = 45;
+                                cp.minTimeStoringTakes = 10;
+                            }
+                            cp.overlayType = GuiOverlayType.SumOfItemsPerCell;
+                            d.comps.Add(cp);
                         }
-                        else
+                        // Second, does it have the ITab:
+                        if (d.inspectorTabs == null) d.inspectorTabs = new List<Type>();
+                        if (!d.inspectorTabs.Contains(typeof(LWM.DeepStorage.ITab_DeepStorage_Inventory)))
                         {
-                            cp.timeStoringTakes = 10;
-                            cp.additionalTimeEachStack = 45;
-                            cp.minTimeStoringTakes = 10;
+                            // Add to the inspectorTabs
+                            d.inspectorTabs.Add(typeof(ITab_DeepStorage_Inventory));
+                            // But then do the real work, because ThingDef.ResolveReferences() does some fancy work
+                            //    with ITabs to make them work:
+                            if (d.inspectorTabsResolved == null) d.inspectorTabsResolved = new List<InspectTabBase>();
+                            d.inspectorTabsResolved.Add(InspectTabManager.GetSharedInstance(typeof(ITab_DeepStorage_Inventory)));
                         }
-                        cp.overlayType = GuiOverlayType.SumOfItemsPerCell;
-                        d.comps.Add(cp);
+                        // Third, to make sure displays work:
+                        d.drawGUIOverlay = true; // If false, the engine doesn't try to draw an overlay,
+                                                 //   so no content numbers are drawn - oops
+                        d.drawGUIOverlayQuality = false; // Keep the display from also drawing "Good" under "[750]"
                     }
-                    // Second, does it have the ITab:
-                    if (d.inspectorTabs == null) d.inspectorTabs = new List<Type>();
-                    if (!d.inspectorTabs.Contains(typeof(LWM.DeepStorage.ITab_DeepStorage_Inventory)))
-                    {
-                        // Add to the inspectorTabs
-                        d.inspectorTabs.Add(typeof(ITab_DeepStorage_Inventory));
-                        // But then do the real work, because ThingDef.ResolveReferences() does some fancy work
-                        //    with ITabs to make them work:
-                        if (d.inspectorTabsResolved == null) d.inspectorTabsResolved = new List<InspectTabBase>();
-                        d.inspectorTabsResolved.Add(InspectTabManager.GetSharedInstance(typeof(ITab_DeepStorage_Inventory)));
+                    catch(Exception e) {
+                        Log.Error("LWM.DeepStorage: Tried to make " + d.defName + " into a Deep Storage item, but failed: " + e);
                     }
-                    // Third, to make sure displays work:
-                    d.drawGUIOverlay = true; // If false, the engine doesn't try to draw an overlay,
-                                             //   so no content numbers are drawn - oops
-                    d.drawGUIOverlayQuality = false; // Keep the display from also drawing "Good" under "[750]"
                 }
             }
             if (nowDS.Count>0)
