@@ -2,9 +2,9 @@
 <LanguageData>
   <!-- General -->
   <NoItemsAreStoredHere>當前未存儲任何物品。</NoItemsAreStoredHere>
-  <LWM_DS_Total>總計: {0}</LWM_DS_Total>
-  <LWM_DS_PerCell>{0}/單位</LWM_DS_PerCell><!-- {0} in each cell, {0} for each cell, etc -->
-  <LWM_DS_TotalAndPerCell> 總計{0}; {1}/單位</LWM_DS_TotalAndPerCell>
+  <LWM_DS_Total>總計: {0}項</LWM_DS_Total>
+  <LWM_DS_PerCell>{0}項/單位</LWM_DS_PerCell><!-- {0} in each cell, {0} for each cell, etc -->
+  <LWM_DS_TotalAndPerCell>總計{0}項;{1}項/單位</LWM_DS_TotalAndPerCell>
   <LWM_DS_kg>{0}公斤</LWM_DS_kg><!-- mass -->
   <LWM_DS_BulkEtcOf>{0} {1}</LWM_DS_BulkEtcOf><!-- for CE:  "15 bulk", etc -->
   <LWM_DSU_GainsName>{0}現在稱為{1}。</LWM_DSU_GainsName><!-- rename building -->
@@ -14,7 +14,7 @@
   <!--     0 / 10 items with total bulk of 0 / 10 kg -->
   <LWM.ContentsHeaderMaxMass>{0} / {1}項，總重量：{3} / {4} 公斤</LWM.ContentsHeaderMaxMass>
   <LWM.ContentsHeaderMax>{0} / {1}，總重量：{3} 公斤</LWM.ContentsHeaderMax>
-  <LWM.ContentsHeaderMinMax>{0}/{1}，儲存上限{2}項，總重量 {4}公斤</LWM.ContentsHeaderMinMax>
+  <LWM.ContentsHeaderMinMax>{0}/{1}，上限{2}項，總重量{4}公斤</LWM.ContentsHeaderMinMax>
   <LWM.ContentsHeaderStacksMax>{0}項物品數，上限{1}，限制總重：{3} 公斤</LWM.ContentsHeaderStacksMax>
   <LWM.ContentsHeaderItemsMax>{0}項物品，上限{1}項(重量限制),總重量 {3} 公斤</LWM.ContentsHeaderItemsMax>
   <LWM.ContentsDropDesc>將此物品扔到地板上,以便殖民者可以更輕鬆地使用。\n\n如果發現此按鈕沒有用處,可以在 mod 設置中將其關閉。</LWM.ContentsDropDesc>
