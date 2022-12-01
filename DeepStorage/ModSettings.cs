@@ -107,7 +107,7 @@ namespace LWM.DeepStorage
                 // IGNORE: anything from PRF - Project RimFactory has settings/&c that do basically everything
                 //   DS does, and they do these in their own way...  Better to just use PRF in such a case...
                 if (d.thingClass != null && typeof(Building_Storage).IsAssignableFrom(d.thingClass)
-                    && d.modContentPack.PackageId != "spdskatr.projectrimfactory"
+                    && d.modContentPack?.PackageId != "spdskatr.projectrimfactory"
                     )
                 { // if it's a building_storage or is a subclass of
                     try // This broke so many times. I should have done this earlier.
@@ -759,7 +759,7 @@ namespace LWM.DeepStorage
                     ThingDef tmpD = DefDatabase<ThingDef>.GetNamed("Shelf", false);
                     if (tmpD != null) tmpD.costStuffCount = c;
                     tmpD = DefDatabase<ThingDef>.GetNamed("ShelfSmall", false);
-                    if (tmpD != null) tmpD.costStuffCount = c;
+                    if (tmpD != null) tmpD.costStuffCount = c / 2;
                     // If you have disabled vanilla shelves and this changes, well, you can restart the game.
                 }
             }
