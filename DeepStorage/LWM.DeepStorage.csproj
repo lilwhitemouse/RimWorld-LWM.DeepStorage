@@ -34,6 +34,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="IHoldMultipleThings"><!-- Mehni's PickUpAndHold Compatibility -->
       <HintPath>..\packages\IHoldMultipleThings.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="0Harmony">
       <HintPath>..\packages\Lib.Harmony.2.2.2\lib\net472\0Harmony.dll</HintPath>
