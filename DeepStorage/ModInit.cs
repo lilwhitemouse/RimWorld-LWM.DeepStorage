@@ -7,12 +7,12 @@ namespace LWM.DeepStorage {
     [StaticConstructorOnStartup]
     public static class ModInit {
         static ModInit() {
+            Log.Message("LWM Update: fix for Make all storage into Deep Storage");
             // Thanks to Static Constructor On Startup, all defs should be loaded now
             RemoveAnyMultipleCompProps();
             LWM.DeepStorage.Settings.DefsLoaded();
             // Can use this when pushing out changes to Steam, to make sure user-tester has
             //     the correct version
-            Log.Message("LWM Update: fix for Make all storage into Deep Storage");
             var harmony = new Harmony("net.littlewhitemouse.LWM.DeepStorage");
             harmony.PatchAll();
 
@@ -20,7 +20,6 @@ namespace LWM.DeepStorage {
 //            LWM.DeepStorage.Patch_IsSaveCompressible.Postfix();
 //            harmony.Patch(AccessTools.Method(typeof(CompressibilityDeciderUtility), "IsSaveCompressible"),
 //                null, SymbolExtensions.GetMethodInfo(()=> LWM.DeepStorage.Patch_IsSaveCompressible.))
-
         }
 
 
