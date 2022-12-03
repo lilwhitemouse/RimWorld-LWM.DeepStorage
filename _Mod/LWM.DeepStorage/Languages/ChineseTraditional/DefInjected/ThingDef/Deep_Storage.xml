@@ -21,7 +21,7 @@
 請注意，屍體會放在同一個單元格。另外框架承受的重量有限。</LWM_Meat_Hook.description>
 
   <LWM_Hayloft.label>乾草倉</LWM_Hayloft.label>
-  <LWM_Hayloft.description>"乾草倉是指穀倉、馬廄或牛棚的上方空間，傳統上用於存儲乾草或其他動物飼料。乾草倉的使用主要是在工業規模的農用機械的廣泛使用之前，它允許產生無法輕易搬運的大型乾草捆以進行存儲...”-百科全書\n\n老實說。除非您使用一些我不知道的農耕模組，否則您的殖民者可能正在堆放乾草，這是緩慢而繁瑣的工作。你知道嗎？大多數耕種速度慢，勞動繁重，您的殖民者甚至不能僱用其他殖民地的移民工人。尊重農民和農場工人：他們比您更加努力；）\n\n該建築可用於在潮濕的地面上存放乾草，青貯飼料和其他各種植物材料。您可能想要在（很高）屋頂下建造它。</LWM_Hayloft.description>
+  <LWM_Hayloft.description>"乾草倉是指穀倉、馬廄或牛棚的上方空間，傳統上用於存儲乾草或其他動物飼料。乾草倉的使用主要是在工業規模的農用機械的廣泛使用之前，它允許產生無法輕易搬運的大型乾草捆以進行存儲…”-百科全書\n\n老實說。除非您使用一些我不知道的農耕模組，否則您的殖民者可能正在堆放乾草，這是緩慢而繁瑣的工作。你知道嗎？大多數耕種速度慢，勞動繁重，您的殖民者甚至不能僱用其他殖民地的移民工人。尊重農民和農場工人：他們比您更加努力；）\n\n可用於在潮濕的地面上存放乾草，青貯飼料和其他各種植物材料。您可能想要在（很高）屋頂下建造它。</LWM_Hayloft.description>
 
   <LWM_FabricHamper.label>儲物筐</LWM_FabricHamper.label>
   <LWM_FabricHamper.description>一組用織物和鐵架製作的籃子。寬大的口袋可輕鬆儲存大量不同的物品。\n\n如果你真的想將織物存放在袋子裡,請參閱模組設置!</LWM_FabricHamper.description>
@@ -35,13 +35,16 @@
   <LWM_DeepStorage_Skip.label>廢料箱</LWM_DeepStorage_Skip.label>
   <LWM_DeepStorage_Skip.description>用於堆放重物的大型露天金屬垃圾箱。
 
-注意：隨意堆放大量物品意味著需要花時間才能找到想要的東西。  形象說的話，就是假裝您的殖民者必須爬進去並堆放所有東西，但是小狗可以輕鬆地將其撿起。</LWM_DeepStorage_Skip.description>
+注意：隨意堆放大量物品意味著需要花時間才能找到想要的東西。  形象點的話，就是假裝您的殖民者必須爬進去並堆放所有東西，但是小狗可以輕鬆地將其撿起。</LWM_DeepStorage_Skip.description>
 
   <LWM_Medicine_Cabinet.label>藥品櫃</LWM_Medicine_Cabinet.label>
-  <LWM_Medicine_Cabinet.description>一套用於儲存藥品和藥品的櫥櫃和貨架。 推薦:留意兒童。</LWM_Medicine_Cabinet.description>
+  <LWM_Medicine_Cabinet.description>一套用於儲存藥品和藥品的櫥櫃和置物架。 備註:留意兒童。</LWM_Medicine_Cabinet.description>
 
-  <LWM_Clothing_Rack.label>衣物架</LWM_Clothing_Rack.label>
-  <LWM_Clothing_Rack.description>覆蓋板的架子，用於存放衣物，方便，快捷地進入房間並保持整潔。</LWM_Clothing_Rack.description>
+  <LWM_Clothing_Rack.label>衣架</LWM_Clothing_Rack.label>
+  <LWM_Clothing_Rack.description>一個帶頂蓋的架子，用於存放衣服，方便、快速地取用，房間整潔。</LWM_Clothing_Rack.description>
+
+  <LWM_Safe.label>保險箱</LWM_Safe.label>
+  <LWM_Safe.description>一個安全、可上鎖的盒子，用於安全地存放貴重物品，防止盜竊或火災損壞。\n\n(注意：尚未實施防火保護)</LWM_Safe.description>
 
 
 </LanguageData>
