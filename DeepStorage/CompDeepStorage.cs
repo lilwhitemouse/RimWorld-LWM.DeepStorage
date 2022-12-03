@@ -18,6 +18,20 @@ namespace LWM.DeepStorage
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
             }
+#if DEBUGLWM
+            yield return new Command_Action
+            {
+//                icon = has_Ideology?UI/Abilities/WorkDrive :
+                icon = ContentFinder<Texture2D>.Get("Things/Mote/Thought", true),
+//                icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
+//        icon = ContentFinder<Texture2D>.Get("Things/Item/Unfinished/UnfinishedGun", true),
+                defaultLabel = "Settings".Translate(),
+                action = delegate()
+                {
+                    Find.WindowStack.Add(new Dialog_CompSettings(this));
+                }
+            };
+#else
             yield return new Command_Action // Rename
 			{
 				icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
@@ -28,6 +42,7 @@ namespace LWM.DeepStorage
 				},
 				hotKey = KeyBindingDefOf.Misc1
 			};
+#endif
             #if DEBUG
             yield return new Command_Toggle {
                 defaultLabel="Use RClick Logic",
@@ -116,7 +131,7 @@ namespace LWM.DeepStorage
         }
         public int MaxNumberStacks {
             get {
-                return maxNumberStacks;
+                return maxNumberStacks ?? ((Properties)this.props).maxNumberStacks;
                 //return ((Properties)this.props).maxNumberStacks;
             }
             set {
@@ -126,7 +141,7 @@ namespace LWM.DeepStorage
 
         public virtual void ResetSettings()
         {
-            this.maxNumberStacks = this.CdsProps.maxNumberStacks;
+            this.maxNumberStacks = null;
         }
 
         public virtual int TimeStoringTakes(Map map, IntVec3 cell, Pawn pawn) {
@@ -336,13 +351,25 @@ namespace LWM.DeepStorage
         /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
             Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
-            Scribe_Values.Look<int>(ref maxNumberStacks, "LWM_DS_DSU_maxNumberStacks", CdsProps.maxNumberStacks, false);
+            Scribe_Values.Look<int?>(ref maxNumberStacks, "LWM_DS_DSU_maxNumberStacks", null, false);
+        }
+
+        public void SetLabel(string newLabel)
+        {
+            if (newLabel == null) buildingLabel = "";
+            else buildingLabel = newLabel;
+            SetLabelMultiplayer(buildingLabel);
+        }
+        [Multiplayer.API.SyncMethod] // I am informed that doing it this way is overkill
+        private void SetLabelMultiplayer(string newLabel)
+        {
+            buildingLabel = newLabel;
         }
 
         public string buildingLabel="";
 
         /////////////// Storage Data ////////////////
-        private int maxNumberStacks;
+        private int? maxNumberStacks;
 
         public StatDef stat = StatDefOf.Mass;
         /*******  For only one limiting stat: (mass, or bulk for CombatExtended)  *******/
