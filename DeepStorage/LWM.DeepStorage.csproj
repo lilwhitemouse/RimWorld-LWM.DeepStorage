@@ -16,7 +16,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\_Mod\LWM.DeepStorage\1.4\Assemblies</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG;DEBUGLWM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -29,11 +29,8 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.4.3563" />
     <Reference Include="System" />
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\RimWorld\RimWorldLinux_Data\Managed\Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="IHoldMultipleThings"><!-- Mehni's PickUpAndHold Compatibility -->
       <HintPath>..\packages\IHoldMultipleThings.dll</HintPath>
@@ -67,6 +64,9 @@
       <HintPath>..\..\RimWorld\RimWorldLinux_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <PackageReference Include="RimWorld.MultiplayerAPI">
+      <Version>0.4.0</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Patch_TantrumMentalStateUtility_CanSmash.cs" />
@@ -103,6 +103,7 @@
     <Compile Include="Dialog_CompSettingsMaybe.cs" />
     <Compile Include="Patch_Building_MaxItemsInCell.cs" />
     <Compile Include="Dialog_RenameDSU.cs" />
+    <Compile Include="Patch_Building_Storage_NotifyXedThing.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">
