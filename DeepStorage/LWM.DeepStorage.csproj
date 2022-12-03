@@ -66,6 +66,7 @@
       <Private>False</Private>
     </Reference>
     <PackageReference Include="RimWorld.MultiplayerAPI">
+      <Private>False</Private>
       <Version>0.4.0</Version>
     </PackageReference>
   </ItemGroup>
