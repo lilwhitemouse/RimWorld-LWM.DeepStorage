@@ -337,6 +337,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
           </categories>
           <thingDefs>
             <li>Chocolate</li>
+	    <li MayRequire="Ludeon.RimWorld.Biotech">BabyFood</li>
           </thingDefs>
         </filter>
       </fixedStorageSettings>
