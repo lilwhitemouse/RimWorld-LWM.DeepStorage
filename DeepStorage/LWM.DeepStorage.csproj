@@ -106,6 +106,7 @@
     <Compile Include="Patch_Building_MaxItemsInCell.cs" />
     <Compile Include="Dialog_RenameDSU.cs" />
     <Compile Include="Patch_Building_Storage_NotifyXedThing.cs" />
+    <Compile Include="Patch_Graphic_Print.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">

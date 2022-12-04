@@ -32,6 +32,7 @@ namespace LWM.DeepStorage
         // Turning this off removes conflicts with some other storage mods (at least I hope so):
         //   (RimFactory? I think?)
         public static bool checkOverCapacity = true;
+        public static bool useBoringOldStackingGraphic = false;
 
         public static bool allowPerDSUSettings = false;
         public static DefChangeTracker defTracker = new DefChangeTracker();
@@ -393,7 +394,7 @@ namespace LWM.DeepStorage
             GUI.color=origColor;
             l.GapLine();   ///////// Graphics //////////
             l.CheckboxLabeled("LWMDSuseOldBoringStackingGraphic".Translate(),
-                ref Patch_GenThing_ItemCenterAt.useBoringOldStackingGraphic,
+                ref useBoringOldStackingGraphic,
                 "LWMDSuseOldBoringStackingGraphicDesc".Translate());
             l.GapLine();   /////// Per DSU settings - let players change them around... ////////
             if (allowPerDSUSettings) {
@@ -779,7 +780,7 @@ namespace LWM.DeepStorage
             Scribe_Values.Look(ref architectMenuAlwaysShowCategory, "architect_show", false);
             Scribe_Values.Look(ref architectMenuMoveALLStorageItems, "architect_moveall", true);
             // Graphics
-            Scribe_Values.Look(ref Patch_GenThing_ItemCenterAt.useBoringOldStackingGraphic, "useBoringOldStackingGraphic", false);
+            Scribe_Values.Look(ref useBoringOldStackingGraphic, "useBoringOldStackingGraphic", false);
             // Per DSU Building storage settings:
             Scribe_Values.Look(ref allowPerDSUSettings, "allowPerDSUSettings", false);
             // Only load settigs if defs are loaded (there is separate mechanism to

@@ -35,13 +35,13 @@ namespace LWM.DeepStorage
     [HarmonyPatch(typeof(GenThing), "ItemCenterAt")]
     public static class Patch_GenThing_ItemCenterAt
     {
-        public static bool useBoringOldStackingGraphic = false;
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             bool found1 = false;
             bool found2 = false;
-            if (useBoringOldStackingGraphic) // If this branch of transpiler is selcted, 
+            if (Settings.useBoringOldStackingGraphic) // If this branch of transpiler is selcted, 
                 // we are rather more brutal in where we prune the code....
+                // SEE ALSO: Patch_Graphic_Print, which will also check useBoringOldStackingGraphic
             {   // Basically, we want v1.3 behavior: all items simply drawn on top of each other
                 var list = instructions.ToList();
                 for (int i = 0; i< list.Count; i++)
