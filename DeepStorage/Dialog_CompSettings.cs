@@ -9,6 +9,10 @@ using UnityEngine;
 namespace LWM.DeepStorage
 {
 	// ripped shamelessly from Dialog_RenameZone
+    // NOTE: Why bother with dialog_rename? I have it all here
+    // TODO: change this
+    // TODO: only show name message if name changed
+    // TODO: show new message for maxNumStacks changing
 	public class Dialog_CompSettings : Dialog_Rename
 	{
 		public Dialog_CompSettings(CompDeepStorage cds)
@@ -32,12 +36,12 @@ namespace LWM.DeepStorage
         public override void PreOpen()
         {
             base.PreOpen();
-            this.tmpMaxNumStacks = cds.MaxNumberStacks;
-            this.tmpLabel = cds.buildingLabel;
+            this.curMaxNumStacks = cds.MaxNumberStacks;
+            this.curName = cds.buildingLabel;
         }
 
         public override void DoWindowContents(Rect inRect) {
-            // Take "Enter" press and close window with it:
+            // Take "Enter" press and close window with it (as if pressed OK):
             bool pressedEnterForOkay = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
             {
@@ -74,41 +78,58 @@ namespace LWM.DeepStorage
                 curY += 50f;
             }
             ////////// Rename //////////
-            string newName = Widgets.TextEntryLabeled(new Rect(0f, curY, frame.width-50f, 23f),
-                            "CommandRenameZoneLabel".Translate(), tmpLabel);
-            if (newName.Length < this.MaxNameLength)
+            // default button:
+            if (Widgets.ButtonText(new Rect(frame.width - 95f, curY, 45f, 23f), "Default".Translate(),
+                       true, false, true))
             {
-                this.curName = newName;
+                this.curName = "";
             }
             // reset name button:
-            if (Widgets.ButtonText(new Rect(frame.width -45f, curY, 45f, 23f), "ResetButton".Translate(),
+            if (Widgets.ButtonText(new Rect(frame.width - 45f, curY, 45f, 23f), "ResetButton".Translate(),
                        true, false, true))
             {
                 this.SetName(""); // any internal logic there
                 foreach (var oc in CompsToApplyChangeTo(false))
                     oc.SetLabel(""); // but also get everything in group if need to
             }
+            string newName = Widgets.TextEntryLabeled(new Rect(0f, curY, frame.width-100f, 23f),
+                            "CommandRenameZoneLabel".Translate(), curName);
+            if (newName.Length < this.MaxNameLength)
+            {
+                this.curName = newName;
+            }
             curY += 28;
             ///////// max number stacks ////////
-            string tmpString = cds.MaxNumberStacks.ToString();
-            int tmpInt = cds.MaxNumberStacks;
             Widgets.Label(0f, ref curY, frame.width, "LWMDS_CurrentMaxNumStacksTotals"
-                                    .Translate(tmpInt, tmpInt * cds.parent.OccupiedRect().Cells.EnumerableCount()));
-            Widgets.Label(0f, ref curY, frame.width, "LWMDS_DefaultMaxStacksTotals"
+                                    .Translate(curMaxNumStacks, curMaxNumStacks * cds.parent.OccupiedRect().Cells.EnumerableCount()));
+            Widgets.Label(0f, ref curY, frame.width, "LWMDS_DefaultMaxNumStacksTotals"
                                     .Translate(cds.CdsProps.maxNumberStacks, cds.CdsProps.maxNumberStacks *
                                                                 cds.parent.OccupiedRect().Cells.EnumerableCount()));
-            Widgets.TextFieldNumericLabeled<int>(new Rect(0, curY, frame.width, 46f), "LWM_DS_maxNumStacks".Translate(),
-                                   ref tmpInt, ref tmpString, 0, 1024);
+            //// default button:
+            if (Widgets.ButtonText(new Rect(frame.width - 95f, curY, 45f, 23f), "Default".Translate(),
+                       true, false, true))
+            {
+                this.curMaxNumStacks = cds.CdsProps.maxNumberStacks;
+            }
+            //// reset button:
+            if (Widgets.ButtonText(new Rect(frame.width - 45f, curY, 45f, 23f), "ResetButton".Translate(),
+                       true, false, true))
+            {
+                curMaxNumStacks = cds.CdsProps.maxNumberStacks;
+                foreach (var oc in CompsToApplyChangeTo(true))
+                    oc.MaxNumberStacks = curMaxNumStacks;
+            }
+            //// text box to change:
+            string tmpString = curMaxNumStacks.ToString();
+            // Set min of 0 and max of 1024, because why not?
+            Widgets.TextFieldNumericLabeled<int>(new Rect(0, curY, frame.width-100f, 46f), "LWM_DS_maxNumStacks".Translate(),
+                                   ref curMaxNumStacks, ref tmpString, 0, 1024);
             curY += 50f;
 
             /////////////////////////// RESET & OK buttons ////////////////////////////
+            // OK:
             if (Widgets.ButtonText(new Rect(15f, inRect.height - 35f - 15f, inRect.width - 15f - 15f, 35f), "OK", true, true, true, null) || pressedEnterForOkay)
             {
-                if (tmpInt != cds.MaxNumberStacks)
-                {
-                    //(Important check for Multiplayer - don't spam sync requests)
-                    cds.MaxNumberStacks = tmpInt;
-                }
 
                 AcceptanceReport acceptanceReport = this.NameIsValid(this.curName);
                 if (!acceptanceReport.Accepted)
@@ -122,14 +143,17 @@ namespace LWM.DeepStorage
                 }
                 else
                 {
+                    foreach (var oc in CompsToApplyChangeTo())
+                        oc.MaxNumberStacks = curMaxNumStacks;
                     this.SetName(this.curName);
                     Find.WindowStack.TryRemove(this, true);
                 }
-            }
+            } // and Reset:
             else if (Widgets.ButtonText(new Rect(15f, inRect.height -35f -15f -50f, inRect.width-15f-15f, 35f), "ResetButton".Translate(),
                                    true,false,true)) {
                 this.SetName("");
-                cds.ResetSettings();
+                foreach (var oc in CompsToApplyChangeTo())
+                    oc.ResetSettings();
                 Find.WindowStack.TryRemove(this, true);
             }
             GUI.EndGroup(); // very important for this to be called
@@ -177,7 +201,7 @@ namespace LWM.DeepStorage
         private CompDeepStorage cds;
         private bool applyChangesToGroup = true;
 
-        private string tmpLabel;
-        private int tmpMaxNumStacks;
+        // Dialog_Rename has curName
+        protected int curMaxNumStacks;
 	}
 }
