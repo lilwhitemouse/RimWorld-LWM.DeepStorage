@@ -134,11 +134,13 @@ namespace LWM.DeepStorage
                 return maxNumberStacks ?? ((Properties)this.props).maxNumberStacks;
                 //return ((Properties)this.props).maxNumberStacks;
             }
+            [Multiplayer.API.SyncMethod]
             set {
                 this.maxNumberStacks = value;
             }
         }
 
+        [Multiplayer.API.SyncMethod]
         public virtual void ResetSettings()
         {
             this.maxNumberStacks = null;
