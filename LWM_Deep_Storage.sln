@@ -23,14 +23,7 @@ Global
 		$2.TabsToSpaces = True
 		$0.CSharpFormattingPolicy = $3
 		$3.scope = text/x-csharp
-		$3.NewLinesForBracesInTypes = False
-		$3.NewLinesForBracesInMethods = False
-		$3.NewLinesForBracesInProperties = False
 		$3.NewLinesForBracesInAccessors = False
-		$3.NewLinesForBracesInControlBlocks = False
-		$3.NewLineForElse = False
-		$3.NewLineForCatch = False
-		$3.NewLineForFinally = False
 		$0.StandardHeader = $4
 		$0.TextStylePolicy = $5
 		$5.FileWidth = 80

@@ -43,7 +43,10 @@ namespace LWM.DeepStorage
  *
  * I use Transpiler because it's right in the middle of code.  :p
  */
-    [HarmonyPatch(typeof(StoreUtility), "TryFindBestBetterStoreCellFor")]
+ //todo1.4 - They seem to have covered a lot of these circumstances!  Quite well
+ //          in fact :)  So....more testing required, but I think we okay for base
+ //          case.  Weight?  Who knows.... :/
+    //[HarmonyPatch(typeof(StoreUtility), "TryFindBestBetterStoreCellFor")]
     static class Patch_TryFindBestBetterStoreCellFor {
         static bool Prepare() {
             Utils.Mess(Utils.DBF.Settings, "Patch to check if overCapacity? "+Settings.checkOverCapacity);
@@ -170,14 +173,14 @@ namespace LWM.DeepStorage
                         Utils.Mess(ShouldRemoveFromStorage, "      total mass so far: "+totalWeightStoredHere+" / "+
                                    cds.limitingTotalFactorForCell);
                         if (totalWeightStoredHere > cds.limitingTotalFactorForCell &&
-                            stacksStoredHere >= cds.minNumberStacks) {
+                            stacksStoredHere >= cds.MinNumberStacks) {
                             Utils.Warn(ShouldRemoveFromStorage,
                                        "LWM.DeepStorage: "+thing.stackCount+thing+" is over weight capacity at "+thing.Position);
                             storagePriority=StoragePriority.Unstored;
                             return true;  // this takes us to capacity, and we haven't hit thing
                         }
                     }
-                    if (stacksStoredHere >= cds.maxNumberStacks) { // breaks if minNumberStacks > maxNumberStacks. I'm okay with this
+                    if (stacksStoredHere >= cds.MaxNumberStacks) { // breaks if minNumberStacks > maxNumberStacks. I'm okay with this
                         Utils.Warn(ShouldRemoveFromStorage,
                                    "LWM.DeepStorage: "+thing.stackCount+thing+" is over capacity at "+thing.Position);
                         storagePriority=StoragePriority.Unstored;

@@ -51,8 +51,12 @@ namespace LWM.DeepStorage
             int items=0;
             foreach (var ot in ots) {
                 if (ot.def.EverHaulable) items++;
+                // If there is more than one haulable thing here => storage, so don't compress!
+                if (items > 1) {
+                    __result = false;
+                    return;
+                }
             }
-            if (items>1) __result=false;
             return;
         }
     }

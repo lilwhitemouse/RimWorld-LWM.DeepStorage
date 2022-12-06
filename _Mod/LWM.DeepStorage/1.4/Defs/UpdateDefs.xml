@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+	<!--  <HugsLib.UpdateFeatureDef Abstract="true" Name="LWM_DS_UpdateFeatureBase">
+    <modNameReadable>LWM's Deep Storage</modNameReadable>
+    <modIdentifier>LWM_DeepStorage</modIdentifier>
+  </HugsLib.UpdateFeatureDef>
+
+  <HugsLib.UpdateFeatureDef ParentName="LWM_DS_UpdateFeatureBase">
+		<defName>LWM_DeepStorage_0_7</defName>
+		<assemblyVersion>0.7</assemblyVersion>
+		<content>Weapon Locker Defs have changed.  If you had a Weapons Locker in your game, *you will get errors*; this is okay.  The locker will be destroyed, but *all your weapons are okay*!  You can either have your pawns rebuild the locker (maybe the first one broke), or use dev-mode's god-mode to replace it.
+
+Sorry about that; I did not plan ahead well enough when merging someone else's work.  Shouldn't happen again.
+
+Also, new mod option: you can allow your animals (robots, etc) to carry to deep storage too, if you really want!
+
+Enjoy!  -LWM</content>
+  </HugsLib.UpdateFeatureDef>-->
+</Defs>

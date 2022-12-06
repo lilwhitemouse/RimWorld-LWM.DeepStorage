@@ -13,7 +13,8 @@ using Verse.AI;
  *************/
 namespace LWM.DeepStorage
 {
-	[HarmonyPatch(typeof(TantrumMentalStateUtility), "CanSmash")]
+	// todo1.4 - make vanilla shelf a dsu? Or...?  To think about
+    [HarmonyPatch(typeof(TantrumMentalStateUtility), "CanSmash")]
 	static class Patch_TantrumMentalStateUtility_CanSmash
 	{
 		[HarmonyPostfix]
@@ -32,7 +33,7 @@ namespace LWM.DeepStorage
                         __result = false;
                         return;
                     }
-                    if (cds.cdsProps.isSecure && !(thing.thingIDNumber % 10 == 0)) { // subject to review?
+                    if (cds.CdsProps.isSecure && !(thing.thingIDNumber % 10 == 0)) { // subject to review?
                         __result = false;
                         return;
                     }

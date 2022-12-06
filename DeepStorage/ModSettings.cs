@@ -9,19 +9,33 @@ using UnityEngine;
 namespace LWM.DeepStorage
 {
     public class Settings : ModSettings {
-        public static bool robotsCanUse=false;
-        public static bool storingTakesTime=true;
-        public static float storingGlobalScale=1f;
-        public static bool storingTimeConsidersStackSize=true;
-        public static StoragePriority defaultStoragePriority=StoragePriority.Important;
-        public static bool useEjectButton=true; // I think users will want it, alho I will prolly not
-        public static bool useDeepStorageRightClickLogic=false;
+        public static bool makeAllStorageDeepStorage = true;
+        public const int myPriceForVanillaShelves = 60; // vanilla is 20 - see note:
+        /* Note delivered to Devs:
+         * Consensus around various storage modders is that vanilla shelves are crazy cheap(10/cell).
+         * They cost less than a stool(25)! Chairs(45), which bear the same weight as stools add an 
+         * extra 20 material for the back. Real world cheap shelves cost considerably more than real 
+         * world cheap chairs, and while a full grown pawn weighs more than 2 suits of plate mail armor, 
+         * shelves are much taller than a stool...  The shelves(20) even cost less than a table(28), 
+         * despite needing 3(or 4) levels.
+         * A more reasonable amount of material would be from 60 (or 30 for 1-cell) up to 90(45). From 
+         * a gameplay situation, 60 might be a better choice.
+         * In conclusion, thank you for listening to my talk, and shelves should cost more.    
+         */
+        public static bool robotsCanUse = false;
+        public static bool storingTakesTime = true;
+        public static float storingGlobalScale = 1f;
+        public static bool storingTimeConsidersStackSize = true;
+        public static StoragePriority defaultStoragePriority = StoragePriority.Important;
+        public static bool useEjectButton = true; // I think users will want it, alho I will prolly not
+        public static bool useDeepStorageRightClickLogic = false;
         // Turning this off removes conflicts with some other storage mods (at least I hope so):
         //   (RimFactory? I think?)
-        public static bool checkOverCapacity=true;
+        public static bool checkOverCapacity = true;
+        public static bool useBoringOldStackingGraphic = false;
 
-        public static bool allowPerDSUSettings=false;
-        public static DefChangeTracker defTracker=new DefChangeTracker();
+        public static bool allowPerDSUSettings = false;
+        public static DefChangeTracker defTracker = new DefChangeTracker();
 
         // Architect Menu:
         // The defName for the DesignationCategoryDef the mod items are in by default:
@@ -31,21 +45,22 @@ namespace LWM.DeepStorage
         // <[const string]_ArchitectMenuSettings>Location on Architect Menu:</...>
         // Copy and paste the rest of anything that says "Architect Menu"
         // Change the list of new mod items in the final place "Architect Menu" tells you to
-        private const string architectMenuDefaultDesigCatDef="LWM_DS_Storage";
-        private static string architectMenuDesigCatDef=architectMenuDefaultDesigCatDef;
-        private static bool architectMenuAlwaysShowCategory=false;
-        private static bool architectMenuMoveALLStorageItems=true;
+        private const string architectMenuDefaultDesigCatDef = "LWM_DS_Storage";
+        private static string architectMenuDesigCatDef = architectMenuDefaultDesigCatDef;
+        private static bool architectMenuAlwaysShowCategory = false;
+        private static bool architectMenuMoveALLStorageItems = true;
         //   For later use if def is removed from menu...so we can put it back:
-        private static DesignationCategoryDef architectMenuActualDef=null;
-        private static bool architectMenuAlwaysShowTmp=false;
-        private static bool architectMenuMoveALLTmp=true;
+        private static DesignationCategoryDef architectMenuActualDef = null;
+        private static bool architectMenuAlwaysShowTmp = false;
+        private static bool architectMenuMoveALLTmp = true;
 
 
         public static IEnumerable<ThingDef> AllDeepStorageUnits {
             get {
                 var x = LoadedDeepStorageUnits;
-                if (x==null) Log.Error("Loaded is null");
+                if (x == null) Log.Error("Loaded is null");
                 foreach (var d in x) yield return d;
+                // All things that have been removed from the DefDatabase:
                 foreach (ThingDef d in Settings.defTracker.GetAllWithKeylet<ThingDef>("def")) {
                     yield return d;
                 }
@@ -54,8 +69,8 @@ namespace LWM.DeepStorage
         }
         public static IEnumerable<ThingDef> LoadedDeepStorageUnits {
             get {
-                var db=DefDatabase<ThingDef>.AllDefsListForReading;
-                if (db==null) {
+                var db = DefDatabase<ThingDef>.AllDefsListForReading;
+                if (db == null) {
                     Log.Error("DefDatabase is nul");
                     yield break;
                 }
@@ -63,6 +78,85 @@ namespace LWM.DeepStorage
                     if (d.HasComp(typeof(CompDeepStorage))) yield return d;
                 }
                 yield break;
+            }
+        }
+        public static IEnumerable<ThingDef> StoredDeepStorageUnits
+        {
+            get {  // All things that have been removed from the DefDatabase:
+                foreach (ThingDef d in Settings.defTracker.GetAllWithKeylet<ThingDef>("def"))
+                {
+                    yield return d;
+                }
+            }
+        }
+        public static ThingDef FindDeepStorageDef(string defName)
+        {
+            foreach (var d in AllDeepStorageUnits)
+            {
+                if (d.defName == defName) return d;
+            }
+            return null;
+        }
+
+        public static void MakeAllStorageDeepStorage()
+        {
+            var nowDS = new List<string>();
+            foreach (var d in DefDatabase<ThingDef>.AllDefsListForReading)
+            {
+                // No, seriously. Things end up in the DefsDatabase that have null thingClass.
+                //
+                // IGNORE: anything from PRF - Project RimFactory has settings/&c that do basically everything
+                //   DS does, and they do these in their own way...  Better to just use PRF in such a case...
+                if (d.thingClass != null && typeof(Building_Storage).IsAssignableFrom(d.thingClass)
+                    && d.modContentPack?.PackageId != "spdskatr.projectrimfactory"
+                    )
+                { // if it's a building_storage or is a subclass of
+                    try // This broke so many times. I should have done this earlier.
+                    {
+                        // First, does it have the comp:
+                        if (!d.HasAssignableCompFrom(typeof(CompDeepStorage)))
+                        {
+                            nowDS.Add(d.defName);
+                            var cp = new DeepStorage.Properties();
+                            cp.maxNumberStacks = d.building.maxItemsInCell;
+                            if (cp.maxNumberStacks == 1)
+                            {
+                                cp.timeStoringTakes = 0;
+                                //cp.minTimeStoringTakes = 0;
+                            }
+                            else
+                            {
+                                cp.timeStoringTakes = 10;
+                                cp.additionalTimeEachStack = 45;
+                                cp.minTimeStoringTakes = 10;
+                            }
+                            cp.overlayType = GuiOverlayType.SumOfItemsPerCell;
+                            d.comps.Add(cp);
+                        }
+                        // Second, does it have the ITab:
+                        if (d.inspectorTabs == null) d.inspectorTabs = new List<Type>();
+                        if (!d.inspectorTabs.Contains(typeof(LWM.DeepStorage.ITab_DeepStorage_Inventory)))
+                        {
+                            // Add to the inspectorTabs
+                            d.inspectorTabs.Add(typeof(ITab_DeepStorage_Inventory));
+                            // But then do the real work, because ThingDef.ResolveReferences() does some fancy work
+                            //    with ITabs to make them work:
+                            if (d.inspectorTabsResolved == null) d.inspectorTabsResolved = new List<InspectTabBase>();
+                            d.inspectorTabsResolved.Add(InspectTabManager.GetSharedInstance(typeof(ITab_DeepStorage_Inventory)));
+                        }
+                        // Third, to make sure displays work:
+                        d.drawGUIOverlay = true; // If false, the engine doesn't try to draw an overlay,
+                                                 //   so no content numbers are drawn - oops
+                        d.drawGUIOverlayQuality = false; // Keep the display from also drawing "Good" under "[750]"
+                    }
+                    catch(Exception e) {
+                        Log.Error("LWM.DeepStorage: Tried to make " + d.defName + " into a Deep Storage item, but failed: " + e);
+                    }
+                }
+            }
+            if (nowDS.Count>0)
+            {
+                Log.Message("LWM.DeepStorage: Making " + String.Join(", ",nowDS) + " into Deep Storage");
             }
         }
 
@@ -73,7 +167,8 @@ namespace LWM.DeepStorage
         private const float ScrollBarWidthMargin = 18f;
         // NOTE: They removed Listing_Standard's scroll views in 1.3 :p
         //private static Rect viewRect=new Rect(0,0,100f,10000f); // OMG OMG OMG I got scrollView in Listing_Standard to work!
-        public static void DoSettingsWindowContents(Rect inRect) {
+        public static void DoSettingsWindowContents(Rect inRect)
+        {
             ModMetaData tmpMod;
             Color origColor=GUI.color; // make option gray if ignored
             Rect outerRect=inRect.ContractedBy(10f);
@@ -86,7 +181,29 @@ namespace LWM.DeepStorage
 
             Listing_Standard l = new Listing_Standard(GameFont.Medium); // my tiny high-resolution monitor :p
             l.Begin(new Rect(0f, 0f, scrollViewTotal.width, 9999f)); // Some RW window does this "9999f" thing, & it seems to work?
-            //l.GapLine();  // Who can haul to Deep Storage (robots, animals, etc)
+            ///////////////// shelf cost //////////////////////
+            var vanillaShelf = DefDatabase<ThingDef>.GetNamed("Shelf", false);
+            if (vanillaShelf != null && Settings.defTracker.HasDefaultValueFor("shelf", "cost"))
+            {
+                l.Label("LWMDSVanillaShelves".Translate(), -1, "LWMDSVanillaShelvesDesc".Translate());
+                Text.Font = GameFont.Small;
+                int cost = vanillaShelf.costStuffCount;
+                string buf = cost.ToString();
+                l.TextFieldNumericLabeled<int>("LWMDSVanillaShelvesCost".Translate(), ref cost, ref buf);
+                if (cost != vanillaShelf.costStuffCount)
+                {
+                    Settings.defTracker.AddDefaultValue("shelf", "cost", cost);
+                    vanillaShelf.costStuffCount = cost;
+                    var vanillaShelfSmall = DefDatabase<ThingDef>.GetNamed("ShelfSmall", false);
+                    if (vanillaShelfSmall != null) vanillaShelfSmall.costStuffCount = cost / 2;
+                }
+                Text.Font = GameFont.Medium;
+                l.GapLine();
+            }
+            //l.GapLine();  ////////// Make all storage Deep Storage //////////
+            l.CheckboxLabeled("LWMDSmakeAllStorageDeepStorage".Translate(), ref makeAllStorageDeepStorage,
+                              "LWMDSmakeAllStorageDeepStorageDesc".Translate());
+            l.GapLine();  ///////////// Who can haul to Deep Storage (robots, animals, etc)
             l.Label("LWMDShaulToStorageExplanation".Translate());
             l.CheckboxLabeled("LWMDSrobotsCanUse".Translate(), ref robotsCanUse, "LWMDSrobotsCanUseDesc".Translate());
             string [] intLabels={
@@ -127,10 +244,42 @@ namespace LWM.DeepStorage
                 }
                 Find.WindowStack.Add(new FloatMenu(mlist));
             }
-            l.GapLine();
+            l.GapLine(); ////////  User Interface /////////
             l.Label("LWM_DS_userInterface".Translate());
             l.CheckboxLabeled("LWM_DS_useEjectButton".Translate(), ref useEjectButton,
                               "LWM_DS_useEjectButtonDesc".Translate());
+            //////// Contents in Gizmo Brackets ///////
+            l.Label("LWM_DS_VanillaHasContentsInBrackets".Translate());
+            bool useVanillaBrackets = Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos < 0;
+            l.CheckboxLabeled("    "+"LWM_DS_UseVanillaContentsInBrackets".Translate(), ref useVanillaBrackets,
+                "LWM_DS_UseVanillaContentsInBracketsDesc".Translate());
+            if (useVanillaBrackets)
+            {
+                Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos = -1;
+            }
+            else
+            {
+                if (Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos < 0) // just changed it
+                    Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos = Patch_Building_Storage_Gizmos.cutoffDefault;
+                bool showAnyContentsInBrackets = Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos > 0;
+                l.CheckboxLabeled("    "+"LWM_DS_showContentsInBrackets".Translate(), ref showAnyContentsInBrackets,
+                    "LWM_DS_showContentsInBracketsDesc".Translate());
+                if (showAnyContentsInBrackets)
+                {
+                    if (Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos == 0) // just changed it
+                        Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos = Patch_Building_Storage_Gizmos.cutoffDefault;
+                    string buffer = Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos.ToString();
+                    l.TextFieldNumericLabeled<int>("    "+"LWM_DS_howManyContentsInBrackets".Translate(),
+                        ref Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos,
+                        ref buffer,
+                        1);
+                }
+                else
+                {
+                    Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos = 0;
+                }
+            }
+
             //TODO::
             if ((tmpMod=ModLister.GetActiveModWithIdentifier("netrve.dsgui"))!=null) {
                 GUI.color=Color.gray;
@@ -243,8 +392,11 @@ namespace LWM.DeepStorage
             l.CheckboxLabeled("LWMDSoverCapacityCheck".Translate(), ref checkOverCapacity,
                               "LWMDSoverCapacityCheckDesc".Translate());
             GUI.color=origColor;
-            // Per DSU settings - let players change them around...
-            l.GapLine();
+            l.GapLine();   ///////// Graphics //////////
+            l.CheckboxLabeled("LWMDSuseOldBoringStackingGraphic".Translate(),
+                ref useBoringOldStackingGraphic,
+                "LWMDSuseOldBoringStackingGraphicDesc".Translate());
+            l.GapLine();   /////// Per DSU settings - let players change them around... ////////
             if (allowPerDSUSettings) {
                 if (l.ButtonText("LWMDSperDSUSettings".Translate())) {
                     Find.WindowStack.Add(new Dialog_DS_Settings());
@@ -260,14 +412,30 @@ namespace LWM.DeepStorage
         }
 
         public static void DefsLoaded() {
-//            Log.Warning("LWM.deepstorag - defs loaded");
+            //            Log.Warning("LWM.deepstorag - defs loaded");
+
             // Todo? If settings are different from defaults, then:
+            if (makeAllStorageDeepStorage) MakeAllStorageDeepStorage();
+
+            // TODO: Hopefully devs change this:
+            var vanillaShelf = DefDatabase<ThingDef>.GetNamed("Shelf", false);
+            if (vanillaShelf != null)
+            {
+                vanillaShelf.costStuffCount = myPriceForVanillaShelves;
+                var halfVanillaShelf = DefDatabase<ThingDef>.GetNamed("ShelfSmall", false);
+                if (halfVanillaShelf != null) halfVanillaShelf.costStuffCount = myPriceForVanillaShelves / 2;
+                // easy way to track that we're changing this:
+                Settings.defTracker.AddDefaultValue("shelf", "cost", myPriceForVanillaShelves);
+            }
 
             // Def-related changes:
-            //TODO: this should probably have an option....
             if (defaultStoragePriority != StoragePriority.Important) {
                 foreach (ThingDef d in AllDeepStorageUnits) {
-                    d.building.defaultStorageSettings.Priority=defaultStoragePriority;
+                    //TODO: this should probably have an option....
+                    if (d.building?.defaultStorageSettings != null)
+                        d.building.defaultStorageSettings.Priority = defaultStoragePriority;
+                    else
+                        Log.Warning("LWM.DeepStorage could not set priority for " + d.defName);
                 }
             }
             // Re-read Mod Settings - some won't have been read because Defs weren't loaded:
@@ -285,6 +453,22 @@ namespace LWM.DeepStorage
             Utils.Warn(Utils.DBF.Settings, "About to re-read mod settings from: "+GenText
                        .SanitizeFilename(string.Format("Mod_{0}_{1}.xml", mod.Content.FolderName, "DeepStorageMod")));
             var s = LoadedModManager.ReadModSettings<Settings>(mod.Content.FolderName, "DeepStorageMod");
+
+            // Update 1.4 introduced def's .building.maxItemsInCell
+            //   ....and for backward compatibility, we need both :p
+            //   Approach:  take whichever is bigger: maxItemsInCell or our maxNumberStacks
+            //   Potential problem: If someone bases an item off of vanilla shelves (mIIC=3)
+            //     but sets comp's mNS to 2.  ....I don't think that's likely?  So we won't
+            //     worry about it
+            foreach (ThingDef d in AllDeepStorageUnits) {
+                int max = Math.Max(d.building.maxItemsInCell,
+                        d.GetCompProperties<DeepStorage.Properties>().maxNumberStacks);
+                d.building.maxItemsInCell = max;
+                d.GetCompProperties<DeepStorage.Properties>().maxNumberStacks = max;
+                //Log.Message("LWM just set maxItemsInCell for " + d.defName + " to " + d.building.maxItemsInCell);
+                // NOTE: We also need to do this any time someone presses update settings button
+            }
+
             // Architect Menu:
             if (architectMenuActualDef==null) {
                 architectMenuActualDef=DefDatabase<DesignationCategoryDef>.GetNamed(architectMenuDefaultDesigCatDef);
@@ -339,6 +523,9 @@ namespace LWM.DeepStorage
                 //   but I think it's okay to leave it in Replimat.
                 DesignationCategoryDef tmp=DefDatabase<DesignationCategoryDef>.GetNamed("Replimat_Replimat", false);
                 if (tmp!=null) desigsToNotMove.Add(tmp);
+                // Vanilla Chemfuel Expanded should only use their menu:
+                tmp = DefDatabase<DesignationCategoryDef>.GetNamed("VCHE_PipeNetworks", false);
+                if (tmp != null) desigsToNotMove.Add(tmp);
                 // TODO: get these categories in a more flexible way!
                 // ProjectRimFactory has several subclasses of Building_Storage that are in the Industrial category.
                 //   Several users of PRF have gotten confused when they couldn't find the storage things.
@@ -562,19 +749,38 @@ namespace LWM.DeepStorage
             //Log.Error("LWM.DeepStorage: Settings ExposeData() called");
             base.ExposeData();
 
+            Scribe_Values.Look(ref makeAllStorageDeepStorage, "makeAllStorageDeepStorage", true);
+            if (Settings.defTracker.HasDefaultValueFor("shelf", "cost"))
+            {
+                int c = Settings.defTracker.GetDefaultValue("shelf", "cost", myPriceForVanillaShelves);
+                Scribe_Values.Look(ref c, "shelfCost", myPriceForVanillaShelves);
+                if (Scribe.mode == LoadSaveMode.LoadingVars)
+                {
+                    Settings.defTracker.AddDefaultValue("shelf", "cost", c);
+                    ThingDef tmpD = DefDatabase<ThingDef>.GetNamed("Shelf", false);
+                    if (tmpD != null) tmpD.costStuffCount = c;
+                    tmpD = DefDatabase<ThingDef>.GetNamed("ShelfSmall", false);
+                    if (tmpD != null) tmpD.costStuffCount = c / 2;
+                    // If you have disabled vanilla shelves and this changes, well, you can restart the game.
+                }
+            }
             Scribe_Values.Look(ref storingTakesTime, "storing_takes_time", true);
             Scribe_Values.Look(ref storingGlobalScale, "storing_global_scale", 1f);
             Scribe_Values.Look(ref storingTimeConsidersStackSize, "storing_time_CSS", true);
             Scribe_Values.Look(ref robotsCanUse, "robotsCanUse", true);
-            Scribe_Values.Look(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "int_to_use_DS", Intelligence.Humanlike);
+            Scribe_Values.Look(ref Patch_IsGoodStoreCell.NecessaryIntelligenceToUseDeepStorage, "int_to_use_DS", Intelligence.ToolUser);
             Scribe_Values.Look(ref defaultStoragePriority, "default_s_priority", StoragePriority.Important);
             Scribe_Values.Look(ref checkOverCapacity, "check_over_capacity", true);
             Scribe_Values.Look(ref useEjectButton, "useEjectButton", true);
+            Scribe_Values.Look(ref Patch_Building_Storage_Gizmos.cutoffBuildingStorageGizmos, "cutoffContentGizmos",
+                Patch_Building_Storage_Gizmos.cutoffDefault);
             Scribe_Values.Look(ref useDeepStorageRightClickLogic, "useRightClickLogic", true); //turn on for everyone :p
             // Architect Menu:
             Scribe_Values.Look(ref architectMenuDesigCatDef, "architect_desig", architectMenuDefaultDesigCatDef);
             Scribe_Values.Look(ref architectMenuAlwaysShowCategory, "architect_show", false);
             Scribe_Values.Look(ref architectMenuMoveALLStorageItems, "architect_moveall", true);
+            // Graphics
+            Scribe_Values.Look(ref useBoringOldStackingGraphic, "useBoringOldStackingGraphic", false);
             // Per DSU Building storage settings:
             Scribe_Values.Look(ref allowPerDSUSettings, "allowPerDSUSettings", false);
             // Only load settigs if defs are loaded (there is separate mechanism to

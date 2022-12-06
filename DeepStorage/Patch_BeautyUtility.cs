@@ -5,16 +5,15 @@ using HarmonyLib;
 
 //using static LWM.DeepStorage.Utils.DBF; // debug trace
 
-/// <summary>
-///   A Harmony Patch so that a Building_Storage's Beauty value is counted even if
-///   the building's ignoreStoredThingsBeauty is 'true'.
-///   This will allow beautiful storage items to actually make things prettier....and ugly ones to make things uglier.
-/// </summary>
-
-
 namespace LWM.DeepStorage
 {
-    [HarmonyPatch(typeof(RimWorld.BeautyUtility), "CellBeauty")]
+    /// <summary>
+    ///   A Harmony Patch so that a Building_Storage's Beauty value is counted even if
+    ///   the building's ignoreStoredThingsBeauty is 'true'.
+    ///   This will allow beautiful storage items to actually make things prettier....and ugly ones to make things uglier.
+    /// </summary>
+//    [HarmonyPatch(typeof(RimWorld.BeautyUtility), "CellBeauty")]
+// As far as I can tell, 1.4 does this, and doesn't do any worse than my patch (which ain't right)
     class PatchBeautyUtilityCellBeauty {
         static bool Prefix(ref float __result, IntVec3 c, Map map, List<Thing> countedThings = null) {
             SlotGroup slotgroup=c.GetSlotGroup(map);

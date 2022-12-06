@@ -37,6 +37,7 @@ namespace LWM.DeepStorage
      *     someThing=p.Map.thingGrid.ThingAt(someCell, t.def);
      *   }
      **************************************/
+     //todo1.4: totally untested
     [HarmonyPatch(typeof(Verse.AI.HaulAIUtility), "HaulToCellStorageJob")]
     class Patch_HaulToCellStorageJob {
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
@@ -182,7 +183,7 @@ namespace LWM.DeepStorage
         public static Thing NullOrLastThingAt(Map map, IntVec3 c, ThingDef def) {
             CompDeepStorage cds=(c.GetSlotGroup(map).parent as ThingWithComps).GetComp<CompDeepStorage>();
             var l=map.thingGrid.ThingsListAtFast(c); // we know it's a slotgroup, so it's valid :p
-            var freeSlots=cds.maxNumberStacks;
+            var freeSlots=cds.MaxNumberStacks;
             Utils.Err(HaulToCellStorageJob, "  testing for def "+def+" at "+c+"; "+freeSlots+" slots.");
             Thing lastThing=null;
             for (int i=0; i<l.Count;i++) {
@@ -257,8 +258,8 @@ namespace LWM.DeepStorage
             // Really???  statValue is the carrying capacity of the Pawn
             float statValue = p.GetStatValue(StatDefOf.CarryingCapacity, true);
             job.count = 0;
-
-            var maxStacks = ((ThingWithComps)slotGroup.parent).GetComp<CompDeepStorage>().maxNumberStacks;
+            
+            var maxStacks = ((ThingWithComps)slotGroup.parent).GetComp<CompDeepStorage>().MaxNumberStacks;
             Utils.Err(HaulToCellStorageJob, p.ToString() + " taking " + t.ToString() + ", count: " + t.stackCount);
             var howManyStacks = 0;
             //fill job.count with space in the direct storeCell:

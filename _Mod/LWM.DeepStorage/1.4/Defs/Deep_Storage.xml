@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!-- IMPORTANT NOTE: this is only for v1.0-v1.3.  Later versions
-     use the Defs folder in v1.4 or later -->
 <Defs>
 
   <!--============================== Storage ==============================-->
@@ -153,8 +151,8 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
 
     <surfaceType>Item</surfaceType><!-- ?????  -->
     <fillPercent>0.4</fillPercent><!-- -TODO: This effects COVER!  TODO: Rethink this value for units -->
-    <drawGUIOverlay>true</drawGUIOverlay>
-
+    <drawGUIOverlay>true</drawGUIOverlay><!-- required for item count overlays. -->
+    <drawGUIOverlayQuality>false</drawGUIOverlayQuality><!-- Draw the overlay, but don't draw "Excellent" under "[750]" -->
     <statBases><!-- overwritten -->
       <MaxHitPoints>100</MaxHitPoints>
       <Mass>30</Mass>
@@ -193,6 +191,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <building>
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop><!-- Might be overridden -->
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty><!-- Might be overridden -->
+      <blueprintClass>Blueprint_Storage</blueprintClass><!-- to allow blueprints to link -->
       <defaultStorageSettings>
         <priority>Important</priority><!--It's what *I* use, so it's what you get ^.^  Can be changed in settings-->
         <filter>
@@ -210,8 +209,8 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
   <!-- As a nice easy first Deep Storage Unit -->
   <ThingDef Name="LWM_Big_Shelf" ParentName="LWM_DeepStorage">
     <defName>LWM_BigShelf</defName><!-- name change to reduce chance of mod conflict.  See Updates.cs -->
-    <label>Double Shelf</label>
-    <description>A shelf for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nItems stored in this will not deteriorate, even if outside.\n\nThis shelf holds twice as much as the regular one.</description>
+    <label>Big Shelf</label>
+    <description>A shelf for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nItems stored in this will not deteriorate, even if outside.\n\nThis shelf holds more than the regular one, and is not limited by weight (use your own judgement).</description>
     <thingClass>Building_Storage</thingClass>
     <graphicData>
       <texPath>Things/Building/Furniture/Shelf</texPath>
@@ -225,7 +224,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
       <li>Woody</li>
       <li>Stony</li>
     </stuffCategories>
-    <costStuffCount>65</costStuffCount>
+    <costStuffCount>75</costStuffCount>
     <!-- Little extra stuff for more bracing -->
     <statBases>
       <MaxHitPoints>80</MaxHitPoints>
@@ -247,17 +246,19 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <staticSunShadowHeight>0.9</staticSunShadowHeight>
     <comps>
       <li Class="LWM.DeepStorage.Properties">
-        <maxNumberStacks>2</maxNumberStacks>
-        <minTimeStoringTakes>25</minTimeStoringTakes>
-        <additionalTimeEachStack>75</additionalTimeEachStack><!-- Top shelf harder to reach? -->
+        <maxNumberStacks>4</maxNumberStacks>
+        <minTimeStoringTakes>5</minTimeStoringTakes>
+        <additionalTimeEachStack>55</additionalTimeEachStack><!-- Top shelf harder to reach? -->
+        <maxMassOfStoredItem>70</maxMassOfStoredItem><!-- Somehwat less than verybigshelf -->
+        <maxTotalMass>260</maxTotalMass><!-- Somehwat less than verybigshelf -->
         <overlayType>SumOfItemsPerCell</overlayType>
       </li>
     </comps>
   </ThingDef>
   <ThingDef Name="LWM_VeryBigShelf" ParentName="LWM_DeepStorage">
     <defName>LWM_VeryBigShelf</defName>
-    <label>Tall Shelves</label>
-    <description>A set of tall covered shelves for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nPawns access the top shelves using a small rolling ladder (currently not pitured), so while many things can be stored here, it can take a while if you're putting a lot of tiny bottles on the top shelf.  Items stored in this will not deteriorate, even if outside.\n\nNote:  Use your own judgement about what you put here.  Grand Sculptures?  Probably don't ACTUALLY fit.  But if that's what you want here, you play you!</description>
+    <label>Very Big Shelves</label>
+    <description>A set of tall covered shelves for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nPawns access the top shelves using a small rolling ladder (currently not pitured), so while many things can be stored here, it can take a while if you're putting a lot of tiny bottles on the top shelf.  Items stored in this will not deteriorate, even if outside.\n\nNote:  Use your own judgement about what you put here.  Grand Sculptures?  Probably don't ACTUALLY fit.  But if that's what you want here, you play you! I say go for it!</description>
     <thingClass>Building_Storage</thingClass>
     <graphicData>
       <texPath>VBig_Shelf</texPath>
@@ -295,11 +296,11 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <staticSunShadowHeight>1</staticSunShadowHeight>
     <comps>
       <li Class="LWM.DeepStorage.Properties">
-        <maxNumberStacks>4</maxNumberStacks>
-        <minTimeStoringTakes>25</minTimeStoringTakes>
-        <additionalTimeEachStack>150</additionalTimeEachStack><!-- Top shelves much harder to reach -->
+        <maxNumberStacks>5</maxNumberStacks>
+        <minTimeStoringTakes>10</minTimeStoringTakes>
+        <additionalTimeEachStack>120</additionalTimeEachStack><!-- Top shelves much harder to reach -->
         <additionalTimeStackSize>10</additionalTimeStackSize><!-- Getting lots of fiddly items to top shelves v hard -->
-        <maxMassOfStoredItem>90</maxMassOfStoredItem>
+        <maxMassOfStoredItem>100</maxMassOfStoredItem>
         <maxTotalMass>320</maxTotalMass><!-- about 4 standard humans.  Don't ask, remember?  Don't ask... -->
         <overlayType>SumOfItemsPerCell</overlayType>
       </li>
@@ -336,6 +337,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
           </categories>
           <thingDefs>
             <li>Chocolate</li>
+	    <li MayRequire="Ludeon.RimWorld.Biotech">BabyFood</li>
           </thingDefs>
         </filter>
       </fixedStorageSettings>

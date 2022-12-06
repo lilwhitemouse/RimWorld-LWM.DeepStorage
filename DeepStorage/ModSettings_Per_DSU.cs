@@ -333,6 +333,9 @@ namespace LWM.DeepStorage
                     tracker.UpdateToNewValue(def.defName, "label", tmpLabel, ref def.label);
                     tracker.UpdateToNewValue(def.defName,
                                "maxNumStacks", tmpMaxNumStacks, ref props.maxNumberStacks);
+                    // Update for 1.4 added multi-storage.  We have to keep our compproperty for back compat...
+                    // Update def's .building.maxItemsInCell directly.  This is just easier that rewriting all this
+                    def.building.maxItemsInCell = tmpMaxNumStacks;
                     tracker.UpdateToNewValue(def.defName,
                                "maxTotalMass", tmpMaxTotalMass, ref props.maxTotalMass);
                     tracker.UpdateToNewValue(def.defName,
@@ -451,8 +454,9 @@ namespace LWM.DeepStorage
         public static void ExposeDSUSettings(IEnumerable<ThingDef> units) {
             // note: make our own list in case we modify DefDatabase/etc from here
             if (units==null) { Log.Warning("Passed null units"); return; }
+            var unitList = units.ToList();
             if (Settings.defTracker==null) {Log.Error("DefChangeTracker is null"); return;}
-            foreach (ThingDef u in units.ToList()) {
+            foreach (ThingDef u in unitList) {
                 Utils.Warn(Utils.DBF.Settings, "Expose DSU Settings: "+u.defName+" ("+Scribe.mode+")");
                 string defName=u.defName;
                 Settings.defTracker.ExposeSetting<string>(defName, "label",ref u.label);
@@ -461,9 +465,16 @@ namespace LWM.DeepStorage
                 Settings.defTracker.ExposeSetting(defName, "maxMassStoredItem", ref u.GetCompProperties<Properties>().maxMassOfStoredItem);
                 Settings.defTracker.ExposeSetting(defName, "showContents", ref u.GetCompProperties<Properties>().showContents);
                 Settings.defTracker.ExposeSetting(defName, "overlayType", ref u.GetCompProperties<Properties>().overlayType);
-                StoragePriority tmpSP=u.building.defaultStorageSettings.Priority; // hard to access private field directly
-                Settings.defTracker.ExposeSetting<StoragePriority>(defName, "storagePriority", ref tmpSP);
-                u.building.defaultStorageSettings.Priority=tmpSP;
+                if (u.building?.defaultStorageSettings == null)
+                { // Todo? If we do find something like this....should we try to fix it?
+                    Log.Warning("LWM.DeepStorage found " + u.defName + " has no defaultStorageSettings. This should probably not happen?");
+                }
+                else
+                {
+                    StoragePriority tmpSP = u.building.defaultStorageSettings.Priority; // hard to access private field directly
+                    Settings.defTracker.ExposeSetting<StoragePriority>(defName, "storagePriority", ref tmpSP);
+                    u.building.defaultStorageSettings.Priority = tmpSP;
+                }
                 // If fixedStorageSettings is null, it's because it can store anything. We don't change that:
                 if (u.building?.fixedStorageSettings != null)
                     Settings.defTracker.ExposeSettingDeep(defName, "filter", ref u.building.fixedStorageSettings.filter);

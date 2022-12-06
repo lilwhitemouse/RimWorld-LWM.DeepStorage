@@ -9,7 +9,7 @@ If adding a compatibility patch to create a Deep Storage Unit:
                   <li>LWM.DeepStorage.ITab_DeepStorage_Inventory</li>
 		</inspectorTabs>
 
-I pt AddNewUnit_ instead of Compatibility_ so that hopefully alphabetical
+I put AddNewUnit_ instead of Compatibility_ so that hopefully alphabetical
 sorting means new units will pick up other compat changes...
 
 

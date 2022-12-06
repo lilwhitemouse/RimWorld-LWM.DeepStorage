@@ -49,6 +49,7 @@ namespace LWM.DeepStorage
      * true) Transpiler editing of an IEnumerable jump table.     /
      * 
      */
+     //todo1.4: totally untested
     [HarmonyPatch(typeof(Toils_Haul), "PlaceHauledThingInCell")]
     public static class Patch_PlaceHauledThingInCell_Toil
     {

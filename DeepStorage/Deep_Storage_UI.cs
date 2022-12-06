@@ -23,34 +23,55 @@ namespace LWM.DeepStorage
      * selecting the Deep Storage Unit by right clicking
      * after selecting an item in it.
      *
+     * NOTE: This isn't strictly needed, as 1.4 has a nice
+     *       little gizmo that lets on select the Building_
+     *       Storage.  I still like not having to go click
+     *       a button, so we will keep this...but it might
+     *       be a good idea to make it a mod option    
      */
-
+     // TODO: Make this a mod option
     [HarmonyPatch(typeof(Selector), "HandleMapClicks")]
-    class Patch_HandleMapClicks {
-        static bool Prefix(Selector __instance, List<object> ___selected) {
-            if (Event.current.type == EventType.MouseDown) {
+    class Patch_HandleMapClicks
+    {
+        static bool Prefix(Selector __instance, List<object> ___selected)
+        {
+            if (Event.current.type == EventType.MouseDown)
+            {
                 // Right mouse clicked and some item selected:
-                if (Event.current.button == 1 && ___selected.Count == 1 && !(___selected[0] is Pawn)) {
+                if (Event.current.button == 1 && ___selected.Count == 1 && !(___selected[0] is Pawn))
+                {
                     Thing t = ___selected[0] as Thing;
-                    if (t==null) {
+                    if (t == null)
+                    {
                         return true; // Don't know what it was...
                     }
-                    if (t.Map == null) {
+                    if (t.Map == null)
+                    {
                         return true; // Don't know where it is...
                     }
-                    if (t.Position == IntVec3.Invalid) {
+                    if (t.Position == IntVec3.Invalid)
+                    {
                         return true; // Don't know how it got selected, either :p
                     }
-                    if (t.Map != Find.CurrentMap) {
+                    if (!t.Spawned)
+                        return true; // Carried item?
+                    if (t.Map != Find.CurrentMap)
+                    {
                         return true; // Don't know where the player is looking
                     }
-                    // TODO: make this cleaner:
-                    if (Utils.CanStoreMoreThanOneThingAt(t.Map,t.Position)) {
-                        __instance.ClearSelection();
-                        // Select the Deep Storage Unit:
-                        __instance.Select(t.Position.GetSlotGroup(t.Map).parent);
-                        Event.current.Use();
-                        return false;
+                    // Select the first Building_Storage located in the cell - 
+                    //   It will either be vanilla shelves or Deep Storage or
+                    //   someone else's Building_Storage... But consistancy
+                    //   across all those seems reasonable.
+                    foreach (Thing thingHere in t.Map.thingGrid.ThingsAt(t.Position))
+                    {
+                        if (thingHere is Building_Storage)
+                        {
+                            __instance.ClearSelection();
+                            __instance.Select(thingHere);
+                            Event.current.Use(); // we handled the right-click
+                            return false;
+                        }
                     }
                 }
             }
@@ -58,7 +79,7 @@ namespace LWM.DeepStorage
         }
     } // end HandleMapClick's patch
 
-
+#if false // true for versions <=1.3, removed for v1.4
     /************************* Let user click on DSU instead of giant pile of stacks! ******************/
     /* We would like it so when a player clicks on a DSU that has stuff in it,
      * the DSU gets selected instead of the first item, then the 2nd item, etc.
@@ -80,7 +101,8 @@ namespace LWM.DeepStorage
     // After the list is sorted via CompareThingsByDrawAltitude, we insert code to sort the list
     //   in our new function SortForDeepStorage.
     //   SortForDeepStorage will use a flag that was set before ThingsUnderMouse was called.
-    [HarmonyPatch(typeof(Verse.GenUI),"ThingsUnderMouse")]
+    // For version 1.4, this is all handled by vanilla now
+    //[HarmonyPatch(typeof(Verse.GenUI),"ThingsUnderMouse")]
     public static class Patch_GenUI_ThingsUnderMouse {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
             // First marker we are looking for is
@@ -199,7 +221,8 @@ namespace LWM.DeepStorage
     } // done with Patch_GenUI_ThingsUnderMouse
 
     // Single click should select the Deep Storage unit
-    [HarmonyPatch(typeof(RimWorld.Selector), "SelectUnderMouse")]
+    // For version 1.4, this is all handled by vanilla now
+    //[HarmonyPatch(typeof(RimWorld.Selector), "SelectUnderMouse")]
     static class Make_Select_Under_Mouse_Use_SortForDeepStorage {
         static void Prefix() {
             Patch_GenUI_ThingsUnderMouse.sortForDeepStorage = Patch_GenUI_ThingsUnderMouse.DSSort.SingleSelect;
@@ -209,7 +232,8 @@ namespace LWM.DeepStorage
         }
     }
     // Double click should multi-select all of whatever item is on top (similar to how items on shelves behave)
-    [HarmonyPatch(typeof(RimWorld.Selector),"SelectAllMatchingObjectUnderMouseOnScreen")]
+    // For version 1.4, this is all handled by vanilla now
+    //[HarmonyPatch(typeof(RimWorld.Selector),"SelectAllMatchingObjectUnderMouseOnScreen")]
     static class Make_DoubleClick_Work {
         static void Prefix(Selector __instance) {
             // If the DSU is still selected from the first click of SelectUnderMouse(),
@@ -225,11 +249,13 @@ namespace LWM.DeepStorage
 
     // If there are 10 artifacts in a weapons locker, it's nice to be able to tell which one you are about to activate:
     // Add "  (Label for Artifact)" to the right-click label.
-    [HarmonyPatch(typeof(RimWorld.CompUsable), "FloatMenuOptionLabel")]
+    // For version 1.4, this is all handled by vanilla now
+    //[HarmonyPatch(typeof(RimWorld.CompUsable), "FloatMenuOptionLabel")]
     static public class MakeArtifactsActivateLabelNameArtifact {
         static void Postfix(ref string __result, CompUsable __instance) {
             __result=__result+" ("+__instance.parent.LabelCap+")";
         }
 
     }
+#endif
 }

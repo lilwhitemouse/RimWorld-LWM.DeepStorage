@@ -48,7 +48,9 @@ namespace LWM.DeepStorage
      * We also patch via postfix to make sure all of the stacks are tidy
      **************************************/
     // TODO: can we traspile this?  No?
-    [HarmonyPatch(typeof(Verse.GenPlace), "TryPlaceDirect")]
+    // todo1.4
+    // todo1.4 - what about weight?  Okay, will have to revisit this in its entirety :(
+    //[HarmonyPatch(typeof(Verse.GenPlace), "TryPlaceDirect")]
     class Patch_TryPlaceDirect {
         static void Prefix(ref Thing __state, Thing thing, IntVec3 loc)
         {
@@ -116,7 +118,7 @@ namespace LWM.DeepStorage
 
             // Let's see if there's still room in the Deep Storage area the pawn is using:
             List<Thing> list = map.thingGrid.ThingsListAt(loc);
-            int maxNumberStacks = ((ThingWithComps)slotGroup.parent).GetComp<CompDeepStorage>().maxNumberStacks;
+            int maxNumberStacks = ((ThingWithComps)slotGroup.parent).GetComp<CompDeepStorage>().MaxNumberStacks;
             // We know there was at least one thing here, and it either doesn't stack with our thing
             //   or its stack is full.
             // So, we go thru the items that are there
@@ -228,7 +230,8 @@ namespace LWM.DeepStorage
      * (I could probably manage without the Utils function, but this is
      *  much easier in terms of C# -> IL magic)
      **************************************/
-    [HarmonyPatch(typeof(Verse.GenSpawn), "Spawn", new Type[] { typeof(Thing), typeof(IntVec3), typeof(Map), typeof(Rot4), typeof(WipeMode), typeof(bool) })]
+    //todo1.4 - I think we don't need this aaaaany more :D
+    //[HarmonyPatch(typeof(Verse.GenSpawn), "Spawn", new Type[] { typeof(Thing), typeof(IntVec3), typeof(Map), typeof(Rot4), typeof(WipeMode), typeof(bool) })]
     class Patch_GenSpawn_Spawn {
         //        static void Prefix (Thing newThing) {
         //            Log.Warning("Spawn: " + newThing.ToString() + ".  Destroyed? " + newThing.Destroyed);

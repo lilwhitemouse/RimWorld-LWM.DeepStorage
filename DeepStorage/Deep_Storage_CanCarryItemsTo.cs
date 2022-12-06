@@ -26,7 +26,7 @@ namespace LWM.DeepStorage
 {
     /****** See also Deep_Storage_Jobs.cs, which patches the
      * HaulToCellStorage Job to get the correct count of how
-     * man to carry to Deep Storage
+     * many to carry to Deep Storage
      */
 
     /**********************************************************************
@@ -42,7 +42,8 @@ namespace LWM.DeepStorage
      *   Check maxStacks in a loop.
      * This was easier.
      **************************************/
-    [HarmonyPatch(typeof(RimWorld.StoreUtility), "NoStorageBlockersIn")]
+     //todo1.4: OMG, this all goes away:D
+//todo1.4    [HarmonyPatch(typeof(RimWorld.StoreUtility), "NoStorageBlockersIn")]
     class Patch_NoStorageBlockersIn {
         protected static bool Prefix(IntVec3 c, Map map, Thing thing, ref bool __result) {
             Utils.Err(NoStorageBlockerseIn, "Looking for blockers for " + thing + " at " + c);
@@ -72,7 +73,7 @@ namespace LWM.DeepStorage
                 }
             }
             // We will usually care how many stacks can fit here:
-            var maxStacks = cds.maxNumberStacks;
+            var maxStacks = cds.MaxNumberStacks;
             // If maxTotalMass is set, we will keep track of how much "room" we have as well:
             float totalAmountHereSoFar=0f;
             if (cds.limitingTotalFactorForCell > 0f) {
@@ -142,20 +143,23 @@ namespace LWM.DeepStorage
      * hoping to carry to Deep Storage, and if so, don't
      * allow it.
      */
-
-
     // TODO: transpile?  faster, surely?
-    // TODO: make an option
-    //   TODO: Option could include NonHumanlikeOrWildMan OR AnimalOrWildMan
+    // Other options for who is allowed to use could include
+    //   NonHumanlikeOrWildMan OR AnimalOrWildMan
     //   maybe p.RaceProps.Animal or p.RaceProps.HumanLike
+    // Set to ToolUser for 1.4, as mechanoid carriers are now
+    //   a vanilla thing.
     [HarmonyPatch(typeof(StoreUtility), "IsGoodStoreCell")]
-    class Patch_IsGoodStoreCell {
-        public static Intelligence NecessaryIntelligenceToUseDeepStorage=Intelligence.Humanlike;
+    class Patch_IsGoodStoreCell
+    {
+        // This is modified by mod settings on startup (and when changed):
+        public static Intelligence NecessaryIntelligenceToUseDeepStorage = Intelligence.ToolUser;
         // A way to specify some pawns can use Storage no matter what:
-        static System.Func<Pawn,bool> specialTest=null;
+        static System.Func<Pawn, bool> specialTest = null;
         // Prepare: Check to see if there are any robot/drone mods - if there are,
         //   prepare special logic to allow them to haul to storage no matter what:
-        static bool Prepare(Harmony instance) {
+        static bool Prepare(Harmony instance)
+        {
             if (!Settings.robotsCanUse || specialTest != null) return true;
 
             var types = new List<Type>();
@@ -164,48 +168,60 @@ namespace LWM.DeepStorage
 
             // General procedure to get "close enough" classes:
             //   "NameSpace.ClassName, AssemblyName(=.dllName)"
-            if (ModLister.HasActiveModWithName("Misc. Robots")) {
+            if (ModLister.HasActiveModWithName("Misc. Robots"))
+            {
                 // From Haplo:  From my point of view they are normal drones with a kind of
                 //    robot arm (for hauling) somewhere and a simple (job-specific) AI
                 // Good enough for me!  A robot arm can manipulate things, an any AI that can
                 // handle lifting random objects can probably handle latches.
-                tmp=Type.GetType("AIRobot.X2_AIRobot, AIRobot");
-                if (tmp==null) {
-                    Log.Error("LWM's Deep Storage tried to find the Type 'AIRobot.X2_AIRobot, AIRobot', but failed even tho Misc. Robots is loaded.\n"+
+                tmp = Type.GetType("AIRobot.X2_AIRobot, AIRobot");
+                if (tmp == null)
+                {
+                    Log.Error("LWM's Deep Storage tried to find the Type 'AIRobot.X2_AIRobot, AIRobot', but failed even tho Misc. Robots is loaded.\n" +
                               "Please let LWM know.");
-                } else {
+                }
+                else
+                {
                     Log.Message("LWM: activating compatibility logic for Misc. Robots");
                     types.Add(tmp);
                 }
             }
-            if (ModLister.HasActiveModWithName("Base Robots")) {
-                tmp=Type.GetType("BaseRobot.ArcBaseRobot, BaseRobot");
-                if (tmp==null) {
-                    Log.Error("LWM's Deep Storage tried to find the Type 'BaseRobot.ArcBaseRobot, BaseRobot', but failed even tho Base Robots is loaded.\n"+
+            if (ModLister.HasActiveModWithName("Base Robots"))
+            {
+                tmp = Type.GetType("BaseRobot.ArcBaseRobot, BaseRobot");
+                if (tmp == null)
+                {
+                    Log.Error("LWM's Deep Storage tried to find the Type 'BaseRobot.ArcBaseRobot, BaseRobot', but failed even tho Base Robots is loaded.\n" +
                               "Please let LWM know.");
-                } else {
+                }
+                else
+                {
                     Log.Message("LWM: activating compatibility logic for Base Robots");
                     types.Add(tmp);
                 }
             }
             if (ModLister.HasActiveModWithName("Project RimFactory Revived") ||
-                ModLister.HasActiveModWithName("Project RimFactory Lite")) { // They use the same .dll
-                tmp=Type.GetType("ProjectRimFactory.Drones.Pawn_Drone, ProjectRimFactory");
-                if (tmp==null) {
-                    Log.Error("LWM's Deep Storage tried to find the Type 'ProjectRimFactory.Drones.Pawn_Drone', but failed even tho PRF is loaded.\n"+
+                ModLister.HasActiveModWithName("Project RimFactory Lite"))
+            { // They use the same .dll
+                tmp = Type.GetType("ProjectRimFactory.Drones.Pawn_Drone, ProjectRimFactory");
+                if (tmp == null)
+                {
+                    Log.Error("LWM's Deep Storage tried to find the Type 'ProjectRimFactory.Drones.Pawn_Drone', but failed even tho PRF is loaded.\n" +
                               "Please let LWM know.");
-                } else {
+                }
+                else
+                {
                     Log.Message("LWM: activating compatibility logic for Project RimFactory");
                     types.Add(tmp);
                 }
             }
 
-            if (types.Count ==0) return true;
+            if (types.Count == 0) return true;
             // The fun part:
             //   Built a function from IL to test if a pawn is a robot:
             var dm = new DynamicMethod("Check if Pawn is a robot",
                                        typeof(bool),
-                                       new Type[] {typeof(Pawn)});
+                                       new Type[] { typeof(Pawn) });
             var il = dm.GetILGenerator();
             // Build from IL:
             //     if p is t1 goto isRobotLabel;
@@ -215,7 +231,8 @@ namespace LWM.DeepStorage
             //    isRobotLabel:
             //     return true;
             var isRobotLabel = il.DefineLabel();
-            foreach (var t in types) {
+            foreach (var t in types)
+            {
                 // test (p is t)
                 il.Emit(OpCodes.Ldarg_0); // put pawn p on stack
                 il.Emit(OpCodes.Isinst, t);
@@ -230,17 +247,19 @@ namespace LWM.DeepStorage
             il.Emit(OpCodes.Ldc_I4_1);
             il.Emit(OpCodes.Ret);
 
-            specialTest = (System.Func<Pawn,bool>)dm.CreateDelegate(typeof(System.Func<Pawn,bool>));
+            specialTest = (System.Func<Pawn, bool>)dm.CreateDelegate(typeof(System.Func<Pawn, bool>));
             return true; // I have too much to do to look up whether Prepare(...) can be a void, so return true
         }
-        static void Postfix(ref bool __result, IntVec3 c, Map map, Pawn carrier) {
+        static void Postfix(ref bool __result, IntVec3 c, Map map, Pawn carrier)
+        {
             if (__result == false) return;
-            if (specialTest !=null && specialTest(carrier)) return; // passes specialTest?
+            if (specialTest != null && specialTest(carrier)) return; // passes specialTest?
             if (carrier?.RaceProps == null) return;
             if (carrier.RaceProps.intelligence >= NecessaryIntelligenceToUseDeepStorage)
                 return; // smart enough to use whatever.
             // okay, potentially need to see if we're looking at deep storage after all:
-            if (LWM.DeepStorage.Utils.CanStoreMoreThanOneThingAt(map, c)) {
+            if (LWM.DeepStorage.Utils.CanStoreMoreThanOneThingAt(map, c))
+            {
                 __result = false;
             }
             return;

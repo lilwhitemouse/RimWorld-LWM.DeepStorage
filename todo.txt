@@ -1,0 +1,6 @@
+Update defs:
+add <building><storageGroupTag>...</ &c to each and every fucking def :sad:
+
+TODO: Fix ITab failure when two storage blueprints are selected and deleted...
+
+

@@ -36,7 +36,8 @@ namespace LWM.DeepStorage
       Postfix runs and catches logic, puts together complete, correct menu option list
       So...look, we do the same thing twice!  Function calls!
     */
-    [HarmonyPatch(typeof(RimWorld.FloatMenuMakerMap), "AddHumanlikeOrders")]
+    //todo1.4 - omg omg omg let's see what happens
+    //[HarmonyPatch(typeof(RimWorld.FloatMenuMakerMap), "AddHumanlikeOrders")]
     static class Patch_AddHumanlikeOrders {
         static public bool runVanillaAHlO=false; // should Vanilla(+mods) AddHumanlikeOrders run
         static public bool blockAHlONonItems=false; // if it does run, should TargetsAt() be blocked
