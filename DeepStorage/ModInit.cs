@@ -7,7 +7,7 @@ namespace LWM.DeepStorage {
     [StaticConstructorOnStartup]
     public static class ModInit {
         static ModInit() {
-            Log.Message("LWM Update: fix for Make all storage into Deep Storage");
+            Log.Message("LWM Update: stable(ish) 1.4");
             // Thanks to Static Constructor On Startup, all defs should be loaded now
             RemoveAnyMultipleCompProps();
             LWM.DeepStorage.Settings.DefsLoaded();
