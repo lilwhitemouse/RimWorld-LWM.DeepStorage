@@ -16,7 +16,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\_Mod\LWM.DeepStorage\1.4\Assemblies</OutputPath>
-    <DefineConstants>DEBUG;DEBUGLWM</DefineConstants>
+    <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -107,6 +107,11 @@
     <Compile Include="Dialog_RenameDSU.cs" />
     <Compile Include="Patch_Building_Storage_NotifyXedThing.cs" />
     <Compile Include="Patch_Graphic_Print.cs" />
+    <Compile Include="DSMapComponent.cs" />
+    <Compile Include="Patch_NoStorageBlockersIn.cs" />
+    <Compile Include="Patch_Thing_set_Position.cs" />
+    <Compile Include="Patch_Thing_SplitOff.cs" />
+    <Compile Include="Patch_HaulAIUtility_HaulToCellStorageJob.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">

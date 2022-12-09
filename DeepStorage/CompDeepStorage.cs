@@ -18,7 +18,6 @@ namespace LWM.DeepStorage
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
             }
-#if DEBUGLWM
             yield return new Command_Action
             {
 //                icon = has_Ideology?UI/Abilities/WorkDrive :
@@ -31,7 +30,7 @@ namespace LWM.DeepStorage
                     Find.WindowStack.Add(new Dialog_CompSettings(this));
                 }
             };
-#else
+#if false
             yield return new Command_Action // Rename
 			{
 				icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
@@ -256,6 +255,8 @@ namespace LWM.DeepStorage
         //   (ShouldRemoveFrom logic).  TODO: it should probably be here
 
         public virtual int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {
+            return map.GetComponent<DSMapComponent>().CapacityToStoreItemAt(this, thing, cell);
+            throw new Exception("CapacityToStoreThingAt was called - this should never happen!");
             Utils.Warn(CheckCapacity, "Checking Capacity to store "+thing.stackCount+thing+" at "
                        +(map?.ToString()??"NULL MAP")+" "+cell);
             int capacity = 0;
@@ -342,13 +343,18 @@ namespace LWM.DeepStorage
         }
         /************************** IHoldMultipleThings interface ************************/
         /* For compatibility with Mehni's PickUpAndHaul                                  */
+        /* (Note: without mass-limits factored in, 1.4's vanilla code handles everything *
+         *        without deep storage having to do a thing!                             */
         public bool CapacityAt(Thing thing, IntVec3 cell, Map map, out int capacity) {
-            capacity = this.CapacityToStoreThingAt(thing, map, cell);
+            capacity = map.GetComponent<DSMapComponent>().CapacityToStoreItemAt(this, thing, cell);
+//            capacity = this.CapacityToStoreThingAt(thing, map, cell);
             if (capacity > 0) return true;
             return false;
         }
+        // (I still think this is a stupid name)
         public bool StackableAt(Thing thing, IntVec3 cell, Map map) {
-            return this.CapacityToStoreThingAt(thing,map,cell) > 0;
+            return map.GetComponent<DSMapComponent>().CanStoreItemAt(this, thing, cell);
+            //return this.CapacityToStoreThingAt(thing,map,cell) > 0;
         }
         /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
