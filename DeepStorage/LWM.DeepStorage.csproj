@@ -112,6 +112,8 @@
     <Compile Include="Patch_Thing_set_Position.cs" />
     <Compile Include="Patch_Thing_SplitOff.cs" />
     <Compile Include="Patch_HaulAIUtility_HaulToCellStorageJob.cs" />
+    <Compile Include="Patch_EditWindow_DebugInspector.cs" />
+    <Compile Include="Patch_Log.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">
