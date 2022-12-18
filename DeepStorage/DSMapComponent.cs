@@ -28,7 +28,7 @@ namespace LWM.DeepStorage
 
         public void DirtyCache(IntVec3 cell)
         {
-            Utils.Mess(Utils.DBF.Cache, "Cache dirtied: " + cell);
+            Utils.Mess(Utils.DBF.Cache, "Cache dirtied: " + cell + (cache.ContainsKey(cell)?"":" (none)"));
             cache.Remove(cell);
         }
 
@@ -107,14 +107,17 @@ namespace LWM.DeepStorage
             }
             public bool CanStoreAny(Thing t, CompDeepStorage cds)
             {
-                float newMassOneItem;
+                float newMassOneItem = 0f;
                 if (cds.limitingTotalFactorForCell > 0 || cds.limitingFactorForItem > 0)
                 {
                     newMassOneItem = t.GetStatValue(cds.stat);
                     if (cds.limitingFactorForItem > 0 && newMassOneItem > cds.limitingFactorForItem)
                         return false;
                     if (cds.limitingTotalFactorForCell > 0 && (massStored + newMassOneItem > cds.limitingTotalFactorForCell))
+                    {
                         return false;
+//TODO: oops, do this
+                    }
                 }
                 if (emptyStacks > 0) return true;
                 foreach (Thing oldT in notFull) if (t.CanStackWith(oldT)) return true;
@@ -122,35 +125,63 @@ namespace LWM.DeepStorage
             }
             public int CanStoreThisMany(Thing t, CompDeepStorage cds)
             {
-                float newMassOneItem;
-                int maxNumberFromMass = int.MaxValue;
+                int scrapsLeftOverFromNonFullStacks = 0;
+                float newMassOneItem = 0f; // Honestly, I'm offended that I can't leave this unassigned and compile
                 if (cds.limitingFactorForItem > 0f || cds.limitingTotalFactorForCell > 0f)
                 {
                     newMassOneItem = t.GetStatValue(cds.stat);
-                    if (cds.limitingFactorForItem > 0f && (newMassOneItem > cds.limitingFactorForItem))
-                        return 0;
-                    if (cds.limitingTotalFactorForCell > 0f)
+                    if (cds.limitingFactorForItem > 0f && newMassOneItem > cds.limitingFactorForItem)
                     {
-                        float availableMass = cds.limitingTotalFactorForCell - massStored;
-                        if (availableMass < newMassOneItem) return 0;
-                        maxNumberFromMass = (int)Math.Floor(availableMass / newMassOneItem);
-                        Log.Message("Meh: " + t + ". availableMas: " + availableMass + ". newMassOneItem: " + newMassOneItem +
-                                    "avail/newMass: " + ((int)(availableMass / newMassOneItem)) + ". Floor: " + maxNumberFromMass);
+                        Utils.Mess(Utils.DBF.Cache, "Cache capacity request for " + t + ": too heavy at " 
+                                   + newMassOneItem);
+                        return 0;
                     }
                 }
-                //TODO: fuck, minNumberStacks........
-                int count = emptyStacks * t.def.stackLimit;
-                if (count < 0) count = 0;
+                // Scraps from unfilled stacaks:
                 foreach (var otherT in notFull)
                 {
                     if (t.CanStackWith(otherT))
                     {
-                        count += (otherT.def.stackLimit - otherT.stackCount);
+                        scrapsLeftOverFromNonFullStacks += (otherT.def.stackLimit - otherT.stackCount);
                     }
                 }
-                Utils.Mess(Utils.DBF.Cache, "Cache Can Store: mass limit: " + maxNumberFromMass + ", count limit: " + count);
-                return Math.Min(maxNumberFromMass, count);
+                if (cds.limitingTotalFactorForCell > 0f)
+                {
+                    float availableMass = cds.limitingTotalFactorForCell - massStored;
+                    int maxNumberFromMass = ((int)(availableMass / newMassOneItem));
+                    if (cds.MinNumberStacks > 1) {
+                        int curNumberStacks = cds.MaxNumberStacks - this.emptyStacks;
+                        if (curNumberStacks <= cds.MinNumberStacks)
+                        {
+                            int minNumber = ((cds.MinNumberStacks - curNumberStacks) * t.def.stackLimit)
+                                 + scrapsLeftOverFromNonFullStacks;
+                            if (minNumber >= maxNumberFromMass)
+                            {
+                                Utils.Mess(Utils.DBF.Cache, "Cache: minimum number " + minNumber +
+                                       " returned (>=" + maxNumberFromMass + "by mass)");
+                                return minNumber;
+                            }
+                        }
+                    }
+                    Utils.Mess(Utils.DBF.Cache, "Cache: maxNumber from mass: " + maxNumberFromMass + " (mass of " +
+                               t + "=" + newMassOneItem + ") vs free " + (emptyStacks * t.def.stackLimit + scrapsLeftOverFromNonFullStacks));
+                    return Math.Min(maxNumberFromMass, (emptyStacks * t.def.stackLimit + scrapsLeftOverFromNonFullStacks));
+                } // end cds.limitingTotalFactorForCell > 0f
+                Utils.Mess(Utils.DBF.Cache, "Cache: returning " + (emptyStacks * t.def.stackLimit + scrapsLeftOverFromNonFullStacks));
+                return emptyStacks * t.def.stackLimit + scrapsLeftOverFromNonFullStacks;
             }
+            public string Debug(CompDeepStorage cds)
+            {
+                return "Cache:\nStacks: " + (cds.MaxNumberStacks - emptyStacks) + "/" + cds.MaxNumberStacks + "\nTotal mass: "
+                       + massStored + "/" + cds.limitingTotalFactorForCell;
+            }
+        } // end CellCache class
+        public string Debug(IntVec3 cell)
+        {
+            var cds = map?.edificeGrid[cell]?.GetComp<CompDeepStorage>();
+            if (cds == null) return "";
+            if (!cache.ContainsKey(cell)) return "No Cache for this cell";
+            return cache[cell].Debug(cds);
         }
     }
 }

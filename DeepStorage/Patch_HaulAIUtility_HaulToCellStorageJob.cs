@@ -55,15 +55,22 @@ namespace LWM.DeepStorage
         public static int GetDSSpace(IntVec3 cell, Map map, Thing thing)
         {
             Utils.Mess(Utils.DBF.HaulToCellStorageJob, "GetDSSpace called for " + cell +
-                " on " + (map == null ? "a null map" : "some map") + " for thing " +
+                (map == null ? " on a null map" : "") + " for T " +
                 (thing == null ? "a null thing:(" : thing.ToString()));                        
             var cds = map.edificeGrid[cell]?.GetComp<CompDeepStorage>();
             if (cds == null)
             {
-                Utils.Mess(Utils.DBF.HaulToCellStorageJob, "  But it's in a vanilla space: not our problem");
+                Utils.Mess(Utils.DBF.HaulToCellStorageJob, "    but it's in a vanilla space: not our problem");
                 return cell.GetItemStackSpaceLeftFor(map, thing.def);
             }
             return cds.CapacityToStoreThingAt(thing, map, cell);
         }
+#if DEBUG
+        public static void Postfix(Job __result, Pawn p)
+        {
+            Utils.Mess(Utils.DBF.HaulToCellStorageJob, "Job created for " + p + " to "
+            + __result.targetB + " for " + __result.count + " of " + __result.targetA);
+        }
+#endif
     }
 }

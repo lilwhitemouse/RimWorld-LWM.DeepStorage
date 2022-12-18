@@ -123,28 +123,6 @@ namespace LWM.DeepStorage
             return origLabel;
         }
 
-        public int MinNumberStacks {
-            get {
-                return ((Properties)this.props).minNumberStacks;
-            }
-        }
-        public int MaxNumberStacks {
-            get {
-                return maxNumberStacks ?? ((Properties)this.props).maxNumberStacks;
-                //return ((Properties)this.props).maxNumberStacks;
-            }
-            [Multiplayer.API.SyncMethod]
-            set {
-                this.maxNumberStacks = value;
-            }
-        }
-
-        [Multiplayer.API.SyncMethod]
-        public virtual void ResetSettings()
-        {
-            this.maxNumberStacks = null;
-        }
-
         public virtual int TimeStoringTakes(Map map, IntVec3 cell, Pawn pawn) {
             if (CdsProps.minTimeStoringTakes <0) {
                 // Basic version
@@ -213,20 +191,6 @@ namespace LWM.DeepStorage
             }
             return t;
         } // end TimeStoringTakes
-
-        public virtual bool ShowContents
-        {
-            get {
-                return ((Properties)this.props).showContents;
-            }
-        }
-
-        public Properties CdsProps  // b/c I hate typing :p
-        {
-            get {
-                return ((Properties)this.props);
-            }
-        }
 
         public override void Initialize(CompProperties props) {
             base.Initialize(props);
@@ -361,6 +325,37 @@ namespace LWM.DeepStorage
             Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
             Scribe_Values.Look<int?>(ref maxNumberStacks, "LWM_DS_DSU_maxNumberStacks", null, false);
         }
+        /********************** properties **********************/
+        public Properties CdsProps  // b/c I hate typing :p
+        {
+            get {
+                return ((Properties)this.props);
+            }
+        }
+        public int MinNumberStacks
+        {
+            get {
+                return ((Properties)this.props).minNumberStacks;
+            }
+        }
+        public int MaxNumberStacks
+        {
+            get {
+                return maxNumberStacks ?? ((Properties)this.props).maxNumberStacks;
+                //return ((Properties)this.props).maxNumberStacks;
+            }
+            [Multiplayer.API.SyncMethod]
+            set {
+                this.maxNumberStacks = value;
+            }
+        }
+
+        public virtual bool ShowContents
+        {
+            get {
+                return ((Properties)this.props).showContents;
+            }
+        }
 
         public void SetLabel(string newLabel)
         {
@@ -372,6 +367,12 @@ namespace LWM.DeepStorage
         private void SetLabelMultiplayer(string newLabel)
         {
             buildingLabel = newLabel;
+        }
+
+        [Multiplayer.API.SyncMethod]
+        public virtual void ResetSettings()
+        {
+            this.maxNumberStacks = null;
         }
 
         public string buildingLabel="";

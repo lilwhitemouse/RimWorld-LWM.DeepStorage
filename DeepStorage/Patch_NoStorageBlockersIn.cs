@@ -13,13 +13,13 @@ namespace LWM.DeepStorage
     {
         public static bool Prefix(IntVec3 c, Map map, Thing thing, ref bool __result)
         {
-            Utils.Err(NoStorageBlockerseIn, "Looking for blockers for " + thing + " at " + c);
+            Utils.Warn(NoStorageBlockerseIn, "Looking for blockers for " + thing + " at " + c);
             // Check if storage location is in a deep-storage uber-storage building:
             CompDeepStorage cds = map?.edificeGrid[c]?.GetComp<CompDeepStorage>();
             if (cds == null) return true; // normal NoStorageBlockersIn() will handle it
             //  (We return false from this Patch function to skip original method)
             __result = cds.StackableAt(thing, c, map);
-            Utils.Warn(NoStorageBlockerseIn, "Final result for " + thing + " at " + c + ": " + __result);
+            Utils.Mess(NoStorageBlockerseIn, "Final result for " + thing + " at " + c + ": " + __result);
             return false;
         }
     }
