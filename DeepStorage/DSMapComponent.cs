@@ -112,9 +112,23 @@ namespace LWM.DeepStorage
                 {
                     newMassOneItem = t.GetStatValue(cds.stat);
                     if (cds.limitingFactorForItem > 0 && newMassOneItem > cds.limitingFactorForItem)
+                    {
+                        Utils.Mess(Utils.DBF.Cache, "Cache storage request for " + t + ": too heavy at " + newMassOneItem);
                         return false;
+                    }
                     if (cds.limitingTotalFactorForCell > 0 && (massStored + newMassOneItem > cds.limitingTotalFactorForCell))
                     {
+                        // Over mass limit for this cell
+                        // BUT....
+                        // If there's a minimum storage amount, we have to respect that:
+                        // TODO: Maybe cache a number of forced free stacks for a cell?
+                        if (cds.MinNumberStacks > 1 && cds.MaxNumberStacks-emptyStacks < cds.MinNumberStacks)
+                        {
+                            Utils.Mess(Utils.DBF.Cache, "Cache storage request for " + t +
+                                ": over total mass limit but MinNumberStacks not met yet, so passes!");
+                            return true;
+                        }
+                        Utils.Mess(Utils.DBF.Cache, "Cache storage request for " + t + ": over total mass limit");
                         return false;
 //TODO: oops, do this
                     }
