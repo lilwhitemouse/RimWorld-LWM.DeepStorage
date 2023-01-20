@@ -27,10 +27,13 @@ namespace LWM.DeepStorage
         private Vector2 scrollPosition = Vector2.zero;
         private float scrollViewHeight=1000f;
         private Building_Storage buildingStorage;
+        private float ambientTemp = 21f;
+        public static float tempForHowLongWillLast = 21f; //TODO: Set via mod settings?
 
         private const float TopPadding = 20f;
         public static readonly Color ThingLabelColor = new Color(0.9f, 0.9f, 0.9f, 1f);
         public static readonly Color HighlightColor = new Color(0.5f, 0.5f, 0.5f, 1f);
+        public static readonly Color ColdColor = new Color(0.4f, 0.6f, 0.75f);
         private const float ThingIconSize = 28f;
         private const float ThingRowHeight = 28f;
         private const float ThingLeftX = 36f;
@@ -101,6 +104,10 @@ namespace LWM.DeepStorage
                 Widgets.Label(viewRect, "NoItemsAreStoredHere".Translate());
                 curY += 22;
             }
+            else
+            {
+                ambientTemp = buildingStorage.AmbientTemperature;
+            }
 
             for (int i = 0; i < storedItems.Count; i++) {
                 this.DrawThingRow(ref curY, viewRect.width, storedItems[i]);
@@ -139,7 +146,6 @@ namespace LWM.DeepStorage
                 TooltipHandler.TipRegion(forbidRect, "CommandNotForbiddenDesc".Translate());
             else
                 TooltipHandler.TipRegion(forbidRect, "CommandForbiddenDesc".Translate());
-//            TooltipHandler.TipRegion(forbidRect, "Allow/Forbid"); // TODO: Replace "Allow/Forbid" with a translated entry in a Keyed Language XML file
             Widgets.Checkbox(forbidRect.x, forbidRect.y, ref allowFlag, 24f, false, true, null, null);
             if (allowFlag!=tmpFlag) // spamming SetForbidden is bad when playing multi-player - it spams Sync requests
                 ForbidUtility.SetForbidden(thing, !allowFlag,false);
@@ -158,18 +164,88 @@ namespace LWM.DeepStorage
             RimWorld.Planet.CaravanThingsTabUtility.DrawMass(thing, massRect);
             /************************* How soon does it rot? *************************/
             // Some mods add non-food items that rot, so we track those too:
-            CompRottable cr = thing.TryGetComp<CompRottable>();
-            if (cr != null) {
-                int rotTicks=Math.Min(int.MaxValue, cr.TicksUntilRotAtCurrentTemp);
-                if (rotTicks < 36000000) {
-                    width-=60f;  // Caravans use 75f?  TransferableOneWayWidget.cs
-                    Rect rotRect=new Rect(width,y,60f,28f);
-                    GUI.color = Color.yellow;
-                    Widgets.Label(rotRect, (rotTicks/60000f).ToString("0.#"));
-                    GUI.color = Color.white;
-                    TooltipHandler.TipRegion(rotRect, "DaysUntilRotTip".Translate());
-                    //TODO: figure out how to give this estimate if not in a fridge!
+            CompRottable compRottable = thing.TryGetComp<CompRottable>();
+            if (compRottable != null) {
+                Text.Anchor = TextAnchor.MiddleLeft;
+                float daysAtTwentyOne = -1; // How long the compRottable will last if it were 21C (or whatever)
+                if (ambientTemp <= tempForHowLongWillLast)
+                    daysAtTwentyOne = Math.Min(int.MaxValue,
+                             compRottable.TicksUntilRotAtTemp(tempForHowLongWillLast)) / 60000f;
+                if (ambientTemp <= 0f) // frozen
+                {
+                    if (daysAtTwentyOne < 99) // 60 is a year
+                    {
+                        width -= 42f;
+                        Rect rotRect = new Rect(width, y, 40f, 28f);
+                        GUI.color = ColdColor;
+                        Widgets.Label(rotRect, daysAtTwentyOne.ToString("0.#"));
+                        TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilRotFrozenAndTwentyOneDesc"
+                                 .Translate(daysAtTwentyOne.ToString("0.#"), 
+                                    tempForHowLongWillLast.ToStringTemperature("F0")));
+                    }
+                    else
+                    {
+                        width -= 30f;
+                        Rect rotRect = new Rect(width, y, 28f, 28f);
+                        GUI.color = TransferableOneWayWidget.ItemMassColor;
+                        Widgets.Label(rotRect, "--");
+                        TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilWillNotRotSoonDesc".Translate(
+                                  tempForHowLongWillLast.ToStringTemperature("F0")));
+                    }
                 }
+                else if (ambientTemp <= tempForHowLongWillLast)
+                {
+                    float rotInDays = Math.Min(int.MaxValue, compRottable.TicksUntilRotAtTemp(ambientTemp))/60000f;
+                    if (rotInDays < 99)
+                    {
+                        width -= 42f;  // Caravans use 75f?  TransferableOneWayWidget.cs
+                        Rect rotRect = new Rect(width, y, 40f, 28f);
+                        GUI.color = Color.yellow;
+                        Widgets.Label(rotRect, rotInDays.ToString("0.#"));
+                        GUI.color = Color.white;
+                        TooltipHandler.TipRegion(rotRect, "DaysUntilRotTip".Translate() + "\n" + 
+                            "LWM.DaysUntilRotColdAndTwentyOneDesc".Translate(
+                              daysAtTwentyOne.ToString("0.#"),
+                              tempForHowLongWillLast.ToStringTemperature("F0"))
+                           );
+                    }
+                    else // > 99 days
+                    {
+                        width -= 30f;
+                        Rect rotRect = new Rect(width, y, 28f, 28f);
+                        GUI.color = TransferableOneWayWidget.ItemMassColor;
+                        Widgets.Label(rotRect, "--");
+                        if (daysAtTwentyOne < 99)
+                            TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilRotColdAndTwentyOneDesc".Translate(
+                                 daysAtTwentyOne.ToString("0.#"),
+                                 tempForHowLongWillLast.ToStringTemperature("F0")));
+                        else
+                            TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilWillNotRotSoonDesc".Translate(
+                                 tempForHowLongWillLast.ToStringTemperature("F0")));
+                    }
+                }
+                else // >21f
+                {
+                    float rotInDays = Math.Min(int.MaxValue, compRottable.TicksUntilRotAtTemp(ambientTemp)) / 60000f;
+                    if (rotInDays < 99)
+                    {
+                        width -= 42f;  // Caravans use 75f?  TransferableOneWayWidget.cs
+                        Rect rotRect = new Rect(width, y, 40f, 28f);
+                        GUI.color = Color.yellow;
+                        Widgets.Label(rotRect, rotInDays.ToString("0.#"));
+                        TooltipHandler.TipRegion(rotRect, "DaysUntilRotTip".Translate());
+                    }
+                    else
+                    {
+                        width -= 30f;
+                        Rect rotRect = new Rect(width, y, 28f, 28f);
+                        Widgets.Label(rotRect, "--");
+                        TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilWillNotRotSoonDesc"
+                                .Translate(ambientTemp.ToStringTemperature("F0")));
+                    }
+                }
+                GUI.color = Color.white;
+                Text.Anchor = TextAnchor.UpperLeft;
             } // finish how long food will last
 
             /************************* Text area *************************/

@@ -18,6 +18,9 @@
   <LWM.ContentsHeaderStacksMax>{0} stacks, max {1}, limited with total {2} of {3} kg</LWM.ContentsHeaderStacksMax>
   <LWM.ContentsHeaderItemsMax>{0} items, max {1} (limited by {2}), with total {2} of {3} kg</LWM.ContentsHeaderItemsMax>
   <LWM.ContentsDropDesc>Drop this item onto the floor so colonists can interact with it more easily.\n\nIf you find this button adds clutter and is not useful, you can turn it off in the mod settings.</LWM.ContentsDropDesc>
+  <LWM.DaysUntilRotFrozenAndTwentyOneDesc>This item is frozen but would rot in {0} days if it were at {1}.</LWM.DaysUntilRotFrozenAndTwentyOneDesc>
+  <LWM.DaysUntilWillNotRotSoonDesc>Even at {0} this item would not rot for a long time!</LWM.DaysUntilWillNotRotSoonDesc>
+  <LWM.DaysUntilRotColdAndTwentyOneDesc>This item would rot in {0} days if it were at {1}.</LWM.DaysUntilRotColdAndTwentyOneDesc>
   <LWM.XStacks>{0} stacks</LWM.XStacks><!-- Will be used above as 3 / 4 stacks with...-->
   <LWM.XItems>{0} items</LWM.XItems><!-- 3 / 4 items ...-->
   <LWM.ContentsHeaderMaxSize>    (Cannot store items above a {0} of {1} kg)</LWM.ContentsHeaderMaxSize><!--mass of 3 kg, bulk of 2kg-->
