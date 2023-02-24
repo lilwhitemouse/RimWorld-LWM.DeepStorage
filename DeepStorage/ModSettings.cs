@@ -456,15 +456,20 @@ namespace LWM.DeepStorage
 
             // Update 1.4 introduced def's .building.maxItemsInCell
             //   ....and for backward compatibility, we need both :p
-            //   Approach:  take whichever is bigger: maxItemsInCell or our maxNumberStacks
+            //   Old approach:  take whichever is bigger: maxItemsInCell or our maxNumberStacks
             //   Potential problem: If someone bases an item off of vanilla shelves (mIIC=3)
             //     but sets comp's mNS to 2.  ....I don't think that's likely?  So we won't
             //     worry about it
+            // FOLLOWUP: Yeah, someone set the comp's value for shelves to 1
+            //      (via mod settings, but still...)  Well done man_of_belief!
+            // So.....If numbers disagree here, take MY number over anyone elses:
             foreach (ThingDef d in AllDeepStorageUnits) {
-                int max = Math.Max(d.building.maxItemsInCell,
-                        d.GetCompProperties<DeepStorage.Properties>().maxNumberStacks);
-                d.building.maxItemsInCell = max;
-                d.GetCompProperties<DeepStorage.Properties>().maxNumberStacks = max;
+                int maxN = d.GetCompProperties<DeepStorage.Properties>().maxNumberStacks;
+                if (d.building.maxItemsInCell > maxN)
+                    Log.Message("LWM.DeepStorage: Overriding " + d.defName + "'s number of stacks (" +
+                        d.building.maxItemsInCell + ") to LOWER number from mod settings: " + maxN +
+                        " (but you're the boss!)");
+                d.building.maxItemsInCell = maxN;
                 //Log.Message("LWM just set maxItemsInCell for " + d.defName + " to " + d.building.maxItemsInCell);
                 // NOTE: We also need to do this any time someone presses update settings button
             }
