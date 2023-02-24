@@ -195,7 +195,7 @@ namespace LWM.DeepStorage
         public override void Initialize(CompProperties props) {
             base.Initialize(props);
             /*******  Initialize local variables                                      *******/
-            this.maxNumberStacks = CdsProps.maxNumberStacks;
+            //this.maxNumberStacks = CdsProps.maxNumberStacks; //null->use CdsProps!
 
             /*******  For only one limiting stat: (mass, or bulk for CombatExtended)  *******/
             if (((Properties)props).altStat != null) stat = ((Properties)props).altStat;
@@ -214,13 +214,25 @@ namespace LWM.DeepStorage
             }
             */
         }
+        // Tell the DSMapComponent that something has changed and any storage info for the
+        //   unit may now be incorrect
+        public void DirtyMapCache()
+        {
+            if (parent is Building_Storage && parent.Spawned)
+            {
+                DSMapComponent dsm = parent.Map.GetComponent<DSMapComponent>();
+                foreach (var cell in (parent as Building_Storage).AllSlotCells())
+                    dsm.DirtyCache(cell);
+            }
+        }
 
         // IMPORTANT NOTE: some of the following logic is in the patch for TryFindBestBetterStoreCellFor
         //   (ShouldRemoveFrom logic).  TODO: it should probably be here
 
         public virtual int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {
             return map.GetComponent<DSMapComponent>().CapacityToStoreItemAt(this, thing, cell);
-            throw new Exception("CapacityToStoreThingAt was called - this should never happen!");
+        }
+        public virtual int CapacityToStoreThingAtDirect(Thing thing, Map map, IntVec3 cell) {
             Utils.Warn(CheckCapacity, "Checking Capacity to store "+thing.stackCount+thing+" at "
                        +(map?.ToString()??"NULL MAP")+" "+cell);
             int capacity = 0;
@@ -259,7 +271,7 @@ namespace LWM.DeepStorage
                             Utils.Warn(CheckCapacity, "  But all stacks already taken: "+(stacksStoredHere-1)+" / "+MaxNumberStacks);
                             return 0;
                         }
-                        return thing.stackCount;
+                        return thing.stackCount;//todo: wrong? mass?
                     }
                     if (thingInStorage.CanStackWith(thing)) {
                         if (thingInStorage.stackCount < thingInStorage.def.stackLimit) {
@@ -347,6 +359,7 @@ namespace LWM.DeepStorage
             [Multiplayer.API.SyncMethod]
             set {
                 this.maxNumberStacks = value;
+                this.DirtyMapCache();
             }
         }
 
@@ -372,7 +385,9 @@ namespace LWM.DeepStorage
         [Multiplayer.API.SyncMethod]
         public virtual void ResetSettings()
         {
+            //TODO: Label??
             this.maxNumberStacks = null;
+            this.DirtyMapCache();
         }
 
         public string buildingLabel="";

@@ -128,7 +128,8 @@ namespace LWM.DeepStorage
 
             /////////////////////////// RESET & OK buttons ////////////////////////////
             // OK:
-            if (Widgets.ButtonText(new Rect(15f, inRect.height - 35f - 15f, inRect.width - 15f - 15f, 35f), "OK", true, true, true, null) || pressedEnterForOkay)
+            if (Widgets.ButtonText(new Rect(15f, inRect.height - 35f - 15f, inRect.width - 15f - 15f, 35f), "OK", true, true, true, null) 
+                || pressedEnterForOkay)
             {
 
                 AcceptanceReport acceptanceReport = this.NameIsValid(this.curName);
@@ -144,7 +145,10 @@ namespace LWM.DeepStorage
                 else
                 {
                     foreach (var oc in CompsToApplyChangeTo())
+                    {
+                        if (oc == null) Log.Error("Null oc");
                         oc.MaxNumberStacks = curMaxNumStacks;
+                    }
                     this.SetName(this.curName);
                     Find.WindowStack.TryRemove(this, true);
                 }
@@ -153,7 +157,9 @@ namespace LWM.DeepStorage
                                    true,false,true)) {
                 this.SetName("");
                 foreach (var oc in CompsToApplyChangeTo())
+                {
                     oc.ResetSettings();
+                }
                 Find.WindowStack.TryRemove(this, true);
             }
             GUI.EndGroup(); // very important for this to be called
@@ -186,7 +192,7 @@ namespace LWM.DeepStorage
             if (applyChangesToGroup)
             {
                 foreach (var otherCds in (cds.parent as IStorageGroupMember)?.Group?.members?.OfType<ThingWithComps>()
-                                       .Select(x => x.GetComp<CompDeepStorage>()).Where(x => x != cds) 
+                                       .Select(x => x.GetComp<CompDeepStorage>()).Where(x => x != null && x != cds) 
                       ??  Enumerable.Empty<CompDeepStorage>())
                 {
                     yield return otherCds;

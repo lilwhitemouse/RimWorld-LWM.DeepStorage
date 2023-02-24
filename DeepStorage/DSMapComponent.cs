@@ -9,7 +9,7 @@ using static LWM.DeepStorage.Utils.DBF; // trace utils
 namespace LWM.DeepStorage
 {
     /* Cache:
-     * When does it need to Diry()?
+     * When does it need to Dirty()?
      * Building_Storage spawns    Done....in Display   Done...sortof
      * Building_Storage despawns        file. TODO     Piggybacking off Display
      * Item spawns       - calls Notify_ReceivedThing  Done
@@ -21,15 +21,41 @@ namespace LWM.DeepStorage
     public class DSMapComponent : MapComponent
     {
         private Dictionary<IntVec3, CellCache> cache;
+        private Dictionary<ThingWithComps, CompDeepStorage> settingsForBlueprintsAndFrames;
         public DSMapComponent(Map map) : base(map)
         {
             cache = new Dictionary<IntVec3, CellCache>();
+            settingsForBlueprintsAndFrames = new Dictionary<ThingWithComps, CompDeepStorage>();
         }
+        /************************ settings for blueprints and frames *************************/
+        /* RW version 1.4 introduced several new features for storage, including:
+         *   Storage settings that can be set while a blueprint       
+         *   Storage groups
+         *   Storage groups that can be set while a blueprint
+         * We desire to allow the same for comp settings for specific units/groups
+         * 
+         * RW handles storage settings by giving the Group storage settings and then calling
+         *    on the group.
+         * 
+         * I think it will work better for us to         
+         */
+
+        /************************************  Cache  ***************************************/
 
         public void DirtyCache(IntVec3 cell)
         {
             Utils.Mess(Utils.DBF.Cache, "Cache dirtied: " + cell + (cache.ContainsKey(cell)?"":" (none)"));
             cache.Remove(cell);
+        }
+        public void DirtyEntireCache()
+        {
+            Utils.Mess(Utils.DBF.Cache, "Entire cache cleared!");
+            cache.Clear();
+        }
+        [Multiplayer.API.SyncMethod]
+        public void UpdateCache(IntVec3 cell, CompDeepStorage cds)
+        {
+            cache[cell] = new CellCache(map, cell, cds);
         }
 
         public bool CanStoreItemAt(Thing item, IntVec3 cell)
@@ -47,9 +73,11 @@ namespace LWM.DeepStorage
         {
             if (!cache.ContainsKey(cell))
             {
-                cache[cell] = new CellCache(map, cell, cds);
+                UpdateCache(cell, cds);
             }
-            return cache[cell].CanStoreAny(item, cds);
+            // Still won't contain cache data if MultiPlayer is active ><
+            if (cache.ContainsKey(cell)) return cache[cell].CanStoreAny(item, cds);
+            return cds.CapacityToStoreThingAtDirect(item, map, cell) > 0; //TODO
         }
 
         public int CapacityToStoreItemAt(Thing item, IntVec3 cell)
@@ -68,9 +96,11 @@ namespace LWM.DeepStorage
             Utils.Warn(Utils.DBF.Cache, "Capacity request at " + cell + " for " + item);
             if (!cache.ContainsKey(cell))
             {
-                cache[cell] = new CellCache(map, cell, cds);
+                UpdateCache(cell, cds);
             }
-            return cache[cell].CanStoreThisMany(item, cds);
+            // Still won't contain cache data if MultiPlayer is active ><
+            if (cache.ContainsKey(cell)) return cache[cell].CanStoreThisMany(item, cds);
+            return cds.CapacityToStoreThingAtDirect(item, map, cell);
         }
 
         class CellCache

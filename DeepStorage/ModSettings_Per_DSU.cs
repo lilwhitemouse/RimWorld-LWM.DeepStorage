@@ -363,6 +363,13 @@ namespace LWM.DeepStorage
                             tracker.Remove(def.defName, "filter");
                         }
                     }
+                    if (Find.Maps != null)
+                    {
+                        foreach (var map in Find.Maps)
+                        {
+                            map.GetComponent<DSMapComponent>().DirtyEntireCache();
+                        }
+                    }
                     Close();
                 }
                 // Reset to Defaults
