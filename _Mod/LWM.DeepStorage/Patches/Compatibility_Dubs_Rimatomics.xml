@@ -1,0 +1,25 @@
+<Patch>
+    <!-- Compatibility for Dubs Rimatomics. Allows Railgun sabot rounds to be stored on pallets. -->
+    <!--=====Rimatomics=====-->
+    <Operation Class="PatchOperationFindMod">
+        <mods>
+            <li>Dubs Rimatomics</li>
+        </mods>
+        <match Class="PatchOperationSequence">
+            <operations>
+                <li Class="PatchOperationAdd">
+                    <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter</xpath>
+                    <value>
+                        <thingDefs>
+                            <li>RailgunSabot</li>
+                            <li>RailgunSabotDU</li>
+                        </thingDefs>
+                    </value>
+                </li>
+                <li Class="LWM.DeepStorage.PatchMessage">
+                    <message>LWM Deep Storage: activated compatibility patch for Dubs Rimatomics</message>
+                </li>
+            </operations>
+        </match>
+    </Operation>
+</Patch>
