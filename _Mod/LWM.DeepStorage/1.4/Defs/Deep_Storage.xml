@@ -793,6 +793,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
             <li>Drugs</li><!-- Kafouille asked for this.  Makes sense. -->
           </categories>
           <thingDefs>
+            <li MayRequire="Ludeon.RimWorld.Biotech">HemogenPack</li>
             <li>Neutroamine</li>
             <!--<li>Penoxycyline</li>Under drugs now!-->
           </thingDefs>
