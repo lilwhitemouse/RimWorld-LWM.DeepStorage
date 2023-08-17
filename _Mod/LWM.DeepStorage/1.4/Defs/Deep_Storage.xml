@@ -197,6 +197,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
         <filter>
         </filter>
       </defaultStorageSettings>
+      <paintable>true</paintable>
     </building>
     <comps>
       <!--<li Class="LWM.DeepStorage.Properties">
