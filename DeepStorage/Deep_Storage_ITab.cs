@@ -34,6 +34,8 @@ namespace LWM.DeepStorage
         public static readonly Color ThingLabelColor = new Color(0.9f, 0.9f, 0.9f, 1f);
         public static readonly Color HighlightColor = new Color(0.5f, 0.5f, 0.5f, 1f);
         public static readonly Color ColdColor = new Color(0.4f, 0.6f, 0.75f);
+        // Taken from Verse.GasGrid:
+        public static readonly Color RottenColor = new Color32(214, 90, 24, byte.MaxValue);
         private const float ThingIconSize = 28f;
         private const float ThingRowHeight = 28f;
         private const float ThingLeftX = 36f;
@@ -166,84 +168,100 @@ namespace LWM.DeepStorage
             // Some mods add non-food items that rot, so we track those too:
             CompRottable compRottable = thing.TryGetComp<CompRottable>();
             if (compRottable != null) {
+                Rect rotRect;
                 Text.Anchor = TextAnchor.MiddleLeft;
-                float daysAtTwentyOne = -1; // How long the compRottable will last if it were 21C (or whatever)
-                if (ambientTemp <= tempForHowLongWillLast)
-                    daysAtTwentyOne = Math.Min(int.MaxValue,
-                             compRottable.TicksUntilRotAtTemp(tempForHowLongWillLast)) / 60000f;
-                if (ambientTemp <= 0f) // frozen
-                {
-                    if (daysAtTwentyOne < 99) // 60 is a year
-                    {
-                        width -= 42f;
-                        Rect rotRect = new Rect(width, y, 40f, 28f);
-                        GUI.color = ColdColor;
-                        Widgets.Label(rotRect, daysAtTwentyOne.ToString("0.#"));
-                        TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilRotFrozenAndTwentyOneDesc"
-                                 .Translate(daysAtTwentyOne.ToString("0.#"), 
-                                    tempForHowLongWillLast.ToStringTemperature("F0")));
-                    }
-                    else
-                    {
-                        width -= 30f;
-                        Rect rotRect = new Rect(width, y, 28f, 28f);
-                        GUI.color = TransferableOneWayWidget.ItemMassColor;
-                        Widgets.Label(rotRect, "--");
-                        TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilWillNotRotSoonDesc".Translate(
-                                  tempForHowLongWillLast.ToStringTemperature("F0")));
-                    }
+                if (compRottable.Stage != RotStage.Fresh)
+                { //rotten already
+                    string rotten = "LWM.AlreadyRottenShort".Translate();
+                    var textSize = Text.CalcSize(rotten);
+                    width -= textSize.x;
+                    rotRect = new Rect(width, y, textSize.x, textSize.y);
+                    GUI.color = RottenColor; // I COULD check to see if it's below freezing and use that
+                                             // color...but really, probably very few people are storing
+                                             // rotten corpses and care about whether it's frozen or not
+                    Widgets.Label(rotRect, rotten);
+                    TooltipHandler.TipRegionByKey(rotRect, "LWM.AlreadyRottenDesc");
                 }
-                else if (ambientTemp <= tempForHowLongWillLast)
+                else //still fresh
                 {
-                    float rotInDays = Math.Min(int.MaxValue, compRottable.TicksUntilRotAtTemp(ambientTemp))/60000f;
-                    if (rotInDays < 99)
+                    float daysAtTwentyOne = -1; // How long the compRottable will last if it were 21C (or whatever)
+                    if (ambientTemp <= tempForHowLongWillLast)
+                        daysAtTwentyOne = Math.Min(int.MaxValue,
+                                 compRottable.TicksUntilRotAtTemp(tempForHowLongWillLast)) / 60000f;
+                    if (ambientTemp <= 0f) // frozen
                     {
-                        width -= 42f;  // Caravans use 75f?  TransferableOneWayWidget.cs
-                        Rect rotRect = new Rect(width, y, 40f, 28f);
-                        GUI.color = Color.yellow;
-                        Widgets.Label(rotRect, rotInDays.ToString("0.#"));
-                        GUI.color = Color.white;
-                        TooltipHandler.TipRegion(rotRect, "DaysUntilRotTip".Translate() + "\n" + 
-                            "LWM.DaysUntilRotColdAndTwentyOneDesc".Translate(
-                              daysAtTwentyOne.ToString("0.#"),
-                              tempForHowLongWillLast.ToStringTemperature("F0"))
-                           );
-                    }
-                    else // > 99 days
-                    {
-                        width -= 30f;
-                        Rect rotRect = new Rect(width, y, 28f, 28f);
-                        GUI.color = TransferableOneWayWidget.ItemMassColor;
-                        Widgets.Label(rotRect, "--");
-                        if (daysAtTwentyOne < 99)
-                            TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilRotColdAndTwentyOneDesc".Translate(
-                                 daysAtTwentyOne.ToString("0.#"),
-                                 tempForHowLongWillLast.ToStringTemperature("F0")));
+                        if (daysAtTwentyOne < 99) // 60 is a year
+                        {
+                            width -= 42f;
+                            rotRect = new Rect(width, y, 40f, 28f);
+                            GUI.color = ColdColor;
+                            Widgets.Label(rotRect, daysAtTwentyOne.ToString("0.#"));
+                            TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilRotFrozenAndTwentyOneDesc"
+                                     .Translate(daysAtTwentyOne.ToString("0.#"),
+                                        tempForHowLongWillLast.ToStringTemperature("F0")));
+                        }
                         else
+                        {
+                            width -= 30f;
+                            rotRect = new Rect(width, y, 28f, 28f);
+                            GUI.color = TransferableOneWayWidget.ItemMassColor;
+                            Widgets.Label(rotRect, "--");
                             TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilWillNotRotSoonDesc".Translate(
-                                 tempForHowLongWillLast.ToStringTemperature("F0")));
+                                      tempForHowLongWillLast.ToStringTemperature("F0")));
+                        }
                     }
-                }
-                else // >21f
-                {
-                    float rotInDays = Math.Min(int.MaxValue, compRottable.TicksUntilRotAtTemp(ambientTemp)) / 60000f;
-                    if (rotInDays < 99)
+                    else if (ambientTemp <= tempForHowLongWillLast)
                     {
-                        width -= 42f;  // Caravans use 75f?  TransferableOneWayWidget.cs
-                        Rect rotRect = new Rect(width, y, 40f, 28f);
-                        GUI.color = Color.yellow;
-                        Widgets.Label(rotRect, rotInDays.ToString("0.#"));
-                        TooltipHandler.TipRegion(rotRect, "DaysUntilRotTip".Translate());
+                        float rotInDays = Math.Min(int.MaxValue, compRottable.TicksUntilRotAtTemp(ambientTemp)) / 60000f;
+                        if (rotInDays < 99)
+                        {
+                            width -= 42f;  // Caravans use 75f?  TransferableOneWayWidget.cs
+                            rotRect = new Rect(width, y, 40f, 28f);
+                            GUI.color = Color.yellow;
+                            Widgets.Label(rotRect, rotInDays.ToString("0.#"));
+                            GUI.color = Color.white;
+                            TooltipHandler.TipRegion(rotRect, "DaysUntilRotTip".Translate() + "\n" +
+                                "LWM.DaysUntilRotColdAndTwentyOneDesc".Translate(
+                                  daysAtTwentyOne.ToString("0.#"),
+                                  tempForHowLongWillLast.ToStringTemperature("F0"))
+                               );
+                        }
+                        else // > 99 days
+                        {
+                            width -= 30f;
+                            rotRect = new Rect(width, y, 28f, 28f);
+                            GUI.color = TransferableOneWayWidget.ItemMassColor;
+                            Widgets.Label(rotRect, "--");
+                            if (daysAtTwentyOne < 99)
+                                TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilRotColdAndTwentyOneDesc".Translate(
+                                     daysAtTwentyOne.ToString("0.#"),
+                                     tempForHowLongWillLast.ToStringTemperature("F0")));
+                            else
+                                TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilWillNotRotSoonDesc".Translate(
+                                     tempForHowLongWillLast.ToStringTemperature("F0")));
+                        }
                     }
-                    else
+                    else // >21f
                     {
-                        width -= 30f;
-                        Rect rotRect = new Rect(width, y, 28f, 28f);
-                        Widgets.Label(rotRect, "--");
-                        TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilWillNotRotSoonDesc"
-                                .Translate(ambientTemp.ToStringTemperature("F0")));
+                        float rotInDays = Math.Min(int.MaxValue, compRottable.TicksUntilRotAtTemp(ambientTemp)) / 60000f;
+                        if (rotInDays < 99)
+                        {
+                            width -= 42f;  // Caravans use 75f?  TransferableOneWayWidget.cs
+                            rotRect = new Rect(width, y, 40f, 28f);
+                            GUI.color = Color.yellow;
+                            Widgets.Label(rotRect, rotInDays.ToString("0.#"));
+                            TooltipHandler.TipRegion(rotRect, "DaysUntilRotTip".Translate());
+                        }
+                        else
+                        {
+                            width -= 30f;
+                            rotRect = new Rect(width, y, 28f, 28f);
+                            Widgets.Label(rotRect, "--");
+                            TooltipHandler.TipRegion(rotRect, "LWM.DaysUntilWillNotRotSoonDesc"
+                                    .Translate(ambientTemp.ToStringTemperature("F0")));
+                        }
                     }
-                }
+                } // end still fresh
                 GUI.color = Color.white;
                 Text.Anchor = TextAnchor.UpperLeft;
             } // finish how long food will last
