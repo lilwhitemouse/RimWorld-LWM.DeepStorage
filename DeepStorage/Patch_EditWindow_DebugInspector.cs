@@ -36,7 +36,7 @@ namespace LWM.DeepStorage
                          */                        
                         __result = System.Text.RegularExpressions.Regex.Replace(__result, "(.*Inspecting.*?\n)",
                             "$1"+ 
-                            map.GetComponent<DSMapComponent>().Debug(cell) + "\n");
+                            map.GetComponent<MapComponentDS>().Debug(cell) + "\n");
                     }
                 }
             }

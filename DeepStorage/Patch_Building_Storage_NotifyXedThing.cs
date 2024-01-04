@@ -15,7 +15,7 @@ namespace LWM.DeepStorage
     {
         static void Postfix(Thing newItem, Building_Storage __instance)
         {
-            __instance.Map.GetComponent<DSMapComponent>().DirtyCache(newItem.Position);
+            __instance.Map.GetComponent<MapComponentDS>().DirtyCache(newItem.Position);
         }
     }
 
@@ -29,7 +29,7 @@ namespace LWM.DeepStorage
             // If some mod does something really weird with position,
             //   but is a good pupper and calls Notify_LostThing...
             // I hate to clear the whole cache, but:
-            var comp = __instance.Map.GetComponent<DSMapComponent>();
+            var comp = __instance.Map.GetComponent<MapComponentDS>();
             foreach (var c in __instance.AllSlotCells())
                 comp.DirtyCache(c);
         }

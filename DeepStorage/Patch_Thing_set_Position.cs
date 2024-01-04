@@ -10,12 +10,12 @@ namespace LWM.DeepStorage
         static void Prefix(Thing __instance)
         {
             if (__instance.Spawned && __instance.def.category == ThingCategory.Item)
-                __instance.Map.GetComponent<DSMapComponent>().DirtyCache(__instance.Position);
+                __instance.Map.GetComponent<MapComponentDS>().DirtyCache(__instance.Position);
         }
         static void Postfix(Thing __instance)
         {
             if (__instance.Spawned && __instance.def.category == ThingCategory.Item)
-                __instance.Map.GetComponent<DSMapComponent>().DirtyCache(__instance.Position);
+                __instance.Map.GetComponent<MapComponentDS>().DirtyCache(__instance.Position);
         }
     }
 }

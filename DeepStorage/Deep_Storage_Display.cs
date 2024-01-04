@@ -165,7 +165,7 @@ namespace LWM.DeepStorage
             CompDeepStorage cds;
             if ((cds = __instance.GetComp<CompDeepStorage>()) == null) return;
             foreach (IntVec3 cell in __instance.AllSlotCells()) {
-                if (!respawningAfterLoad) map.GetComponent<DSMapComponent>().DirtyCache(cell);
+                if (!respawningAfterLoad) map.GetComponent<MapComponentDS>().DirtyCache(cell);
 
                 List<Thing> list = map.thingGrid.ThingsListAt(cell);
                 bool alreadyFoundItemOnTop=false;
@@ -322,7 +322,7 @@ namespace LWM.DeepStorage
                 return;
             }
             foreach (IntVec3 cell in DSU.AllSlotCells()) {
-                __instance.Map.GetComponent<DSMapComponent>().DirtyCache(cell);
+                __instance.Map.GetComponent<MapComponentDS>().DirtyCache(cell);
                 List<Thing> list = map.thingGrid.ThingsListAt(cell);
                 Thing t;
                 for (int i=0; i<list.Count;i++) {
