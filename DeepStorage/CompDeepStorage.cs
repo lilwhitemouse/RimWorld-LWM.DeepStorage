@@ -13,17 +13,23 @@ using static LWM.DeepStorage.Utils.DBF; // trace utils
 namespace LWM.DeepStorage
 {
     public class CompDeepStorage : ThingComp, IHoldMultipleThings.IHoldMultipleThings {
+
+        //public Texture2D settingsIcon;// = ContentFinder<Texture2D>.Get("LWM.menu_2_2_2.png");
         //public float y=0f;
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
             }
+            //if (settingsIcon == null) settingsIcon = ContentFinder<Texture2D>.Get("LWM.menu_2_2_2");
             yield return new Command_Action
             {
-//                icon = has_Ideology?UI/Abilities/WorkDrive :
-                icon = ContentFinder<Texture2D>.Get("Things/Mote/Thought", true),
-//                icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
-//        icon = ContentFinder<Texture2D>.Get("Things/Item/Unfinished/UnfinishedGun", true),
+                //icon = settingsIcon,
+                icon = ContentFinder<Texture2D>.Get("LWM.menu_2_2_2"),
+                // icon = has_Ideology?UI/Abilities/WorkDrive :
+                // icon = ContentFinder<Texture2D>.Get("Things/Mote/Thought", true),
+                //  icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
+                // icon = ContentFinder<Texture2D>.Get("Things/Item/Unfinished/UnfinishedGun", true),
+                // as you can see, I tried a bunch of icons before settling on my own, because meh.
                 defaultLabel = "Settings".Translate(),
                 action = delegate()
                 {
