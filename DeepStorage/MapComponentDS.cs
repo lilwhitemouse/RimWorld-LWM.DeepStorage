@@ -18,11 +18,10 @@ namespace LWM.DeepStorage
      * Item stackcount changes (because stack split    Done
      *      off from it) -
      */    
-    public class DSMapComponent : MapComponent
+    public class MapComponentDS : MapComponent
     {
         private Dictionary<IntVec3, CellCache> cache;
-        private Dictionary<ThingWithComps, CompDeepStorage> settingsForBlueprintsAndFrames;
-        public DSMapComponent(Map map) : base(map)
+        public MapComponentDS(Map map) : base(map)
         {
             cache = new Dictionary<IntVec3, CellCache>();
             settingsForBlueprintsAndFrames = new Dictionary<ThingWithComps, CompDeepStorage>();
@@ -37,8 +36,20 @@ namespace LWM.DeepStorage
          * RW handles storage settings by giving the Group storage settings and then calling
          *    on the group.
          * 
-         * I think it will work better for us to         
+         * I think it will work better for us to copy the settings between items, and for blueprints
+         *   and frames, we will store their data here:        
          */
+        public Dictionary<ThingWithComps, CompDeepStorage> settingsForBlueprintsAndFrames;
+        private List<ThingWithComps> tmpExposeKeyList;
+        private List<CompDeepStorage> tmpExposeValueList;
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Collections.Look<ThingWithComps, CompDeepStorage>(ref settingsForBlueprintsAndFrames, "LWMDS_settingsForBPandFrames",
+                LookMode.Reference /*reference to the Thing*/, LookMode.Deep /*deep stored compDS with actual settings*/,
+                ref tmpExposeKeyList, ref tmpExposeValueList);
+        }
 
         /************************************  Cache  ***************************************/
 
@@ -103,6 +114,10 @@ namespace LWM.DeepStorage
             return cds.CapacityToStoreThingAtDirect(item, map, cell);
         }
 
+        /************************************************************************************/
+        /***************************** internal CellCache class *****************************/
+        /************************************************************************************/
+        #region CellCache
         class CellCache
         {
             private float massStored = 0f;
@@ -123,16 +138,17 @@ namespace LWM.DeepStorage
                 massStored = 0;
                 emptyStacks = cds.MaxNumberStacks;
                 notFull.Clear();
-                foreach (Thing t in map.thingGrid.ThingsAt(cell).Where(t=>t.def.EverStorable(false))) {
+                foreach (Thing t in map.thingGrid.ThingsAt(cell).Where(t => t.def.EverStorable(false)))
+                {
                     massStored += t.GetStatValue(cds.stat) * t.stackCount;
                     if (t.stackCount < t.def.stackLimit) notFull.Add(t);
                     emptyStacks--;
                     // A cheap way to make listerHaulables recheck item:
                     // Better would be CheckAdd(), which is private and I don't have that here
-                    if (massStored > cds.limitingTotalFactorForCell || emptyStacks < 0) 
-                             map.listerHaulables.Notify_Spawned(t);
+                    if (massStored > cds.limitingTotalFactorForCell || emptyStacks < 0)
+                        map.listerHaulables.Notify_Spawned(t);
                 }
-                Utils.Mess(Utils.DBF.Cache,"Cache created for " + cell + ": mass: " 
+                Utils.Mess(Utils.DBF.Cache, "Cache created for " + cell + ": mass: "
                            + massStored + " emptyStacks: " + emptyStacks);
             }
             public bool CanStoreAny(Thing t, CompDeepStorage cds)
@@ -152,7 +168,7 @@ namespace LWM.DeepStorage
                         // BUT....
                         // If there's a minimum storage amount, we have to respect that:
                         // TODO: Maybe cache a number of forced free stacks for a cell?
-                        if (cds.MinNumberStacks > 1 && cds.MaxNumberStacks-emptyStacks < cds.MinNumberStacks)
+                        if (cds.MinNumberStacks > 1 && cds.MaxNumberStacks - emptyStacks < cds.MinNumberStacks)
                         {
                             Utils.Mess(Utils.DBF.Cache, "Cache storage request for " + t +
                                 ": over total mass limit but MinNumberStacks not met yet, so passes!");
@@ -160,7 +176,7 @@ namespace LWM.DeepStorage
                         }
                         Utils.Mess(Utils.DBF.Cache, "Cache storage request for " + t + ": over total mass limit");
                         return false;
-//TODO: oops, do this
+                        //TODO: oops, do this
                     }
                 }
                 if (emptyStacks > 0) return true;
@@ -176,7 +192,7 @@ namespace LWM.DeepStorage
                     newMassOneItem = t.GetStatValue(cds.stat);
                     if (cds.limitingFactorForItem > 0f && newMassOneItem > cds.limitingFactorForItem)
                     {
-                        Utils.Mess(Utils.DBF.Cache, "Cache capacity request for " + t + ": too heavy at " 
+                        Utils.Mess(Utils.DBF.Cache, "Cache capacity request for " + t + ": too heavy at "
                                    + newMassOneItem);
                         return 0;
                     }
@@ -193,7 +209,8 @@ namespace LWM.DeepStorage
                 {
                     float availableMass = cds.limitingTotalFactorForCell - massStored;
                     int maxNumberFromMass = ((int)(availableMass / newMassOneItem));
-                    if (cds.MinNumberStacks > 1) {
+                    if (cds.MinNumberStacks > 1)
+                    {
                         int curNumberStacks = cds.MaxNumberStacks - this.emptyStacks;
                         if (curNumberStacks <= cds.MinNumberStacks)
                         {
@@ -228,4 +245,5 @@ namespace LWM.DeepStorage
             return cache[cell].Debug(cds);
         }
     }
+    #endregion
 }
