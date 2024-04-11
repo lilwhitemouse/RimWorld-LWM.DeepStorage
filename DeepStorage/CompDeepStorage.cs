@@ -12,7 +12,18 @@ using static LWM.DeepStorage.Utils.DBF; // trace utils
 
 namespace LWM.DeepStorage
 {
-    public class CompDeepStorage : ThingComp, IHoldMultipleThings.IHoldMultipleThings {
+    public class CompDeepStorage : ThingComp, IHoldMultipleThings.IHoldMultipleThings, IRenameable{
+            public string label = "";
+            public string RenamableLabel
+            {
+              get => this.label ?? this.BaseLabel;
+              set => this.label = value;
+            }
+        
+            public string BaseLabel => this.parent.def.label.CapitalizeFirst();
+        
+            public string InspectLabel => this.RenamableLabel;
+            
         //public float y=0f;
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
             foreach (Gizmo g in base.CompGetGizmosExtra()) {

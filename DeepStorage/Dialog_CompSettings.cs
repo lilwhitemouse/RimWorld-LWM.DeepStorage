@@ -13,9 +13,9 @@ namespace LWM.DeepStorage
     // TODO: change this
     // TODO: only show name message if name changed
     // TODO: show new message for maxNumStacks changing
-	public class Dialog_CompSettings : Dialog_Rename
+	public class Dialog_CompSettings : Dialog_Rename<CompDeepStorage>
 	{
-		public Dialog_CompSettings(CompDeepStorage cds)
+		public Dialog_CompSettings(CompDeepStorage cds): base(cds)
 		{
 			this.cds = cds;
 			this.curName = cds.parent.Label;
@@ -173,7 +173,7 @@ namespace LWM.DeepStorage
             return true;
         }
 
-        protected override void SetName(string name)
+        protected void SetName(string name)
         {
             this.cds.SetLabel(name);
             Messages.Message("LWM_DSU_GainsName".Translate(this.cds.parent.def.label, cds.parent.Label),
