@@ -107,7 +107,7 @@
     <Compile Include="Dialog_RenameDSU.cs" />
     <Compile Include="Patch_Building_Storage_NotifyXedThing.cs" />
     <Compile Include="Patch_Graphic_Print.cs" />
-    <Compile Include="DSMapComponent.cs" />
+    <Compile Include="MapComponentDS.cs" />
     <Compile Include="Patch_NoStorageBlockersIn.cs" />
     <Compile Include="Patch_Thing_set_Position.cs" />
     <Compile Include="Patch_Thing_SplitOff.cs" />
