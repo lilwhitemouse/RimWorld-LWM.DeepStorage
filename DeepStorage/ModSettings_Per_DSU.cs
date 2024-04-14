@@ -367,7 +367,7 @@ namespace LWM.DeepStorage
                     {
                         foreach (var map in Find.Maps)
                         {
-                            map.GetComponent<DSMapComponent>().DirtyEntireCache();
+                            map.GetComponent<MapComponentDS>().DirtyEntireCache();
                         }
                     }
                     Close();
