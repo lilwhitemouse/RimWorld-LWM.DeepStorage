@@ -27,6 +27,9 @@
   <LWMDSstoringTimeConsidersStackSize>Does storing time consider stack size? (Stack XXL? Ogre Stack?)</LWMDSstoringTimeConsidersStackSize>
   <LWMDSstoringTimeConsidersStackSizeDesc>If selected (default), storing 75 of something may take longer than storing 3.  This mainly affects Skips.  You probably want to turn this OFF if you are using a mod that makes stack sizes really big.</LWMDSstoringTimeConsidersStackSizeDesc>
 
+  <LWMDSdisableMassLimits>Disable Mass Limits</LWMDSdisableMassLimits>
+  <LWMDSdisableMassLimitsDesc>This completely disables checking for mass limits for storage units. It DOES NOT disable the limit on some items being too large for some units (so a small shelf still can't hold a 600kg statue). Requires restart to take effect (and you're lucky to get this at all)</LWMDSdisableMassLimitsDesc>
+  
   <LWM_DS_defaultStoragePriority>Deep Storage defaults to Storage Priority:</LWM_DS_defaultStoragePriority>
 
   <LWM_DS_userInterface>User Interface</LWM_DS_userInterface>
