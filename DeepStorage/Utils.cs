@@ -94,7 +94,7 @@ namespace LWM.DeepStorage
             #pragma warning restore CS0162 // Unreachable code detected
         }
         public static bool CanStoreMoreThanOneThingIn(SlotGroup slotGroup) {
-            if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
+            if (slotGroup == null || !(slotGroup.parent is ThingWithComps) ||
                 (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null)
             {
                 return false;
