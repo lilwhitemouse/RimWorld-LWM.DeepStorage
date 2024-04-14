@@ -386,6 +386,9 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
         <filter>
           <categories>
             <li>FoodRaw</li>
+            <!-- Why they didn't put raw strange meat under FoodRaw is beyond me, and annoying -->
+            <li MayRequire="rimofmadness.CallofCthulhuCosmicHorrors">ROM_StrangeMeatRaw</li>
+            <li MayRequire="Mlie.CallofCthulhuCosmicHorrors">ROM_StrangeMeatRaw</li>
             <li>PlantMatter</li>
             <li>Drugs</li>
           </categories>
