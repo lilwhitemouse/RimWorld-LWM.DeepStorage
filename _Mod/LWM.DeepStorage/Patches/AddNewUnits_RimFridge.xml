@@ -31,6 +31,9 @@
         <pathCost>80</pathCost>
 	<fillPercent>0.5</fillPercent><!-- decent to hide behind -->
 	<castEdgeShadows>true</castEdgeShadows>
+		  <building>
+			  <groupingLabel>Deep Refrigerator</groupingLabel>
+		  </building>
 	<costList>
 	  <Steel>80</Steel>
 	  <ComponentIndustrial>3</ComponentIndustrial>

@@ -143,7 +143,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
   <ThingDef Name="LWM_DeepStorage" ParentName="FurnitureBase" Abstract="true">
     <!--  Old approach:  Class="LWM.DeepStorage.DeepStorageDef"; using a comp is better>-->
     <defName>LWM_DeepStorage</defName><!-- this defname doesn't actually exist in-game, does it? -->
-    <thingClass>Building_Storage</thingClass>
+    <thingClass>LWM.DeepStorage.Deep_Storage_Building</thingClass>
 
     <altitudeLayer>Building</altitudeLayer>
     <passability>PassThroughOnly</passability>
@@ -191,6 +191,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
 
     <filthLeaving>Filth_RubbleBuilding</filthLeaving>
     <building>
+      <groupingLabel>Building Storage</groupingLabel><!-- Might be overridden -->
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop><!-- Might be overridden -->
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty><!-- Might be overridden -->
       <defaultStorageSettings>
@@ -212,7 +213,6 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <defName>LWM_BigShelf</defName><!-- name change to reduce chance of mod conflict.  See Updates.cs -->
     <label>Double Shelf</label>
     <description>A shelf for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nItems stored in this will not deteriorate, even if outside.\n\nThis shelf holds twice as much as the regular one.</description>
-    <thingClass>Building_Storage</thingClass>
     <graphicData>
       <texPath>Things/Building/Furniture/Shelf</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
@@ -238,6 +238,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <size>(2,1)</size>
     <defaultPlacingRot>South</defaultPlacingRot>
     <building>
+      <groupingLabel>Double Shelf</groupingLabel>
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
       <defaultStorageSettings>
@@ -258,7 +259,6 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <defName>LWM_VeryBigShelf</defName>
     <label>Tall Shelves</label>
     <description>A set of tall covered shelves for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nPawns access the top shelves using a small rolling ladder (currently not pitured), so while many things can be stored here, it can take a while if you're putting a lot of tiny bottles on the top shelf.  Items stored in this will not deteriorate, even if outside.\n\nNote:  Use your own judgement about what you put here.  Grand Sculptures?  Probably don't ACTUALLY fit.  But if that's what you want here, you play you!</description>
-    <thingClass>Building_Storage</thingClass>
     <graphicData>
       <texPath>VBig_Shelf</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
@@ -286,6 +286,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     <size>(2,1)</size>
     <defaultPlacingRot>South</defaultPlacingRot>
     <building>
+      <groupingLabel>Tall Shelves</groupingLabel>
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
       <defaultStorageSettings>
@@ -329,6 +330,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
     </stuffCategories>
     <costStuffCount>75</costStuffCount><!-- lots of shelves? -->
     <building>
+      <groupingLabel>Meal Rack</groupingLabel>
       <fixedStorageSettings>
         <filter>
           <categories>
@@ -380,6 +382,7 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
       <Flammability>1.0</Flammability>
     </statBases>
     <building>
+      <groupingLabel>Food Basket</groupingLabel>
       <fixedStorageSettings>
         <filter>
           <categories>
@@ -437,6 +440,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
     </stuffCategories>
     <costStuffCount>75</costStuffCount>
     <building>
+      <groupingLabel>Meat Hook</groupingLabel>
       <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
       <ignoreStoredThingsBeauty>false</ignoreStoredThingsBeauty>
       <fixedStorageSettings>
@@ -503,6 +507,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
     </stuffCategories>
     <costStuffCount>85</costStuffCount>
     <building>
+      <groupingLabel>Hayloft</groupingLabel>
       <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
       <fixedStorageSettings>
         <filter>
@@ -556,6 +561,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
     <costStuffCount>90</costStuffCount>
     <costList><Steel>25</Steel></costList><!--Wish I could do steel OR wood-->
     <building>
+      <groupingLabel>Hampers</groupingLabel>
       <fixedStorageSettings>
         <filter>
           <!-- No "Fabric" here - I think hampers are a terrible say to store
@@ -623,6 +629,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
     </stuffCategories>
     <costStuffCount>65</costStuffCount>
     <building>
+      <groupingLabel>Pallet</groupingLabel>
       <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
       <ignoreStoredThingsBeauty>false</ignoreStoredThingsBeauty>
       <fixedStorageSettings>
@@ -671,6 +678,7 @@ Note that you can only fit so many giant corpses into one space, even if you sta
       <Cloth>40</Cloth>
     </costList>
     <building>
+      <groupingLabel>Pallet Covered</groupingLabel>
       <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
       <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
       <fixedStorageSettings>
@@ -724,6 +732,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
     </stuffCategories>
     <costStuffCount>90</costStuffCount>
     <building>
+      <groupingLabel>Skip</groupingLabel>
       <ignoreStoredThingsBeauty>false</ignoreStoredThingsBeauty>
       <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
       <fixedStorageSettings>
@@ -784,6 +793,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
       <Flammability>1.0</Flammability>
     </statBases>
     <building>
+      <groupingLabel>Medicine Cabinet</groupingLabel>
       <fixedStorageSettings>
         <filter>
           <categories>
@@ -835,6 +845,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
     </stuffCategories>
     <costStuffCount>50</costStuffCount>
     <building>
+      <groupingLabel>Clothing Rack</groupingLabel>
       <fixedStorageSettings>
         <filter>
           <categories>
@@ -886,6 +897,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
 	</stuffCategories>
 	<costStuffCount>300</costStuffCount>
 	<building>
+        <groupingLabel>Safe</groupingLabel>
 		<preventDeteriorationOnTop>true</preventDeteriorationOnTop>
 		<ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
 		<fixedStorageSettings>
