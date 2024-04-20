@@ -73,11 +73,9 @@
   <!-- - - - - - - - - - - - - - - -  Settings button in game - - - - - - - - - - - - - -->
   <LWMDS_BuildingSettings>Storage Unit Settings</LWMDS_BuildingSettings>
   <LWMDS_PerBuildingSettings>Settings for THIS {0}</LWMDS_PerBuildingSettings>
-  <!--<LWMDS_ApplyChangesToGroup>Apply any changes to the entire storage group?</LWMDS_ApplyChangesToGroup>
-      <LWMDS_ApplyChangesToGroupDesc>This storage unit is currently a part of a group of {0} units. If this is check, any changes you make here will apply to ALL of them!</LWMDS_ApplyChangesToGroupDesc>-->
   <LWMDS_ApplyChangesToGroup>These changes apply to all {0} members of the group</LWMDS_ApplyChangesToGroup>
   <LWMDS_ApplyChangesToGroupDesc>This storage building is part of a group of {0} members - all of the members' settings will update to match these when you change them!</LWMDS_ApplyChangesToGroupDesc>
-  <LWMDS_PerBuildingSettingsDesc>Changing any of these settings will only affect THIS building. All others will not be affected (NOTE: currently doesn't affect the rest of the linked group, if it's linked. That will probably happen later, but not yet)</LWMDS_PerBuildingSettingsDesc>
+  <LWMDS_PerBuildingSettingsDesc>Changing any of these settings will only affect THIS building (and its storage group, if it has one). All others will not be affected - if you want to change settings for all units of this type, use the Mod Options</LWMDS_PerBuildingSettingsDesc>
   <LWMDS_CurrentMaxNumStacksTotals>Currently: {0} stacks/cell ({1} total)</LWMDS_CurrentMaxNumStacksTotals>
   <LWMDS_DefaultMaxNumStacksTotals>Default: {0} stacks/cell ({1} total)</LWMDS_DefaultMaxNumStacksTotals>
 </LanguageData>

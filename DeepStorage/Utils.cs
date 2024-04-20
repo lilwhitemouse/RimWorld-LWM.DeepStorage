@@ -25,6 +25,7 @@ namespace LWM.DeepStorage
             false, // ShouldRemoveFromStorage
             false, // CheckCapacity
             false, // RightClickMenu // Patch_FloatMenuMakerMap_RightClick
+            false, // Storage Group
             true, // Settings
             true,  // Cache
         };
@@ -33,7 +34,7 @@ namespace LWM.DeepStorage
         {
             Testing, NoStorageBlockerseIn, HaulToCellStorageJob, TryPlaceDirect, Spawn, TidyStacksOf,
             Deep_Storage_Job, PlaceHauledThingInCell, ShouldRemoveFromStorage, CheckCapacity,
-            RightClickMenu, Settings, Cache
+            RightClickMenu, StorageGroup, Settings, Cache
         }
 
         // Nifty! Won't even be compiled into assembly if not DEBUG

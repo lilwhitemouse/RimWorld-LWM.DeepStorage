@@ -7,6 +7,8 @@ using HugsLib.Settings;
 
 namespace LWM.DeepStorage
 {
+    // FFS: TODO: remove this, because it's not adding much and makes me make stupid mistakes when developing without the assembly
+    // ALTHO.....it is handy to have HugsLib for the log stuff.......
     internal class LWM_Hug : HugsLib.ModBase
     {
         public override string ModIdentifier {

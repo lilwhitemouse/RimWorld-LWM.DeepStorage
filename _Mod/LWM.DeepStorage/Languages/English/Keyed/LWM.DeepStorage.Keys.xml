@@ -8,6 +8,10 @@
   <LWM_DS_kg>{0}kg</LWM_DS_kg><!-- mass -->
   <LWM_DS_BulkEtcOf>{0} {1}</LWM_DS_BulkEtcOf><!-- for CE:  "15 bulk", etc -->
   <LWM_DSU_GainsName>The {0} is now called {1}.</LWM_DSU_GainsName><!-- rename building -->
+  <LWM_DSU_DefaultName>This is now called a {0} again.</LWM_DSU_DefaultName><!-- return name to default -->
+  <LWM.StorageUnitSettings>storage unit settings</LWM.StorageUnitSettings><!-- command button for storage settings for a single building -->
+  <LWM.StorageUnitSettingsDesc>You may change the settings for this storage unit. For example, you may rename it, or change the maximum number of items stored in it.\n\nNOTE: Changes will only affect this particular {0} (and its storage group)</LWM.StorageUnitSettingsDesc>
+  <LWM.SettingsDiabledNotInGroup>All storage units must be in the same Storage Group to edit settings</LWM.SettingsDiabledNotInGroup>
   <!-- Content tab -->
   <!--     3 / 10 stacks with total mass of 4.5 / 10 kg -->
   <!--   or if using CE: -->
