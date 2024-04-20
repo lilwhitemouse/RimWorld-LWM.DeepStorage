@@ -4,7 +4,6 @@ using Verse;
 
 namespace LWM.DeepStorage
 {
-#if DEBUGLWM
     [HarmonyPatch(typeof(Verse.Building), "get_MaxItemsInCell")]
     public static class Patch_Building_MaxItemsInCell
     {
@@ -15,5 +14,4 @@ namespace LWM.DeepStorage
             return false;
         }
     }
-#endif
 }

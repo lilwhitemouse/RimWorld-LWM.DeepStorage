@@ -4,7 +4,8 @@ using Verse;
 using HarmonyLib;
 
 //using static LWM.DeepStorage.Utils.DBF; // debug trace
-
+// I believe vanilla handles this correctly enough now. I certainly ain't gonna fix it. Anyone else wants to, have at
+#if false
 namespace LWM.DeepStorage
 {
     /// <summary>
@@ -38,3 +39,4 @@ namespace LWM.DeepStorage
         }
     }
 }
+#endif

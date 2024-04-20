@@ -25,14 +25,16 @@ namespace LWM.DeepStorage
             false, // ShouldRemoveFromStorage
             false, // CheckCapacity
             false, // RightClickMenu // Patch_FloatMenuMakerMap_RightClick
+            false, // Storage Group
             true, // Settings
+            true,  // Cache
         };
 
         public enum DBF // DeBugFlag
         {
             Testing, NoStorageBlockerseIn, HaulToCellStorageJob, TryPlaceDirect, Spawn, TidyStacksOf,
             Deep_Storage_Job, PlaceHauledThingInCell, ShouldRemoveFromStorage, CheckCapacity,
-            RightClickMenu, Settings
+            RightClickMenu, StorageGroup, Settings, Cache
         }
 
         // Nifty! Won't even be compiled into assembly if not DEBUG
@@ -53,6 +55,7 @@ namespace LWM.DeepStorage
         }
 
         //TODO: Can I just make this `is Building_Storage`?
+        // TODO: RimWorld1.4 does this with map.edifaceGrid.GetEdiface(loc) (etc)
         // This gets checked a lot.  Sometimes the test is done in-place (if will 
         //   need to use the slotGroup later, for example), but when using Harmony 
         //   Transpiler, tests are easier via function call
@@ -92,7 +95,7 @@ namespace LWM.DeepStorage
             #pragma warning restore CS0162 // Unreachable code detected
         }
         public static bool CanStoreMoreThanOneThingIn(SlotGroup slotGroup) {
-            if (slotGroup == null || !(slotGroup?.parent is ThingWithComps) ||
+            if (slotGroup == null || !(slotGroup.parent is ThingWithComps) ||
                 (slotGroup.parent as ThingWithComps).TryGetComp<CompDeepStorage>() == null)
             {
                 return false;
@@ -105,6 +108,7 @@ namespace LWM.DeepStorage
         //   - tidying is part of the time cost of using it!
         // Note that this ignores all other stacks (e.g., Wheat, Wood, &c);
         //   if that's ever needed, will have to add it.
+        // NOTE: This might be unnecessary in RimWorld 1.4? TODO: check
         public static void TidyStacksOf(Thing thing)
         {
             if (thing == null || !thing.Spawned || thing.Destroyed || thing.Map == null

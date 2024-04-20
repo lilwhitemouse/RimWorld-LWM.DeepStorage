@@ -387,6 +387,9 @@ This template demonstrates that whitespace is obeyed in the description.\n\nSo a
         <filter>
           <categories>
             <li>FoodRaw</li>
+            <!-- Why they didn't put raw strange meat under FoodRaw is beyond me, and annoying -->
+            <li MayRequire="rimofmadness.CallofCthulhuCosmicHorrors">ROM_StrangeMeatRaw</li>
+            <li MayRequire="Mlie.CallofCthulhuCosmicHorrors">ROM_StrangeMeatRaw</li>
             <li>PlantMatter</li>
             <li>Drugs</li>
           </categories>
@@ -766,6 +769,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
     <description>A set of cabinets and shelves for stocking medicines and drugs.  Recommended: keep an eye on children.</description>
     <pathCost>100</pathCost>
     <graphicData>
+      <!--TODO: This has N/S graphics reversed >< -->
       <texPath>skullywag/MedCab/MedCab</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
       <drawSize>(3,2)</drawSize>
@@ -796,6 +800,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
           <thingDefs>
             <li MayRequire="Ludeon.RimWorld.Biotech">HemogenPack</li>
             <li>Neutroamine</li>
+            <li MayRequire="Ludeon.RimWorld.Biotech">HemogenPack</li>
             <!--<li>Penoxycyline</li>Under drugs now!-->
           </thingDefs>
         </filter>
@@ -854,7 +859,7 @@ Note: tossing large amounts of steel in willy-nilly means that it takes a while 
       <li Class="LWM.DeepStorage.Properties" >
         <maxNumberStacks>10</maxNumberStacks>
         <minNumberStacks>5</minNumberStacks><!-- always allow at least 5 parkas per slot -->
-        <maxTotalMass>2.5</maxTotalMass><!-- allow 10 t-shirts per slot -->
+        <maxTotalMass>7.5</maxTotalMass><!-- 2.5 allows 10 t-shirts per slot; with more layers (sash, anyone?) a higher weight limit seems good -->
         <minTimeStoringTakes>90</minTimeStoringTakes>
         <additionalTimeEachStack>15</additionalTimeEachStack>
         <overlayType>CountOfStacksPerCell</overlayType>

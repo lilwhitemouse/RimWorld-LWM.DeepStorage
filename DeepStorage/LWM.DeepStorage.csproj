@@ -16,7 +16,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\_Mod\LWM.DeepStorage\1.4\Assemblies</OutputPath>
-    <DefineConstants>DEBUG;DEBUGLWM</DefineConstants>
+    <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -29,7 +29,7 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.4.3563" />
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.4.3901" />
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="IHoldMultipleThings"><!-- Mehni's PickUpAndHold Compatibility -->
@@ -66,8 +66,7 @@
       <Private>False</Private>
     </Reference>
     <PackageReference Include="RimWorld.MultiplayerAPI">
-      <Private>False</Private>
-      <Version>0.4.0</Version>
+      <Version>0.5.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -107,6 +106,17 @@
     <Compile Include="Dialog_RenameDSU.cs" />
     <Compile Include="Patch_Building_Storage_NotifyXedThing.cs" />
     <Compile Include="Patch_Graphic_Print.cs" />
+    <Compile Include="MapComponentDS.cs" />
+    <Compile Include="Patch_NoStorageBlockersIn.cs" />
+    <Compile Include="Patch_Thing_set_Position.cs" />
+    <Compile Include="Patch_Thing_SplitOff.cs" />
+    <Compile Include="Patch_HaulAIUtility_HaulToCellStorageJob.cs" />
+    <Compile Include="Patch_EditWindow_DebugInspector.cs" />
+    <Compile Include="Patch_Log.cs" />
+    <Compile Include="Patch_Blueprint_Storage_MultipleTimes.cs" />
+    <Compile Include="Patch_Frame_MultipleTimes.cs" />
+    <Compile Include="StorageGroupUtility.cs" />
+    <Compile Include="Patch_StorageGroupUtility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">

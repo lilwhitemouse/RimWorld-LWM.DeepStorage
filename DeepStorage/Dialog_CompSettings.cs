@@ -9,16 +9,20 @@ using UnityEngine;
 namespace LWM.DeepStorage
 {
 	// ripped shamelessly from Dialog_RenameZone
-    // NOTE: Why bother with dialog_rename? I have it all here
-    // TODO: change this
-    // TODO: only show name message if name changed
+    // TODO: Why bother with dialog_rename? I have it all here; just remove other dialog
     // TODO: show new message for maxNumStacks changing
+    // NOTE: Any changes that happen can be directed to the Comp - it'll handle any weird storage group things
 	public class Dialog_CompSettings : Dialog_Rename
 	{
-		public Dialog_CompSettings(CompDeepStorage cds)
-		{
-			this.cds = cds;
-			this.curName = cds.parent.Label;
+        public Dialog_CompSettings(ThingWithComps parent)
+        //public Dialog_CompSettings(CompDeepStorage cds, Thing parent = null)
+        {
+            this.cds = DSStorageGroupUtility.GetOrTryMakeCompFrom(parent);
+            this.parent = parent;
+            if (cds == null) return;
+            this.curName = cds.buildingLabel;
+            if (curName == "") curName = DSStorageGroupUtility.GetDefaultLabelFor(parent); // same as below
+            origName = curName;
 		}
 
 		public override Vector2 InitialSize
@@ -36,11 +40,19 @@ namespace LWM.DeepStorage
         public override void PreOpen()
         {
             base.PreOpen();
+            if (cds == null) return;
             this.curMaxNumStacks = cds.MaxNumberStacks;
             this.curName = cds.buildingLabel;
+            if (curName == "") curName = DSStorageGroupUtility.GetDefaultLabelFor(parent); // same as below
+            origName = curName;
         }
 
         public override void DoWindowContents(Rect inRect) {
+            if (cds == null)
+            {
+                Log.Error("CompDeepStorage is null - this should never happen");
+                return; // TODO: make this say some error message? Maybe?
+            }
             // Take "Enter" press and close window with it (as if pressed OK):
             bool pressedEnterForOkay = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
@@ -59,24 +71,26 @@ namespace LWM.DeepStorage
             Widgets.DrawLineHorizontal(0f, curY + 6f, frame.width - 10f);
             curY += 15f;
             Text.Font = GameFont.Medium;
-            Widgets.Label(0f, ref curY, frame.width, "LWMDS_PerBuildingSettings".Translate(cds.parent.def.label),
+            Widgets.Label(0f, ref curY, frame.width, "LWMDS_PerBuildingSettings"
+                          .Translate(DSStorageGroupUtility.GetDefaultLabelFor(parent)),
                           "LWMDS_PerBuildingSettingsDesc".Translate());
             Text.Font = GameFont.Small;
-            Widgets.DrawLineHorizontal(0f, curY + 6f, frame.width - 10f);
-            curY += 15f;
             //////////////////////////// Building settings ///////////////////////
-            StorageGroup group = (cds.parent as IStorageGroupMember)?.Group;
+            StorageGroup group = (parent as IStorageGroupMember)?.Group;
+            // Earlier, I thought about having settings that could apply to only one group member....
+            //   But it's better to tie all group settings together.
             if (group != null)
             {
                 Rect r = new Rect(0, curY, frame.width, 46f);
-                Widgets.CheckboxLabeled(r, "LWMDS_ApplyChangesToGroup".Translate(),
-                         ref applyChangesToGroup);
+                Widgets.Label(r, "LWMDS_ApplyChangesToGroup".Translate(group.MemberCount));
                 if (Mouse.IsOver(r))
                 {
                     TooltipHandler.TipRegion(r, "LWMDS_ApplyChangesToGroupDesc".Translate(group.MemberCount));
                 }
                 curY += 50f;
             }
+            Widgets.DrawLineHorizontal(0f, curY + 6f, frame.width - 10f);
+            curY += 15f;
             ////////// Rename //////////
             // default button:
             if (Widgets.ButtonText(new Rect(frame.width - 95f, curY, 45f, 23f), "Default".Translate(),
@@ -88,9 +102,7 @@ namespace LWM.DeepStorage
             if (Widgets.ButtonText(new Rect(frame.width - 45f, curY, 45f, 23f), "ResetButton".Translate(),
                        true, false, true))
             {
-                this.SetName(""); // any internal logic there
-                foreach (var oc in CompsToApplyChangeTo(false))
-                    oc.SetLabel(""); // but also get everything in group if need to
+                this.SetName("");
             }
             string newName = Widgets.TextEntryLabeled(new Rect(0f, curY, frame.width-100f, 23f),
                             "CommandRenameZoneLabel".Translate(), curName);
@@ -99,12 +111,13 @@ namespace LWM.DeepStorage
                 this.curName = newName;
             }
             curY += 28;
-            ///////// max number stacks ////////
+            ///////// max number stacks //////// //TODO: Should this lists total number for the group? YES
             Widgets.Label(0f, ref curY, frame.width, "LWMDS_CurrentMaxNumStacksTotals"
-                                    .Translate(curMaxNumStacks, curMaxNumStacks * cds.parent.OccupiedRect().Cells.EnumerableCount()));
+                                    .Translate(curMaxNumStacks, curMaxNumStacks * parent.OccupiedRect().Cells.EnumerableCount()));
+
             Widgets.Label(0f, ref curY, frame.width, "LWMDS_DefaultMaxNumStacksTotals"
                                     .Translate(cds.CdsProps.maxNumberStacks, cds.CdsProps.maxNumberStacks *
-                                                                cds.parent.OccupiedRect().Cells.EnumerableCount()));
+                                                                parent.OccupiedRect().Cells.EnumerableCount()));
             //// default button:
             if (Widgets.ButtonText(new Rect(frame.width - 95f, curY, 45f, 23f), "Default".Translate(),
                        true, false, true))
@@ -116,6 +129,7 @@ namespace LWM.DeepStorage
                        true, false, true))
             {
                 curMaxNumStacks = cds.CdsProps.maxNumberStacks;
+                // TODO: make this a separate method with a message?
                 foreach (var oc in CompsToApplyChangeTo(true))
                     oc.MaxNumberStacks = curMaxNumStacks;
             }
@@ -128,9 +142,9 @@ namespace LWM.DeepStorage
 
             /////////////////////////// RESET & OK buttons ////////////////////////////
             // OK:
-            if (Widgets.ButtonText(new Rect(15f, inRect.height - 35f - 15f, inRect.width - 15f - 15f, 35f), "OK", true, true, true, null) || pressedEnterForOkay)
+            if (Widgets.ButtonText(new Rect(15f, inRect.height - 35f - 15f, inRect.width - 15f - 15f, 35f), "OK", true, true, true, null) 
+                || pressedEnterForOkay)
             {
-
                 AcceptanceReport acceptanceReport = this.NameIsValid(this.curName);
                 if (!acceptanceReport.Accepted)
                 {
@@ -143,8 +157,7 @@ namespace LWM.DeepStorage
                 }
                 else
                 {
-                    foreach (var oc in CompsToApplyChangeTo())
-                        oc.MaxNumberStacks = curMaxNumStacks;
+                    cds.MaxNumberStacks = curMaxNumStacks;
                     this.SetName(this.curName);
                     Find.WindowStack.TryRemove(this, true);
                 }
@@ -153,7 +166,9 @@ namespace LWM.DeepStorage
                                    true,false,true)) {
                 this.SetName("");
                 foreach (var oc in CompsToApplyChangeTo())
+                {
                     oc.ResetSettings();
+                }
                 Find.WindowStack.TryRemove(this, true);
             }
             GUI.EndGroup(); // very important for this to be called
@@ -175,21 +190,41 @@ namespace LWM.DeepStorage
 
         protected override void SetName(string name)
         {
+            if (name != origName)
+            {
+                if (name == "")
+                {
+                    Messages.Message("LWM_DSU_DefaultName".Translate(DSStorageGroupUtility.GetDefaultLabelFor(parent)),
+                                     MessageTypeDefOf.TaskCompletion, false);
+                }
+                else
+                {
+                    Messages.Message("LWM_DSU_GainsName".Translate(DSStorageGroupUtility.GetDefaultLabelFor(parent), name),
+                                     MessageTypeDefOf.TaskCompletion, false);
+                }
+
+                origName = name;
+            }
+
+            // SetLabel sets the label for the entire storage group:
             this.cds.SetLabel(name);
-            Messages.Message("LWM_DSU_GainsName".Translate(this.cds.parent.def.label, cds.parent.Label),
-                             MessageTypeDefOf.TaskCompletion, false);
         }
 
         IEnumerable<CompDeepStorage> CompsToApplyChangeTo(bool includeThisOne = true)
         {
-            if (includeThisOne) yield return cds;
-            if (applyChangesToGroup)
+            if ((parent as IStorageGroupMember)?.Group == null) {
+                Utils.Mess(Utils.DBF.StorageGroup, "Dialog_CompSettings applying changes to single comp: " + includeThisOne);
+                if (includeThisOne) yield return cds;
+                yield break;
+            }
+            Utils.Warn(Utils.DBF.StorageGroup, "Dialog_CompSettings applying changes to entire group: " +
+                           string.Join(",", (parent as IStorageGroupMember).Group.members));
+            foreach (var c in DSStorageGroupUtility.GetDSCompsFromGroup((parent as IStorageGroupMember).Group))
             {
-                foreach (var otherCds in (cds.parent as IStorageGroupMember)?.Group?.members?.OfType<ThingWithComps>()
-                                       .Select(x => x.GetComp<CompDeepStorage>()).Where(x => x != cds) 
-                      ??  Enumerable.Empty<CompDeepStorage>())
+                if (c != this.cds || includeThisOne)
                 {
-                    yield return otherCds;
+                    Utils.Mess(Utils.DBF.StorageGroup, "Dialog_CompSettings applying changes to comp in group: " + cds.parent);
+                    yield return c;
                 }
             }
         }
@@ -199,9 +234,10 @@ namespace LWM.DeepStorage
         // override DoWindowContents to add a new button on top of "Okay" that says "reset"?
 
         private CompDeepStorage cds;
-        private bool applyChangesToGroup = true;
+        private ThingWithComps parent;
 
         // Dialog_Rename has curName
+        private string origName = "";
         protected int curMaxNumStacks;
 	}
 }
