@@ -1,0 +1,23 @@
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Cannibal and Insect Meals</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <value>
+            <li>CAN_CannibalPemmican</li>
+            <li>CAN_CannibalKibble</li>
+            <li>CAN_InsectPemmican</li>
+            <li>CAN_InsectKibble</li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for Cannibal and Insect Meals</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

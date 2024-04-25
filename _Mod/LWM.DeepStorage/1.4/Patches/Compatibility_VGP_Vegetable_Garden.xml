@@ -1,0 +1,30 @@
+<Patch>
+  <!-- Compatibility for VGP Vegetable Garden -->
+  <!--   Adds Silage to Food Baskets.  Silage needs to be stored covered or it ...oxidizes?
+         So Food Baskets seem to be the only place it should reasonably go...for now.  -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>VGP Vegetable Garden</li>
+      <li>VGP Vegetable Garden 1.0</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <value>
+            <li>Silage</li>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Hayloft"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <value>
+            <li>Silage</li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for VGP Vegetable Garden</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

@@ -1,0 +1,30 @@
+<Patch>
+  <!-- Compatibility for Sparkling Worlds - NeutroglycerinSW in pallets-->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Sparkling Worlds - Full Mod</li>
+      <!--These mod names may not be correct, but I try-->
+      <li>Sparkling Worlds Addon - Chemical extraction - Standalone Addon</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter</xpath>
+            <value><thingDefs><li>NeutroglycerinSW</li></thingDefs></value>
+          </nomatch>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+            <value>
+              <li>NeutroglycerinSW</li>
+            </value>
+          </match>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for Sparkling Worlds</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

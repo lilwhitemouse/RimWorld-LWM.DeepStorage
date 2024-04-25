@@ -1,0 +1,21 @@
+<Patch>
+  <!-- Fish Industry patch by Craze on Steam -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>FishIndustry</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <value>
+            <li>Oyster</li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for FishIndustry</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

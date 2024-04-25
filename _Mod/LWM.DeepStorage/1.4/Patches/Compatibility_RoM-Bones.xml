@@ -1,0 +1,23 @@
+<Patch>
+    <!-- Compatibility for Rimm of Madness - Bones. Allows "Bone Marrow" and "Gelatin" to be stored in food baskets. -->
+    <!--=====Rim of Madness - Bones=====-->
+    <Operation Class="PatchOperationFindMod">
+        <mods>
+            <li>Rim of Madness - Bones</li>
+        </mods>
+        <match Class="PatchOperationSequence">
+            <operations>
+                <li Class="PatchOperationAdd">
+                    <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+                    <value>
+                        <li>ROMB_Marrow</li>
+                        <li>ROMB_Gelatin</li>
+                    </value>
+                </li>
+                <li Class="LWM.DeepStorage.PatchMessage">
+                    <message>LWM Deep Storage: activated compatibility patch for Rim of Madness - Bones</message>
+                </li>
+            </operations>
+        </match>
+    </Operation>
+</Patch>

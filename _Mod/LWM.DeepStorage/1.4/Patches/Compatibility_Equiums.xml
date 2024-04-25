@@ -1,0 +1,26 @@
+<Patch>
+  <!-- Compatibility for Equiums - allow equium pemmican in food baskets: (Krazyfan1 on Steam)-->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <!-- dear gods, why do they have so many different mods, all slightly different? -->
+      <li>Equiums</li>
+      <li>Equiumsmystery</li>
+      <li>Equiumslitelite</li>
+      <!-- but not AnythingGoes? -->
+      <!-- I think that's all -->
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <value>
+            <li>EquiumPemmican</li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for Equiums</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

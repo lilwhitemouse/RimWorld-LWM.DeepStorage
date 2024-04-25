@@ -1,0 +1,936 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!--============================== Storage ==============================-->
+
+  <!-- Template:
+//// Basics
+<ThingDef Name="OPTIONAL-Unique_Name-Optional_but_you_can_use_it_as_ParentName_later_if_you_want"
+            ParentName="LWM_DeepStorage"> - ParentName="LWM_DeepStorage" is NOT optional
+  <defName>YourTag_Unique_defName_goes_here</defName> - not user visible.  Only _ and letters; *no numbers*
+  <label>Furniture Name (for humans to read)</label>
+  <description>A short description.
+
+This template demonstrates that whitespace is obeyed in the description.\n\nSo are newline characters</description>
+
+//// Graphic stuff
+  <graphicData>
+    <graphicClass>common ones are Graphic_Multi and Graphic_Single(1x1 only?)</graphicClass>
+    <texPath>path to texture, e.g., myFurniture should point to myFurniture.png</texPath>
+         For example, myFurniture/myFurniture if you have myFurniture/myFurniture_east.png
+    <drawSize>(X,Y) - how big the texture pictures are.  If you have a half-square border around (2,1), it's (3,2)</drawSize>
+       If you have a full square border, it's (4,3), etc.
+    <shaderType>Optional.  CutoutComplex - if you use it, I have no idea what it does</shaderType>
+    // Shadows
+    <shadowData>This is one option for shadows.  If you use this, don't use anything else
+      <volume>(X,Y,Z) where Y is heigh of shadow above ground.  A short (2,1) object might want (1.8,.1,.8)</volume>
+      <offset>(X,0,Z) if you want the shadow offset for whatever reason</offset>
+          +Z diretion means to the South
+          -X direction is off to the right??
+    </shadowData>
+    // see below for more shadow options
+  </graphicData>
+  <castEdgeShadows>true</castEdgeShadows>  makes soft fuzzy shadowy rectangle around object's foot
+      (Can't use shadow volume above; ...as of 1.0, you can?  If you want that look.)
+  <staticSunShadowHeight>0.5</staticSunShadowHeight>makes sharp rectangular shadow this high
+      (Can't use shadow volume above...now can?)
+
+//// Building basics
+  <size>(2,1) is default</size>Default is (2,1) - you only need to set something if it's different
+  <statBases>
+    <MaxHitPoints>50 is not many</MaxHitPoints>
+    <WorkToBuild>Chess table has 1000 (wooden gives "117" in game); bed has around 150? Ish?</WorkToBuild>
+    <Flammability>1.0 is flammable?  0 is not?</Flammability>
+    <Beauty>how beautiful.  Negative numbers are ugly.</Beauty>
+    <Mass>10</Mass> in kg
+    </statBases>
+    <pathCost>150</pathCost> - Hard to walk thru.  Best to leave it.
+/// Cost:
+  <stuffCategories>What it can be made from
+    <li>Leathery</li>
+    <li>Fabric</li>
+    <li>Metallic</li>
+    <li>Woody</li>
+    <li>Stony</li>
+  </stuffCategories>
+  <costStuffCount>45</costStuffCount>How much it costs.
+     To do things with fixed costs (in addition to stuff costs or whatever):
+  <costList><Cloth>25</Cloth><Steel>20</Steel><etc></etc></costList>
+     Note that it's impossible (so far) to have more than one "stuff" choice
+/// Research  Prereqs:
+  <researchPrerequisites Inherit="false">OPTIONAL  - false to remove or change research Prereqs away from ComplexFurniture
+    <li>...<li> - leave empty (with false above) for no prereqs, change with false, or just add new ones
+  </researchPrerequisites>
+// Storage:  (What can be stored)
+  <building>
+    <preventDeteriorationOnTop>false</etc>Optional - you can turn off preventing deterioration if you want.  Default is true
+    <ignoreStoredThingsBeauty>false</etc>Optional - you can stop ignoring things' beauty if you want.  Default is true.
+    <fixedStorageSettings> - what it is CAPABLE of storing
+      <filter>
+        <categories> See the core Defs/ThingCategoryDefs/ThingCategories.xml
+          <li>FoodRaw</li>
+          <li>PlantMatter</li>
+          <li>Textiles</li>
+          <li>Medicine</li>
+          <li>Weapons</li>
+          <li>Etc - you can find more</li>
+        </categories>
+        <thingDefs>
+          <li>RocketLauncherThingDef</li>
+          <li>ThingDefForPrettyHatFromAMod</li>
+          <li>Gold</li>
+          <li>Etc - single items, look up the defName</li>
+          <li>sometimes, it's WoodLog, not Wood, so be careful</li>
+        </thingDefs>
+      </filter>
+      <disallowedCategories>
+        <li>AnotherCategoryThatDoesNOTGoInStorage</li>
+      </disallowedCategories>
+    </fixedStorageSettings>  // There are more filter settings if you want to search the code base
+    <defaultStorageSettings Inherit="false"> Optional - IF YOU WANT (defaults to nothing) - completely change
+    // the default storage settings when a building is built (also, see <filter Inherit="false"> below...)
+       (I don't like this, because pawns may haul things there I don't want before I change the settings.
+        There's a mod "No Default Shelf Storage" that turns this off for vanilla shelves.
+        This is turned ON for Combat Extended weapons lockers.)
+    <priority>Low up to Critical</priority> - defaults to important
+      <filter Inherit="false"> - if you only want to change filter but not priority
+        As above.  If you leave this section out, storage units won't start with things checked off,
+        which can be very nice.
+      </filter>
+    </defaultStorageSettings>
+  </building>
+/// Deep Storage!
+  <comps>
+    <li Class="LWM.DeepStorage.Properties" >
+      <maxNumberStacks>2</maxNumberStacks> - how many stacks can be in each cell at once
+      <minNumberStacks>1</minNumberStacks> - per cell
+      Two ways to say how long storing takes:  (users can always scale storing time in mod options)
+      Flat storing time:
+      <timeStoringTakes>1000</timeStoringTakes> - how many Ticks storing takes
+         1000 is a long while, 300 is a bit, 0 is no time at all (like a vanilla shelf)
+      Scaling storing time:
+      <minTimeStoringTakes>300</minTimeStoringTakes>
+      <additionalTimeEachStack>100</additionalTimeEachStack> - each stack already in that cell
+          So if you are putting catfood in a bowl, but it already has 2 dogfood and 1 fishfood,
+          this will get added three times.
+      <additionalTimeEachDef>200</additionalTimeEachDef> - each different type of thing
+          Technically, each item that cannot stack with other items.
+          So if you are putting catfood in a bowl, but it already has 2 dogfood and 1 fishfood,
+          this will get added twice.  If you were adding fishfood, it would get added once.
+      <additionalTimeStackSize>10</additionalTimeStackSize> - if you have 75 in the stack, takes an extra 750 ticks.
+      Mass restrictions:
+      <maxTotalMass></maxTotalMass> - per cell
+      <maxMassOfStoredItem></maxMassOfStoredItem> - per item.  Items bigger than this just cannot fit
+      <altStat></altStat> - to use something besides vanilla mass.  E.g., CombatExtended's Bulk.
+      Display:
+      <showContents>true</showContents> - default
+      Pick an overlay:
+      <overlayType>Normal</overlayType> - topmost item shows its usual overlay
+      <overlayType>CountOfAllStacks</overlayType> - centered on the DSU - for non-stackable items?
+      <overlayType>CountOfStacksPerCell</overlayType> - standard overlay position for each cell
+      <overlayType>SumOfAllItems</overlayType> - centered on DSU, for stackable items
+      <overlayType>SumOfItemsPerCell</overlayType> - etc.
+      <overlayType>None</overlayType> - if you want this for some reason?
+    </li>
+    <li><compClass>CompQuality</compClass></li> - if you want the item to have quality, which affects beauty
+  </comps>
+</ThingDef>
+  -->
+
+  <!-- Mostly copied from shelf -->
+  <ThingDef Name="LWM_DeepStorage" ParentName="FurnitureBase" Abstract="true">
+    <!--  Old approach:  Class="LWM.DeepStorage.DeepStorageDef"; using a comp is better>-->
+    <defName>LWM_DeepStorage</defName><!-- this defname doesn't actually exist in-game, does it? -->
+    <thingClass>Building_Storage</thingClass>
+
+    <altitudeLayer>Building</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <canOverlapZones>false</canOverlapZones><!-- zones as in storage zones, growing zones, etc -->
+
+    <costStuffCount>30</costStuffCount><!-- overwritten -->
+
+    <surfaceType>Item</surfaceType><!-- ?????  -->
+    <fillPercent>0.4</fillPercent><!-- -TODO: This effects COVER!  TODO: Rethink this value for units -->
+    <drawGUIOverlay>true</drawGUIOverlay><!-- required for item count overlays. -->
+    <drawGUIOverlayQuality>false</drawGUIOverlayQuality><!-- Draw the overlay, but don't draw "Excellent" under "[750]" -->
+    <statBases><!-- overwritten -->
+      <MaxHitPoints>100</MaxHitPoints>
+      <Mass>30</Mass>
+      <WorkToBuild>600</WorkToBuild>
+      <Flammability>1.0</Flammability>
+    </statBases>
+
+    <size>(2,1)</size><!-- can be overwritten -->
+    <defaultPlacingRot>South</defaultPlacingRot>
+
+    <pathCost>150</pathCost><!-- Hard to walk thru -->
+
+    <!--<designationHotKey>Misc12</designationHotKey>-->
+
+    <researchPrerequisites>
+      <li>ComplexFurniture</li>
+    </researchPrerequisites>
+    <!-- You can turn off ability to minify things like this:
+         <minifiedDef Inherit="false" />
+    -->
+    <minifiedDef>MinifiedThing</minifiedDef><!--If user doesn't like it, user doesn't have to use it-->
+    <!-- thingCategories are covered by FurnitureBase
+         TODO: thingCategories define where these things go under Buildings in thingFilters
+         ...it's probably worth making this have a "Storage" thingCategory, as ES does, and linking
+         to theirs if ES is also running.
+         <thingCategories>
+         <li>BuildingsFurniture</li>
+         </thingCategories>
+    -->
+    <inspectorTabs>
+      <li>ITab_Storage</li>
+      <li>LWM.DeepStorage.ITab_DeepStorage_Inventory</li><!--Contents tab: Good call, sumghai-->
+    </inspectorTabs>
+
+    <filthLeaving>Filth_RubbleBuilding</filthLeaving>
+    <building>
+      <preventDeteriorationOnTop>true</preventDeteriorationOnTop><!-- Might be overridden -->
+      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty><!-- Might be overridden -->
+      <blueprintClass>Blueprint_Storage</blueprintClass><!-- to allow blueprints to link -->
+      <defaultStorageSettings>
+        <priority>Important</priority><!--It's what *I* use, so it's what you get ^.^  Can be changed in settings-->
+        <filter>
+        </filter>
+      </defaultStorageSettings>
+      <paintable>true</paintable>
+    </building>
+    <comps>
+      <!--<li Class="LWM.DeepStorage.Properties">
+        <maxNumberStacks>2</maxNumberStacks>
+      </li>-->
+    </comps>
+    <designationCategory>LWM_DS_Storage</designationCategory><!--architect menu location-->
+  </ThingDef>
+
+  <!-- As a nice easy first Deep Storage Unit -->
+  <ThingDef Name="LWM_Big_Shelf" ParentName="LWM_DeepStorage">
+    <defName>LWM_BigShelf</defName><!-- name change to reduce chance of mod conflict.  See Updates.cs -->
+    <label>Big Shelf</label>
+    <description>A shelf for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nItems stored in this will not deteriorate, even if outside.\n\nThis shelf holds more than the regular one, and is not limited by weight (use your own judgement).</description>
+    <thingClass>Building_Storage</thingClass>
+    <graphicData>
+      <texPath>Things/Building/Furniture/Shelf</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3,2)</drawSize>
+    </graphicData>
+    <fillPercent>0.4</fillPercent>
+    <castEdgeShadows>true</castEdgeShadows>
+    <stuffCategories>
+      <li>Metallic</li>
+      <li>Woody</li>
+      <li>Stony</li>
+    </stuffCategories>
+    <costStuffCount>75</costStuffCount>
+    <!-- Little extra stuff for more bracing -->
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <!--Fewer hp b/c more precarious-->
+      <Beauty>1</Beauty>
+      <Mass>16</Mass>
+      <WorkToBuild>1200</WorkToBuild>
+      <Flammability>1.0</Flammability>
+    </statBases>
+    <size>(2,1)</size>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <building>
+      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+      <defaultStorageSettings>
+        <priority>Important</priority>
+      </defaultStorageSettings>
+    </building>
+    <staticSunShadowHeight>0.9</staticSunShadowHeight>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties">
+        <maxNumberStacks>4</maxNumberStacks>
+        <minTimeStoringTakes>5</minTimeStoringTakes>
+        <additionalTimeEachStack>55</additionalTimeEachStack><!-- Top shelf harder to reach? -->
+        <maxMassOfStoredItem>70</maxMassOfStoredItem><!-- Somehwat less than verybigshelf -->
+        <maxTotalMass>260</maxTotalMass><!-- Somehwat less than verybigshelf -->
+        <overlayType>SumOfItemsPerCell</overlayType>
+      </li>
+    </comps>
+  </ThingDef>
+  <ThingDef Name="LWM_VeryBigShelf" ParentName="LWM_DeepStorage">
+    <defName>LWM_VeryBigShelf</defName>
+    <label>Very Big Shelves</label>
+    <description>A set of tall covered shelves for storing miscellaneous items, from artillery shells to artwork, from bionic arms to bricks, from chairs to corpses.  It doesn't ask questions, it just stores things.\n\nPawns access the top shelves using a small rolling ladder (currently not pitured), so while many things can be stored here, it can take a while if you're putting a lot of tiny bottles on the top shelf.  Items stored in this will not deteriorate, even if outside.\n\nNote:  Use your own judgement about what you put here.  Grand Sculptures?  Probably don't ACTUALLY fit.  But if that's what you want here, you play you! I say go for it!</description>
+    <thingClass>Building_Storage</thingClass>
+    <graphicData>
+      <texPath>VBig_Shelf</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3,2)</drawSize>
+    </graphicData>
+    <fillPercent>0.8</fillPercent>
+    <castEdgeShadows>true</castEdgeShadows>
+    <stuffCategories>
+      <li>Metallic</li>
+      <li>Woody</li>
+      <li>Stony</li>
+    </stuffCategories>
+    <costStuffCount>120</costStuffCount>
+    <costList>
+      <Steel>45</Steel><!--bracing... -->
+    </costList>
+    <statBases>
+      <MaxHitPoints>95</MaxHitPoints>
+      <Beauty>1.1</Beauty>
+      <!--Fewer hp b/c more precarious-->
+      <Mass>30</Mass>
+      <WorkToBuild>1500</WorkToBuild>
+      <Flammability>1.0</Flammability>
+    </statBases>
+    <size>(2,1)</size>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <building>
+      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+      <defaultStorageSettings>
+        <priority>Important</priority>
+      </defaultStorageSettings>
+    </building>
+    <staticSunShadowHeight>1</staticSunShadowHeight>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties">
+        <maxNumberStacks>5</maxNumberStacks>
+        <minTimeStoringTakes>10</minTimeStoringTakes>
+        <additionalTimeEachStack>120</additionalTimeEachStack><!-- Top shelves much harder to reach -->
+        <additionalTimeStackSize>10</additionalTimeStackSize><!-- Getting lots of fiddly items to top shelves v hard -->
+        <maxMassOfStoredItem>100</maxMassOfStoredItem>
+        <maxTotalMass>320</maxTotalMass><!-- about 4 standard humans.  Don't ask, remember?  Don't ask... -->
+        <overlayType>SumOfItemsPerCell</overlayType>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef Name="LWM_MealRack" ParentName="LWM_DeepStorage" >
+    <defName>LWM_MealRack</defName>
+    <label>Meal Tray Rack</label>
+    <description>This is a tall tray rack; haulers carry meals and treats here for storage.</description>
+    <graphicData>
+      <texPath>skullywag/TrayRack/TrayRack</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(4,3)</drawSize>
+    </graphicData>
+    <castEdgeShadows>true</castEdgeShadows>
+    <statBases>
+      <MaxHitPoints>100</MaxHitPoints>
+      <WorkToBuild>800</WorkToBuild><!-- fiddly bits? -->
+      <Flammability>1.0</Flammability>
+      <Beauty>0.7</Beauty>
+      <Mass>20</Mass>
+    </statBases>
+    <stuffCategories>
+      <li>Metallic</li>
+      <li>Woody</li>
+    </stuffCategories>
+    <costStuffCount>75</costStuffCount><!-- lots of shelves? -->
+    <building>
+      <fixedStorageSettings>
+        <filter>
+          <categories>
+            <li>FoodMeals</li>
+          </categories>
+          <thingDefs>
+            <li>Chocolate</li>
+	    <li MayRequire="Ludeon.RimWorld.Biotech">BabyFood</li>
+          </thingDefs>
+        </filter>
+      </fixedStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <maxNumberStacks>5</maxNumberStacks>
+        <!--<timeStoringTakes>50</timeStoringTakes>-->
+        <minTimeStoringTakes>35</minTimeStoringTakes>
+        <additionalTimeEachStack>5</additionalTimeEachStack>
+        <additionalTimeEachDef>2</additionalTimeEachDef>
+        <overlayType>SumOfAllItems</overlayType>
+      </li>
+      <li><compClass>CompQuality</compClass></li><!--Hey, you CAN make it pretty?-->
+    </comps>
+  </ThingDef>
+
+  <ThingDef Name="LWM_Food_Basket" ParentName="LWM_DeepStorage">
+    <defName>LWM_Food_Basket</defName>
+    <label>Food Basket</label>
+    <description>A mini-granary for storing raw food and plant matter.</description>
+    <pathCost>100</pathCost>
+    <graphicData>
+      <texPath>skullywag/Basket/Basket</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(4,3)</drawSize>
+      <shadowData>
+        <volume>(1.7,0.4,.7)</volume>
+        <offset>(.1,0,0)</offset>
+      </shadowData>
+    </graphicData>
+    <stuffCategories>
+      <li>Metallic</li>
+      <li>Woody</li>
+      <li>Stony</li>
+    </stuffCategories>
+    <costStuffCount>80</costStuffCount><!--Okay, these are big, if they are holding all that food!-->
+    <statBases>
+      <MaxHitPoints>50</MaxHitPoints>
+      <Mass>8</Mass>
+      <WorkToBuild>600</WorkToBuild>
+      <Flammability>1.0</Flammability>
+    </statBases>
+    <building>
+      <fixedStorageSettings>
+        <filter>
+          <categories>
+            <li>FoodRaw</li>
+            <!-- Why they didn't put raw strange meat under FoodRaw is beyond me, and annoying -->
+            <li MayRequire="rimofmadness.CallofCthulhuCosmicHorrors">ROM_StrangeMeatRaw</li>
+            <li MayRequire="Mlie.CallofCthulhuCosmicHorrors">ROM_StrangeMeatRaw</li>
+            <li>PlantMatter</li>
+            <li>Drugs</li>
+          </categories>
+          <thingDefs>
+            <li>MedicineHerbal</li>
+            <li>Pemmican</li>
+            <li>Kibble</li>
+          </thingDefs>
+        </filter>
+      </fixedStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <maxNumberStacks>5</maxNumberStacks>
+        <timeStoringTakes>300</timeStoringTakes>
+        <overlayType>SumOfAllItems</overlayType>
+      </li>
+      <!--<li><compClass>CompQuality</compClass></li> ah?  TODO: add "pretty" version, takes more to build, has quality-->
+    </comps>
+    <researchPrerequisites Inherit="false"></researchPrerequisites><!-- Why not allow; granieries have been around forEVER -->
+  </ThingDef>
+
+  <ThingDef Name="LWM_MeatHook" ParentName="LWM_DeepStorage"><!--LWM creation-->
+    <defName>LWM_Meat_Hook</defName>
+    <label>Meat Hook</label>
+    <description>A tall metal frame with several hooks hanging from chains.  A simple crank allows hoisting several hanging things into the air.  A way to store the dead bodies of fellow animals you have killed, before cutting them up and consuming their flesh.  You monster.
+
+Note that you can only fit so many giant corpses into one space, even if you stack them.  The frame will only hold so much weight.</description>
+    <graphicData>
+      <texPath>MeatHook</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1,1)</drawSize>
+      <shadowData>
+        <volume>(0,0,0)</volume>
+      </shadowData>
+      <drawRotated>false</drawRotated>
+    </graphicData>
+    <drawGUIOverlay>false</drawGUIOverlay>
+    <castEdgeShadows>true</castEdgeShadows><!-- Useful effect? -->
+    <size>(1,1)</size>
+    <pathCost>50</pathCost>
+    <statBases>
+      <MaxHitPoints>100</MaxHitPoints>
+      <WorkToBuild>600</WorkToBuild>
+      <Flammability>0.01</Flammability>
+      <Beauty>-2</Beauty><!--Creeeepy-->
+      <Mass>10</Mass>
+    </statBases>
+    <stuffCategories>
+      <li>Metallic</li>
+    </stuffCategories>
+    <costStuffCount>75</costStuffCount>
+    <building>
+      <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
+      <ignoreStoredThingsBeauty>false</ignoreStoredThingsBeauty>
+      <fixedStorageSettings>
+        <filter>
+          <categories>
+            <li>Corpses</li>
+          </categories>
+          <disallowedCategories>
+            <li>CorpsesMechanoid</li>
+          </disallowedCategories>
+        </filter>
+      </fixedStorageSettings>
+      <defaultStorageSettings>
+        <filter>
+          <categories>
+            <li>CorpsesAnimal</li>
+          </categories>
+          <specialFiltersToDisallow>
+            <li>AllowRotten</li><!-- We allow player to hang rotten corpses if they want...?  Eew -->
+          </specialFiltersToDisallow>
+        </filter>
+      </defaultStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <minNumberStacks>2</minNumberStacks><!-- minimum one in the air, one on the ground -->
+        <maxNumberStacks>12</maxNumberStacks><!-- todo? -->
+        <minTimeStoringTakes>25</minTimeStoringTakes>
+        <additionalTimeEachStack>20</additionalTimeEachStack><!-- More things on the hooks means more effort to get an empty hook -->
+        <maxTotalMass>560</maxTotalMass><!-- Two Megatheria -->
+                                        <!--Fun fact: giant sloths apparently dug ancient caves. Giant caves.  As burrows.-->
+                                        <!--We only recently realized what these weird caves were.-->
+        <overlayType>CountOfStacksPerCell</overlayType>
+      </li>
+      <li><compClass>CompQuality</compClass></li>
+      <!--TOOD: <li><compClass>CompQuality</compClass></li> make this add storage capacity-->
+    </comps>
+    <researchPrerequisites Inherit="false">
+      <li>Smithing</li><!-- Forging strong chains - we're lifting bloody muffalos here -->
+    </researchPrerequisites>
+  </ThingDef>
+
+  <ThingDef Name="LWM_HayLoft" ParentName="LWM_DeepStorage"><!--LWM Creation-->
+    <defName>LWM_Hayloft</defName>
+    <label>Hayloft</label>
+    <description>"A hayloft is a space above a barn, stable or cow-shed, traditionally used for storage of hay or other fodder for the animals below. Haylofts were used mainly before the widespread use of industrial sized farm machinery allowed creating very large haybales that cannot be easily lifted for storing..."  --Encyclopedia Galactica\n\nLet's be honest here.  Unless you're using some farming mods I don't know about, your colonists are probably making piles of hay by hand, which is slow, backbreaking labor.  You know what?  Most farming is slow, backbreaking labor, and your colonists can't even hire migrant workers from other colonies.  Treat farmers and farm workers with respect: they work a lot harder than YOU do ;) Amazing people, good food.\n\nThis structure can be used to store hay, silage, and various other plant materials off of damp floors.  You probably want to build it under a (very tall) roof.</description>
+    <graphicData>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <texPath>Hayloft</texPath>
+      <drawSize>(3,2)</drawSize>
+    </graphicData>
+    <staticSunShadowHeight>1</staticSunShadowHeight><!--these things are tall, eh?-->
+    <size>(2,1)</size>
+    <statBases>
+      <MaxHitPoints>140</MaxHitPoints><!--Sturdy well built, one hopes-->
+      <Flammability>0.9</Flammability><!--...wish there were an easy way to make metal things less flammable...-->
+      <Beauty>-4</Beauty><!--Take all the beauty hit from the hay, one time--><!--Also, isn't hay idyllic?  Why so low beauty?-->
+      <Mass>40</Mass>
+    </statBases>
+    <pathCost>100</pathCost><!--structure off the ground, just have to get around posts?-->
+    <stuffCategories>
+      <li>Woody</li>
+      <li>Metallic</li><!-- solid gold haylofts?  If you can afford this, you can afford to pretend you used some steel ;p -->
+    </stuffCategories>
+    <costStuffCount>85</costStuffCount>
+    <building>
+      <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
+      <fixedStorageSettings>
+        <filter>
+          <categories>
+            <li>PlantMatter</li>
+          </categories>
+          <thingDefs>
+            <li>Hay</li>
+          </thingDefs>
+        </filter>
+      </fixedStorageSettings>
+      <defaultStorageSettings>
+        <filter>
+          <thingDefs>
+            <li>Hay</li>
+          </thingDefs>
+        </filter>
+      </defaultStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <maxNumberStacks>4</maxNumberStacks>
+        <minTimeStoringTakes>100</minTimeStoringTakes>
+        <additionalTimeStackSize>8</additionalTimeStackSize><!--So 75 (max vanilla carrying capacity)->700 -->
+        <overlayType>SumOfAllItems</overlayType>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef Name="LWM_FabricHamper" ParentName="LWM_DeepStorage">
+    <defName>LWM_FabricHamper</defName>
+    <label>Hampers</label>
+    <description>This is a set of hampers made out of fabric.  The various pockets allow storing large amounts of diverse small items with ease.\n\nIf you really want to store fabric in bags, see the mod settings!</description>
+    <graphicData>
+      <texPath>skullywag/FabricHamper/FabricHamper</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(4,2)</drawSize>
+    </graphicData>
+    <castEdgeShadows>true</castEdgeShadows>
+    <statBases>
+      <MaxHitPoints>40</MaxHitPoints>
+      <WorkToBuild>300</WorkToBuild>
+      <Flammability>3.0</Flammability><!-- Burn baby burn -->
+      <Beauty>0</Beauty>
+      <Mass>12</Mass>
+    </statBases>
+    <stuffCategories>
+      <li>Fabric</li>
+      <li>Leathery</li>
+    </stuffCategories>
+    <costStuffCount>90</costStuffCount>
+    <costList><Steel>25</Steel></costList><!--Wish I could do steel OR wood-->
+    <building>
+      <fixedStorageSettings>
+        <filter>
+          <!-- No "Fabric" here - I think hampers are a terrible say to store
+               fabric, and if players want to, they can add via Mod Settings -->
+          <categories>
+            <li>PlantFoodRaw</li><!-- Do use sense, eh? -->
+            <li>EggsUnfertilized</li>
+            <li>EggsFertilized</li>
+            <li>Medicine</li>
+            <li>Drugs</li>
+            <li>MortarShells</li>
+            <li>PlantMatter</li>
+            <li>Apparel</li>
+            <!--Ammo, etc-->
+            <!--Fleeces, raw cotton, etc-->
+          </categories>
+          <thingDefs>
+            <li>Gold</li><!-- so heavy! :o -->
+            <li>Silver</li>
+          </thingDefs>
+        </filter>
+      </fixedStorageSettings>
+      <defaultStorageSettings>
+        <filter Inherit="false">
+          <specialFiltersToDisallow>
+            <li>AllowNonDeadmansApparel</li><!--dirty clothes-->
+          </specialFiltersToDisallow>
+        </filter>
+      </defaultStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <maxNumberStacks>5</maxNumberStacks>
+        <minNumberStacks>2</minNumberStacks>
+        <minTimeStoringTakes>150</minTimeStoringTakes><!-- Just toss it in! -->
+        <additionalTimeEachStack>75</additionalTimeEachStack>
+        <maxTotalMass>50</maxTotalMass><!--Up for negotiation-->
+        <maxMassOfStoredItem>10</maxMassOfStoredItem>
+        <overlayType>SumOfItemsPerCell</overlayType>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef Name="LWM_Pallet" ParentName="LWM_DeepStorage" >
+    <defName>LWM_Pallet</defName>
+    <label>Pallet</label>
+    <description>A flat pallet for packing things.  Does not protect against the weather.  Sometimes difficult to manage, but useful nonetheless.</description>
+    <graphicData>
+      <texPath>skullywag/Pallet/Pallet</texPath>
+      <drawSize>(4,3)</drawSize>
+      <graphicClass>Graphic_Multi</graphicClass>
+    </graphicData>
+    <staticSunShadowHeight>0.5</staticSunShadowHeight>
+    <size>(2,1)</size>
+    <statBases>
+      <MaxHitPoints>100</MaxHitPoints>
+      <WorkToBuild>600</WorkToBuild>
+      <Flammability>1.0</Flammability>
+      <Beauty>-2</Beauty><!-- just a lump of ugly boards -->
+      <Mass>10</Mass>
+    </statBases>
+    <stuffCategories>
+      <li>Woody</li>
+      <li>Metallic</li>
+    </stuffCategories>
+    <costStuffCount>65</costStuffCount>
+    <building>
+      <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
+      <ignoreStoredThingsBeauty>false</ignoreStoredThingsBeauty>
+      <fixedStorageSettings>
+        <filter>
+          <categories>
+            <li>ResourcesRaw</li>
+            <li>Textiles</li><!-- Only finished products.  If I need to limit for compatibility patching, I can do that -->
+            <li>MortarShells</li><!--I feel ambivalent about this...-->
+            <!--<li>Drugs</li>--><!--Let's put this in the pallet with wrapping, where loose drugs can be bundled together-->
+          </categories>
+          <disallowedCategories>
+            <li>PlantMatter</li><!--Again, no loose things-->
+          </disallowedCategories>
+        </filter>
+      </fixedStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <maxNumberStacks>4</maxNumberStacks>
+        <minTimeStoringTakes>300</minTimeStoringTakes>
+        <additionalTimeEachStack>110</additionalTimeEachStack>
+        <additionalTimeEachDef>20</additionalTimeEachDef>
+        <!--<timeStoringTakes>800</timeStoringTakes>-->
+        <overlayType>SumOfAllItems</overlayType>
+      </li>
+    </comps>
+  </ThingDef>
+
+
+  <ThingDef Name="LWM_Pallet_Covered" ParentName="LWM_Pallet" >
+    <defName>LWM_Pallet_Covered</defName>
+    <label>Pallet with wrapping</label>
+    <description>A flat pallet for packing things.  Wrapping things up in thick oilcloth keeps items secure and organized.  You can pack more types of things on this pallet because you can wrap items together, altho this slows you down a little.</description>
+    <statBases>
+      <WorkToBuild>800</WorkToBuild>
+      <Flammability>1.0</Flammability>
+      <Beauty>1</Beauty><!-- looks tidier than just a flat pallat piled with stuff -->
+      <Mass>11</Mass>
+    </statBases>
+    <stuffCategories>
+      <li>Woody</li>
+      <li>Metallic</li>
+    </stuffCategories>
+    <costStuffCount>65</costStuffCount>
+    <costList>
+      <Cloth>40</Cloth>
+    </costList>
+    <building>
+      <preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+      <ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+      <fixedStorageSettings>
+        <filter Inherit="false">
+          <categories>
+            <li>ResourcesRaw</li>
+            <li>Textiles</li>
+            <li>MortarShells</li>
+            <li>Drugs</li><!-- can hold more things b/c bags! -->
+            <li>PlantMatter</li>
+          </categories>
+          <thingDefs>
+            <li>Kibble</li><!-- Bags might smell awful later, but what's the scent of cat food among friends?-->
+          </thingDefs>
+        </filter>
+      </fixedStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <maxNumberStacks>4</maxNumberStacks>
+        <minTimeStoringTakes>450</minTimeStoringTakes>
+        <additionalTimeEachStack>70</additionalTimeEachStack>
+        <additionalTimeEachDef>5</additionalTimeEachDef>
+        <!--<timeStoringTakes>1000</timeStoringTakes>-->
+        <overlayType>SumOfAllItems</overlayType>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef Name="LWM_Skip"  ParentName="LWM_DeepStorage" ><!--Note: Name does NOT match defName: oops-->
+    <defName>LWM_DeepStorage_Skip</defName>
+    <label>Skip</label>
+    <description>A large metal bin for tossing heavy things in.  These skips are not covered; they are open to the weather.
+
+Note: tossing large amounts of steel in willy-nilly means that it takes a while to find the steel you want later.  The mod author has abstracted that as a longer time for storing large stacks of items.  Pretend your pawns have to climb in and stack everything so the doggies can pick it up easily.</description>
+    <graphicData>
+      <texPath>skullywag/Skip/Skip</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3,2)</drawSize>
+    </graphicData>
+    <staticSunShadowHeight>0.5</staticSunShadowHeight>
+    <statBases>
+      <MaxHitPoints>250</MaxHitPoints>
+      <WorkToBuild>780</WorkToBuild>
+      <Flammability>0.1</Flammability>
+      <Beauty>-5</Beauty><!-- Let's be honest, this is probably low: ugly beat up dumpster -->
+      <Mass>5</Mass><!-- If you are dragging it around, let's pretend you fashion wheels for it, eh? -->
+    </statBases>
+    <stuffCategories>
+      <li>Metallic</li>
+    </stuffCategories>
+    <costStuffCount>90</costStuffCount>
+    <building>
+      <ignoreStoredThingsBeauty>false</ignoreStoredThingsBeauty>
+      <preventDeteriorationOnTop>false</preventDeteriorationOnTop>
+      <fixedStorageSettings>
+        <filter>
+          <categories>
+            <li>Chunks</li>
+            <li>ResourcesRaw</li>
+          </categories>
+          <thingDefs>
+            <!--Slag is already in Chunks.  Leave in parent because of
+                compatibility concerns (xpath patching into thingDefs)
+                <li>ChunkSlagSteel</li>-->
+          </thingDefs>
+          <disallowedCategories>
+            <li>PlantMatter</li>
+          </disallowedCategories>
+        </filter>
+      </fixedStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <maxNumberStacks>6</maxNumberStacks>
+        <minTimeStoringTakes>100</minTimeStoringTakes>
+        <!--Got to climb in, get it positioned right, etc-->
+        <additionalTimeStackSize>10</additionalTimeStackSize>
+        <!--Note: some things get stored quickly - see
+            the Patch folder for examples.  Bad Hygiene,
+            I think, does it?-->
+        <overlayType>SumOfAllItems</overlayType>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef Name="LWM_Medicine_Cabinet" ParentName="LWM_DeepStorage">
+    <defName>LWM_Medicine_Cabinet</defName>
+    <label>Medicine Cabinet</label>
+    <description>A set of cabinets and shelves for stocking medicines and drugs.  Recommended: keep an eye on children.</description>
+    <pathCost>100</pathCost>
+    <graphicData>
+      <!--TODO: This has N/S graphics reversed >< -->
+      <texPath>skullywag/MedCab/MedCab</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3,2)</drawSize>
+      <shadowData><!-- TODO: -->
+        <volume>(1.7,0.4,.7)</volume>
+        <offset>(.1,0,0)</offset>
+      </shadowData>
+    </graphicData>
+    <stuffCategories>
+      <li>Metallic</li>
+      <li>Woody</li>
+    </stuffCategories>
+    <costStuffCount>60</costStuffCount>
+    <statBases>
+      <Beauty>1</Beauty>
+      <MaxHitPoints>25</MaxHitPoints>
+      <Mass>8</Mass>
+      <WorkToBuild>500</WorkToBuild>
+      <Flammability>1.0</Flammability>
+    </statBases>
+    <building>
+      <fixedStorageSettings>
+        <filter>
+          <categories>
+            <li>Medicine</li>
+            <li>Drugs</li><!-- Kafouille asked for this.  Makes sense. -->
+          </categories>
+          <thingDefs>
+            <li MayRequire="Ludeon.RimWorld.Biotech">HemogenPack</li>
+            <li>Neutroamine</li>
+            <li MayRequire="Ludeon.RimWorld.Biotech">HemogenPack</li>
+            <!--<li>Penoxycyline</li>Under drugs now!-->
+          </thingDefs>
+        </filter>
+      </fixedStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties">
+        <maxNumberStacks>5</maxNumberStacks>
+        <!--<timeStoringTakes>350</timeStoringTakes>-->
+        <minTimeStoringTakes>250</minTimeStoringTakes>
+        <additionalTimeEachStack>25</additionalTimeEachStack>
+        <additionalTimeEachDef>25</additionalTimeEachDef>
+        <additionalTimeStackSize>5</additionalTimeStackSize>
+        <overlayType>SumOfAllItems</overlayType>
+        <!--TODO: SumOfItemsPerCell?-->
+      </li>
+      <li><compClass>CompQuality</compClass></li><!--So you can make your hospitals more beautiful-->
+    </comps>
+  </ThingDef>
+
+  <ThingDef Name="LWM_Clothing_Rack" ParentName="LWM_DeepStorage">
+    <defName>LWM_Clothing_Rack</defName>
+    <label>Clothing Rack</label>
+    <description>A covered rack for storing clothing for easy, quick access and a tidy room.</description>
+    <graphicData>
+      <texPath>skullywag/ClothingRack/ClothingRack</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(3,2)</drawSize>
+    </graphicData>
+    <castEdgeShadows>true</castEdgeShadows>
+    <statBases>
+      <MaxHitPoints>90</MaxHitPoints>
+      <WorkToBuild>580</WorkToBuild>
+      <Flammability>1.0</Flammability>
+      <Beauty>1.5</Beauty><!-- If I ever change texture to armoir, I'm bumping this up to 3 -->
+      <Mass>10</Mass>
+    </statBases>
+    <stuffCategories>
+      <li>Metallic</li>
+      <li>Woody</li>
+    </stuffCategories>
+    <costStuffCount>50</costStuffCount>
+    <building>
+      <fixedStorageSettings>
+        <filter>
+          <categories>
+            <li>Apparel</li>
+          </categories>
+          <specialFiltersToDisallow>
+            <!-- <li>LWM.DeepStorage.SpecialFilter_HeavyApparel</li> TODO -->
+          </specialFiltersToDisallow>
+        </filter>
+      </fixedStorageSettings>
+    </building>
+    <comps>
+      <li Class="LWM.DeepStorage.Properties" >
+        <maxNumberStacks>10</maxNumberStacks>
+        <minNumberStacks>5</minNumberStacks><!-- always allow at least 5 parkas per slot -->
+        <maxTotalMass>7.5</maxTotalMass><!-- 2.5 allows 10 t-shirts per slot; with more layers (sash, anyone?) a higher weight limit seems good -->
+        <minTimeStoringTakes>90</minTimeStoringTakes>
+        <additionalTimeEachStack>15</additionalTimeEachStack>
+        <overlayType>CountOfStacksPerCell</overlayType>
+        <!-- TODO: maybe an overlay that displays quality somehow? -->
+      </li>
+      <li><compClass>CompQuality</compClass></li><!--Ideal todo: some sort of armoir with this quality base and prettiness-->
+    </comps>
+  </ThingDef>
+  
+  <ThingDef ParentName="LWM_DeepStorage">
+	<defName>LWM_Safe</defName>
+	<label>Safe</label>
+	<description>A secure, lockable box for safely storing valuables against theft and/or damage from fire.\n\nNote: protection from fire not yet implemented)</description>
+	<graphicData>
+		<texPath>sumghai/safe/safe</texPath>
+		<graphicClass>Graphic_Multi</graphicClass>
+		<shaderType>CutoutComplex</shaderType>
+		<drawSize>(3,3)</drawSize>
+	</graphicData>
+	<defaultPlacingRot>South</defaultPlacingRot>
+	<uiIconPath>sumghai/safe/safe_UI</uiIconPath>
+	<castEdgeShadows>true</castEdgeShadows>
+	<size>(1,1)</size>
+	<statBases>
+		<MaxHitPoints>500</MaxHitPoints>
+		<WorkToBuild>3000</WorkToBuild> <!-- Solid cast-iron (or whatever) construction -->
+		<Flammability>0</Flammability>
+		<Beauty>-1.5</Beauty> <!-- Dull, heavy metal box -->
+		<Mass>500</Mass> <!-- Solid cast-iron (or whatever) construction -->
+	</statBases>
+	<stuffCategories>
+		<li>Metallic</li>
+	</stuffCategories>
+	<costStuffCount>300</costStuffCount>
+	<building>
+		<preventDeteriorationOnTop>true</preventDeteriorationOnTop>
+		<ignoreStoredThingsBeauty>true</ignoreStoredThingsBeauty>
+		<fixedStorageSettings>
+			<priority>Critical</priority>
+			<filter>
+				<categories>
+					<li>Artifacts</li>
+				</categories>
+				<thingDefs>
+					<li>Gold</li>
+					<li>Silver</li>
+					<li>Jade</li> <!-- Debatable -->
+				</thingDefs>
+			</filter>
+		</fixedStorageSettings>
+		<defaultStorageSettings>
+			<priority>Critical</priority>
+			<filter />
+		</defaultStorageSettings>
+	</building>
+	<comps>
+		<li Class="LWM.DeepStorage.Properties">
+			<!-- Needs tuning; delete this comment once tuned -->
+			<maxNumberStacks>20</maxNumberStacks>
+			<minNumberStacks>20</minNumberStacks>
+			<timeStoringTakes>200</timeStoringTakes> <!-- TODO: Increase by factor of 10 for Combination dial -->
+			<showContents>false</showContents>
+			<overlayType>SumOfAllItems</overlayType> <!-- Not sure if appropriate -->
+      <isSecure>true</isSecure><!--harder for pawns to break things, safer from damage(todo)-->
+		</li>
+	</comps>
+	<researchPrerequisites>
+		<li>ComplexFurniture</li>
+		<li>Machining</li>
+    </researchPrerequisites>
+  </ThingDef>
+
+  <!--TODO: put template here? -->
+</Defs>

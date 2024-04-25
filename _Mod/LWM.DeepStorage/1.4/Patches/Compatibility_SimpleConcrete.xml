@@ -1,0 +1,33 @@
+<Patch>
+  <!-- Request by Polish_Troll on Steam -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Simple Concrete</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations><!-- Add concrete,cement to pallet and skip -->
+        <li Class="PatchOperationConditional">
+          <success>Always</success>
+          <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter</xpath>
+            <value>
+              <thingDefs><li>D9Cement</li><li>D9Concrete</li></thingDefs>
+            </value>
+          </nomatch>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+            <value><li>D9Cement</li><li>D9Concrete</li></value>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[@Name="LWM_Skip"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <value><li>D9Cement</li><li>D9Concrete</li></value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for Simple Concrete</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

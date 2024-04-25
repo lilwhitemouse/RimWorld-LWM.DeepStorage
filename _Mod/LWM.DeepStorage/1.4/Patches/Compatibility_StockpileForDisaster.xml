@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Compatibility for StockpileForDisaster
+     See https://github.com/Steardliy/rim-B18-StockpileForDisaster/
+     Adding patch as seen in StockpileForDisaster's Patches/otherMods_Patch.xml
+     -->
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>[1.0]-StockpileForDisaster</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef/inspectorTabs[li="LWM.DeepStorage.ITab_DeepStorage_Inventory"]</xpath>
+          <value><li>StockpileForDisaster.ITab_Restrict</li></value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[inspectorTabs/li="LWM.DeepStorage.ITab_DeepStorage_Inventory"]/comps</xpath>
+          <value>
+            <li Class="StockpileForDisaster.EntityListCompDef">
+              <compClass>StockpileForDisaster.EntityListComp</compClass>
+              <listType>TypeOnlyRecieve</listType>
+              <nodeDef>RecieveRoot</nodeDef>
+              <canDisplayCategorys>
+                <li>CategoryMale</li>
+                <li>CategoryFemale</li>
+                <li>CategoryPets</li>
+              </canDisplayCategorys>
+            </li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for [1.0]-StockpileForDisaster</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

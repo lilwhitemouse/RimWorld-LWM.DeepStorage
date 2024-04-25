@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Weird name explanation: make sure it runs first, before
+     anything else that might affect what's in the locker filters -->
+<!-- Compatibility for CombatExtended, specifications from sumghai,
+     who actually plays it, and has a vision for how it should work.
+     No one else has made any requests, so he gets pretty much
+     exactly what he wants ^.^
+     First, Cabinets, then Lockers -->
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Combat Extended</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+	<li Class="PatchOperationReplace">
+	  <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+	  <value>
+	    <li Class='LWM.DeepStorage.Properties'>
+	      <minNumberStacks>2</minNumberStacks>
+	      <maxNumberStacks>100</maxNumberStacks><!-- Caters for large number of items with low mass e.g. knives  [goodness, but okay! 8)  Also, knives are small, so okay! -LWM]-->
+	      <maxTotalMass>165</maxTotalMass><!-- Equivalent to 16 assault rifles, lower than metallic weapons lockers -->
+	      <altStat>Bulk</altStat>
+	      <!-- next is also based on bulk; may need to be tweaked in the future for CE weapons with higher bulk values (e.g assault, sniper and anti-material rifles) -->
+	      <maxMassOfStoredItem>16</maxMassOfStoredItem>
+	      <timeStoringTakes>100</timeStoringTakes><!-- slightly lower than locker as less packing to do -->
+	      <showContents>false</showContents>
+	      <overlayType>CountOfStacksPerCell</overlayType>
+	    </li>
+	  </value>
+	</li>
+        <li Class="PatchOperationAdd"><!-- TODO -->
+          <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet"]/building/defaultStorageSettings/filter</xpath>
+          <value>
+            <categories>
+              <li>Weapons</li>
+            </categories>
+          </value>
+        </li>
+	<li Class="PatchOperationReplace">
+	  <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+	  <value>
+	    <li Class='LWM.DeepStorage.Properties'>
+              <minNumberStacks>2</minNumberStacks>
+              <maxNumberStacks>100</maxNumberStacks><!-- Caters for large number of items with low mass e.g. knives  [goodness, but okay! 8)  Also, knives are small, so okay! -LWM]-->
+              <maxTotalMass>205</maxTotalMass><!-- Equivalent to 20 assault rifles -->
+              <altStat>Bulk</altStat>
+              <!-- next is also based on bulk; may need to be tweaked in the future for CE weapons with higher bulk values (e.g assault, sniper and anti-material rifles) -->
+              <maxMassOfStoredItem>16</maxMassOfStoredItem>
+              <timeStoringTakes>120</timeStoringTakes><!-- packing in tight takes time -->
+              <showContents>false</showContents>
+              <overlayType>CountOfStacksPerCell</overlayType>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd"><!--TODO-->
+          <xpath>/Defs/ThingDef[defName="LWM_WeaponsLocker"]/building/defaultStorageSettings/filter</xpath>
+          <value>
+            <categories>
+              <li>Weapons</li>
+            </categories>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/categories</xpath>
+          <value>
+            <li>Ammo</li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for Combat Extended</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>
