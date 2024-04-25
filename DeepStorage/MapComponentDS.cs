@@ -113,6 +113,16 @@ namespace LWM.DeepStorage
             if (cache.ContainsKey(cell)) return cache[cell].CanStoreThisMany(item, cds);
             return cds.CapacityToStoreThingAtDirect(item, map, cell);
         }
+        public int EmptyStacksAt(CompDeepStorage cds, IntVec3 cell)
+        {
+            Utils.Warn(Utils.DBF.Cache, "EmptyStacksAt request at " + cell);
+            if (!cache.ContainsKey(cell))
+            {
+                UpdateCache(cell, cds);
+            }
+            if (cache.ContainsKey(cell)) return cache[cell].EmptyStacks;
+            return (cds.parent.def.size.Area * cds.MaxNumberStacks) - cds.parent.GetSlotGroup().HeldThingsCount;
+        }
 
         /************************************************************************************/
         /***************************** internal CellCache class *****************************/
@@ -150,6 +160,12 @@ namespace LWM.DeepStorage
                 }
                 Utils.Mess(Utils.DBF.Cache, "Cache created for " + cell + ": mass: "
                            + massStored + " emptyStacks: " + emptyStacks);
+            }
+            public int EmptyStacks
+            {
+                get {
+                    return emptyStacks;
+                }
             }
             public bool CanStoreAny(Thing t, CompDeepStorage cds)
             {

@@ -1,0 +1,24 @@
+If adding a compatibility patch to create a Deep Storage Unit:
+
+1.  If you use template in default xml, you're fine.
+2.  If you're adding the LWM.DeepStorage.Properties comp property,
+    you also probably want to add the "Inspector Tab" (ITab) -
+    the "Contents" tab:
+    		<inspectorTabs>
+		  <li>ITab_Storage</li>    <---probably already there somehwere.
+                  <li>LWM.DeepStorage.ITab_DeepStorage_Inventory</li>
+		</inspectorTabs>
+
+I put AddNewUnit_ instead of Compatibility_ so that hopefully alphabetical
+sorting means new units will pick up other compat changes...
+
+
+Adding a new feature (comp, etc) to every DSU:
+
+Look at Compatibility_StockpileForDisaster to see how to select everything (including
+other added DSUs).
+
+
+TODO?
+                  <!-- TODO: Add inventory tab to all Building_Storage classes via C#....-->
+

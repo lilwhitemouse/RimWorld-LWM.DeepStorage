@@ -1,0 +1,49 @@
+<Patch>
+  <!-- Compatibility for RimOverhaul. Allows new metals (and other ...substances) to be stored with raw resources
+       Request by CrazyPenguin, who has 100 stacks of various RimOverhaul metals due to a massive quarry-->
+  <!-- NOTE (TODO): I should probably allow some of these things in fabric hampers.  Heck, I should probably add
+       fabric hampers.  Anyway, specifically: <defName>Vibranium</defName> should go in fabric hampers?-->
+  <!--=====RimOverhaul=====-->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>RimOverhaul</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/building/fixedStorageSettings/filter/categories</xpath>
+          <!--Ok.  Why did I name it LWM_DeepStorage_Skip instead of just LWM_Skip?  Seriously, I was being silly -->
+          <value>
+            <li>RimOverhaulSpecialMetalls</li>
+            <!--....Metalls?  Two lls?  Okay, whatever, not my mod, but I'm judging you over here!
+                                        ...but not very much - it's amusing and it works, so whatever!   >^.^<   -->
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/categories</xpath>
+          <value>
+            <li>RimOverhaulSpecialMetalls</li>
+            <li>MedievalShells</li>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Pallet_Covered"]/building/fixedStorageSettings/filter/categories</xpath>
+          <value>
+            <li>RimOverhaulSpecialMetalls</li>
+            <li>MedievalShells</li>
+            <li>DarkNetItems_Drugs</li>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Medicine_Cabinet"]/building/fixedStorageSettings/filter/categories</xpath>
+          <value>
+            <li>DarkNetItems_Drugs</li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for RimOverhaul</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

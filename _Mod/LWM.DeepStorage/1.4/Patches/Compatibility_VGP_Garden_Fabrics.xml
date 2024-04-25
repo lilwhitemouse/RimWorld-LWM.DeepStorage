@@ -1,0 +1,25 @@
+<Patch>
+  <!-- Compatibility for VGP Garden Fabrics - thanks GrumpyProgrammer, who did this-->
+  <!-- Adds Cotton Fibre, Raw Flax, and Raw Devilstrand to the fabric hamper  -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>VGP Garden Fabrics</li>
+      <li>VGP Garden Fabrics 1.0</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_FabricHamper"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <value>
+            <li>RawCotton</li>
+	    <li>RawFlax</li>
+	    <li>RawDevilstrand</li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for VGP Garden Fabrics</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

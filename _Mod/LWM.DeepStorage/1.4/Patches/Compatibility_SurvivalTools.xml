@@ -1,0 +1,71 @@
+<Patch>
+  <!-- Compatibility for Survival Tools. Allows tools to be stored in weapon lockers. -->
+  <!--=====[XND] Survival Tools=====-->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>[XND] Survival Tools</li>
+      <li>[LC] Survival Tools</li><!-- 1.1 version -->
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- going to be ugly - I repeat the same thing 5 times....
+             apparently there are a bunch of versions running around
+             on Steam. Gotta catch 'em all? -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingCategoryDef[defName="SurvivalTools"]</xpath>
+          <success>Always</success>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
+            <value>
+              <li>SurvivalTools</li>
+            </value>
+          </match>
+          <!-- no nomatch; use success - Always instead -->
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingCategoryDef[defName="FellingTools"]</xpath>
+          <success>Always</success>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
+            <value>
+              <li>FellingTools</li>
+            </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingCategoryDef[defName="ConstructionTools"]</xpath>
+          <success>Always</success>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
+            <value>
+              <li>ConstructionTools</li>
+            </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingCategoryDef[defName="MiningTools"]</xpath>
+          <success>Always</success>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
+            <value>
+              <li>MiningTools</li>
+            </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingCategoryDef[defName="HarvestingTools"]</xpath>
+          <success>Always</success>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_WeaponsCabinet" or defName="LWM_WeaponsLocker"]/building/fixedStorageSettings/filter/categories</xpath>
+            <value>
+              <li>HarvestingTools</li>
+            </value>
+          </match>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch(s) for [XND] Survival Tools</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

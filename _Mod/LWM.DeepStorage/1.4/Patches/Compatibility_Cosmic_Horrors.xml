@@ -1,0 +1,28 @@
+<Patch>
+  <!-- Request by Demonlord09 on Steam -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Call of Cthulhu - Cosmic Horrors</li>
+      <li>Call of Cthulhu - Cosmic Horrors (Continued)</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/categories</xpath>
+          <value>
+            <li>ROM_StrangeMeatRaw</li>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_Food_Basket"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <value>
+            <li>ROM_StrangeKibble</li>
+          </value>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for Cosmic Horrors (strange meats)</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

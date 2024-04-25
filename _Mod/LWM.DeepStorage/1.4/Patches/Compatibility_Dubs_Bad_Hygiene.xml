@@ -1,0 +1,56 @@
+<Patch>
+  <!-- Request by deathbyego and Luinithil on Steam -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Dubs Bad Hygiene</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter</xpath>
+            <value><thingDefs><li MayRequire="dbhFullMode">FecalSludge</li></thingDefs></value>
+          </nomatch>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+            <value>
+              <li MayRequire="dbhFullMode">FecalSludge</li>
+            </value>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+          <value><!-- Well, garbage, right? -->
+            <li MayRequire="dbhFullMode">Biosolids</li>
+            <li MayRequire="dbhFullMode">FecalSludge</li><!--I went ahead and added this here, too-->
+          </value>
+        </li>
+        <!-- Add to quickStoringItems for skip -->
+        <li Class="PatchOperationConditional">
+          <!-- Make sure quickStoringItems is there -->
+          <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/comps/li[@Class='LWM.DeepStorage.Properties']/quickStoringItems</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/comps/li[@Class='LWM.DeepStorage.Properties']</xpath>
+            <value>
+              <quickStoringItems>
+                <li MayRequire="dbhFullMode">Biosolids</li>
+                <li MayRequire="dbhFullMode">FecalSludge</li>
+              </quickStoringItems>
+            </value>
+          </nomatch>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="LWM_DeepStorage_Skip"]/comps/li[@Class='LWM.DeepStorage.Properties']/quickStoringItems</xpath>
+            <value>
+              <li MayRequire="dbhFullMode">Biosolids</li>
+              <li MayRequire="dbhFullMode">FecalSludge</li>
+            </value>
+          </match>
+        </li>
+        <li Class="LWM.DeepStorage.PatchMessage">
+          <message>LWM Deep Storage: activated compatibility patch for Dubs Bad Hygiene</message>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>
