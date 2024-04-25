@@ -24,6 +24,7 @@ namespace LWM.DeepStorage
          */
         public static bool robotsCanUse = false;
         public static bool storingTakesTime = true;
+        private static bool disableMassLimits = false;
         public static float storingGlobalScale = 1f;
         public static bool storingTimeConsidersStackSize = true;
         public static StoragePriority defaultStoragePriority = StoragePriority.Important;
@@ -181,6 +182,7 @@ namespace LWM.DeepStorage
 
             Listing_Standard l = new Listing_Standard(GameFont.Medium); // my tiny high-resolution monitor :p
             l.Begin(new Rect(0f, 0f, scrollViewTotal.width, 9999f)); // Some RW window does this "9999f" thing, & it seems to work?
+            //--------------------------------------------------------------------------------------------
             ///////////////// shelf cost //////////////////////
             var vanillaShelf = DefDatabase<ThingDef>.GetNamed("Shelf", false);
             if (vanillaShelf != null && Settings.defTracker.HasDefaultValueFor("shelf", "cost"))
@@ -200,9 +202,11 @@ namespace LWM.DeepStorage
                 Text.Font = GameFont.Medium;
                 l.GapLine();
             }
+            //--------------------------------------------------------------------------------------------
             //l.GapLine();  ////////// Make all storage Deep Storage //////////
             l.CheckboxLabeled("LWMDSmakeAllStorageDeepStorage".Translate(), ref makeAllStorageDeepStorage,
                               "LWMDSmakeAllStorageDeepStorageDesc".Translate());
+            //--------------------------------------------------------------------------------------------
             l.GapLine();  ///////////// Who can haul to Deep Storage (robots, animals, etc)
             l.Label("LWMDShaulToStorageExplanation".Translate());
             l.CheckboxLabeled("LWMDSrobotsCanUse".Translate(), ref robotsCanUse, "LWMDSrobotsCanUseDesc".Translate());
@@ -230,6 +234,11 @@ namespace LWM.DeepStorage
                 storingGlobalScale=1f;
                 storingTimeConsidersStackSize=true;
             }
+            //--------------------------------------------------------------------------------------------
+            l.GapLine(); // disable weight/mass limits
+            l.CheckboxLabeled("LWMDSdisableMassLimits".Translate(), ref disableMassLimits,
+                              "LWMDSdisableMassLimitsDesc".Translate());
+            //--------------------------------------------------------------------------------------------
             l.GapLine(); // default Storing Priority
             if ( l.ButtonTextLabeled("LWM_DS_defaultStoragePriority".Translate(),
                                      defaultStoragePriority.Label()) ) {
@@ -244,6 +253,7 @@ namespace LWM.DeepStorage
                 }
                 Find.WindowStack.Add(new FloatMenu(mlist));
             }
+            //--------------------------------------------------------------------------------------------
             l.GapLine(); ////////  User Interface /////////
             l.Label("LWM_DS_userInterface".Translate());
             l.CheckboxLabeled("LWM_DS_useEjectButton".Translate(), ref useEjectButton,
@@ -288,6 +298,7 @@ namespace LWM.DeepStorage
             l.CheckboxLabeled("LWM_DS_useDSRightClick".Translate(), ref useDeepStorageRightClickLogic,
                               "LWM_DS_useDSRightClickDesc".Translate());
 
+            //--------------------------------------------------------------------------------------------
             // Architect Menu:
             l.GapLine();  //Architect Menu location
             GUI.color=origColor;
@@ -376,7 +387,7 @@ namespace LWM.DeepStorage
                 architectMenuMoveALLTmp=architectMenuMoveALLStorageItems;
             }
             // finished drawing settings for Architect Menu
-            // -------------------
+            //--------------------------------------------------------------------------------------------
             // Allow player to turn of Over-Capacity check.
             //   Turn it off automatically for Project RimFactory and Extended Storage
             //   Note: should turn it off automatically for any other storage mods, too
@@ -392,10 +403,12 @@ namespace LWM.DeepStorage
             l.CheckboxLabeled("LWMDSoverCapacityCheck".Translate(), ref checkOverCapacity,
                               "LWMDSoverCapacityCheckDesc".Translate());
             GUI.color=origColor;
+            //--------------------------------------------------------------------------------------------
             l.GapLine();   ///////// Graphics //////////
             l.CheckboxLabeled("LWMDSuseOldBoringStackingGraphic".Translate(),
                 ref useBoringOldStackingGraphic,
                 "LWMDSuseOldBoringStackingGraphicDesc".Translate());
+            //--------------------------------------------------------------------------------------------
             l.GapLine();   /////// Per DSU settings - let players change them around... ////////
             if (allowPerDSUSettings) {
                 if (l.ButtonText("LWMDSperDSUSettings".Translate())) {
@@ -405,6 +418,7 @@ namespace LWM.DeepStorage
                 l.CheckboxLabeled("LWMDSperDSUturnOn".Translate(), ref allowPerDSUSettings,
                                   "LWMDSperDSUturnOnDesc".Translate());
             }
+            //--------------------------------------------------------------------------------------------
             l.GapLine(); // End. Finis. Looks pretty having a line at the end.
             totalContentHeight = l.CurHeight + 10f;
             l.End();
@@ -438,9 +452,17 @@ namespace LWM.DeepStorage
                         Log.Warning("LWM.DeepStorage could not set priority for " + d.defName);
                 }
             }
+            if (disableMassLimits)
+            {
+                foreach (ThingDef d in AllDeepStorageUnits)
+                {
+                    var p = d.comps?.OfType<Properties>().FirstOrDefault();
+                    if (p!= null) p.maxTotalMass = -1;
+                }
+            }
             // Re-read Mod Settings - some won't have been read because Defs weren't loaded:
             //   (do this after priority changes above to allow user to override changes)
-//todo:
+            //todo:
             Utils.Mess(Utils.DBF.Settings, "Defs Loaded.  About to re-load settings");
             // NOTE/WARNING: the mod's settings' FolderName will be different for non-steam and steam versions.
             //   Internally, they are loaded using:
@@ -456,15 +478,20 @@ namespace LWM.DeepStorage
 
             // Update 1.4 introduced def's .building.maxItemsInCell
             //   ....and for backward compatibility, we need both :p
-            //   Approach:  take whichever is bigger: maxItemsInCell or our maxNumberStacks
+            //   Old approach:  take whichever is bigger: maxItemsInCell or our maxNumberStacks
             //   Potential problem: If someone bases an item off of vanilla shelves (mIIC=3)
             //     but sets comp's mNS to 2.  ....I don't think that's likely?  So we won't
             //     worry about it
+            // FOLLOWUP: Yeah, someone set the comp's value for shelves to 1
+            //      (via mod settings, but still...)  Well done man_of_belief!
+            // So.....If numbers disagree here, take MY number over anyone elses:
             foreach (ThingDef d in AllDeepStorageUnits) {
-                int max = Math.Max(d.building.maxItemsInCell,
-                        d.GetCompProperties<DeepStorage.Properties>().maxNumberStacks);
-                d.building.maxItemsInCell = max;
-                d.GetCompProperties<DeepStorage.Properties>().maxNumberStacks = max;
+                int maxN = d.GetCompProperties<DeepStorage.Properties>().maxNumberStacks;
+                if (d.building.maxItemsInCell > maxN)
+                    Log.Message("LWM.DeepStorage: Overriding " + d.defName + "'s number of stacks (" +
+                        d.building.maxItemsInCell + ") to LOWER number from mod settings: " + maxN +
+                        " (but you're the boss!)");
+                d.building.maxItemsInCell = maxN;
                 //Log.Message("LWM just set maxItemsInCell for " + d.defName + " to " + d.building.maxItemsInCell);
                 // NOTE: We also need to do this any time someone presses update settings button
             }
@@ -765,6 +792,7 @@ namespace LWM.DeepStorage
                 }
             }
             Scribe_Values.Look(ref storingTakesTime, "storing_takes_time", true);
+            Scribe_Values.Look(ref disableMassLimits, "disable_mass_limits", false);
             Scribe_Values.Look(ref storingGlobalScale, "storing_global_scale", 1f);
             Scribe_Values.Look(ref storingTimeConsidersStackSize, "storing_time_CSS", true);
             Scribe_Values.Look(ref robotsCanUse, "robotsCanUse", true);

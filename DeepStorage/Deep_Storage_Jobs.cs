@@ -38,7 +38,7 @@ namespace LWM.DeepStorage
      *   }
      **************************************/
      //todo1.4: totally untested
-    [HarmonyPatch(typeof(Verse.AI.HaulAIUtility), "HaulToCellStorageJob")]
+    //[HarmonyPatch(typeof(Verse.AI.HaulAIUtility), "HaulToCellStorageJob")]
     class Patch_HaulToCellStorageJob {
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator) {
             // this #if false block prints out the full transpiled IL code

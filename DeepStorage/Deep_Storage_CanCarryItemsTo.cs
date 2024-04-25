@@ -44,7 +44,7 @@ namespace LWM.DeepStorage
      **************************************/
      //todo1.4: OMG, this all goes away:D
 //todo1.4    [HarmonyPatch(typeof(RimWorld.StoreUtility), "NoStorageBlockersIn")]
-    class Patch_NoStorageBlockersIn {
+    class Patch_NoStorageBlockersInXXX {
         protected static bool Prefix(IntVec3 c, Map map, Thing thing, ref bool __result) {
             Utils.Err(NoStorageBlockerseIn, "Looking for blockers for " + thing + " at " + c);
             // Check if storage location is in an uber-storage building:
@@ -253,15 +253,16 @@ namespace LWM.DeepStorage
         static void Postfix(ref bool __result, IntVec3 c, Map map, Pawn carrier)
         {
             if (__result == false) return;
-            if (specialTest != null && specialTest(carrier)) return; // passes specialTest?
-            if (carrier?.RaceProps == null) return;
-            if (carrier.RaceProps.intelligence >= NecessaryIntelligenceToUseDeepStorage)
-                return; // smart enough to use whatever.
-            // okay, potentially need to see if we're looking at deep storage after all:
+            // Check if deep storage restrictions even apply here - if it's to a regular shelf,
+            //   or to a stockpile, for example, we shouldn't be futzing with it:
             if (LWM.DeepStorage.Utils.CanStoreMoreThanOneThingAt(map, c))
             {
                 __result = false;
             }
+            if (specialTest != null && specialTest(carrier)) return; // passes specialTest?
+            if (carrier?.RaceProps == null) return;
+            if (carrier.RaceProps.intelligence >= NecessaryIntelligenceToUseDeepStorage)
+                return; // smart enough to use whatever.
             return;
         }
     }

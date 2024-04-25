@@ -38,3 +38,63 @@
     ///    Makes Deep Storage play well with:
     ///      RimWorld Search Agency (Hauling Hysteresis)
     ///////////////////////////////////////////////////////////////////////
+    
+    
+    ////////////////////    Storage Groups    /////////////////////
+    ///// General Groups /////
+    Vanilla:
+        The StorageGroup has a set of StorageSettings that get returned when the linked storage building
+        is queried.
+    But:
+        Our CompDeepStorage is specific to the building, not to the group: different qualities might have
+        different abilities, etc :/ (I.e., more storage capacity for Excellent)
+    General idea: don't try linking things, just copy all DS settings when a link is made, and if any DS
+        settings actually change, make the change to all members. This is definitely differeint from how
+        vanilla does it, but it will be easier for me, because it's harder to miss any places the groups
+        might be important, and I KNOW all the places the DS settings change.
+    ///// Buildings Storage /////
+    Patch Building_Storage's IStorageGroupMember.SetStorageGroup directly to get settings from any other
+          members of the group (if there is one)
+    ///// Blueprints ///// Blueprint_Storage
+    Keep the StorageGroup information in the MapComponent
+    Joining Group:  Patch Blueprint_Storage's IStorageGroupMember.SetStorageGroup to get any settings
+        and store them in the mapcomponent
+    -> Frame:
+        Patch Blueprint_Storage's MakeSolidThing
+    Destroyed: Patch Blueprint_Storage Destroy(...)
+    gizmos
+    ///// Frames ///// Frame
+    CompleteConstruction - will need a transpile: match somewhere in:
+                IStorageGroupMember storageGroupMember;
+                if ((storageGroupMember = (thing as IStorageGroupMember)) != null)
+                {
+                    storageGroupMember.SetStorageGroup(this.storageGroup);
+                }
+                Building_Storage building_Storage;
+                if ((building_Storage = (thing as Building_Storage)) != null /*Prolly here*/ && this.storageSettings != null)
+                {
+                    building_Storage.settings.CopyFrom(this.storageSettings);
+                }
+    FailConstruction - will need a transpile: similar to above
+    SetStorageGroup - same as for blueprint?
+    Destroy() remove from mapcomponent
+    GetGizmos - ? do we care?
+    
+    PROBLEM: Vanilla has an edge case bug:
+    Build two shelves and one blueprint. Link them all. Turn the blueprint into a Frame.
+        Save game here for showing bug.
+        Change a setting in either Shelf - we would expect this to propagate across all storage group members,
+        and it does to the other shelf. Unlink one of the shelves(!) This destroys the group because technically 
+        it only has two members and just lost one.
+        Path 1: Save the game... Finish building Frame->Shelf. The Shelf does not have the propaged settings.
+                (It's still pulling them from the Storage Settings object that it alone links to now)
+        Path 2: Do not save the game... Finish building the Frame->Shelf. The Shelf DOES have the propagated settings.
+                (The Storage Settings object was never saved)
+        
+    
+    
+    NOTE: Probably a better choice:
+    Have a new class CompSettings.cs, which gets saved somehow and multiple things can point to it. It's not as straightforward
+           in a lot ways, but in other ways, will mirror Vanilla very well
+    
+    

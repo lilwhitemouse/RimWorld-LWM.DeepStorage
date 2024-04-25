@@ -12,48 +12,24 @@ using static LWM.DeepStorage.Utils.DBF; // trace utils
 
 namespace LWM.DeepStorage
 {
-    public class CompDeepStorage : ThingComp, IHoldMultipleThings.IHoldMultipleThings, IRenameable{
+    public class CompDeepStorage : ThingComp, IExposable, IHoldMultipleThings.IHoldMultipleThings, IRenameable {
             public string label = "";
             public string RenamableLabel
             {
-              get => this.label ?? this.BaseLabel;
-              set => this.label = value;
+              get => this.buildingLabel.NullOrEmpty() ? this.BaseLabel : this.buildingLabel;
+              set => this.label = value;TODO
             }
         
             public string BaseLabel => this.parent.def.label.CapitalizeFirst();
         
             public string InspectLabel => this.RenamableLabel;
-            
-        //public float y=0f;
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
             }
-#if DEBUGLWM
-            yield return new Command_Action
-            {
-//                icon = has_Ideology?UI/Abilities/WorkDrive :
-                icon = ContentFinder<Texture2D>.Get("Things/Mote/Thought", true),
-//                icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
-//        icon = ContentFinder<Texture2D>.Get("Things/Item/Unfinished/UnfinishedGun", true),
-                defaultLabel = "Settings".Translate(),
-                action = delegate()
-                {
-                    Find.WindowStack.Add(new Dialog_CompSettings(this));
-                }
-            };
-#else
-            yield return new Command_Action // Rename
-			{
-				icon = ContentFinder<Texture2D>.Get("UI/Commands/RenameZone", true),
-				defaultLabel = "CommandRenameZoneLabel".Translate(),
-				action = delegate()
-				{
-					Find.WindowStack.Add(new Dialog_RenameDSU(this));
-				},
-				hotKey = KeyBindingDefOf.Misc1
-			};
-#endif
+            foreach (Gizmo g in DSStorageGroupUtility.GetDSStorageGizmos())
+                yield return g;
+
             #if DEBUG
             yield return new Command_Toggle {
                 defaultLabel="Use RClick Logic",
@@ -135,28 +111,6 @@ namespace LWM.DeepStorage
             return origLabel;
         }
 
-        public int MinNumberStacks {
-            get {
-                return ((Properties)this.props).minNumberStacks;
-            }
-        }
-        public int MaxNumberStacks {
-            get {
-                return maxNumberStacks ?? ((Properties)this.props).maxNumberStacks;
-                //return ((Properties)this.props).maxNumberStacks;
-            }
-            [Multiplayer.API.SyncMethod]
-            set {
-                this.maxNumberStacks = value;
-            }
-        }
-
-        [Multiplayer.API.SyncMethod]
-        public virtual void ResetSettings()
-        {
-            this.maxNumberStacks = null;
-        }
-
         public virtual int TimeStoringTakes(Map map, IntVec3 cell, Pawn pawn) {
             if (CdsProps.minTimeStoringTakes <0) {
                 // Basic version
@@ -226,24 +180,10 @@ namespace LWM.DeepStorage
             return t;
         } // end TimeStoringTakes
 
-        public virtual bool ShowContents
-        {
-            get {
-                return ((Properties)this.props).showContents;
-            }
-        }
-
-        public Properties CdsProps  // b/c I hate typing :p
-        {
-            get {
-                return ((Properties)this.props);
-            }
-        }
-
         public override void Initialize(CompProperties props) {
             base.Initialize(props);
             /*******  Initialize local variables                                      *******/
-            this.maxNumberStacks = CdsProps.maxNumberStacks;
+            //this.maxNumberStacks = CdsProps.maxNumberStacks; //null->use CdsProps!
 
             /*******  For only one limiting stat: (mass, or bulk for CombatExtended)  *******/
             if (((Properties)props).altStat != null) stat = ((Properties)props).altStat;
@@ -262,11 +202,25 @@ namespace LWM.DeepStorage
             }
             */
         }
+        // Tell the DSMapComponent that something has changed and any storage info for the
+        //   unit may now be incorrect
+        public void DirtyMapCache()
+        {
+            if (parent is Building_Storage && parent.Spawned)
+            {
+                MapComponentDS dsm = parent.Map.GetComponent<MapComponentDS>();
+                foreach (var cell in (parent as Building_Storage).AllSlotCells())
+                    dsm.DirtyCache(cell);
+            }
+        }
 
         // IMPORTANT NOTE: some of the following logic is in the patch for TryFindBestBetterStoreCellFor
         //   (ShouldRemoveFrom logic).  TODO: it should probably be here
 
         public virtual int CapacityToStoreThingAt(Thing thing, Map map, IntVec3 cell) {
+            return map.GetComponent<MapComponentDS>().CapacityToStoreItemAt(this, thing, cell);
+        }
+        public virtual int CapacityToStoreThingAtDirect(Thing thing, Map map, IntVec3 cell) {
             Utils.Warn(CheckCapacity, "Checking Capacity to store "+thing.stackCount+thing+" at "
                        +(map?.ToString()??"NULL MAP")+" "+cell);
             int capacity = 0;
@@ -305,7 +259,7 @@ namespace LWM.DeepStorage
                             Utils.Warn(CheckCapacity, "  But all stacks already taken: "+(stacksStoredHere-1)+" / "+MaxNumberStacks);
                             return 0;
                         }
-                        return thing.stackCount;
+                        return thing.stackCount;//todo: wrong? mass?
                     }
                     if (thingInStorage.CanStackWith(thing)) {
                         if (thingInStorage.stackCount < thingInStorage.def.stackLimit) {
@@ -353,30 +307,102 @@ namespace LWM.DeepStorage
         }
         /************************** IHoldMultipleThings interface ************************/
         /* For compatibility with Mehni's PickUpAndHaul                                  */
+        /* (Note: without mass-limits factored in, 1.4's vanilla code handles everything *
+         *        without deep storage having to do a thing!                             */
+        // NOTE: Maybe for Multiplayer makes sense to patch this?
         public bool CapacityAt(Thing thing, IntVec3 cell, Map map, out int capacity) {
-            capacity = this.CapacityToStoreThingAt(thing, map, cell);
+            capacity = map.GetComponent<MapComponentDS>().CapacityToStoreItemAt(this, thing, cell);
+//            capacity = this.CapacityToStoreThingAt(thing, map, cell);
             if (capacity > 0) return true;
             return false;
         }
+        // (I still think this is a stupid name)
         public bool StackableAt(Thing thing, IntVec3 cell, Map map) {
-            return this.CapacityToStoreThingAt(thing,map,cell) > 0;
+            return map.GetComponent<MapComponentDS>().CanStoreItemAt(this, thing, cell);
+            //return this.CapacityToStoreThingAt(thing,map,cell) > 0;
         }
         /*********************************************************************************/
         public override void PostExposeData() { // why not call it "ExposeData" anyway?
             Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
             Scribe_Values.Look<int?>(ref maxNumberStacks, "LWM_DS_DSU_maxNumberStacks", null, false);
         }
+        public void ExposeData() // Because ExposeData is a special IExposable thing!
+        {
+            PostExposeData();
+        }
+        /********************** properties **********************/
+        public Properties CdsProps  // b/c I hate typing :p
+        {
+            get {
+                return ((Properties)this.props);
+            }
+        }
+        public int MinNumberStacks
+        {
+            get {
+                return ((Properties)this.props).minNumberStacks;
+            }
+        }
+        public int MaxNumberStacks
+        {
+            get {
+                return maxNumberStacks ?? ((Properties)this.props).maxNumberStacks;
+            }
+            set {
+                int? newValue = (value == CdsProps.maxNumberStacks ? (int?)null : (int?)value);
+                if ((parent is IStorageGroupMember storage) && storage.Group != null)
+                {
+                    foreach (var c in DSStorageGroupUtility.GetDSCompsFromGroup(storage.Group))
+                    {
+                        c.SetMaxNumberStacksDirect(newValue);
+                    }
+                }
+                else SetMaxNumberStacksDirect(newValue);
+            }
+        }
+        [Multiplayer.API.SyncMethod]
+        public void SetMaxNumberStacksDirect(int? n)
+        {
+            this.maxNumberStacks = n;
+            this.DirtyMapCache();
+        }
+
+        public virtual bool ShowContents
+        {
+            get {
+                return ((Properties)this.props).showContents;
+            }
+        }
 
         public void SetLabel(string newLabel)
         {
-            if (newLabel == null) buildingLabel = "";
-            else buildingLabel = newLabel;
-            SetLabelMultiplayer(buildingLabel);
+            if (newLabel == null) newLabel = "";
+            if ((parent is IStorageGroupMember storage) && storage.Group != null)
+            {
+                foreach (var c in DSStorageGroupUtility.GetDSCompsFromGroup(storage.Group)) {
+                    c.SetLabelDirect(newLabel);
+                }
+            }
+            else SetLabelDirect(newLabel);
         }
-        [Multiplayer.API.SyncMethod] // I am informed that doing it this way is overkill
-        private void SetLabelMultiplayer(string newLabel)
+        [Multiplayer.API.SyncMethod]
+        private void SetLabelDirect(string newLabel)
         {
             buildingLabel = newLabel;
+        }
+
+        [Multiplayer.API.SyncMethod]
+        public virtual void ResetSettings()
+        {
+            this.buildingLabel = "";
+            this.maxNumberStacks = null;
+            this.DirtyMapCache();
+        }
+
+        public void CopySettingsFrom(CompDeepStorage other)
+        {
+            SetLabelDirect(other.buildingLabel);
+            SetMaxNumberStacksDirect(other.maxNumberStacks);
         }
 
         public string buildingLabel="";

@@ -157,13 +157,16 @@ namespace LWM.DeepStorage
     // Making item on top display on top: loaded items on "top" need to go into the HashSet
     // Gui Overlay: loaded items' overlays should not display
     // Put DeepStorage at the end of the ThingsList for proper display post-save
+    // WARNING: This includes code to dirty the cache
+    // TODO: Refactor and clean this up
     [HarmonyPatch(typeof(Building_Storage), "SpawnSetup")]
     public static class PatchDisplay_SpawnSetup {
-        public static void Postfix(Building_Storage __instance, Map map) {
+        public static void Postfix(Building_Storage __instance, Map map, bool respawningAfterLoad) {
             CompDeepStorage cds;
             if ((cds = __instance.GetComp<CompDeepStorage>()) == null) return;
-            
             foreach (IntVec3 cell in __instance.AllSlotCells()) {
+                if (!respawningAfterLoad) map.GetComponent<MapComponentDS>().DirtyCache(cell);
+
                 List<Thing> list = map.thingGrid.ThingsListAt(cell);
                 bool alreadyFoundItemOnTop=false;
                 for (int i=list.Count-1; i>=0; i--) {
@@ -248,6 +251,7 @@ namespace LWM.DeepStorage
     //   Notify_LostThing is an empty declaration, and it seems to be optimized out of existance,
     //   so Harmony cannot attach to it.  The game crashes - with no warning - when the patched
     //   method gets called.
+    // NOTE: by RimWorld 1.4, Harmony and RW are playing well together, and this would work now:
     #if false
     [HarmonyPatch(typeof(RimWorld.Building_Storage), "Notify_LostThing")]
     public static class PatchDisplay_Notify_LostThing {
@@ -296,6 +300,8 @@ namespace LWM.DeepStorage
     }
 
     /*************** Deep Storage DeSpawns (destroyed, minified, etc) *****************/
+    /*WARNING: This includes code to handle dirtying cache
+     * TODO: Refactor and clean this up */   
     [HarmonyPatch(typeof(Verse.Building), "DeSpawn")]
     public static class Patch_Building_DeSpawn_For_Building_Storage {
         [HarmonyPriority(Priority.First)] // MUST execute, cannot be postfix,
@@ -316,6 +322,7 @@ namespace LWM.DeepStorage
                 return;
             }
             foreach (IntVec3 cell in DSU.AllSlotCells()) {
+                __instance.Map.GetComponent<MapComponentDS>().DirtyCache(cell);
                 List<Thing> list = map.thingGrid.ThingsListAt(cell);
                 Thing t;
                 for (int i=0; i<list.Count;i++) {

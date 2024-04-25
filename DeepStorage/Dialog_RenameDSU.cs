@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace LWM.DeepStorage
 {
+#if false
     // ripped shamelessly from Dialog_RenameZone
     public class Dialog_RenameDSU : Dialog_Rename<CompDeepStorage>
     {
@@ -60,4 +61,5 @@ namespace LWM.DeepStorage
 
         private CompDeepStorage cds;
     }
+#endif
 }
