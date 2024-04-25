@@ -7,9 +7,9 @@ namespace LWM.DeepStorage
 {
 #if false
     // ripped shamelessly from Dialog_RenameZone
-    public class Dialog_RenameDSU : Dialog_Rename
+    public class Dialog_RenameDSU : Dialog_Rename<CompDeepStorage>
     {
-        public Dialog_RenameDSU(CompDeepStorage cds)
+        public Dialog_RenameDSU(CompDeepStorage cds): base(cds)
         {
             this.cds = cds;
             this.curName = cds.parent.Label;
@@ -28,7 +28,7 @@ namespace LWM.DeepStorage
             return true;
         }
 
-        protected override void SetName(string name)
+        protected void SetName(string name)
         {
             this.cds.buildingLabel = name;
             Messages.Message("LWM_DSU_GainsName".Translate(this.cds.parent.def.label, cds.parent.Label),

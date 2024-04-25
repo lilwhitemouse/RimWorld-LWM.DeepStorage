@@ -11,6 +11,14 @@ namespace LWM.DeepStorage
 	// ripped shamelessly from Dialog_RenameZone
     // TODO: Why bother with dialog_rename? I have it all here; just remove other dialog
     // TODO: show new message for maxNumStacks changing
+<<x<<<<< master // Why can't I merge these conflicts into my 1.5??  Ugh. I'm sorry AamuLumi, this is ugly
+	public class Dialog_CompSettings : Dialog_Rename<CompDeepStorage>
+	{
+		public Dialog_CompSettings(CompDeepStorage cds): base(cds)
+		{
+			this.cds = cds;
+			this.curName = cds.parent.Label;
+===x====
     // NOTE: Any changes that happen can be directed to the Comp - it'll handle any weird storage group things
 	public class Dialog_CompSettings : Dialog_Rename
 	{
@@ -23,6 +31,7 @@ namespace LWM.DeepStorage
             this.curName = cds.buildingLabel;
             if (curName == "") curName = DSStorageGroupUtility.GetDefaultLabelFor(parent); // same as below
             origName = curName;
+>>>>x>>> 1.5-initial
 		}
 
 		public override Vector2 InitialSize
@@ -188,7 +197,7 @@ namespace LWM.DeepStorage
             return true;
         }
 
-        protected override void SetName(string name)
+        protected void SetName(string name)
         {
             if (name != origName)
             {
