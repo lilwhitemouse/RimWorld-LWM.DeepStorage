@@ -17,7 +17,7 @@ namespace LWM.DeepStorage
             public string RenamableLabel
             {
               get => this.buildingLabel.NullOrEmpty() ? this.BaseLabel : this.buildingLabel;
-              set => this.label = value;TODO
+              set => this.label = value;
             }
         
             public string BaseLabel => this.parent.def.label.CapitalizeFirst();

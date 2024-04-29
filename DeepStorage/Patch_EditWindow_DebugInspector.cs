@@ -7,6 +7,7 @@ using System.Linq;
 using HarmonyLib;
 using System.Reflection;
 using System.Reflection.Emit;
+using LudeonTK;
 using UnityEngine;
 namespace LWM.DeepStorage
 {
@@ -14,7 +15,7 @@ namespace LWM.DeepStorage
      *   the Debug Inspector is being used
      */
 #if DEBUG
-    [HarmonyPatch(typeof(Verse.EditWindow_DebugInspector), "CurrentDebugString")]
+    [HarmonyPatch(typeof(EditWindow_DebugInspector), "CurrentDebugString")]
     public static class Patch_EditWindow_DebugInspector
     {
         public static string Postfix(string __result)
