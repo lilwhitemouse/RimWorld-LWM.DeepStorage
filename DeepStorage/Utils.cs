@@ -36,22 +36,38 @@ namespace LWM.DeepStorage
             Deep_Storage_Job, PlaceHauledThingInCell, ShouldRemoveFromStorage, CheckCapacity,
             RightClickMenu, StorageGroup, Settings, Cache
         }
+        static string queue = "";
 
         // Nifty! Won't even be compiled into assembly if not DEBUG
         [System.Diagnostics.Conditional("DEBUG")]
         public static void Warn(DBF l, string s) {
             if (showDebug[(int)l])
-                Log.Warning("LWM." + l.ToString() + ": " + s);
+            {
+                Log.Warning("LWM." + l.ToString() + ": " + queue + s);
+                queue = "";
+            }
         }
         [System.Diagnostics.Conditional("DEBUG")]
         public static void Err(DBF l, string s) {
             if (showDebug[(int)l])
-                Log.Error("LWM." + l.ToString() + ": " + s);
+            {
+                Log.Error("LWM." + l.ToString() + ": " + queue + s);
+                queue = "";
+            }
         }
         [System.Diagnostics.Conditional("DEBUG")]
         public static void Mess(DBF l, string s) {
             if (showDebug[(int)l])
-                Log.Message("LWM."+l.ToString()+": "+s);
+            {
+                Log.Message("LWM." + l.ToString() + ": " + queue + s);
+                queue = "";
+            }
+        }
+        [System.Diagnostics.Conditional("DEBUG")]
+        public static void MessQueue(DBF l, string s)
+        {
+            if (showDebug[(int)l])
+                queue += s;
         }
 
         //TODO: Can I just make this `is Building_Storage`?
