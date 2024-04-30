@@ -76,6 +76,8 @@
   <LWMDS_ApplyChangesToGroup>These changes apply to all {0} members of the group</LWMDS_ApplyChangesToGroup>
   <LWMDS_ApplyChangesToGroupDesc>This storage building is part of a group of {0} members - all of the members' settings will update to match these when you change them!</LWMDS_ApplyChangesToGroupDesc>
   <LWMDS_PerBuildingSettingsDesc>Changing any of these settings will only affect THIS building (and its storage group, if it has one). All others will not be affected - if you want to change settings for all units of this type, use the Mod Options</LWMDS_PerBuildingSettingsDesc>
+  <LWMDS_Remove>Remove</LWMDS_Remove><!--Nowhere in the base game is this one phrase-->
+  <LWMDS_DefaultRemoveNameDesc>This storage unit is part of a named group. If there is only one unit in the group, you can REMOVE the name here - it will no longer show up as a destination for bills. Otherwise, you may set the group to a DEFAULT name.</LWMDS_DefaultRemoveNameDesc>
   <LWMDS_CurrentMaxNumStacksTotals>Currently: {0} stacks/cell ({1} total)</LWMDS_CurrentMaxNumStacksTotals>
   <LWMDS_DefaultMaxNumStacksTotals>Default: {0} stacks/cell ({1} total)</LWMDS_DefaultMaxNumStacksTotals>
 </LanguageData>

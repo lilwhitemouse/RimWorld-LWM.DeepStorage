@@ -14,11 +14,13 @@ namespace LWM.DeepStorage
     [HarmonyPatch(typeof(RimWorld.Blueprint_Storage), "MakeSolidThing")]
     public static class Patch_Blueprint_Storage_MakeSolidThing
     {
+        // __result here is the Frame
         public static void Postfix(Thing __result, Blueprint_Storage __instance)
         {
             if (__instance.Map.GetComponent<MapComponentDS>().settingsForBlueprintsAndFrames.Remove(__instance,out CompDeepStorage comp))
             {
                 Utils.Mess(Utils.DBF.StorageGroup, "Blueprint_Storage " + __instance + " transferring settings to " + __result);
+                comp.parent = (ThingWithComps)__result;
                 __instance.Map.GetComponent<MapComponentDS>().settingsForBlueprintsAndFrames[(ThingWithComps)__result] = comp;
             }
         }

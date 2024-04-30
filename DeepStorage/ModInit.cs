@@ -7,10 +7,11 @@ namespace LWM.DeepStorage {
     [StaticConstructorOnStartup]
     public static class ModInit {
         static ModInit() {
-            Log.Message("LWM Update: stable(ish) 1.5");
+            Log.Message("LWM Update: stable(ish) 1.5.0.1");
             // Thanks to Static Constructor On Startup, all defs should be loaded now
             RemoveAnyMultipleCompProps();
             LWM.DeepStorage.Settings.DefsLoaded();
+            if (ModLister.GetActiveModWithIdentifier("rwmt.Multiplayer") != null) Settings.multiplayerIsActive = true;
             // Can use this when pushing out changes to Steam, to make sure user-tester has
             //     the correct version
             var harmony = new Harmony("net.littlewhitemouse.LWM.DeepStorage");

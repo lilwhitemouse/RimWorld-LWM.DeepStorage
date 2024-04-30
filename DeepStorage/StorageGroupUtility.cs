@@ -84,7 +84,7 @@ namespace LWM.DeepStorage
         }
         public static CompDeepStorage GetOrTryMakeCompFrom(ThingWithComps thing)
         {
-            Utils.Warn(Utils.DBF.StorageGroup, "Trying to get comp for " + (thing == null ? "NULL THING" : thing.ToString() +
+            Utils.MessQueue(Utils.DBF.StorageGroup, "Trying to get comp for " + (thing == null ? "NULL THING" : thing.ToString() +
                        (thing.Spawned ? "; stored comps for: " + thing.Map.GetComponent<MapComponentDS>().settingsForBlueprintsAndFrames.
                        Keys.Join(k => k.ToString()) : ", which is not spawned")));
             if (thing is Building_Storage)

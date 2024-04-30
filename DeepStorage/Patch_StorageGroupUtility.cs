@@ -24,7 +24,10 @@ namespace LWM.DeepStorage
                     Utils.Warn(Utils.DBF.StorageGroup, "SetStorageGroup for " + member + " to group that has: " +
                                   newGroup.members.Join());
                     var cds = DSStorageGroupUtility.GetOrTryMakeCompFromGroupMember(member);
-                    if (cds != null && newGroup.members.Count > 0)
+                    if (cds != null && newGroup.members.Count > 0 && 
+                        // Note: If member 0 is not spawned, then it's probably a frame or blueprint and we don't
+                        // care because they have special logic elsewhere to transfer comp data to the new member
+                        (newGroup.members[0] as Thing)?.Spawned == true)
                     {
                         Utils.Mess(Utils.DBF.StorageGroup, "  Copying settings from " + newGroup.members[0]);
                         cds.CopySettingsFrom(DSStorageGroupUtility.GetOrTryMakeCompFromGroupMember(newGroup.members[0]));

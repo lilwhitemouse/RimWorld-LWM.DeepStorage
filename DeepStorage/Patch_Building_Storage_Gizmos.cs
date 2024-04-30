@@ -57,7 +57,7 @@ namespace LWM.DeepStorage
             catch (Exception e)
             {
                 Log.Warning(
-                    "LWM.DeepStorage: Transpiler could not find \"<GetGizmos>d__52\" :( -> skip Gizmos patch");
+                    "LWM.DeepStorage: Transpiler could not find \"<GetGizmos>d__52\" :( -> skip Gizmos patch: "+e);
                 return false;
             }
 

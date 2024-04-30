@@ -32,6 +32,8 @@ namespace LWM.DeepStorage
         static void Prefix(Frame __instance)
         {
             compDS = null;
+            if (__instance == null) Log.Error("null instance");
+            if (__instance.Map == null) Log.Error("Null map for " + __instance);
             __instance.Map.GetComponent<MapComponentDS>().settingsForBlueprintsAndFrames.Remove(__instance, out compDS);
         }
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -59,6 +61,7 @@ namespace LWM.DeepStorage
             if (storage == null) return; // duplicate test that follows, because it's harder to inject code after test
             if (compDS != null)
             {
+                Log.Message("But...compds isn't null: " + compDS);
                 Utils.Mess(Utils.DBF.StorageGroup, "Frame " + frame +
                     (storage.TryGetComp<CompDeepStorage>() != null ?
                     " transferring settings to new " + storage.ToString() :

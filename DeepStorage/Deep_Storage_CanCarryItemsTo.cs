@@ -253,16 +253,18 @@ namespace LWM.DeepStorage
         static void Postfix(ref bool __result, IntVec3 c, Map map, Pawn carrier)
         {
             if (__result == false) return;
+            if (carrier?.RaceProps == null) return; // Don't know what it is, but let it pass
+            // If it's smart enough, don't bother looking further:
+            if (carrier.RaceProps.intelligence >= NecessaryIntelligenceToUseDeepStorage)
+                return;
+            if (specialTest != null && specialTest(carrier)) return; // passes specialTest?
+
             // Check if deep storage restrictions even apply here - if it's to a regular shelf,
             //   or to a stockpile, for example, we shouldn't be futzing with it:
             if (LWM.DeepStorage.Utils.CanStoreMoreThanOneThingAt(map, c))
-            {
+            {  // But if it IS in Deep Storage, we know it can't use it, so fail:
                 __result = false;
             }
-            if (specialTest != null && specialTest(carrier)) return; // passes specialTest?
-            if (carrier?.RaceProps == null) return;
-            if (carrier.RaceProps.intelligence >= NecessaryIntelligenceToUseDeepStorage)
-                return; // smart enough to use whatever.
             return;
         }
     }

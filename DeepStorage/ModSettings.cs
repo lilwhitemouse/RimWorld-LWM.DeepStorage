@@ -38,6 +38,8 @@ namespace LWM.DeepStorage
         public static bool allowPerDSUSettings = false;
         public static DefChangeTracker defTracker = new DefChangeTracker();
 
+        public static bool multiplayerIsActive = false;
+
         // Architect Menu:
         // The defName for the DesignationCategoryDef the mod items are in by default:
         //TODO: make this a tutorial, provide link.

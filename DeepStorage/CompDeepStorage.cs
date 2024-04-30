@@ -13,16 +13,6 @@ using static LWM.DeepStorage.Utils.DBF; // trace utils
 namespace LWM.DeepStorage
 {
     public class CompDeepStorage : ThingComp, IExposable, IHoldMultipleThings.IHoldMultipleThings, IRenameable {
-            public string label = "";
-            public string RenamableLabel
-            {
-              get => this.buildingLabel.NullOrEmpty() ? this.BaseLabel : this.buildingLabel;
-              set => this.label = value;TODO
-            }
-        
-            public string BaseLabel => this.parent.def.label.CapitalizeFirst();
-        
-            public string InspectLabel => this.RenamableLabel;
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
@@ -321,14 +311,63 @@ namespace LWM.DeepStorage
             return map.GetComponent<MapComponentDS>().CanStoreItemAt(this, thing, cell);
             //return this.CapacityToStoreThingAt(thing,map,cell) > 0;
         }
+        /****************************** IRenamable interface *****************************/
+        /* Because the dev team copies my good ideas, so all the stuff I did to rename   */
+        /*   groups of deep storage items might as well become part of IRenamable        */
         /*********************************************************************************/
-        public override void PostExposeData() { // why not call it "ExposeData" anyway?
+        public string RenamableLabel
+        {
+            get => this.buildingLabel.NullOrEmpty() ? this.BaseLabel : this.buildingLabel;
+            set {
+                if (parent is IStorageGroupMember isgm)
+                {
+                    if (isgm.Group == null)
+                    {
+
+                    }
+                }
+                string newLabel = value ?? "";
+                /*
+                if ((parent is IStorageGroupMember storage) && storage.Group != null)
+                {
+                    foreach (var c in DSStorageGroupUtility.GetDSCompsFromGroup(storage.Group))
+                    {
+                        c.SetLabelDirect(newLabel);
+                    }
+                }
+                else SetLabelDirect(newLabel);
+                */               
+            }
+        }
+
+        public string BaseLabel => this.parent.def.label.CapitalizeFirst();
+
+        public string InspectLabel => this.RenamableLabel;
+
+        /*********************************************************************************/
+        public override void PostExposeData() { // ExposeData from inside a ThingWithComps
             Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
             Scribe_Values.Look<int?>(ref maxNumberStacks, "LWM_DS_DSU_maxNumberStacks", null, false);
         }
-        public void ExposeData() // Because ExposeData is a special IExposable thing!
+        public void ExposeData() // ExposeData when the comp must be saved on its own
         {
             PostExposeData();
+            Scribe_References.Look(ref parent, "LWM_DS_Comp_Parent");
+            // Save def of compproperties: (otherwise, we won't have this info, because this doesn't come from a ThingWithComps)
+            string dn;
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                dn = CdsProps?.parent.defName;
+                Scribe_Values.Look<string>(ref dn, "LWM_DS_Comp_CdsPropDefName");
+            }
+            // When loading, LoadingVars is when we'll get the value from Look and we can properly
+            //   set up the comp:
+            if (Scribe.mode == LoadSaveMode.LoadingVars)
+            {
+                dn = null;
+                Scribe_Values.Look<string>(ref dn, "LWM_DS_Comp_CdsPropDefName");
+                this.props = DefDatabase<ThingDef>.GetNamed(dn).GetCompProperties<DeepStorage.Properties>();
+            }
         }
         /********************** properties **********************/
         public Properties CdsProps  // b/c I hate typing :p
@@ -345,7 +384,7 @@ namespace LWM.DeepStorage
         }
         public int MaxNumberStacks
         {
-            get {
+            get { // Note: Will need a CalculatedMaxNumberStacks too if we ever let masterwork/legendary add more stacks
                 return maxNumberStacks ?? ((Properties)this.props).maxNumberStacks;
             }
             set {
@@ -374,25 +413,26 @@ namespace LWM.DeepStorage
             }
         }
 
-        public void SetLabel(string newLabel)
-        {
-            if (newLabel == null) newLabel = "";
-            if ((parent is IStorageGroupMember storage) && storage.Group != null)
-            {
-                foreach (var c in DSStorageGroupUtility.GetDSCompsFromGroup(storage.Group)) {
-                    c.SetLabelDirect(newLabel);
-                }
-            }
-            else SetLabelDirect(newLabel);
-        }
-        [Multiplayer.API.SyncMethod]
+/*        [Multiplayer.API.SyncMethod]
         private void SetLabelDirect(string newLabel)
         {
             buildingLabel = newLabel;
         }
+        */
+        public void ResetSettings()
+        {
+            if ((parent is IStorageGroupMember storage) && storage.Group != null)
+            {
+                foreach (var c in DSStorageGroupUtility.GetDSCompsFromGroup(storage.Group))
+                {
+                    c.ResetSettingsDirect();
+                }
+            }
+            else ResetSettingsDirect();
+        }
 
         [Multiplayer.API.SyncMethod]
-        public virtual void ResetSettings()
+        public void ResetSettingsDirect()
         {
             this.buildingLabel = "";
             this.maxNumberStacks = null;
@@ -401,8 +441,11 @@ namespace LWM.DeepStorage
 
         public void CopySettingsFrom(CompDeepStorage other)
         {
-            SetLabelDirect(other.buildingLabel);
+            Log.Message("Is the other null?" + (other == null));
+            Log.Message("If not: " + other.parent);
+//            SetLabelDirect(other.buildingLabel);
             SetMaxNumberStacksDirect(other.maxNumberStacks);
+            Log.Message("Pkay then");
         }
 
         public string buildingLabel="";
