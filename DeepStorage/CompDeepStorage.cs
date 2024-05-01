@@ -12,7 +12,7 @@ using static LWM.DeepStorage.Utils.DBF; // trace utils
 
 namespace LWM.DeepStorage
 {
-    public class CompDeepStorage : ThingComp, IExposable, IHoldMultipleThings.IHoldMultipleThings, IRenameable {
+    public class CompDeepStorage : ThingComp, IExposable, IHoldMultipleThings.IHoldMultipleThings {
         public override IEnumerable<Gizmo> CompGetGizmosExtra() {
             foreach (Gizmo g in base.CompGetGizmosExtra()) {
                 yield return g;
@@ -82,11 +82,7 @@ namespace LWM.DeepStorage
             //};
         }
 
-        public override string TransformLabel(string label) {
-            if (this.buildingLabel=="") return label;
-            return buildingLabel;
-        }
-
+        /*// Removed for 1.5 - Ludeon's Group naming system takes over
         // If the player has renamed the item, show the old name (e.g., label)
         //   in the window so player can see "Oh, it's a masterwork uranium shelf" etc
         public override string CompInspectStringExtra() {
@@ -100,6 +96,7 @@ namespace LWM.DeepStorage
             buildingLabel=s;
             return origLabel;
         }
+        */
 
         public virtual int TimeStoringTakes(Map map, IntVec3 cell, Pawn pawn) {
             if (CdsProps.minTimeStoringTakes <0) {
@@ -311,42 +308,8 @@ namespace LWM.DeepStorage
             return map.GetComponent<MapComponentDS>().CanStoreItemAt(this, thing, cell);
             //return this.CapacityToStoreThingAt(thing,map,cell) > 0;
         }
-        /****************************** IRenamable interface *****************************/
-        /* Because the dev team copies my good ideas, so all the stuff I did to rename   */
-        /*   groups of deep storage items might as well become part of IRenamable        */
-        /*********************************************************************************/
-        public string RenamableLabel
-        {
-            get => this.buildingLabel.NullOrEmpty() ? this.BaseLabel : this.buildingLabel;
-            set {
-                if (parent is IStorageGroupMember isgm)
-                {
-                    if (isgm.Group == null)
-                    {
-
-                    }
-                }
-                string newLabel = value ?? "";
-                /*
-                if ((parent is IStorageGroupMember storage) && storage.Group != null)
-                {
-                    foreach (var c in DSStorageGroupUtility.GetDSCompsFromGroup(storage.Group))
-                    {
-                        c.SetLabelDirect(newLabel);
-                    }
-                }
-                else SetLabelDirect(newLabel);
-                */               
-            }
-        }
-
-        public string BaseLabel => this.parent.def.label.CapitalizeFirst();
-
-        public string InspectLabel => this.RenamableLabel;
-
         /*********************************************************************************/
         public override void PostExposeData() { // ExposeData from inside a ThingWithComps
-            Scribe_Values.Look<string>(ref buildingLabel, "LWM_DS_DSU_label", "", false);
             Scribe_Values.Look<int?>(ref maxNumberStacks, "LWM_DS_DSU_maxNumberStacks", null, false);
         }
         public void ExposeData() // ExposeData when the comp must be saved on its own
@@ -413,12 +376,6 @@ namespace LWM.DeepStorage
             }
         }
 
-/*        [Multiplayer.API.SyncMethod]
-        private void SetLabelDirect(string newLabel)
-        {
-            buildingLabel = newLabel;
-        }
-        */
         public void ResetSettings()
         {
             if ((parent is IStorageGroupMember storage) && storage.Group != null)
@@ -434,21 +391,14 @@ namespace LWM.DeepStorage
         [Multiplayer.API.SyncMethod]
         public void ResetSettingsDirect()
         {
-            this.buildingLabel = "";
             this.maxNumberStacks = null;
             this.DirtyMapCache();
         }
 
         public void CopySettingsFrom(CompDeepStorage other)
         {
-            Log.Message("Is the other null?" + (other == null));
-            Log.Message("If not: " + other.parent);
-//            SetLabelDirect(other.buildingLabel);
             SetMaxNumberStacksDirect(other.maxNumberStacks);
-            Log.Message("Pkay then");
         }
-
-        public string buildingLabel="";
 
         /////////////// Storage Data ////////////////
         private int? maxNumberStacks;
