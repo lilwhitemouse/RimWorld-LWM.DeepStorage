@@ -118,6 +118,7 @@
     <Compile Include="StorageGroupUtility.cs" />
     <Compile Include="Patch_StorageGroupUtility.cs" />
     <Compile Include="Patch_Building_Storage_SpaceRemainingFor.cs" />
+    <Compile Include="Patch_GenPlace_TryPlaceDirect.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">

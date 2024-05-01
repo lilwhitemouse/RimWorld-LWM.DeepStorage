@@ -159,7 +159,8 @@ namespace LWM.DeepStorage
                         map.listerHaulables.Notify_Spawned(t);
                 }
                 Utils.Mess(Utils.DBF.Cache, "Cache created for " + cell + ": mass: "
-                           + massStored + " emptyStacks: " + emptyStacks);
+                           + massStored + " emptyStacks: " + emptyStacks + 
+                           (notFull.Count > 0 ? string.Join(", ", notFull) : ""));
             }
             public int EmptyStacks
             {
@@ -195,8 +196,17 @@ namespace LWM.DeepStorage
                         //TODO: oops, do this
                     }
                 }
-                if (emptyStacks > 0) return true;
-                foreach (Thing oldT in notFull) if (t.CanStackWith(oldT)) return true;
+                if (emptyStacks > 0)
+                {
+                    Utils.Mess(Utils.DBF.Cache, "Cache storage request for " + t + ": "+emptyStacks+" empty stacks");
+                    return true;
+                }
+                foreach (Thing oldT in notFull) if (t.CanStackWith(oldT))
+                    {
+                        Utils.Mess(Utils.DBF.Cache, "Cache storage request for " + t + ": can stack with " + oldT + " (" +
+                                  oldT.stackCount + "/" + oldT.def.stackLimit + ")");
+                        return true;
+                    }
                 return false;
             }
             public int CanStoreThisMany(Thing t, CompDeepStorage cds)
@@ -249,7 +259,8 @@ namespace LWM.DeepStorage
             }
             public string Debug(CompDeepStorage cds)
             {
-                return "Cache:\nStacks: " + (cds.MaxNumberStacks - emptyStacks) + "/" + cds.MaxNumberStacks + "\nTotal mass: "
+                return "Cache:\nStacks: " + (cds.MaxNumberStacks - emptyStacks) + "/" + cds.MaxNumberStacks + "; "+
+                                           emptyStacks + " empty\nTotal mass: "
                        + massStored + "/" + cds.limitingTotalFactorForCell;
             }
         } // end CellCache class

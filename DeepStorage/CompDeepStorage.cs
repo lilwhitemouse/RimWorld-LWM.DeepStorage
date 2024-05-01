@@ -21,14 +21,34 @@ namespace LWM.DeepStorage
                 yield return g;
 
             #if DEBUG
-            yield return new Command_Toggle {
+            yield return new Command_Action {
+                defaultLabel="Clear DS Cache",
+                action=delegate() {
+                    foreach (var c in parent.OccupiedRect().Cells)
+                    {
+                        Log.Warning("Dirtying cache for " + c);
+                        parent.Map.GetComponent<MapComponentDS>().DirtyCache(c);
+                    }
+                }
+            };
+            yield return new Command_Action {
+                defaultLabel = "Recalculate Cache",
+                action = delegate() {
+                    foreach (var c in parent.OccupiedRect().Cells)
+                    {
+                        Log.Warning("Updating cache for " + c);
+                        parent.Map.GetComponent<MapComponentDS>().UpdateCache(c, this);
+                    }
+                }
+            };
+            /*yield return new Command_Toggle {
                 defaultLabel="Use RClick Logic",
                 defaultDesc="Toggle use of custom Right Click logic",
                 isActive=(()=>Settings.useDeepStorageRightClickLogic),
                 toggleAction=delegate() {
                     Settings.useDeepStorageRightClickLogic=!Settings.useDeepStorageRightClickLogic;
                 }
-            };
+            };*/
             yield return new Command_Action {
                 defaultLabel="Items in Region",
                 action=delegate() {
