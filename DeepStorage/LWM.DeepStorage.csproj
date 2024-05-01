@@ -117,6 +117,7 @@
     <Compile Include="Patch_Frame_MultipleTimes.cs" />
     <Compile Include="StorageGroupUtility.cs" />
     <Compile Include="Patch_StorageGroupUtility.cs" />
+    <Compile Include="Patch_GenPlace_TryPlaceDirect.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\_Mod\LWM.DeepStorage\About\About-Master.xml">
