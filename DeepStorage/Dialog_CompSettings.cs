@@ -111,7 +111,18 @@ namespace LWM.DeepStorage
                 if (Widgets.ButtonText(tmpR, group.MemberCount > 1 ? "Default".Translate() : "LWMDS_Remove".Translate(),
                            true, false, true))
                 {
-                    RemoveName(); // TODO: Make "default" option not do anything immediately - make it change curName
+                    var t = parent as IStorageGroupMember;
+                    if (t!= null)
+                    {
+                        var oName = t.Group?.RenamableLabel;
+                        if (oName != null)
+                        {
+                            t.Group.RenamableLabel = null;
+                            curName = StorageGroupManager.NewStorageName(t.Group.BaseLabel);
+                            t.Group.RenamableLabel = oName;
+                        }
+                    }
+//                    RemoveName(); // TODO: Make "default" option not do anything immediately - make it change curName
                 }
             }
             // If names aren't the same and they aren't both empty:
