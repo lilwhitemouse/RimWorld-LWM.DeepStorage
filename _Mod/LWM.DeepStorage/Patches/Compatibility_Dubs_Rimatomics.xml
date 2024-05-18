@@ -7,14 +7,24 @@
         </mods>
         <match Class="PatchOperationSequence">
             <operations>
-                <li Class="PatchOperationAdd">
-                    <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter</xpath>
-                    <value>
-                        <thingDefs>
+                <li Class="PatchOperationConditional">
+                    <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+                    <nomatch Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter</xpath>
+                        <value>
+                            <thingDefs>
+                                <li>RailgunSabot</li>
+                                <li>RailgunSabotDU</li>
+                            </thingDefs>
+                        </value>
+                    </nomatch>
+                    <match Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="LWM_Pallet"]/building/fixedStorageSettings/filter/thingDefs</xpath>
+                        <value>
                             <li>RailgunSabot</li>
                             <li>RailgunSabotDU</li>
-                        </thingDefs>
-                    </value>
+                        </value>
+                    </match>
                 </li>
                 <li Class="LWM.DeepStorage.PatchMessage">
                     <message>LWM Deep Storage: activated compatibility patch for Dubs Rimatomics</message>
