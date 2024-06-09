@@ -23,23 +23,23 @@ namespace LWM.DeepStorage
     // The window that lists all the DSUs available:
     public class Dialog_DS_Settings : Window {
         public Dialog_DS_Settings() {
-			this.forcePause = true;
-			this.doCloseX = true;
+            this.forcePause = true;
+            this.doCloseX = true;
             this.doCloseButton = false;
-			this.closeOnClickedOutside = true;
-			this.absorbInputAroundWindow = true;
+            this.closeOnClickedOutside = true;
+            this.absorbInputAroundWindow = true;
         }
 
-		public override Vector2 InitialSize
-		{
-			get
-			{
-				return new Vector2(900f, 700f);
-			}
-		}
+        public override Vector2 InitialSize
+        {
+            get
+            {
+                return new Vector2(900f, 700f);
+            }
+        }
 
         public override void DoWindowContents(Rect inRect)
-		{
+        {
             var contentRect = new Rect(0, 0, inRect.width, inRect.height - (CloseButSize.y + 10f)).ContractedBy(10f);
             bool scrollBarVisible = totalContentHeight > contentRect.height;
             var scrollViewTotal = new Rect(0f, 0f, contentRect.width - (scrollBarVisible ? ScrollBarWidthMargin : 0), totalContentHeight);
@@ -73,53 +73,74 @@ namespace LWM.DeepStorage
                 //////////////// Disble button: //////////////////
                 // disabled if it's already been disabled previously
                 //   or if it's slated to be disabled on window close
-                bool isEnabled=!tracker.HasDefaultValueFor(u.defName, "def") &&
-                    (this.unitsToBeDisabled==null || !unitsToBeDisabled.Contains(u));
-                bool wasEnabled = isEnabled;
-                Rect disableRect = new Rect(5f, curY, LabelHeight, LabelHeight);
-                TooltipHandler.TipRegion(disableRect, "TODO: Add description. But basically, you can disable some units and they won't show up in game.\n\nVERY likely to cause unimportant errors in saved games.");
-                Widgets.Checkbox(disableRect.x, disableRect.y, ref isEnabled, LabelHeight, false, true, null, null);
-                if (!isEnabled && wasEnabled) { // newly disabled
-                    Utils.Warn(Utils.DBF.Settings, "Marking unit for disabling: "+u.defName);
-                    if (unitsToBeDisabled==null) unitsToBeDisabled=new HashSet<ThingDef>();
-                    unitsToBeDisabled.Add(u); // hash sets don't care if it's already there!
-                }
-                if (isEnabled && !wasEnabled) { // add back:
-                    Utils.Warn(Utils.DBF.Settings, "Restoring disabled unit: "+u.defName);
-                    if (unitsToBeDisabled !=null &&  unitsToBeDisabled.Contains(u)) {
-                        unitsToBeDisabled.Remove(u);
+                try
+                {
+                    if (u.defName == null)
+                    {
+                        Log.Error("LWM.DeepStorage: null defName - this should never happen, but may be due to a broken mod");
+                        continue;
                     }
-                    if (tracker.HasDefaultValueFor(u.defName, "def")) {
-                        tracker.Remove(u.defName, "def");
+                    bool isEnabled = !tracker.HasDefaultValueFor(u.defName, "def") &&
+                        (this.unitsToBeDisabled == null || !unitsToBeDisabled.Contains(u));
+                    bool wasEnabled = isEnabled;
+                    Rect disableRect = new Rect(5f, curY, LabelHeight, LabelHeight);
+                    TooltipHandler.TipRegion(disableRect, "TODO: Add description. But basically, you can disable some units and they won't show up in game.\n\nVERY likely to cause unimportant errors in saved games.");
+                    Widgets.Checkbox(disableRect.x, disableRect.y, ref isEnabled, LabelHeight, false, true, null, null);
+                    if (!isEnabled && wasEnabled)
+                    { // newly disabled
+                        Utils.Warn(Utils.DBF.Settings, "Marking unit for disabling: " + u.defName);
+                        if (unitsToBeDisabled == null) unitsToBeDisabled = new HashSet<ThingDef>();
+                        unitsToBeDisabled.Add(u); // hash sets don't care if it's already there!
                     }
-                    if (!DefDatabase<ThingDef>.AllDefsListForReading.Contains(u))
-                        ReturnDefToUse(u);
+                    if (isEnabled && !wasEnabled)
+                    { // add back:
+                        Utils.Warn(Utils.DBF.Settings, "Restoring disabled unit: " + u.defName);
+                        if (unitsToBeDisabled != null && unitsToBeDisabled.Contains(u))
+                        {
+                            unitsToBeDisabled.Remove(u);
+                        }
+                        if (tracker.HasDefaultValueFor(u.defName, "def"))
+                        {
+                            tracker.Remove(u.defName, "def");
+                        }
+                        if (!DefDatabase<ThingDef>.AllDefsListForReading.Contains(u))
+                            ReturnDefToUse(u);
+                    }
+                    //////////////// Select def: //////////////////
+                    r = new Rect(10f + LabelHeight, curY, (scrollViewTotal.width) * 2 / 3 - 12f - LabelHeight, LabelHeight);
+                    // Draw button-ish background:
+                    Texture2D atlas = bg;
+                    if (Mouse.IsOver(r))
+                    {
+                        atlas = bgmouseover;
+                        if (Input.GetMouseButton(0))
+                        {
+                            atlas = bgclick;
+                        }
+                    }
+                    Widgets.DrawAtlas(r, atlas);
+                    // button text:
+                    Widgets.Label(r, u.label + " (defName: " + u.defName + ")");
+                    // button clickiness:
+                    if (Widgets.ButtonInvisible(r))
+                    {
+                        Find.WindowStack.Add(new Dialog_DSU_Settings(u));
+                    }
+                    //////////////// Reset button: //////////////////
+                    r = new Rect((scrollViewTotal.width) * 2 / 3 + 2f, curY, (scrollViewTotal.width) / 3 - 7f, LabelHeight);
+                    if (tracker.IsChanged(u.defName) && Widgets.ButtonText(r, "ResetBinding".Translate()))
+                    {
+                        ResetDSUToDefaults(u.defName);
+                    }
+                    curY += LabelHeight + 2f;
+                } catch (Exception e)
+                {
+                    curY += LabelHeight + 2f;
+                    Widgets.Label(new Rect(5f, curY, LabelHeight, scrollViewTotal.width - 10), 
+                        "Error with unit " + u.defName + "; see logs");
+                    Log.Warning("LWM.DeepStorage: error occured with " + u.defName + ":\n" + e);
+                    curY += LabelHeight + 2f;
                 }
-                //////////////// Select def: //////////////////
-                r=new Rect(10f+LabelHeight, curY, (scrollViewTotal.width)*2/3-12f-LabelHeight, LabelHeight);
-                // Draw button-ish background:
-                Texture2D atlas = bg;
-				if (Mouse.IsOver(r))
-				{
-					atlas = bgmouseover;
-					if (Input.GetMouseButton(0))
-					{
-						atlas = bgclick;
-					}
-				}
-				Widgets.DrawAtlas(r, atlas);
-                // button text:
-                Widgets.Label(r, u.label+" (defName: "+u.defName+")");
-                // button clickiness:
-                if (Widgets.ButtonInvisible(r)) {
-                    Find.WindowStack.Add(new Dialog_DSU_Settings(u));
-                }
-                //////////////// Reset button: //////////////////
-                r=new Rect((scrollViewTotal.width)*2/3+2f,curY, (scrollViewTotal.width)/3-7f, LabelHeight);
-                if (tracker.IsChanged(u.defName) && Widgets.ButtonText(r, "ResetBinding".Translate())) {
-                    ResetDSUToDefaults(u.defName);
-                }
-                curY+=LabelHeight+2f;
             }
             GenUI.ResetLabelAlign();
             // end buttons
@@ -261,58 +282,78 @@ namespace LWM.DeepStorage
                 // l.BeginScrollView(s, ref DSUScrollPosition, ref v); // Does not allow filter UI
                 var l = new Listing_Standard();
                 l.Begin(inner);
-                l.Label(def.label);
-                l.GapLine();
-                // Much TODO, so wow:
-                tmpLabel=l.TextEntryLabeled("LWMDSpDSUlabel".Translate(), tmpLabel);
-                string tmpstring=null;
-                l.TextFieldNumericLabeled("LWM_DS_maxNumStacks".Translate().CapitalizeFirst()+" "
-                                          +"LWM_DS_Default".Translate(tracker.GetDefaultValue(def.defName, "maxNumStacks",
-                                                                                              tmpMaxNumStacks)),
-                                          ref tmpMaxNumStacks, ref tmpstring,0);
-                tmpstring=null;
-                l.TextFieldNumericLabeled<float>("LWM_DS_maxTotalMass".Translate().CapitalizeFirst()+" "+
-                                                 "LWM_DS_Default".Translate(tracker.GetDefaultValue(def.defName,
-                                                                            "maxTotalMass", tmpMaxTotalMass).ToString()),
-                                                 ref tmpMaxTotalMass, ref tmpstring,0f);
-                tmpstring=null;
-                l.TextFieldNumericLabeled<float>("LWM_DS_maxMassOfStoredItem".Translate().CapitalizeFirst()+" "+
-                                                 "LWM_DS_Default".Translate(tracker.GetDefaultValue(def.defName,
-                                                             "maxMassStoredItem", tmpMaxMassStoredItem).ToString()),
-                                                 ref tmpMaxMassStoredItem, ref tmpstring,0f);
-                l.CheckboxLabeled("LWMDSpDSUshowContents".Translate(), ref tmpShowContents);
-                l.GapLine();
-                l.EnumRadioButton(ref tmpOverlayType, "LWMDSpDSUoverlay".Translate());
-                l.GapLine();
-                l.EnumRadioButton(ref tmpStoragePriority, "LWMDSpDSUstoragePriority".Translate());
-                l.GapLine();
-                l.CheckboxLabeled("LWMDSpDSUchangeFilterQ".Translate(), ref useCustomThingFilter,
-                                  "LWMDSpDSUchangeFilterQDesc".Translate());
-                y = l.CurHeight;
+                try
+                {
+                    l.Label(def.label);
+                    l.GapLine();
+                    // Much TODO, so wow:
+                    tmpLabel = l.TextEntryLabeled("LWMDSpDSUlabel".Translate(), tmpLabel);
+                    string tmpstring = null;
+                    l.TextFieldNumericLabeled("LWM_DS_maxNumStacks".Translate().CapitalizeFirst() + " "
+                                              + "LWM_DS_Default".Translate(tracker.GetDefaultValue(def.defName, "maxNumStacks",
+                                                                                                  tmpMaxNumStacks)),
+                                              ref tmpMaxNumStacks, ref tmpstring, 0);
+                    tmpstring = null;
+                    l.TextFieldNumericLabeled<float>("LWM_DS_maxTotalMass".Translate().CapitalizeFirst() + " " +
+                                                     "LWM_DS_Default".Translate(tracker.GetDefaultValue(def.defName,
+                                                                                "maxTotalMass", tmpMaxTotalMass).ToString()),
+                                                     ref tmpMaxTotalMass, ref tmpstring, 0f);
+                    tmpstring = null;
+                    l.TextFieldNumericLabeled<float>("LWM_DS_maxMassOfStoredItem".Translate().CapitalizeFirst() + " " +
+                                                     "LWM_DS_Default".Translate(tracker.GetDefaultValue(def.defName,
+                                                                 "maxMassStoredItem", tmpMaxMassStoredItem).ToString()),
+                                                     ref tmpMaxMassStoredItem, ref tmpstring, 0f);
+                    l.CheckboxLabeled("LWMDSpDSUshowContents".Translate(), ref tmpShowContents);
+                    l.GapLine();
+                    l.EnumRadioButton(ref tmpOverlayType, "LWMDSpDSUoverlay".Translate());
+                    l.GapLine();
+                    l.EnumRadioButton(ref tmpStoragePriority, "LWMDSpDSUstoragePriority".Translate());
+                    l.GapLine();
+                    l.CheckboxLabeled("LWMDSpDSUchangeFilterQ".Translate(), ref useCustomThingFilter,
+                                      "LWMDSpDSUchangeFilterQDesc".Translate());
+                    y = l.CurHeight;
+                } catch (Exception e)
+                {
+                    l.Label("ERROR: Failed to load " + def.defName + ": " + e);
+                }
                 l.End();
-                if (useCustomThingFilter) {
-                    if (customThingFilter==null) {
-                        customThingFilter=new ThingFilter();
-                        customThingFilter.CopyAllowancesFrom(def.building.fixedStorageSettings.filter);
-                        Utils.Mess(Utils.DBF.Settings,"Created new filter for "+def.defName+": "+customThingFilter);
-//                        Log.Error("Old filter has: "+def.building.fixedStorageSettings.filter.AllowedDefCount);
-//                        Log.Warning("New filter has: "+customThingFilter.AllowedDefCount);
+                try
+                {
+                    if (useCustomThingFilter)
+                    {
+                        if (customThingFilter == null)
+                        {
+                            customThingFilter = new ThingFilter();
+                            customThingFilter.CopyAllowancesFrom(def.building.fixedStorageSettings.filter);
+                            Utils.Mess(Utils.DBF.Settings, "Created new filter for " + def.defName + ": " + customThingFilter);
+                            //                        Log.Error("Old filter has: "+def.building.fixedStorageSettings.filter.AllowedDefCount);
+                            //                        Log.Warning("New filter has: "+customThingFilter.AllowedDefCount);
+                        }
+                        // Since this is outside the L_S, we make our own rectangle and use it:
+                        //   Nope: Rect r=l.GetRect(CustomThingFilterHeight); // this fails
+                        Rect r = new Rect(20, y, (inner.width - 40) * 3 / 4, CustomThingFilterHeight);
+                        y += CustomThingFilterHeight;
+                        ThingFilterUI.DoThingFilterConfigWindow(r, thingFilterState, customThingFilter);
                     }
-                    // Since this is outside the L_S, we make our own rectangle and use it:
-                    //   Nope: Rect r=l.GetRect(CustomThingFilterHeight); // this fails
-                    Rect r = new Rect(20, y, (inner.width - 40)*3/4, CustomThingFilterHeight);
-                    y += CustomThingFilterHeight;
-                    ThingFilterUI.DoThingFilterConfigWindow(r, thingFilterState, customThingFilter);
-                } else { // not using custom thing filter:
-                    if (customThingFilter!=null || tracker.HasDefaultValueFor(this.def.defName, "filter")) {
-                        customThingFilter=null;
-                        if (tracker.HasDefaultValueFor(this.def.defName, "filter")) {
-                            Utils.Mess(Utils.DBF.Settings, "  Removing filter for "+def.defName);
-                            def.building.fixedStorageSettings.filter=(ThingFilter)tracker
-                                .GetDefaultValue<ThingFilter>(def.defName, "filter", null);
-                            tracker.Remove(def.defName, "filter");
+                    else
+                    { // not using custom thing filter:
+                        if (customThingFilter != null || tracker.HasDefaultValueFor(this.def.defName, "filter"))
+                        {
+                            customThingFilter = null;
+                            if (tracker.HasDefaultValueFor(this.def.defName, "filter"))
+                            {
+                                Utils.Mess(Utils.DBF.Settings, "  Removing filter for " + def.defName);
+                                def.building.fixedStorageSettings.filter = (ThingFilter)tracker
+                                    .GetDefaultValue<ThingFilter>(def.defName, "filter", null);
+                                tracker.Remove(def.defName, "filter");
+                            }
                         }
                     }
+                } catch (Exception e)
+                {
+                    Log.Warning("LWM.DeepStorage: using custom filter failed with error: " + e);
+                    Widgets.Label(new Rect(20, y, inner.width - 40, LabelHeight), "COULD NOT HANDLE CUSTOM FILTER");
+                    y += LabelHeight;
                 }
 
                 // This fails: l.EndScrollView(ref v);
@@ -510,9 +551,9 @@ namespace LWM.DeepStorage
         private float totalContentHeight=1000f;
         private Vector2 scrollPosition;
 
-		private const float TopAreaHeight = 40f;
-		private const float TopButtonHeight = 35f;
-		private const float TopButtonWidth = 150f;
+        private const float TopAreaHeight = 40f;
+        private const float TopButtonHeight = 35f;
+        private const float TopButtonWidth = 150f;
         private const float ScrollBarWidthMargin = 18f;
         private const float LabelHeight=22f;
 
