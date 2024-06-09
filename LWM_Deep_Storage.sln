@@ -29,7 +29,7 @@ Global
 		$5.FileWidth = 80
 		$5.TabsToSpaces = True
 		$5.scope = text/plain
-		version = 1.1.0
+		version = 1.5.0
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
