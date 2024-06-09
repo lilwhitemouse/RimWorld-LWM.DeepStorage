@@ -7,7 +7,7 @@ namespace LWM.DeepStorage {
     [StaticConstructorOnStartup]
     public static class ModInit {
         static ModInit() {
-            Log.Message("LWM Update: stable(ish) 1.5.0.3");
+            Log.Message("LWM Update: stable(ish) 1.5.0.4");
             // Thanks to Static Constructor On Startup, all defs should be loaded now
             RemoveAnyMultipleCompProps();
             LWM.DeepStorage.Settings.DefsLoaded();

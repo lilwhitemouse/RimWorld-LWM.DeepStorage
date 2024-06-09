@@ -29,7 +29,7 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.4085" />
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.4104" />
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="IHoldMultipleThings"><!-- Mehni's PickUpAndHold Compatibility -->
